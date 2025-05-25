@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import LogicCircuitBuilder from './LogicCircuitBuilder';
+import LogicCircuitBuilder from '../LogicCircuitBuilderRefactored';
 
 describe('LogicCircuitBuilder - シンプルなテスト', () => {
   it('コンポーネントがエラーなくレンダリングされる', () => {

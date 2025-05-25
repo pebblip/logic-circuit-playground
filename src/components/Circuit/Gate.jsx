@@ -1,0 +1,142 @@
+// 個別のゲートコンポーネント
+
+import React, { memo } from 'react';
+import PropTypes from 'prop-types';
+import { GATE_TYPES, GATE_UI } from '../../constants/circuit';
+
+/**
+ * ゲートコンポーネント
+ */
+const Gate = memo(({
+  gate,
+  isSelected,
+  simulation,
+  onGateClick,
+  onGateDoubleClick,
+  onGateMouseDown,
+  onTerminalMouseDown,
+  onTerminalMouseUp
+}) => {
+  const gateInfo = GATE_TYPES[gate.type];
+  const isIOGate = gate.type === 'INPUT' || gate.type === 'OUTPUT' || gate.type === 'CLOCK';
+  
+  return (
+    <g transform={`translate(${gate.x}, ${gate.y})`} data-testid={`gate-${gate.id}`}>
+      {/* ゲート本体 */}
+      {isIOGate ? (
+        <circle
+          cx={0}
+          cy={0}
+          r={GATE_UI.CIRCLE_RADIUS}
+          fill={
+            gate.type === 'INPUT' ? (gate.value ? '#000' : '#fff') :
+            gate.type === 'CLOCK' ? (gate.value ? '#3b82f6' : '#fff') :
+            '#f9f9f9'
+          }
+          stroke={isSelected ? "#3b82f6" : "#333"}
+          strokeWidth={isSelected ? "3" : "2"}
+          className="cursor-pointer"
+          onClick={(e) => onGateClick(e, gate)}
+          onDoubleClick={(e) => onGateDoubleClick(e, gate)}
+          onMouseDown={(e) => onGateMouseDown(e, gate)}
+        />
+      ) : (
+        <rect
+          x={-GATE_UI.RECT_WIDTH / 2}
+          y={-GATE_UI.RECT_HEIGHT / 2}
+          width={GATE_UI.RECT_WIDTH}
+          height={GATE_UI.RECT_HEIGHT}
+          rx={GATE_UI.RECT_CORNER_RADIUS}
+          fill="#fff"
+          stroke={isSelected ? "#3b82f6" : "#333"}
+          strokeWidth={isSelected ? "3" : "2"}
+          className="cursor-pointer"
+          onClick={(e) => onGateClick(e, gate)}
+          onDoubleClick={(e) => onGateDoubleClick(e, gate)}
+          onMouseDown={(e) => onGateMouseDown(e, gate)}
+        />
+      )}
+
+      {/* ゲートラベル */}
+      <text
+        x={0}
+        y={5}
+        textAnchor="middle"
+        fill={
+          gate.type === 'INPUT' && gate.value ? '#fff' :
+          gate.type === 'CLOCK' && gate.value ? '#fff' :
+          '#333'
+        }
+        fontSize="14"
+        fontWeight="500"
+        className="pointer-events-none select-none"
+      >
+        {gateInfo.symbol}
+      </text>
+
+      {/* 入力端子 */}
+      {Array.from({ length: gateInfo.inputs }).map((_, i) => (
+        <circle
+          key={`in-${i}`}
+          cx={-GATE_UI.RECT_WIDTH / 2}
+          cy={-20 + (i * GATE_UI.TERMINAL_SPACING)}
+          r={GATE_UI.TERMINAL_RADIUS}
+          fill="#fff"
+          stroke="#333"
+          strokeWidth="2"
+          className="cursor-crosshair hover:fill-gray-200"
+          onMouseUp={(e) => onTerminalMouseUp(e, gate, i)}
+        />
+      ))}
+
+      {/* 出力端子 */}
+      {Array.from({ length: gateInfo.outputs }).map((_, i) => (
+        <circle
+          key={`out-${i}`}
+          cx={GATE_UI.RECT_WIDTH / 2}
+          cy={gateInfo.outputs === 1 ? 0 : -10 + (i * GATE_UI.OUTPUT_SPACING)}
+          r={GATE_UI.TERMINAL_RADIUS}
+          fill="#333"
+          className="cursor-crosshair hover:fill-gray-600"
+          onMouseDown={(e) => onTerminalMouseDown(e, gate, true, i)}
+        />
+      ))}
+
+      {/* OUTPUT値の表示 */}
+      {gate.type === 'OUTPUT' && gate.value !== null && (
+        <text
+          x={0}
+          y={-50}
+          textAnchor="middle"
+          fill={gate.value ? '#000' : '#999'}
+          fontSize="24"
+          fontWeight="bold"
+          className="pointer-events-none select-none"
+        >
+          {gate.value ? '1' : '0'}
+        </text>
+      )}
+    </g>
+  );
+});
+
+Gate.displayName = 'Gate';
+
+Gate.propTypes = {
+  gate: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    type: PropTypes.string.isRequired,
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+    value: PropTypes.bool
+  }).isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  simulation: PropTypes.object.isRequired,
+  onGateClick: PropTypes.func.isRequired,
+  onGateDoubleClick: PropTypes.func.isRequired,
+  onGateMouseDown: PropTypes.func.isRequired,
+  onTerminalMouseDown: PropTypes.func.isRequired,
+  onTerminalMouseUp: PropTypes.func.isRequired
+};
+
+export default Gate;

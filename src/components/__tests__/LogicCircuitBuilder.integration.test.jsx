@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import LogicCircuitBuilder from './LogicCircuitBuilder';
+import LogicCircuitBuilder from '../LogicCircuitBuilderRefactored';
 
 describe('LogicCircuitBuilder - 実際の問題を検出するテスト', () => {
   beforeEach(() => {

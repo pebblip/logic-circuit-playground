@@ -1,8 +1,8 @@
 import React from 'react'
-import LogicCircuitBuilder from './components/LogicCircuitBuilder'
+import LogicCircuitBuilderRefactored from './components/LogicCircuitBuilderRefactored'
 
 function App() {
-  return <LogicCircuitBuilder />
+  return <LogicCircuitBuilderRefactored />
 }
 
 export default App
