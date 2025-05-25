@@ -5,7 +5,9 @@ import { circuitReducer, initialState, ACTIONS } from '../reducers/circuitReduce
 import { useCircuitSimulation } from '../hooks/useCircuitSimulation';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useHistory } from '../hooks/useHistory';
+import { useEducation } from '../hooks/useEducation';
 import { CANVAS } from '../constants/circuit';
+import { TUTORIAL_STEPS, LEARNING_OBJECTIVES } from '../constants/education';
 import { layout, colors, shadows } from '../styles/design-tokens';
 
 // UIコンポーネント
@@ -14,6 +16,12 @@ import Toolbar from './UI/Toolbar';
 import LevelPanel from './UI/LevelPanel';
 import PropertiesPanel from './UI/PropertiesPanel';
 import InfoPanel from './UI/InfoPanel';
+
+// 教育コンポーネント
+import TutorialPanel from './Education/TutorialPanel';
+import LearningModeSelector from './Education/LearningModeSelector';
+import BadgeDisplay from './Education/BadgeDisplay';
+import TruthTableChallenge from './Education/TruthTableChallenge';
 
 /**
  * モダンUI版論理回路ビルダー
@@ -79,6 +87,53 @@ const LogicCircuitBuilder = () => {
   } = useDragAndDrop((gateId, x, y) => {
     dispatch({ type: ACTIONS.MOVE_GATE, payload: { gateId, x, y } });
   });
+  
+  // 教育機能
+  const {
+    progress,
+    earnedBadges,
+    learningMode,
+    currentTutorial,
+    tutorialStep,
+    setLearningMode,
+    completeObjective,
+    startTutorial,
+    nextTutorialStep,
+    completeTutorial,
+    getCurrentTutorialStep,
+    calculateProgress,
+    validateTutorialStep
+  } = useEducation();
+  
+  // チュートリアル用の状態
+  const [showHint, setShowHint] = useState(false);
+  const [currentChallenge, setCurrentChallenge] = useState(null);
+  const currentStep = getCurrentTutorialStep();
+  const isStepCompleted = currentStep ? validateTutorialStep(state) : false;
+  
+  // チャレンジの開始
+  const handleStartChallenge = useCallback((challengeId) => {
+    // 既存のチャレンジやチュートリアルをクリア
+    setCurrentChallenge(null);
+    setShowHint(false);
+    
+    // 現在のチュートリアルがある場合は終了
+    if (currentTutorial) {
+      completeTutorial();
+    }
+    
+    const challenge = LEARNING_OBJECTIVES[`level${currentLevel}`]?.basics?.find(obj => obj.id === challengeId) ||
+                     LEARNING_OBJECTIVES[`level${currentLevel}`]?.constructions?.find(obj => obj.id === challengeId) ||
+                     LEARNING_OBJECTIVES[`level${currentLevel}`]?.advanced?.find(obj => obj.id === challengeId);
+    
+    if (challenge) {
+      if (challenge.type === 'truth_table') {
+        setCurrentChallenge(challenge);
+      } else if (challenge.type === 'construction') {
+        startTutorial(challengeId);
+      }
+    }
+  }, [currentLevel, currentTutorial, completeTutorial, startTutorial]);
   
   // 状態変更を履歴に保存
   const isFirstRender = useRef(true);
@@ -289,6 +344,8 @@ const LogicCircuitBuilder = () => {
           autoMode={autoMode}
           simulationSpeed={simulationSpeed}
           clockSignal={clockSignal}
+          learningMode={learningMode}
+          earnedBadges={earnedBadges}
           onAddGate={addGate}
           onToggleInput={toggleInput}
           onCalculate={handleCalculate}
@@ -299,6 +356,11 @@ const LogicCircuitBuilder = () => {
           onRedo={redo}
           canUndo={canUndo}
           canRedo={canRedo}
+          onToggleLearningMode={() => {
+            setLearningMode(learningMode === 'sandbox' ? 'tutorial' : 'sandbox');
+            setCurrentChallenge(null);
+            setShowHint(false);
+          }}
         />
       </div>
 
@@ -325,7 +387,7 @@ const LogicCircuitBuilder = () => {
         </div>
 
         {/* キャンバス */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto relative">
           <Canvas
             gates={gates}
             connections={connections}
@@ -344,6 +406,57 @@ const LogicCircuitBuilder = () => {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
           />
+          
+          {/* 学習モードセレクター */}
+          {learningMode !== 'sandbox' && (
+            <LearningModeSelector
+              learningMode={learningMode}
+              progress={progress}
+              currentLevel={currentLevel}
+              onModeChange={setLearningMode}
+              onStartChallenge={handleStartChallenge}
+              calculateProgress={calculateProgress}
+            />
+          )}
+          
+          {/* チュートリアルパネル */}
+          {currentTutorial && currentStep && (
+            <TutorialPanel
+              currentStep={tutorialStep}
+              totalSteps={TUTORIAL_STEPS[currentTutorial]?.length || 0}
+              instruction={currentStep.instruction}
+              hint={currentStep.hint}
+              showHint={showHint}
+              onShowHint={() => setShowHint(true)}
+              onSkip={() => {
+                setLearningMode('sandbox');
+                setShowHint(false);
+                setCurrentChallenge(null);
+              }}
+              onComplete={() => {
+                if (isStepCompleted) {
+                  nextTutorialStep();
+                  setShowHint(false);
+                }
+              }}
+              isStepCompleted={isStepCompleted}
+            />
+          )}
+          
+          {/* 真理値表チャレンジ */}
+          {currentChallenge && currentChallenge.type === 'truth_table' && (
+            <TruthTableChallenge
+              targetGate={currentChallenge.targetGate}
+              gates={gates}
+              connections={connections}
+              simulation={simulation}
+              onComplete={() => {
+                completeObjective(`level${currentLevel}`, 'basics', currentChallenge.id);
+                setCurrentChallenge(null);
+              }}
+              onCancel={() => setCurrentChallenge(null)}
+            />
+          )}
         </div>
 
         {/* 右パネル */}

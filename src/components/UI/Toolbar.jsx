@@ -15,6 +15,8 @@ const Toolbar = memo(({
   autoMode,
   simulationSpeed,
   clockSignal,
+  learningMode,
+  earnedBadges,
   onAddGate,
   onToggleInput,
   onCalculate,
@@ -24,7 +26,8 @@ const Toolbar = memo(({
   onUndo,
   onRedo,
   canUndo,
-  canRedo
+  canRedo,
+  onToggleLearningMode
 }) => {
   const currentLevelGates = LEVELS[currentLevel]?.gates || [];
   
@@ -210,6 +213,28 @@ const Toolbar = memo(({
 
       {/* 右側: アクションボタン */}
       <div className="flex items-center gap-2">
+        {/* 学習モード切替 */}
+        <button
+          onClick={onToggleLearningMode}
+          style={{
+            ...secondaryButtonStyle,
+            backgroundColor: learningMode !== 'sandbox' ? colors.ui.accent.primary : colors.ui.surface,
+            color: learningMode !== 'sandbox' ? colors.ui.surface : colors.ui.text.primary,
+            borderColor: colors.ui.accent.primary,
+          }}
+          title="学習モードの切り替え"
+        >
+          {learningMode === 'sandbox' ? '🎯 学習モード' : '🔨 自由制作'}
+        </button>
+        
+        {/* バッジ表示 */}
+        {earnedBadges && earnedBadges.length > 0 && (
+          <div className="flex items-center gap-1 px-2 py-1 rounded" 
+               style={{ backgroundColor: colors.ui.background }}>
+            <span className="text-sm">🏆 {earnedBadges.length}</span>
+          </div>
+        )}
+        
         {/* Undo/Redo */}
         <div className="flex items-center gap-1 mr-2">
           <button
@@ -285,6 +310,8 @@ Toolbar.propTypes = {
   autoMode: PropTypes.bool.isRequired,
   simulationSpeed: PropTypes.number.isRequired,
   clockSignal: PropTypes.bool.isRequired,
+  learningMode: PropTypes.string.isRequired,
+  earnedBadges: PropTypes.array,
   onAddGate: PropTypes.func.isRequired,
   onToggleInput: PropTypes.func.isRequired,
   onCalculate: PropTypes.func.isRequired,
@@ -294,7 +321,8 @@ Toolbar.propTypes = {
   onUndo: PropTypes.func.isRequired,
   onRedo: PropTypes.func.isRequired,
   canUndo: PropTypes.bool.isRequired,
-  canRedo: PropTypes.bool.isRequired
+  canRedo: PropTypes.bool.isRequired,
+  onToggleLearningMode: PropTypes.func.isRequired
 };
 
 export default Toolbar;
