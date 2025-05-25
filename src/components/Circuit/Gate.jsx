@@ -80,20 +80,89 @@ const Gate = memo(({
         {gateInfo.symbol}
       </text>
 
+      {/* 複合ゲートの追加ラベル */}
+      {(gate.type === 'HALF_ADDER' || gate.type === 'FULL_ADDER') && (
+        <>
+          <text
+            x={GATE_UI.RECT_WIDTH / 2 - 15}
+            y={-10}
+            textAnchor="middle"
+            fill="#666"
+            fontSize="10"
+            className="pointer-events-none select-none"
+          >
+            S
+          </text>
+          <text
+            x={GATE_UI.RECT_WIDTH / 2 - 15}
+            y={10}
+            textAnchor="middle"
+            fill="#666"
+            fontSize="10"
+            className="pointer-events-none select-none"
+          >
+            C
+          </text>
+        </>
+      )}
+
+      {/* Full Adderの入力ラベル */}
+      {gate.type === 'FULL_ADDER' && (
+        <>
+          <text
+            x={-GATE_UI.RECT_WIDTH / 2 + 15}
+            y={-25}
+            textAnchor="middle"
+            fill="#666"
+            fontSize="10"
+            className="pointer-events-none select-none"
+          >
+            A
+          </text>
+          <text
+            x={-GATE_UI.RECT_WIDTH / 2 + 15}
+            y={0}
+            textAnchor="middle"
+            fill="#666"
+            fontSize="10"
+            className="pointer-events-none select-none"
+          >
+            B
+          </text>
+          <text
+            x={-GATE_UI.RECT_WIDTH / 2 + 15}
+            y={25}
+            textAnchor="middle"
+            fill="#666"
+            fontSize="10"
+            className="pointer-events-none select-none"
+          >
+            Cin
+          </text>
+        </>
+      )}
+
       {/* 入力端子 */}
-      {Array.from({ length: gateInfo.inputs }).map((_, i) => (
-        <circle
-          key={`in-${i}`}
-          cx={-GATE_UI.RECT_WIDTH / 2}
-          cy={-20 + (i * GATE_UI.TERMINAL_SPACING)}
-          r={GATE_UI.TERMINAL_RADIUS}
-          fill="#fff"
-          stroke={isHovered ? "#6b7280" : "#333"}
-          strokeWidth="2"
-          className="cursor-crosshair hover:fill-blue-100 transition-colors"
-          onMouseUp={(e) => onTerminalMouseUp(e, gate, i)}
-        />
-      ))}
+      {Array.from({ length: gateInfo.inputs }).map((_, i) => {
+        // 3入力のゲート（Full Adder）の場合
+        const cy = gateInfo.inputs === 3 
+          ? -25 + (i * GATE_UI.TERMINAL_SPACING)
+          : -20 + (i * GATE_UI.TERMINAL_SPACING);
+          
+        return (
+          <circle
+            key={`in-${i}`}
+            cx={-GATE_UI.RECT_WIDTH / 2}
+            cy={cy}
+            r={GATE_UI.TERMINAL_RADIUS}
+            fill="#fff"
+            stroke={isHovered ? "#6b7280" : "#333"}
+            strokeWidth="2"
+            className="cursor-crosshair hover:fill-blue-100 transition-colors"
+            onMouseUp={(e) => onTerminalMouseUp(e, gate, i)}
+          />
+        );
+      })}
 
       {/* 出力端子 */}
       {Array.from({ length: gateInfo.outputs }).map((_, i) => (

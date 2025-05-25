@@ -66,6 +66,37 @@ const calculateDFlipFlop = (D, CLK, memory = {}) => {
 };
 
 /**
+ * Half Adderの計算
+ * @param {boolean} A - 入力A
+ * @param {boolean} B - 入力B
+ * @returns {Array} [Sum, Carry]の出力
+ */
+const calculateHalfAdder = (A, B) => {
+  // Sum = A XOR B
+  const sum = A !== B;
+  // Carry = A AND B
+  const carry = A && B;
+  
+  return [sum, carry];
+};
+
+/**
+ * Full Adderの計算
+ * @param {boolean} A - 入力A
+ * @param {boolean} B - 入力B
+ * @param {boolean} Cin - キャリー入力
+ * @returns {Array} [Sum, Cout]の出力
+ */
+const calculateFullAdder = (A, B, Cin) => {
+  // Sum = A XOR B XOR Cin
+  const sum = (A !== B) !== Cin;
+  // Cout = (A AND B) OR (B AND Cin) OR (A AND Cin)
+  const cout = (A && B) || (B && Cin) || (A && Cin);
+  
+  return [sum, cout];
+};
+
+/**
  * 回路の計算を実行
  * @param {Array} gates - ゲートの配列
  * @param {Array} connections - 接続の配列
@@ -111,6 +142,10 @@ export const calculateCircuit = (gates, connections) => {
               results = calculateSRLatch(inputValues[0], inputValues[1], gateMemory[gate.id]);
             } else if (gate.type === 'D_FF') {
               results = calculateDFlipFlop(inputValues[0], inputValues[1], gateMemory[gate.id]);
+            } else if (gate.type === 'HALF_ADDER') {
+              results = calculateHalfAdder(inputValues[0], inputValues[1]);
+            } else if (gate.type === 'FULL_ADDER') {
+              results = calculateFullAdder(inputValues[0], inputValues[1], inputValues[2]);
             } else if (gateInfo.func) {
               // 通常のゲート
               const result = gateInfo.func(...inputValues);
@@ -231,6 +266,14 @@ export const getGateInputX = (gate) => {
  * @returns {number} Y座標
  */
 export const getGateInputY = (gate, inputIndex = 0) => {
+  const gateInfo = GATE_TYPES[gate.type];
+  
+  // 3入力のゲート（Full Adder）の場合
+  if (gateInfo.inputs === 3) {
+    return gate.y - 25 + (inputIndex * 25);
+  }
+  
+  // 通常のゲート
   return gate.y - 20 + (inputIndex * 25);
 };
 

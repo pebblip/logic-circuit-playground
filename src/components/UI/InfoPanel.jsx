@@ -43,6 +43,21 @@ const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections }) => {
                 <p className="text-sm font-medium text-gray-900">
                   選択中: {GATE_TYPES[selectedGate.type].name}
                 </p>
+                {selectedGate.type === 'XOR' && (
+                  <p className="text-xs text-gray-600 mt-1">
+                    排他的論理和：入力が異なる場合に1を出力します。
+                  </p>
+                )}
+                {selectedGate.type === 'HALF_ADDER' && (
+                  <p className="text-xs text-gray-600 mt-1">
+                    半加算器：2つの1ビット数を加算し、和（S）と桁上げ（C）を出力します。
+                  </p>
+                )}
+                {selectedGate.type === 'FULL_ADDER' && (
+                  <p className="text-xs text-gray-600 mt-1">
+                    全加算器：2つの1ビット数と桁上げ入力（Cin）を加算し、和（S）と桁上げ出力（Cout）を出力します。
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -61,6 +76,13 @@ const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections }) => {
               <p className="text-sm text-gray-600">
                 NANDゲートを使ってSRラッチを構築してみましょう。
                 クロック信号と組み合わせることで、Dフリップフロップも作れます。
+              </p>
+            )}
+            {currentLevel === 3 && (
+              <p className="text-sm text-gray-600">
+                XORゲートと半加算器（Half Adder）を使って、2ビットの加算を行ってみましょう。
+                全加算器（Full Adder）を使えば、キャリー入力も含めた加算ができます。
+                複数の全加算器を接続すれば、多ビットの加算器を構築できます。
               </p>
             )}
           </div>
