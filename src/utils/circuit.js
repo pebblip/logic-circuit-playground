@@ -223,6 +223,13 @@ export const createGate = (type, x, y, clockSignal = false) => {
  */
 export const getConnectionPath = (fromX, fromY, toX, toY) => {
   const midX = (fromX + toX) / 2;
+  
+  // 水平線の場合は直線を使用
+  if (Math.abs(fromY - toY) < 1) {
+    return `M ${fromX} ${fromY} L ${toX} ${toY}`;
+  }
+  
+  // それ以外はベジェ曲線を使用
   return `M ${fromX} ${fromY} C ${midX} ${fromY}, ${midX} ${toY}, ${toX} ${toY}`;
 };
 
@@ -247,6 +254,11 @@ export const getGateOutputX = (gate) => {
  * @returns {number} Y座標
  */
 export const getGateOutputY = (gate, outputIndex = 0) => {
+  // I/Oゲートは常に中心
+  if (gate.type === 'INPUT' || gate.type === 'OUTPUT' || gate.type === 'CLOCK') {
+    return gate.y;
+  }
+  
   const gateInfo = GATE_TYPES[gate.type];
   if (gateInfo.outputs === 1) {
     return gate.y;
@@ -274,6 +286,11 @@ export const getGateInputX = (gate) => {
  * @returns {number} Y座標
  */
 export const getGateInputY = (gate, inputIndex = 0) => {
+  // I/Oゲートは常に中心
+  if (gate.type === 'INPUT' || gate.type === 'OUTPUT' || gate.type === 'CLOCK') {
+    return gate.y;
+  }
+  
   const gateInfo = GATE_TYPES[gate.type];
   
   // 3入力のゲート（Full Adder）の場合

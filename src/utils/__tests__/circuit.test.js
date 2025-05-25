@@ -190,7 +190,7 @@ describe('circuit utilities', () => {
     const gate = { x: 100, y: 200, type: 'AND' };
 
     it('should calculate output X position', () => {
-      expect(getGateOutputX(gate)).toBe(160); // 100 + 60
+      expect(getGateOutputX(gate)).toBe(170); // 100 + 60 + 10
     });
 
     it('should calculate output Y position for single output', () => {
@@ -204,7 +204,7 @@ describe('circuit utilities', () => {
     });
 
     it('should calculate input X position', () => {
-      expect(getGateInputX(gate)).toBe(40); // 100 - 60
+      expect(getGateInputX(gate)).toBe(30); // 100 - 60 - 10
     });
 
     it('should calculate input Y position', () => {

@@ -28,6 +28,14 @@ export const useCircuitSimulation = (gates, connections) => {
     return newSimulation;
   }, [gates, calculateCircuitWithGates]);
 
+  // 自動モード時の再計算
+  useEffect(() => {
+    if (autoMode) {
+      const newSimulation = calculateCircuitWithGates(gates);
+      setSimulation(newSimulation);
+    }
+  }, [autoMode, gates, connections, calculateCircuitWithGates]);
+  
   // クロック信号の更新（自動モード時のみ）
   useEffect(() => {
     if (autoMode && simulationSpeed > 0) {

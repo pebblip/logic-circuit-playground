@@ -2,15 +2,15 @@
 
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import GateModern from './GateModern';
-import ConnectionModern from './ConnectionModern';
+import Gate from './Gate';
+import Connection from './Connection';
 import { CANVAS } from '../../constants/circuit';
 import { colors } from '../../styles/design-tokens';
 
 /**
  * モダンなキャンバスコンポーネント
  */
-const CanvasModern = memo(({
+const Canvas = memo(({
   gates,
   connections,
   simulation,
@@ -115,7 +115,7 @@ const CanvasModern = memo(({
         {/* 接続線 */}
         <g className="connections">
           {connections.map((connection, index) => (
-            <ConnectionModern
+            <Connection
               key={`conn-${index}`}
               connection={connection}
               gates={gates}
@@ -127,22 +127,44 @@ const CanvasModern = memo(({
 
         {/* ドラッグ中の接続線 */}
         {connectionDrag && (
-          <line
-            x1={connectionDrag.fromX || connectionDrag.startX}
-            y1={connectionDrag.fromY || connectionDrag.startY}
-            x2={mousePosition.x}
-            y2={mousePosition.y}
-            stroke={colors.signal.wire}
-            strokeWidth="2"
-            strokeDasharray="5,5"
-            className="pointer-events-none"
-          />
+          <g className="pointer-events-none">
+            {/* ドラッグ中のライン */}
+            <line
+              x1={connectionDrag.fromX || connectionDrag.startX}
+              y1={connectionDrag.fromY || connectionDrag.startY}
+              x2={mousePosition.x}
+              y2={mousePosition.y}
+              stroke={colors.signal.wire}
+              strokeWidth="3"
+              strokeDasharray="8,4"
+              opacity="0.8"
+            />
+            {/* ドラッグ開始点のマーカー */}
+            <circle
+              cx={connectionDrag.fromX || connectionDrag.startX}
+              cy={connectionDrag.fromY || connectionDrag.startY}
+              r="5"
+              fill={colors.ui.accent.primary}
+              stroke="white"
+              strokeWidth="2"
+            />
+            {/* マウス位置のマーカー */}
+            <circle
+              cx={mousePosition.x}
+              cy={mousePosition.y}
+              r="6"
+              fill="none"
+              stroke={colors.ui.accent.primary}
+              strokeWidth="2"
+              strokeDasharray="2,2"
+            />
+          </g>
         )}
 
         {/* ゲート */}
         <g className="gates">
           {gates.map(gate => (
-            <GateModern
+            <Gate
               key={gate.id}
               gate={gate}
               isSelected={selectedGate?.id === gate.id}
@@ -156,24 +178,6 @@ const CanvasModern = memo(({
           ))}
         </g>
 
-        {/* 選択中のゲートのハイライト */}
-        {selectedGate && (
-          <rect
-            x={selectedGate.x - 70}
-            y={selectedGate.y - 35}
-            width={140}
-            height={70}
-            fill="none"
-            stroke={colors.ui.accent.primary}
-            strokeWidth="2"
-            strokeDasharray="5,5"
-            rx="8"
-            className="pointer-events-none"
-            style={{
-              animation: 'pulse 2s infinite',
-            }}
-          />
-        )}
       </svg>
 
       {/* キャンバス情報 */}
@@ -191,14 +195,23 @@ const CanvasModern = memo(({
             opacity: 1;
           }
         }
+        
+        @keyframes flow {
+          from {
+            stroke-dashoffset: 0;
+          }
+          to {
+            stroke-dashoffset: -20;
+          }
+        }
       `}</style>
     </div>
   );
 });
 
-CanvasModern.displayName = 'CanvasModern';
+Canvas.displayName = 'Canvas';
 
-CanvasModern.propTypes = {
+Canvas.propTypes = {
   gates: PropTypes.array.isRequired,
   connections: PropTypes.array.isRequired,
   simulation: PropTypes.object.isRequired,
@@ -217,4 +230,4 @@ CanvasModern.propTypes = {
   onMouseUp: PropTypes.func.isRequired
 };
 
-export default CanvasModern;
+export default Canvas;

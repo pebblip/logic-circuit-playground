@@ -8,7 +8,7 @@ import { colors } from '../../styles/design-tokens';
 /**
  * モダンな接続線コンポーネント
  */
-const ConnectionModern = memo(({ connection, gates, simulation, onDelete }) => {
+const Connection = memo(({ connection, gates, simulation, onDelete }) => {
   const [isHovered, setIsHovered] = useState(false);
   
   const fromGate = gates.find(g => g.id === connection.from);
@@ -27,7 +27,7 @@ const ConnectionModern = memo(({ connection, gates, simulation, onDelete }) => {
   
   // 信号の状態を取得
   const signalKey = outputIndex === 0 ? fromGate.id : `${fromGate.id}_out${outputIndex}`;
-  const isActive = simulation[signalKey] || false;
+  const isActive = simulation[signalKey] === true;
   
   return (
     <g
@@ -55,29 +55,18 @@ const ConnectionModern = memo(({ connection, gates, simulation, onDelete }) => {
         stroke={isActive ? colors.signal.on : colors.signal.wire}
         strokeWidth={isHovered ? "3" : "2"}
         className="transition-all pointer-events-none"
-        style={{
-          filter: isActive ? 'url(#glow)' : 'none',
-        }}
       />
       
-      {/* アクティブ信号のアニメーション */}
+      {/* アクティブ時の輝きエフェクト */}
       {isActive && (
-        <>
-          {/* 信号の流れを表すアニメーション */}
-          <circle r="4" fill={colors.signal.onGlow}>
-            <animateMotion dur="1s" repeatCount="indefinite">
-              <mpath href={`#flow-${connection.from}-${connection.to}-${connection.toInput}`} />
-            </animateMotion>
-          </circle>
-          
-          {/* パスの定義（animateMotion用） */}
-          <path
-            id={`flow-${connection.from}-${connection.to}-${connection.toInput}`}
-            d={path}
-            fill="none"
-            stroke="none"
-          />
-        </>
+        <path
+          d={path}
+          fill="none"
+          stroke={colors.signal.onGlow}
+          strokeWidth="4"
+          opacity="0.4"
+          className="pointer-events-none"
+        />
       )}
       
       {/* 削除ボタン（ホバー時のみ表示） */}
@@ -112,13 +101,13 @@ const ConnectionModern = memo(({ connection, gates, simulation, onDelete }) => {
   );
 });
 
-ConnectionModern.displayName = 'ConnectionModern';
+Connection.displayName = 'Connection';
 
-ConnectionModern.propTypes = {
+Connection.propTypes = {
   connection: PropTypes.object.isRequired,
   gates: PropTypes.array.isRequired,
   simulation: PropTypes.object.isRequired,
   onDelete: PropTypes.func.isRequired
 };
 
-export default ConnectionModern;
+export default Connection;

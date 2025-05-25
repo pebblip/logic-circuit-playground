@@ -8,7 +8,7 @@ import { colors, spacing, typography, shadows, radius } from '../../styles/desig
 /**
  * モダンなツールバー
  */
-const ToolbarModern = memo(({
+const Toolbar = memo(({
   currentLevel,
   unlockedLevels,
   gates,
@@ -276,9 +276,9 @@ const ToolbarModern = memo(({
   );
 });
 
-ToolbarModern.displayName = 'ToolbarModern';
+Toolbar.displayName = 'Toolbar';
 
-ToolbarModern.propTypes = {
+Toolbar.propTypes = {
   currentLevel: PropTypes.number.isRequired,
   unlockedLevels: PropTypes.object.isRequired,
   gates: PropTypes.array.isRequired,
@@ -297,4 +297,4 @@ ToolbarModern.propTypes = {
   canRedo: PropTypes.bool.isRequired
 };
 
-export default ToolbarModern;
+export default Toolbar;

@@ -3,13 +3,13 @@
 import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { LEVELS, TABS, GATE_TYPES } from '../../constants/circuit';
-import TruthTableModern from './TruthTableModern';
+import TruthTable from './TruthTable';
 import { colors, spacing, typography, shadows, radius } from '../../styles/design-tokens';
 
 /**
  * モダンな情報パネル
  */
-const InfoPanelModern = memo(({ currentLevel, selectedGate, gates, connections, height }) => {
+const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections, height }) => {
   const [activeTab, setActiveTab] = useState('description');
 
   const tabStyle = (isActive) => ({
@@ -199,16 +199,16 @@ const InfoPanelModern = memo(({ currentLevel, selectedGate, gates, connections, 
           </div>
         )}
         {activeTab === 'truth' && (
-          <TruthTableModern gates={gates} connections={connections} />
+          <TruthTable gates={gates} connections={connections} />
         )}
       </div>
     </div>
   );
 });
 
-InfoPanelModern.displayName = 'InfoPanelModern';
+InfoPanel.displayName = 'InfoPanel';
 
-InfoPanelModern.propTypes = {
+InfoPanel.propTypes = {
   currentLevel: PropTypes.number.isRequired,
   selectedGate: PropTypes.object,
   gates: PropTypes.array.isRequired,
@@ -216,4 +216,4 @@ InfoPanelModern.propTypes = {
   height: PropTypes.string
 };
 
-export default InfoPanelModern;
+export default InfoPanel;

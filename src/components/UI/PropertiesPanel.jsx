@@ -8,7 +8,7 @@ import { colors, spacing, typography, shadows, radius } from '../../styles/desig
 /**
  * モダンなプロパティパネル
  */
-const PropertiesPanelModern = memo(({ selectedGate, savedCircuits, onLoadCircuit, onSaveCircuit }) => {
+const PropertiesPanel = memo(({ selectedGate, savedCircuits, onLoadCircuit, onSaveCircuit }) => {
   const [circuitName, setCircuitName] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
@@ -298,13 +298,13 @@ const PropertiesPanelModern = memo(({ selectedGate, savedCircuits, onLoadCircuit
   );
 });
 
-PropertiesPanelModern.displayName = 'PropertiesPanelModern';
+PropertiesPanel.displayName = 'PropertiesPanel';
 
-PropertiesPanelModern.propTypes = {
+PropertiesPanel.propTypes = {
   selectedGate: PropTypes.object,
   savedCircuits: PropTypes.array.isRequired,
   onLoadCircuit: PropTypes.func.isRequired,
   onSaveCircuit: PropTypes.func.isRequired
 };
 
-export default PropertiesPanelModern;
+export default PropertiesPanel;

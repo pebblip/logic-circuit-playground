@@ -16,9 +16,15 @@ export const useHistory = (initialState, maxHistory = 50) => {
 
   // 新しい状態を履歴に追加
   const pushState = useCallback((newState) => {
+    // isInternalUpdateフラグをチェックして、同じ状態の場合のみ無視
     if (isInternalUpdate.current) {
+      const currentState = history[currentIndex];
+      if (JSON.stringify(currentState) === JSON.stringify(newState)) {
+        isInternalUpdate.current = false;
+        return;
+      }
+      // 異なる状態の場合は、フラグをリセットして通常通り処理
       isInternalUpdate.current = false;
-      return;
     }
 
     setHistory(prev => {
@@ -29,17 +35,17 @@ export const useHistory = (initialState, maxHistory = 50) => {
       
       // 最大履歴数を超えた場合、古い履歴を削除
       if (newHistory.length > maxHistory) {
-        return newHistory.slice(newHistory.length - maxHistory);
+        const trimmedHistory = newHistory.slice(newHistory.length - maxHistory);
+        // インデックスも調整
+        setCurrentIndex(trimmedHistory.length - 1);
+        return trimmedHistory;
       }
       
+      // インデックスを新しい履歴の最後に設定
+      setCurrentIndex(newHistory.length - 1);
       return newHistory;
     });
-    
-    setCurrentIndex(prev => {
-      const newLength = Math.min(prev + 2, maxHistory);
-      return newLength - 1;
-    });
-  }, [currentIndex, maxHistory]);
+  }, [currentIndex, maxHistory, history]);
 
   // Undo
   const undo = useCallback(() => {

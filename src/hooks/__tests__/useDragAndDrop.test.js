@@ -76,8 +76,8 @@ describe('useDragAndDrop', () => {
         result.current.handleMouseMove(moveEvent);
       });
 
-      // onGateMoveが呼ばれることを確認
-      expect(mockOnGateMove).toHaveBeenCalledWith(1, 150, 250);
+      // onGateMoveが呼ばれることを確認（グリッドスナップが適用される）
+      expect(mockOnGateMove).toHaveBeenCalledWith(1, 160, 260);
       expect(result.current.mousePosition).toEqual({ x: 200, y: 300 });
     });
 
@@ -96,8 +96,8 @@ describe('useDragAndDrop', () => {
         result.current.handleMouseMove(moveEvent);
       });
 
-      // 最小値でクランプされる
-      expect(mockOnGateMove).toHaveBeenCalledWith(1, 50, 50); // MIN_X, MIN_Y
+      // 最小値でクランプされ、グリッドスナップが適用される
+      expect(mockOnGateMove).toHaveBeenCalledWith(1, 60, 60); // グリッドスナップ後の値
     });
 
     it('handleMouseUpでドラッグを終了できる', () => {
@@ -132,13 +132,16 @@ describe('useDragAndDrop', () => {
       expect(result.current.connectionDrag).toEqual({
         fromGate: mockGate,
         fromOutput: 0,
-        fromX: 160,  // gate.x + 60
-        fromY: 200   // gate.y + (outputIndex * 20)
+        fromX: 170,  // gate.x + 60 + 10
+        fromY: 200,   // gate.y + (outputIndex * 20)
+        startX: 170,
+        startY: 200,
+        dragType: 'output'
       });
       expect(event.stopPropagation).toHaveBeenCalled();
     });
 
-    it('入力端子からはドラッグを開始できない', () => {
+    it('入力端子からもドラッグを開始できる', () => {
       const { result } = renderHook(() => useDragAndDrop(mockOnGateMove));
       const event = createMockEvent();
 
@@ -146,7 +149,15 @@ describe('useDragAndDrop', () => {
         result.current.handleTerminalMouseDown(event, mockGate, false, 0);
       });
 
-      expect(result.current.connectionDrag).toBe(null);
+      expect(result.current.connectionDrag).toEqual({
+        toGate: mockGate,
+        toInput: 0,
+        fromX: 30,  // gate.x - 60 - 10
+        fromY: 180,  // gate.y - 20
+        startX: 30,
+        startY: 180,
+        dragType: 'input'
+      });
     });
 
     it('handleTerminalMouseUpで接続を完了できる', () => {
@@ -230,7 +241,7 @@ describe('useDragAndDrop', () => {
 
       expect(result.current.connectionDrag).toMatchObject({
         fromOutput: 2,
-        fromY: 240  // gate.y + (2 * 20)
+        fromY: 230  // gate.y - 10 + (2 * 20)
       });
     });
   });

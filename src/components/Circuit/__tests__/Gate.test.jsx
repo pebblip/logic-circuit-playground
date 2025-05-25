@@ -34,12 +34,13 @@ describe('Gate Component', () => {
       </svg>
     );
 
-    const rect = container.querySelector('rect');
+    const rect = container.querySelector('rect[rx="8"]');
     expect(rect).toBeTruthy();
-    expect(rect.getAttribute('fill')).toBe('#fff');
+    expect(rect.getAttribute('fill')).toBe('#ffffff');
     
-    const text = screen.getByText('AND');
-    expect(text).toBeTruthy();
+    // ANDテキストが2つあることを確認（メインとサブテキスト）
+    const texts = screen.getAllByText('AND');
+    expect(texts).toHaveLength(2);
   });
 
   it('should render INPUT gate as circle', () => {
@@ -49,9 +50,9 @@ describe('Gate Component', () => {
       </svg>
     );
 
-    const circle = container.querySelector('circle[r="35"]');
+    const circle = container.querySelector('circle[r="30"]');
     expect(circle).toBeTruthy();
-    expect(circle.getAttribute('fill')).toBe('#000'); // Black when value is true
+    expect(circle.getAttribute('fill')).toBe('#10b981'); // Green when value is true
   });
 
   it('should show selected state', () => {
@@ -61,7 +62,7 @@ describe('Gate Component', () => {
       </svg>
     );
 
-    const rect = container.querySelector('rect');
+    const rect = container.querySelector('rect[rx="8"]');
     expect(rect.getAttribute('stroke')).toBe('#3b82f6');
     expect(rect.getAttribute('stroke-width')).toBe('3');
   });
@@ -73,7 +74,7 @@ describe('Gate Component', () => {
       </svg>
     );
 
-    const rect = container.querySelector('rect');
+    const rect = container.querySelector('rect[rx="8"]');
     fireEvent.click(rect);
     
     expect(defaultProps.onGateClick).toHaveBeenCalledTimes(1);
@@ -86,7 +87,7 @@ describe('Gate Component', () => {
       </svg>
     );
 
-    const rect = container.querySelector('rect');
+    const rect = container.querySelector('rect[rx="8"]');
     fireEvent.doubleClick(rect);
     
     expect(defaultProps.onGateDoubleClick).toHaveBeenCalledTimes(1);
@@ -99,8 +100,10 @@ describe('Gate Component', () => {
       </svg>
     );
 
-    // AND gate has 2 inputs
-    const inputTerminals = container.querySelectorAll('circle[cx="-60"]');
+    // AND gate has 2 inputs - check terminals on the left side (cx < 0)
+    const inputTerminals = Array.from(container.querySelectorAll('circle[r="15"]')).filter(
+      circle => parseFloat(circle.getAttribute('cx')) < 0
+    );
     expect(inputTerminals).toHaveLength(2);
   });
 
@@ -111,8 +114,10 @@ describe('Gate Component', () => {
       </svg>
     );
 
-    // AND gate has 1 output
-    const outputTerminals = container.querySelectorAll('circle[cx="60"]');
+    // AND gate has 1 output - we need to check for output terminals which have cx > 0
+    const outputTerminals = Array.from(container.querySelectorAll('circle[r="15"]')).filter(
+      circle => parseFloat(circle.getAttribute('cx')) > 0
+    );
     expect(outputTerminals).toHaveLength(1);
   });
 
@@ -126,9 +131,11 @@ describe('Gate Component', () => {
       </svg>
     );
 
-    const valueText = container.querySelector('text[y="-50"]');
-    expect(valueText).toBeTruthy();
-    expect(valueText.textContent).toBe('1');
+    // OUTPUT gate is rendered as LED
+    const circle = container.querySelector('circle[r="30"]');
+    expect(circle).toBeTruthy();
+    // simulation[1] is not set in this test, so it should be off
+    expect(circle.getAttribute('fill')).toBe('#ffffff'); // colors.ui.surface
   });
 
   it('should handle terminal mouse events', () => {
@@ -138,7 +145,11 @@ describe('Gate Component', () => {
       </svg>
     );
 
-    const outputTerminal = container.querySelector('circle[cx="60"]');
+    // 出力端子を取得（cx > 0のもの）
+    const outputTerminal = Array.from(container.querySelectorAll('circle[r="15"]')).find(
+      circle => parseFloat(circle.getAttribute('cx')) > 0
+    );
+    expect(outputTerminal).toBeTruthy();
     fireEvent.mouseDown(outputTerminal);
     
     expect(defaultProps.onTerminalMouseDown).toHaveBeenCalledTimes(1);
@@ -154,7 +165,8 @@ describe('Gate Component', () => {
       </svg>
     );
 
-    const circle = container.querySelector('circle[r="35"]');
-    expect(circle.getAttribute('fill')).toBe('#3b82f6'); // Blue when clock is high
+    const circle = container.querySelector('circle[r="30"]');
+    expect(circle).toBeTruthy();
+    expect(circle.getAttribute('fill')).toBe('#10b981'); // Green when clock is high
   });
 });

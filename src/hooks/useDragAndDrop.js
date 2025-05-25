@@ -1,6 +1,6 @@
 // ドラッグ&ドロップ機能用カスタムフック
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { getSVGPoint } from '../utils/svg';
 import { constrainGatePosition } from '../utils/circuit';
 import { CANVAS } from '../constants/circuit';
@@ -41,7 +41,10 @@ export const useDragAndDrop = (onGateMove) => {
   // 端子ドラッグ開始（配線用）
   const handleTerminalMouseDown = useCallback((event, gate, isOutput, outputIndex = 0) => {
     event.stopPropagation();
+    
+    // 出力端子と入力端子の両方からドラッグを開始できるようにする
     if (isOutput) {
+      // 出力端子からの接続
       const fromX = gate.type === 'INPUT' || gate.type === 'OUTPUT' || gate.type === 'CLOCK' 
         ? gate.x 
         : gate.x + 60 + 10; // RECT_WIDTH/2 + 10
@@ -55,7 +58,28 @@ export const useDragAndDrop = (onGateMove) => {
         fromX,
         fromY,
         startX: fromX,
-        startY: fromY
+        startY: fromY,
+        dragType: 'output' // ドラッグ元の種類を記録
+      });
+    } else {
+      // 入力端子からの接続（新機能）
+      const fromX = gate.type === 'INPUT' || gate.type === 'OUTPUT' || gate.type === 'CLOCK' 
+        ? gate.x 
+        : gate.x - 60 - 10; // RECT_WIDTH/2 + 10
+      const fromY = gate.type === 'INPUT' || gate.type === 'OUTPUT' || gate.type === 'CLOCK'
+        ? gate.y
+        : gate.inputs === 3 
+          ? -25 + (outputIndex * 40) + gate.y
+          : -20 + (outputIndex * 40) + gate.y;
+      
+      setConnectionDrag({
+        toGate: gate,
+        toInput: outputIndex,
+        fromX,
+        fromY,
+        startX: fromX,
+        startY: fromY,
+        dragType: 'input' // ドラッグ元の種類を記録
       });
     }
   }, []);
@@ -88,18 +112,55 @@ export const useDragAndDrop = (onGateMove) => {
     setDragOffset(null);
     setConnectionDrag(null);
   }, []);
+  
+  // グローバルなマウスアップイベントを監視
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      // ドラッグ状態をクリア
+      if (draggedGate || connectionDrag) {
+        handleMouseUp();
+      }
+    };
+    
+    // ドラッグ中のみリスナーを追加
+    if (draggedGate || connectionDrag) {
+      document.addEventListener('mouseup', handleGlobalMouseUp);
+      
+      return () => {
+        document.removeEventListener('mouseup', handleGlobalMouseUp);
+      };
+    }
+  }, [draggedGate, connectionDrag, handleMouseUp]);
 
   // 端子へのドロップ（配線完了）
   const handleTerminalMouseUp = useCallback((event, toGate, inputIndex) => {
     event.stopPropagation();
     
-    if (connectionDrag && toGate.id !== connectionDrag.fromGate.id) {
-      const connection = {
-        from: connectionDrag.fromGate.id,
-        fromOutput: connectionDrag.fromOutput,
-        to: toGate.id,
-        toInput: inputIndex
-      };
+    if (connectionDrag) {
+      let connection = null;
+      
+      if (connectionDrag.dragType === 'output') {
+        // 出力端子から入力端子への接続
+        if (toGate.id !== connectionDrag.fromGate.id) {
+          connection = {
+            from: connectionDrag.fromGate.id,
+            fromOutput: connectionDrag.fromOutput,
+            to: toGate.id,
+            toInput: inputIndex
+          };
+        }
+      } else if (connectionDrag.dragType === 'input') {
+        // 入力端子から出力端子への接続（新機能）
+        // この場合、toGateは実際には出力元のゲート
+        if (toGate.id !== connectionDrag.toGate.id) {
+          connection = {
+            from: toGate.id,
+            fromOutput: inputIndex,
+            to: connectionDrag.toGate.id,
+            toInput: connectionDrag.toInput
+          };
+        }
+      }
       
       // 接続が完了したらconnectionDragをクリア
       setConnectionDrag(null);

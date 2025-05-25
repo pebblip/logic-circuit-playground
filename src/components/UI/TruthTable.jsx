@@ -8,7 +8,7 @@ import { colors, spacing, typography, radius } from '../../styles/design-tokens'
 /**
  * モダンな真理値表コンポーネント
  */
-const TruthTableModern = memo(({ gates, connections }) => {
+const TruthTable = memo(({ gates, connections }) => {
   const truthTable = useMemo(() => {
     const inputs = gates.filter(g => g.type === 'INPUT').sort((a, b) => a.y - b.y);
     const outputs = gates.filter(g => g.type === 'OUTPUT').sort((a, b) => a.y - b.y);
@@ -238,11 +238,11 @@ const TruthTableModern = memo(({ gates, connections }) => {
   );
 });
 
-TruthTableModern.displayName = 'TruthTableModern';
+TruthTable.displayName = 'TruthTable';
 
-TruthTableModern.propTypes = {
+TruthTable.propTypes = {
   gates: PropTypes.array.isRequired,
   connections: PropTypes.array.isRequired
 };
 
-export default TruthTableModern;
+export default TruthTable;

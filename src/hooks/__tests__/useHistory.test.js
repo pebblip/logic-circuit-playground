@@ -46,38 +46,45 @@ describe('useHistory', () => {
     });
 
     it('履歴の最大数を超えた場合、古い履歴が削除される', () => {
-      const { result } = renderHook(() => useHistory(initialState, 3));
+      const { result } = renderHook(() => useHistory(initialState, 2));
 
-      // 3つの履歴を追加（初期状態 + 3 = 4つ）
+      // 2つの履歴を追加
       act(() => {
-        result.current.pushState({ ...initialState, gates: [...initialState.gates] });
         result.current.pushState({ ...initialState, gates: [...initialState.gates] });
         result.current.pushState({ ...initialState, gates: [...initialState.gates] });
       });
 
-      expect(result.current.historyLength).toBe(3); // 最大値でクリップされる
+      expect(result.current.historyLength).toBe(2); // 最大値でクリップされる
     });
 
     it('Undo後に新しい状態を追加すると、Redo履歴が削除される', () => {
       const { result } = renderHook(() => useHistory(initialState));
 
-      const state2 = { ...initialState, gates: [...initialState.gates] };
-      const state3 = { ...initialState, gates: [...initialState.gates] };
+      const state2 = { ...initialState, gates: [...initialState.gates, { id: 3, type: 'OR', value: false }] };
+      const state3 = { ...initialState, gates: [...initialState.gates, { id: 4, type: 'NOT', value: false }] };
 
       act(() => {
         result.current.pushState(state2);
+      });
+      
+      act(() => {
         result.current.pushState(state3);
       });
+
+      expect(result.current.historyLength).toBe(3);
+      expect(result.current.currentIndex).toBe(2);
 
       // Undoを実行
       act(() => {
         result.current.undo();
       });
 
+      expect(result.current.historyLength).toBe(3);
+      expect(result.current.currentIndex).toBe(1);
       expect(result.current.canRedo).toBe(true);
 
       // 新しい状態を追加
-      const state4 = { ...initialState, gates: [...initialState.gates] };
+      const state4 = { ...initialState, gates: [...initialState.gates, { id: 4 }] };
       act(() => {
         result.current.pushState(state4);
       });
@@ -123,9 +130,15 @@ describe('useHistory', () => {
 
       act(() => {
         result.current.pushState(newState);
+      });
+      
+      act(() => {
         result.current.undo();
       });
 
+      // redoが正しく動作するように、canRedoをチェック
+      expect(result.current.canRedo).toBe(true);
+      
       act(() => {
         const redoResult = result.current.redo();
         expect(redoResult).not.toBeNull();
@@ -165,15 +178,20 @@ describe('useHistory', () => {
     it('履歴をクリアして現在の状態のみが残る', () => {
       const { result } = renderHook(() => useHistory(initialState));
 
-      const state2 = { ...initialState, gates: [...initialState.gates] };
-      const state3 = { ...initialState, gates: [...initialState.gates] };
+      const state2 = { ...initialState, gates: [...initialState.gates, { id: 2 }] };
+      const state3 = { ...initialState, gates: [...initialState.gates, { id: 3 }] };
 
       act(() => {
         result.current.pushState(state2);
+      });
+      
+      expect(result.current.historyLength).toBe(2); // initial, state2
+      
+      act(() => {
         result.current.pushState(state3);
       });
 
-      expect(result.current.historyLength).toBe(3);
+      expect(result.current.historyLength).toBe(3); // initial, state2, state3
 
       act(() => {
         result.current.clearHistory();
@@ -300,8 +318,6 @@ describe('useHistory', () => {
         result.current.pushState(state2);
       });
 
-      const historyLengthBefore = result.current.historyLength;
-
       // undoを実行すると内部フラグがtrueになる
       act(() => {
         result.current.undo();
@@ -312,7 +328,8 @@ describe('useHistory', () => {
         result.current.pushState({ ...initialState });
       });
 
-      expect(result.current.historyLength).toBe(historyLengthBefore);
+      // 履歴長は変わらない
+      expect(result.current.historyLength).toBe(2);
     });
   });
 });

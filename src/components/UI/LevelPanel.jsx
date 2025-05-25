@@ -8,7 +8,7 @@ import { colors, spacing, typography, shadows, radius } from '../../styles/desig
 /**
  * モダンなレベル選択パネル
  */
-const LevelPanelModern = memo(({ currentLevel, unlockedLevels, onLevelSelect }) => {
+const LevelPanel = memo(({ currentLevel, unlockedLevels, onLevelSelect }) => {
   const [expandedLevel, setExpandedLevel] = useState(currentLevel);
 
   const levelColors = {
@@ -231,12 +231,12 @@ const LevelPanelModern = memo(({ currentLevel, unlockedLevels, onLevelSelect }) 
   );
 });
 
-LevelPanelModern.displayName = 'LevelPanelModern';
+LevelPanel.displayName = 'LevelPanel';
 
-LevelPanelModern.propTypes = {
+LevelPanel.propTypes = {
   currentLevel: PropTypes.number.isRequired,
   unlockedLevels: PropTypes.object.isRequired,
   onLevelSelect: PropTypes.func.isRequired
 };
 
-export default LevelPanelModern;
+export default LevelPanel;

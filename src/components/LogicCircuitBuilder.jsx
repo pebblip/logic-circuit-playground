@@ -9,16 +9,16 @@ import { CANVAS } from '../constants/circuit';
 import { layout, colors, shadows } from '../styles/design-tokens';
 
 // UIコンポーネント
-import CanvasModern from './Circuit/CanvasModern';
-import ToolbarModern from './UI/ToolbarModern';
-import LevelPanelModern from './UI/LevelPanelModern';
-import PropertiesPanelModern from './UI/PropertiesPanelModern';
-import InfoPanelModern from './UI/InfoPanelModern';
+import Canvas from './Circuit/Canvas';
+import Toolbar from './UI/Toolbar';
+import LevelPanel from './UI/LevelPanel';
+import PropertiesPanel from './UI/PropertiesPanel';
+import InfoPanel from './UI/InfoPanel';
 
 /**
  * モダンUI版論理回路ビルダー
  */
-const LogicCircuitBuilderModern = () => {
+const LogicCircuitBuilder = () => {
   // 状態管理
   const [state, dispatch] = useReducer(circuitReducer, initialState);
   const { gates, connections, selectedGate, currentLevel, unlockedLevels, savedCircuits } = state;
@@ -282,7 +282,7 @@ const LogicCircuitBuilderModern = () => {
           boxShadow: shadows.sm
         }}
       >
-        <ToolbarModern
+        <Toolbar
           currentLevel={currentLevel}
           unlockedLevels={unlockedLevels}
           gates={gates}
@@ -317,7 +317,7 @@ const LogicCircuitBuilderModern = () => {
             boxShadow: shadows.sm
           }}
         >
-          <LevelPanelModern
+          <LevelPanel
             currentLevel={currentLevel}
             unlockedLevels={unlockedLevels}
             onLevelSelect={handleLevelSelect}
@@ -326,7 +326,7 @@ const LogicCircuitBuilderModern = () => {
 
         {/* キャンバス */}
         <div className="flex-1 overflow-auto">
-          <CanvasModern
+          <Canvas
             gates={gates}
             connections={connections}
             simulation={simulation}
@@ -356,7 +356,7 @@ const LogicCircuitBuilderModern = () => {
             boxShadow: shadows.sm
           }}
         >
-          <PropertiesPanelModern
+          <PropertiesPanel
             selectedGate={selectedGate}
             savedCircuits={savedCircuits}
             onLoadCircuit={handleLoadCircuit}
@@ -381,7 +381,7 @@ const LogicCircuitBuilderModern = () => {
           onMouseDown={() => setIsDraggingPanel(true)}
         />
         
-        <InfoPanelModern
+        <InfoPanel
           currentLevel={currentLevel}
           selectedGate={selectedGate}
           gates={gates}
@@ -393,4 +393,4 @@ const LogicCircuitBuilderModern = () => {
   );
 };
 
-export default LogicCircuitBuilderModern;
+export default LogicCircuitBuilder;

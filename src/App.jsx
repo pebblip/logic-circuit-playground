@@ -1,11 +1,11 @@
 import React from 'react'
-import LogicCircuitBuilderModern from './components/LogicCircuitBuilderModern'
+import LogicCircuitBuilder from './components/LogicCircuitBuilder'
 import ErrorBoundary from './components/ErrorBoundary'
 
 function App() {
   return (
     <ErrorBoundary>
-      <LogicCircuitBuilderModern />
+      <LogicCircuitBuilder />
     </ErrorBoundary>
   )
 }

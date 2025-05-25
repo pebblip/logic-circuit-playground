@@ -8,7 +8,7 @@ import { colors, animation } from '../../styles/design-tokens';
 /**
  * モダンなゲートコンポーネント
  */
-const GateModern = memo(({
+const Gate = memo(({
   gate,
   isSelected,
   simulation,
@@ -39,7 +39,7 @@ const GateModern = memo(({
   // 信号の状態を取得
   const getSignalState = (gateId, outputIndex = 0) => {
     const key = outputIndex === 0 ? gateId : `${gateId}_out${outputIndex}`;
-    return simulation[key] || false;
+    return simulation[key] === true;
   };
   
   // 入出力ゲートの信号表示
@@ -50,21 +50,7 @@ const GateModern = memo(({
     
     return (
       <>
-        {/* 外側の円（グロー効果） */}
-        {isOn && (
-          <circle
-            cx={0}
-            cy={0}
-            r={45}
-            fill="none"
-            stroke={colors.signal.onGlow}
-            strokeWidth="2"
-            opacity="0.3"
-            style={{ animation: animation.pulse }}
-          />
-        )}
-        
-        {/* LEDライト */}
+        {/* メインの円 */}
         <circle
           cx={0}
           cy={0}
@@ -72,20 +58,7 @@ const GateModern = memo(({
           fill={isOn ? colors.signal.on : colors.ui.surface}
           stroke={getGateColor()}
           strokeWidth={isSelected ? "3" : "2"}
-          filter={isOn ? "url(#glow)" : ""}
         />
-        
-        {/* 内側の光 */}
-        {isOn && (
-          <circle
-            cx={0}
-            cy={0}
-            r={20}
-            fill={colors.signal.onGlow}
-            opacity="0.6"
-            style={{ animation: animation.glow }}
-          />
-        )}
         
         {/* ラベル */}
         <text
@@ -197,22 +170,37 @@ const GateModern = memo(({
       <g
         onClick={(e) => onGateClick(e, gate)}
         onDoubleClick={(e) => onGateDoubleClick(e, gate)}
-        onMouseDown={(e) => onGateMouseDown(e, gate)}
+        onMouseDown={(e) => {
+          e.preventDefault(); // デフォルトのドラッグ動作を防ぐ
+          onGateMouseDown(e, gate);
+        }}
       >
         {isIOGate ? renderIOSignal() : renderGate()}
       </g>
       
       {/* 入力端子 */}
       {Array.from({ length: gateInfo.inputs }).map((_, i) => {
-        const cy = gateInfo.inputs === 3 
+        const cy = isIOGate ? 0 : (gateInfo.inputs === 3 
           ? -25 + (i * GATE_UI.TERMINAL_SPACING)
-          : -20 + (i * GATE_UI.TERMINAL_SPACING);
+          : -20 + (i * GATE_UI.TERMINAL_SPACING));
         
         // 接続状態を確認
         const isConnected = false; // TODO: 接続状態の確認
         
         return (
           <g key={`in-${i}`}>
+            {/* クリック判定用の透明な大きい円 */}
+            <circle
+              cx={isIOGate ? 0 : -GATE_UI.RECT_WIDTH / 2 - 10}
+              cy={cy}
+              r={15}
+              fill="transparent"
+              className="cursor-crosshair"
+              onMouseUp={(e) => onTerminalMouseUp(e, gate, i)}
+              onMouseDown={(e) => onTerminalMouseDown(e, gate, false, i)}
+              style={{ pointerEvents: 'all' }}
+            />
+            {/* 外側の円 */}
             <circle
               cx={isIOGate ? 0 : -GATE_UI.RECT_WIDTH / 2 - 10}
               cy={cy}
@@ -220,14 +208,15 @@ const GateModern = memo(({
               fill={colors.ui.surface}
               stroke={isHovered ? colors.ui.accent.primary : colors.ui.border}
               strokeWidth="2"
-              className="cursor-crosshair"
-              onMouseUp={(e) => onTerminalMouseUp(e, gate, i)}
+              style={{ pointerEvents: 'none' }}
             />
+            {/* 内側の点 */}
             <circle
               cx={isIOGate ? 0 : -GATE_UI.RECT_WIDTH / 2 - 10}
               cy={cy}
               r={3}
               fill={isConnected ? colors.signal.on : colors.ui.border}
+              style={{ pointerEvents: 'none' }}
             />
           </g>
         );
@@ -235,11 +224,23 @@ const GateModern = memo(({
       
       {/* 出力端子 */}
       {Array.from({ length: gateInfo.outputs }).map((_, i) => {
-        const cy = gateInfo.outputs === 1 ? 0 : -10 + (i * GATE_UI.OUTPUT_SPACING);
+        const cy = isIOGate ? 0 : (gateInfo.outputs === 1 ? 0 : -10 + (i * GATE_UI.OUTPUT_SPACING));
         const isOn = getSignalState(gate.id, i);
         
         return (
           <g key={`out-${i}`}>
+            {/* クリック判定用の透明な大きい円 */}
+            <circle
+              cx={isIOGate ? 0 : GATE_UI.RECT_WIDTH / 2 + 10}
+              cy={cy}
+              r={15}
+              fill="transparent"
+              className="cursor-crosshair"
+              onMouseDown={(e) => onTerminalMouseDown(e, gate, true, i)}
+              onMouseUp={(e) => onTerminalMouseUp(e, gate, i)}
+              style={{ pointerEvents: 'all' }}
+            />
+            {/* 端子本体 */}
             <circle
               cx={isIOGate ? 0 : GATE_UI.RECT_WIDTH / 2 + 10}
               cy={cy}
@@ -247,9 +248,9 @@ const GateModern = memo(({
               fill={isOn ? colors.signal.on : colors.ui.surface}
               stroke={isOn ? colors.signal.on : colors.ui.border}
               strokeWidth="2"
-              className="cursor-crosshair"
-              onMouseDown={(e) => onTerminalMouseDown(e, gate, true, i)}
+              style={{ pointerEvents: 'none' }}
             />
+            {/* 発光エフェクト */}
             {isOn && (
               <circle
                 cx={isIOGate ? 0 : GATE_UI.RECT_WIDTH / 2 + 10}
@@ -259,7 +260,7 @@ const GateModern = memo(({
                 stroke={colors.signal.onGlow}
                 strokeWidth="2"
                 opacity="0.5"
-                style={{ animation: animation.pulse }}
+                style={{ animation: animation.pulse, pointerEvents: 'none' }}
               />
             )}
           </g>
@@ -298,9 +299,9 @@ const GateModern = memo(({
   );
 });
 
-GateModern.displayName = 'GateModern';
+Gate.displayName = 'Gate';
 
-GateModern.propTypes = {
+Gate.propTypes = {
   gate: PropTypes.object.isRequired,
   isSelected: PropTypes.bool.isRequired,
   simulation: PropTypes.object.isRequired,
@@ -311,4 +312,4 @@ GateModern.propTypes = {
   onTerminalMouseUp: PropTypes.func.isRequired
 };
 
-export default GateModern;
+export default Gate;
