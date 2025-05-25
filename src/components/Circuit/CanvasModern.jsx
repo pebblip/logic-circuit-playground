@@ -128,8 +128,8 @@ const CanvasModern = memo(({
         {/* ドラッグ中の接続線 */}
         {connectionDrag && (
           <line
-            x1={connectionDrag.startX}
-            y1={connectionDrag.startY}
+            x1={connectionDrag.fromX || connectionDrag.startX}
+            y1={connectionDrag.fromY || connectionDrag.startY}
             x2={mousePosition.x}
             y2={mousePosition.y}
             stroke={colors.signal.wire}

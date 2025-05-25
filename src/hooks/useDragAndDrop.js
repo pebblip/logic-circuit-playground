@@ -42,11 +42,20 @@ export const useDragAndDrop = (onGateMove) => {
   const handleTerminalMouseDown = useCallback((event, gate, isOutput, outputIndex = 0) => {
     event.stopPropagation();
     if (isOutput) {
+      const fromX = gate.type === 'INPUT' || gate.type === 'OUTPUT' || gate.type === 'CLOCK' 
+        ? gate.x 
+        : gate.x + 60 + 10; // RECT_WIDTH/2 + 10
+      const fromY = gate.type === 'INPUT' || gate.type === 'OUTPUT' || gate.type === 'CLOCK'
+        ? gate.y
+        : outputIndex === 0 ? gate.y : gate.y - 10 + (outputIndex * 20);
+      
       setConnectionDrag({
         fromGate: gate,
         fromOutput: outputIndex,
-        fromX: gate.x + 60,
-        fromY: gate.y + (outputIndex * 20)
+        fromX,
+        fromY,
+        startX: fromX,
+        startY: fromY
       });
     }
   }, []);

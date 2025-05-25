@@ -248,7 +248,7 @@ const GateModern = memo(({
               stroke={isOn ? colors.signal.on : colors.ui.border}
               strokeWidth="2"
               className="cursor-crosshair"
-              onMouseDown={(e) => onTerminalMouseDown(e, gate, i)}
+              onMouseDown={(e) => onTerminalMouseDown(e, gate, true, i)}
             />
             {isOn && (
               <circle

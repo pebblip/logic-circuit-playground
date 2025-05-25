@@ -233,7 +233,11 @@ export const getConnectionPath = (fromX, fromY, toX, toY) => {
  * @returns {number} X座標
  */
 export const getGateOutputX = (gate) => {
-  return gate.x + 60;
+  // I/Oゲートは中心、その他は右端+10px
+  if (gate.type === 'INPUT' || gate.type === 'OUTPUT' || gate.type === 'CLOCK') {
+    return gate.x;
+  }
+  return gate.x + 60 + 10; // RECT_WIDTH/2 + 10
 };
 
 /**
@@ -256,7 +260,11 @@ export const getGateOutputY = (gate, outputIndex = 0) => {
  * @returns {number} X座標
  */
 export const getGateInputX = (gate) => {
-  return gate.x - 60;
+  // I/Oゲートは中心、その他は左端-10px
+  if (gate.type === 'INPUT' || gate.type === 'OUTPUT' || gate.type === 'CLOCK') {
+    return gate.x;
+  }
+  return gate.x - 60 - 10; // RECT_WIDTH/2 - 10
 };
 
 /**
