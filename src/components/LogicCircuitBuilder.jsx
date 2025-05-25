@@ -12,7 +12,7 @@ import { layout, colors, shadows } from '../styles/design-tokens';
 
 // UIコンポーネント
 import Canvas from './Circuit/Canvas';
-import Toolbar from './UI/Toolbar';
+import Toolbar from './UI/ToolbarRedesigned';
 import LevelPanel from './UI/LevelPanel';
 import PropertiesPanel from './UI/PropertiesPanel';
 import InfoPanel from './UI/InfoPanelRedesigned';
