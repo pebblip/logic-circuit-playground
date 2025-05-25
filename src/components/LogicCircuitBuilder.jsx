@@ -14,8 +14,8 @@ import { layout, colors, shadows } from '../styles/design-tokens';
 import Canvas from './Circuit/Canvas';
 import Toolbar from './UI/ToolbarRedesigned';
 import LevelPanel from './UI/LevelPanel';
-import PropertiesPanel from './UI/PropertiesPanel';
-import InfoPanel from './UI/InfoPanelRedesigned';
+import RightPanel from './UI/RightPanel';
+import FloatingHelpWindow from './UI/FloatingHelpWindow';
 
 // 教育コンポーネント
 import TutorialPanel from './Education/TutorialPanel';
@@ -32,8 +32,18 @@ const LogicCircuitBuilder = () => {
   const { gates, connections, selectedGate, currentLevel, unlockedLevels, savedCircuits } = state;
   
   // UIの状態
-  const [bottomPanelHeight, setBottomPanelHeight] = useState(layout.bottomPanel.defaultHeight);
-  const [isDraggingPanel, setIsDraggingPanel] = useState(false);
+  const [isRightPanelCollapsed, setIsRightPanelCollapsed] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [consoleOutput, setConsoleOutput] = useState([]);
+  
+  // コンソールログを追加
+  const addConsoleLog = useCallback((message, type = 'info') => {
+    setConsoleOutput(prev => [...prev, {
+      message,
+      type,
+      timestamp: Date.now()
+    }]);
+  }, []);
   
   // 履歴管理
   const {
@@ -102,7 +112,9 @@ const LogicCircuitBuilder = () => {
     completeTutorial,
     getCurrentTutorialStep,
     calculateProgress,
-    validateTutorialStep
+    validateTutorialStep,
+    setCurrentTutorial,
+    setTutorialStep
   } = useEducation();
   
   // チュートリアル用の状態
@@ -116,6 +128,16 @@ const LogicCircuitBuilder = () => {
     // Re-render when tutorial changes
   }, [currentTutorial, getCurrentTutorialStep]);
   
+  // グローバル関数を設定するためのref
+  const toggleHelpRef = useRef(null);
+  toggleHelpRef.current = () => {
+    console.log('toggleHelp called');
+    setIsHelpOpen(prev => {
+      console.log('Setting help open to:', !prev);
+      return !prev;
+    });
+  };
+  
   // コンポーネントのマウント時の処理
   useEffect(() => {
     // レベル変更関数をグローバルに公開（一時的な解決策）
@@ -123,8 +145,12 @@ const LogicCircuitBuilder = () => {
       dispatch({ type: ACTIONS.SET_CURRENT_LEVEL, payload: newLevel });
     };
     
+    // ヘルプトグル関数をグローバルに公開
+    window.toggleHelp = () => toggleHelpRef.current();
+    
     return () => {
       delete window.onLevelChange;
+      delete window.toggleHelp;
     };
   }, []);
   
@@ -201,7 +227,8 @@ const LogicCircuitBuilder = () => {
       type: ACTIONS.ADD_GATE, 
       payload: { type, x, y, clockSignal } 
     });
-  }, [clockSignal]);
+    addConsoleLog(`${type}ゲートを追加しました`, 'success');
+  }, [clockSignal, addConsoleLog]);
 
   // INPUT値の切り替え
   const toggleInput = useCallback((gateId) => {
@@ -257,6 +284,16 @@ const LogicCircuitBuilder = () => {
     dispatch({ type: ACTIONS.SET_SELECTED_GATE, payload: gate });
   }, []);
 
+  const handleGateUpdate = useCallback((gateId, updates) => {
+    // UPDATE_GATE_VALUEを使用してゲートの値を更新
+    if (updates.value !== undefined) {
+      dispatch({ 
+        type: ACTIONS.UPDATE_GATE_VALUE, 
+        payload: { gateId, value: updates.value } 
+      });
+    }
+  }, []);
+
   const handleGateDoubleClick = useCallback((e, gate) => {
     e.stopPropagation();
     if (gate.type === 'INPUT') {
@@ -268,8 +305,13 @@ const LogicCircuitBuilder = () => {
     const connection = handleTerminalMouseUp(e, toGate, inputIndex);
     if (connection) {
       dispatch({ type: ACTIONS.ADD_CONNECTION, payload: connection });
+      const fromGate = gates.find(g => g.id === connection.from);
+      const toGate = gates.find(g => g.id === connection.to);
+      if (fromGate && toGate) {
+        addConsoleLog(`接続を作成: ${fromGate.type}[${fromGate.id}] → ${toGate.type}[${toGate.id}]`, 'success');
+      }
     }
-  }, [handleTerminalMouseUp]);
+  }, [handleTerminalMouseUp, gates, addConsoleLog]);
 
   const handleCalculate = useCallback(() => {
     const newSimulation = runCalculation();
@@ -282,16 +324,20 @@ const LogicCircuitBuilder = () => {
     }));
     
     dispatch({ type: ACTIONS.SET_GATES, payload: updatedGates });
-  }, [gates, runCalculation]);
+    addConsoleLog('回路を計算しました', 'info');
+  }, [gates, runCalculation, addConsoleLog]);
 
   const handleReset = useCallback(() => {
     dispatch({ type: ACTIONS.RESET });
     resetSimulation();
-  }, [resetSimulation]);
+    setConsoleOutput([]);
+    addConsoleLog('回路がリセットされました', 'info');
+  }, [resetSimulation, addConsoleLog]);
 
   const handleConnectionDelete = useCallback((index) => {
     dispatch({ type: ACTIONS.REMOVE_CONNECTION, payload: { index } });
-  }, []);
+    addConsoleLog('接続が削除されました', 'info');
+  }, [addConsoleLog]);
 
   const handleCanvasClick = useCallback(() => {
     dispatch({ type: ACTIONS.SET_SELECTED_GATE, payload: null });
@@ -313,7 +359,10 @@ const LogicCircuitBuilder = () => {
   // キーボードイベント
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (selectedGate) {
+      if (e.key === 'F1') {
+        e.preventDefault();
+        setIsHelpOpen(prev => !prev);
+      } else if (selectedGate) {
         if (e.key === 'Delete' || e.key === 'Backspace') {
           e.preventDefault();
           dispatch({ 
@@ -330,30 +379,6 @@ const LogicCircuitBuilder = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedGate]);
 
-  // パネルリサイズ
-  const handlePanelResize = useCallback((e) => {
-    if (!isDraggingPanel) return;
-    
-    const containerHeight = window.innerHeight - layout.toolbar.height;
-    const newHeight = containerHeight - e.clientY;
-    const clampedHeight = Math.max(
-      parseInt(layout.bottomPanel.minHeight),
-      Math.min(parseInt(layout.bottomPanel.maxHeight), newHeight)
-    );
-    
-    setBottomPanelHeight(`${clampedHeight}px`);
-  }, [isDraggingPanel]);
-
-  useEffect(() => {
-    if (isDraggingPanel) {
-      document.addEventListener('mousemove', handlePanelResize);
-      document.addEventListener('mouseup', () => setIsDraggingPanel(false));
-      return () => {
-        document.removeEventListener('mousemove', handlePanelResize);
-        document.removeEventListener('mouseup', () => setIsDraggingPanel(false));
-      };
-    }
-  }, [isDraggingPanel, handlePanelResize]);
 
   return (
     <div 
@@ -393,13 +418,14 @@ const LogicCircuitBuilder = () => {
             setCurrentChallenge(null);
             setShowHint(false);
           }}
+          onToggleHelp={() => setIsHelpOpen(!isHelpOpen)}
         />
       </div>
 
       {/* メインコンテンツ */}
       <div 
         className="flex"
-        style={{ height: `calc(100vh - ${layout.toolbar.height} - ${bottomPanelHeight})` }}
+        style={{ height: `calc(100vh - ${layout.toolbar.height})` }}
       >
         {/* 左パネル */}
         <div 
@@ -448,6 +474,7 @@ const LogicCircuitBuilder = () => {
               onModeChange={setLearningMode}
               onStartChallenge={handleStartChallenge}
               calculateProgress={calculateProgress}
+              currentTutorial={currentTutorial}
             />
           )}
           
@@ -465,7 +492,9 @@ const LogicCircuitBuilder = () => {
                   setLearningMode('sandbox');
                   setShowHint(false);
                   setCurrentChallenge(null);
-                  completeTutorial();
+                  // チュートリアルを完了せずにスキップ
+                  setCurrentTutorial(null);
+                  setTutorialStep(0);
                 }}
                 onComplete={() => {
                   if (isStepCompleted) {
@@ -474,6 +503,18 @@ const LogicCircuitBuilder = () => {
                   }
                 }}
                 isStepCompleted={isStepCompleted}
+                title={(() => {
+                  // チュートリアルIDから目標情報を取得
+                  for (const [level, categories] of Object.entries(LEARNING_OBJECTIVES)) {
+                    for (const [category, objectives] of Object.entries(categories)) {
+                      const objective = objectives.find(obj => obj.id === currentTutorial);
+                      if (objective) {
+                        return objective.name;
+                      }
+                    }
+                  }
+                  return null;
+                })()}
               />
             </>
           )}
@@ -495,50 +536,24 @@ const LogicCircuitBuilder = () => {
         </div>
 
         {/* 右パネル */}
-        <div 
-          style={{ 
-            width: layout.rightPanel.width,
-            minWidth: layout.rightPanel.minWidth,
-            backgroundColor: colors.ui.surface,
-            borderLeft: `1px solid ${colors.ui.border}`,
-            boxShadow: shadows.sm
-          }}
-        >
-          <PropertiesPanel
-            selectedGate={selectedGate}
-            savedCircuits={savedCircuits}
-            onLoadCircuit={handleLoadCircuit}
-            onSaveCircuit={handleSaveCircuit}
-          />
-        </div>
-      </div>
-
-      {/* 下部パネル（リサイズ可能） */}
-      <div 
-        style={{ 
-          height: bottomPanelHeight,
-          backgroundColor: colors.ui.surface,
-          borderTop: `1px solid ${colors.ui.border}`,
-          boxShadow: shadows.md
-        }}
-      >
-        {/* リサイズハンドル */}
-        <div
-          className="h-1 cursor-ns-resize hover:bg-blue-500 transition-colors"
-          style={{ backgroundColor: colors.ui.border }}
-          onMouseDown={() => setIsDraggingPanel(true)}
-        />
-        
-        <InfoPanel
-          currentLevel={currentLevel}
+        <RightPanel
           selectedGate={selectedGate}
+          onGateUpdate={handleGateUpdate}
           gates={gates}
           connections={connections}
-          simulation={simulation}
-          autoMode={autoMode}
-          height={`calc(${bottomPanelHeight} - 4px)`}
+          savedCircuits={savedCircuits}
+          onLoadCircuit={handleLoadCircuit}
+          isCollapsed={isRightPanelCollapsed}
+          onToggleCollapse={() => setIsRightPanelCollapsed(!isRightPanelCollapsed)}
+          consoleOutput={consoleOutput}
         />
       </div>
+      
+      {/* ヘルプウィンドウ */}
+      <FloatingHelpWindow
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
+      />
     </div>
   );
 };

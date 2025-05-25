@@ -16,7 +16,8 @@ const TutorialPanel = ({
   onShowHint,
   onSkip,
   onComplete,
-  isStepCompleted 
+  isStepCompleted,
+  title 
 }) => {
   return (
     <div 
@@ -28,13 +29,20 @@ const TutorialPanel = ({
       }}
     >
       {/* ヘッダー */}
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-bold" style={{ color: colors.ui.text.primary }}>
-          チュートリアル
-        </h3>
-        <span className="text-sm" style={{ color: colors.ui.text.secondary }}>
-          ステップ {currentStep + 1} / {totalSteps}
-        </span>
+      <div className="mb-4">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-lg font-bold" style={{ color: colors.ui.text.primary }}>
+            チュートリアル
+          </h3>
+          <span className="text-sm" style={{ color: colors.ui.text.secondary }}>
+            ステップ {currentStep + 1} / {totalSteps}
+          </span>
+        </div>
+        {title && (
+          <h4 className="text-sm font-medium" style={{ color: colors.ui.accent.primary }}>
+            {title}
+          </h4>
+        )}
       </div>
 
       {/* プログレスバー */}
@@ -140,7 +148,8 @@ TutorialPanel.propTypes = {
   onShowHint: PropTypes.func.isRequired,
   onSkip: PropTypes.func.isRequired,
   onComplete: PropTypes.func.isRequired,
-  isStepCompleted: PropTypes.bool.isRequired
+  isStepCompleted: PropTypes.bool.isRequired,
+  title: PropTypes.string
 };
 
 export default TutorialPanel;

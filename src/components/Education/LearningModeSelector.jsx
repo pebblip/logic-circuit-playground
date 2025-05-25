@@ -14,7 +14,8 @@ const LearningModeSelector = ({
   currentLevel,
   onModeChange,
   onStartChallenge,
-  calculateProgress
+  calculateProgress,
+  currentTutorial
 }) => {
   const levelProgress = calculateProgress(`level${currentLevel}`);
   const objectives = LEARNING_OBJECTIVES[`level${currentLevel}`] || {};
@@ -142,11 +143,15 @@ const LearningModeSelector = ({
                     style={{
                       backgroundColor: objective.completed 
                         ? colors.ui.accent.success + '10' 
-                        : colors.ui.background,
+                        : currentTutorial === objective.id
+                          ? colors.ui.accent.primary + '20'
+                          : colors.ui.background,
                       border: `1px solid ${
                         objective.completed 
                           ? colors.ui.accent.success 
-                          : colors.ui.border
+                          : currentTutorial === objective.id
+                            ? colors.ui.accent.primary
+                            : colors.ui.border
                       }`
                     }}
                     onClick={() => {
@@ -173,6 +178,16 @@ const LearningModeSelector = ({
                       <div className="ml-3">
                         {objective.completed ? (
                           <span className="text-xl">✅</span>
+                        ) : currentTutorial === objective.id ? (
+                          <span 
+                            className="text-xs px-2 py-1 rounded"
+                            style={{
+                              backgroundColor: colors.ui.accent.primary,
+                              color: 'white'
+                            }}
+                          >
+                            進行中
+                          </span>
                         ) : (
                           <span 
                             className="text-xs px-2 py-1 rounded"
@@ -223,7 +238,8 @@ LearningModeSelector.propTypes = {
   currentLevel: PropTypes.number.isRequired,
   onModeChange: PropTypes.func.isRequired,
   onStartChallenge: PropTypes.func.isRequired,
-  calculateProgress: PropTypes.func.isRequired
+  calculateProgress: PropTypes.func.isRequired,
+  currentTutorial: PropTypes.string
 };
 
 export default LearningModeSelector;

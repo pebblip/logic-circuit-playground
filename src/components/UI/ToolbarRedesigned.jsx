@@ -336,6 +336,27 @@ const ToolbarRedesigned = memo(({
         >
           🔄
         </button>
+
+        <div className="w-px h-6 bg-gray-300 mx-1" />
+
+        {/* ヘルプ */}
+        <button
+          onClick={() => {
+            console.log('Help button clicked');
+            if (window.toggleHelp) {
+              window.toggleHelp();
+            } else {
+              console.error('toggleHelp function not found');
+            }
+          }}
+          style={{
+            ...iconButtonStyle,
+            ...secondaryButtonStyle,
+          }}
+          title="ヘルプ (F1)"
+        >
+          ❓
+        </button>
       </div>
     </div>
   );

@@ -46,9 +46,6 @@ export const useEducation = () => {
       }
       return newProgress;
     });
-
-    // バッジのチェック
-    checkAndAwardBadges(level, category, objectiveId);
   }, []);
 
   // バッジの確認と付与
@@ -110,6 +107,8 @@ export const useEducation = () => {
           const objective = objectives.find(obj => obj.id === currentTutorial);
           if (objective) {
             completeObjective(level, category, currentTutorial);
+            // バッジのチェックは完了時のみ実行
+            checkAndAwardBadges(level, category, currentTutorial);
           }
         });
       });
@@ -119,7 +118,7 @@ export const useEducation = () => {
     setCurrentTutorial(null);
     setTutorialStep(0);
     // 学習モードは維持（sandbox に戻さない）
-  }, [currentTutorial, progress, completeObjective]);
+  }, [currentTutorial, progress, completeObjective, checkAndAwardBadges]);
 
   // 現在のチュートリアルステップを取得
   const getCurrentTutorialStep = useCallback(() => {
@@ -177,6 +176,8 @@ export const useEducation = () => {
     getCurrentTutorialStep,
     calculateProgress,
     validateTutorialStep,
-    validateCircuit
+    validateCircuit,
+    setCurrentTutorial,
+    setTutorialStep
   };
 };

@@ -27,7 +27,8 @@ const Toolbar = memo(({
   onRedo,
   canUndo,
   canRedo,
-  onToggleLearningMode
+  onToggleLearningMode,
+  onToggleHelp
 }) => {
   const currentLevelGates = LEVELS[currentLevel]?.gates || [];
   
@@ -292,6 +293,7 @@ const Toolbar = memo(({
 
         {/* ヘルプ */}
         <button
+          onClick={onToggleHelp}
           style={{
             ...secondaryButtonStyle,
             padding: spacing.sm,
@@ -345,7 +347,8 @@ Toolbar.propTypes = {
   onRedo: PropTypes.func.isRequired,
   canUndo: PropTypes.bool.isRequired,
   canRedo: PropTypes.bool.isRequired,
-  onToggleLearningMode: PropTypes.func.isRequired
+  onToggleLearningMode: PropTypes.func.isRequired,
+  onToggleHelp: PropTypes.func
 };
 
 export default Toolbar;
