@@ -1,6 +1,6 @@
 // リファクタリングされた論理回路ビルダーコンポーネント
 
-import React, { useReducer, useCallback, useEffect, useState, useRef } from 'react';
+import React, { useReducer, useCallback, useEffect, useRef } from 'react';
 import { circuitReducer, initialState, ACTIONS } from '../reducers/circuitReducer';
 import { useCircuitSimulation } from '../hooks/useCircuitSimulation';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
@@ -13,7 +13,6 @@ import Toolbar from './UI/Toolbar';
 import LevelPanel from './UI/LevelPanel';
 import PropertiesPanel from './UI/PropertiesPanel';
 import InfoPanel from './UI/InfoPanel';
-import ConfirmDialog from './UI/ConfirmDialog';
 
 /**
  * 論理回路ビルダーメインコンポーネント
@@ -22,13 +21,6 @@ const LogicCircuitBuilderRefactored = () => {
   // 状態管理（useReducer）
   const [state, dispatch] = useReducer(circuitReducer, initialState);
   const { gates, connections, selectedGate, currentLevel, unlockedLevels, savedCircuits } = state;
-  
-  // 削除確認ダイアログの状態
-  const [deleteConfirm, setDeleteConfirm] = useState({
-    isOpen: false,
-    gateId: null,
-    gateName: ''
-  });
   
   // 履歴管理
   const {
@@ -239,20 +231,6 @@ const LogicCircuitBuilderRefactored = () => {
     resetSimulation();
   }, [resetSimulation]);
 
-  // 削除確認処理
-  const handleDeleteConfirm = useCallback(() => {
-    if (deleteConfirm.gateId) {
-      dispatch({ 
-        type: ACTIONS.REMOVE_GATE, 
-        payload: { gateId: deleteConfirm.gateId } 
-      });
-    }
-    setDeleteConfirm({ isOpen: false, gateId: null, gateName: '' });
-  }, [deleteConfirm.gateId]);
-
-  const handleDeleteCancel = useCallback(() => {
-    setDeleteConfirm({ isOpen: false, gateId: null, gateName: '' });
-  }, []);
 
   // キーボードイベント処理
   useEffect(() => {
@@ -260,11 +238,10 @@ const LogicCircuitBuilderRefactored = () => {
       if (selectedGate) {
         if (e.key === 'Delete' || e.key === 'Backspace') {
           e.preventDefault();
-          // 削除確認ダイアログを表示
-          setDeleteConfirm({
-            isOpen: true,
-            gateId: selectedGate.id,
-            gateName: selectedGate.type
+          // 直接削除を実行
+          dispatch({ 
+            type: ACTIONS.REMOVE_GATE, 
+            payload: { gateId: selectedGate.id } 
           });
         } else if (e.key === 'Escape') {
           dispatch({ type: ACTIONS.SET_SELECTED_GATE, payload: null });
@@ -360,15 +337,6 @@ const LogicCircuitBuilderRefactored = () => {
           onSaveCircuit={handleSaveCircuit}
         />
       </div>
-      
-      {/* 削除確認ダイアログ */}
-      <ConfirmDialog
-        isOpen={deleteConfirm.isOpen}
-        title="ゲートの削除"
-        message={`${deleteConfirm.gateName}ゲートとその接続を削除しますか？`}
-        onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
-      />
     </div>
   );
 };

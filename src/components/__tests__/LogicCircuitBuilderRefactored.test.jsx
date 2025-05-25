@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LogicCircuitBuilderRefactored from '../LogicCircuitBuilderRefactored';
@@ -210,43 +211,33 @@ describe('LogicCircuitBuilderRefactored', () => {
   });
 
   describe('ゲート操作', () => {
-    it('ゲートの削除確認ダイアログが表示される', async () => {
+    it('Deleteキーで直接ゲートが削除される', async () => {
       const user = userEvent.setup();
+      const mockDispatch = vi.fn();
       
-      // 選択されたゲートがある状態をモック
-      vi.mocked(vi.importActual('../reducers/circuitReducer')).initialState = {
-        ...vi.mocked(vi.importActual('../reducers/circuitReducer')).initialState,
-        selectedGate: { id: 1, type: 'AND' }
-      };
+      // dispatchをモック
+      vi.spyOn(React, 'useReducer').mockReturnValue([
+        {
+          gates: [],
+          connections: [],
+          selectedGate: { id: 1, type: 'AND' },
+          currentLevel: null,
+          unlockedLevels: ['basic'],
+          savedCircuits: []
+        },
+        mockDispatch
+      ]);
 
       render(<LogicCircuitBuilderRefactored />);
       
       // Deleteキーを押す
       await user.keyboard('{Delete}');
       
-      // 確認ダイアログが表示される
-      expect(screen.getByText('ゲートの削除')).toBeInTheDocument();
-      expect(screen.getByText(/ANDゲートとその接続を削除しますか？/)).toBeInTheDocument();
-    });
-
-    it('削除確認ダイアログでキャンセルできる', async () => {
-      const user = userEvent.setup();
-      
-      vi.mocked(vi.importActual('../reducers/circuitReducer')).initialState = {
-        ...vi.mocked(vi.importActual('../reducers/circuitReducer')).initialState,
-        selectedGate: { id: 1, type: 'AND' }
-      };
-
-      render(<LogicCircuitBuilderRefactored />);
-      
-      await user.keyboard('{Delete}');
-      
-      // キャンセルボタンをクリック
-      const cancelButton = screen.getByText('キャンセル');
-      await user.click(cancelButton);
-      
-      // ダイアログが閉じる
-      expect(screen.queryByText('ゲートの削除')).not.toBeInTheDocument();
+      // REMOVE_GATEアクションがディスパッチされる
+      expect(mockDispatch).toHaveBeenCalledWith({
+        type: 'REMOVE_GATE',
+        payload: { gateId: 1 }
+      });
     });
   });
 
