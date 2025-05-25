@@ -1,8 +1,13 @@
 import React from 'react'
-import LogicCircuitBuilderRefactored from './components/LogicCircuitBuilderRefactored'
+import LogicCircuitBuilderModern from './components/LogicCircuitBuilderModern'
+import ErrorBoundary from './components/ErrorBoundary'
 
 function App() {
-  return <LogicCircuitBuilderRefactored />
+  return (
+    <ErrorBoundary>
+      <LogicCircuitBuilderModern />
+    </ErrorBoundary>
+  )
 }
 
 export default App
