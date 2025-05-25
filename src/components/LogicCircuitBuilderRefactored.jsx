@@ -1,9 +1,10 @@
 // リファクタリングされた論理回路ビルダーコンポーネント
 
-import React, { useReducer, useCallback, useEffect } from 'react';
+import React, { useReducer, useCallback, useEffect, useState, useRef } from 'react';
 import { circuitReducer, initialState, ACTIONS } from '../reducers/circuitReducer';
 import { useCircuitSimulation } from '../hooks/useCircuitSimulation';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
+import { useHistory } from '../hooks/useHistory';
 import { CANVAS } from '../constants/circuit';
 
 // UIコンポーネント
@@ -12,6 +13,7 @@ import Toolbar from './UI/Toolbar';
 import LevelPanel from './UI/LevelPanel';
 import PropertiesPanel from './UI/PropertiesPanel';
 import InfoPanel from './UI/InfoPanel';
+import ConfirmDialog from './UI/ConfirmDialog';
 
 /**
  * 論理回路ビルダーメインコンポーネント
@@ -20,7 +22,40 @@ const LogicCircuitBuilderRefactored = () => {
   // 状態管理（useReducer）
   const [state, dispatch] = useReducer(circuitReducer, initialState);
   const { gates, connections, selectedGate, currentLevel, unlockedLevels, savedCircuits } = state;
+  
+  // 削除確認ダイアログの状態
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    isOpen: false,
+    gateId: null,
+    gateName: ''
+  });
+  
+  // 履歴管理
+  const {
+    pushState,
+    undo: undoHistory,
+    redo: redoHistory,
+    canUndo,
+    canRedo
+  } = useHistory({ gates, connections });
+  
+  // Undo/Redo処理
+  const undo = useCallback(() => {
+    const result = undoHistory();
+    if (result && result.state) {
+      dispatch({ type: ACTIONS.SET_GATES, payload: result.state.gates });
+      dispatch({ type: ACTIONS.SET_CONNECTIONS, payload: result.state.connections });
+    }
+  }, [undoHistory]);
 
+  const redo = useCallback(() => {
+    const result = redoHistory();
+    if (result && result.state) {
+      dispatch({ type: ACTIONS.SET_GATES, payload: result.state.gates });
+      dispatch({ type: ACTIONS.SET_CONNECTIONS, payload: result.state.connections });
+    }
+  }, [redoHistory]);
+  
   // カスタムフック
   const {
     simulation,
@@ -47,11 +82,39 @@ const LogicCircuitBuilderRefactored = () => {
   } = useDragAndDrop((gateId, x, y) => {
     dispatch({ type: ACTIONS.MOVE_GATE, payload: { gateId, x, y } });
   });
+  
+  // 状態変更を履歴に保存（初回レンダリング時は除く）
+  const isFirstRender = useRef(true);
+  const prevStateRef = useRef({ gates, connections });
+  
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    
+    // 状態が実際に変更された場合のみ履歴に保存
+    const hasGatesChanged = JSON.stringify(prevStateRef.current.gates) !== JSON.stringify(gates);
+    const hasConnectionsChanged = JSON.stringify(prevStateRef.current.connections) !== JSON.stringify(connections);
+    
+    if ((hasGatesChanged || hasConnectionsChanged) && !draggedGate && !connectionDrag && !autoMode) {
+      pushState({ gates, connections });
+      prevStateRef.current = { gates, connections };
+    }
+  }, [gates, connections, draggedGate, connectionDrag, autoMode, pushState]);
 
   // ゲート追加
   const addGate = useCallback((type) => {
-    const x = 400 + (Math.random() - 0.5) * 200;
-    const y = 250 + (Math.random() - 0.5) * 100;
+    // グリッドサイズ（20px）に合わせて配置
+    const gridSize = 20;
+    const baseX = 400;
+    const baseY = 250;
+    const randomOffsetX = Math.floor((Math.random() - 0.5) * 10) * gridSize;
+    const randomOffsetY = Math.floor((Math.random() - 0.5) * 5) * gridSize;
+    
+    const x = baseX + randomOffsetX;
+    const y = baseY + randomOffsetY;
+    
     dispatch({ 
       type: ACTIONS.ADD_GATE, 
       payload: { type, x, y, clockSignal } 
@@ -89,26 +152,32 @@ const LogicCircuitBuilderRefactored = () => {
   // クロック信号が変わったら回路を再計算（自動モード時）
   useEffect(() => {
     // ドラッグ中は更新をスキップ
-    if (autoMode && !draggedGate) {
+    if (autoMode && !draggedGate && clockSignal !== undefined) {
       // クロックゲートの値を更新
       const updatedGates = gates.map(gate => 
         gate.type === 'CLOCK' ? { ...gate, value: clockSignal } : gate
       );
       
-      // 更新されたゲートで計算を実行
-      const newSimulation = calculateCircuitWithGates(updatedGates);
+      // クロックゲートが存在し、実際に値が変更された場合のみ更新
+      const hasClockGate = gates.some(g => g.type === 'CLOCK');
+      const clockValueChanged = gates.some(g => g.type === 'CLOCK' && g.value !== clockSignal);
       
-      // OUTPUT と その他のゲートの値のみ更新
-      const finalGates = updatedGates.map(gate => ({
-        ...gate,
-        value: gate.type === 'INPUT' || gate.type === 'CLOCK' 
-          ? gate.value 
-          : (newSimulation[gate.id] ?? gate.value)
-      }));
-      
-      dispatch({ type: ACTIONS.SET_GATES, payload: finalGates });
+      if (hasClockGate && clockValueChanged) {
+        // 更新されたゲートで計算を実行
+        const newSimulation = calculateCircuitWithGates(updatedGates);
+        
+        // OUTPUT と その他のゲートの値のみ更新
+        const finalGates = updatedGates.map(gate => ({
+          ...gate,
+          value: gate.type === 'INPUT' || gate.type === 'CLOCK' 
+            ? gate.value 
+            : (newSimulation[gate.id] ?? gate.value)
+        }));
+        
+        dispatch({ type: ACTIONS.SET_GATES, payload: finalGates });
+      }
     }
-  }, [clockSignal, autoMode, gates, calculateCircuitWithGates, draggedGate]);
+  }, [clockSignal, autoMode, draggedGate]);
 
   // イベントハンドラー
   const handleGateClick = useCallback((e, gate) => {
@@ -170,15 +239,32 @@ const LogicCircuitBuilderRefactored = () => {
     resetSimulation();
   }, [resetSimulation]);
 
+  // 削除確認処理
+  const handleDeleteConfirm = useCallback(() => {
+    if (deleteConfirm.gateId) {
+      dispatch({ 
+        type: ACTIONS.REMOVE_GATE, 
+        payload: { gateId: deleteConfirm.gateId } 
+      });
+    }
+    setDeleteConfirm({ isOpen: false, gateId: null, gateName: '' });
+  }, [deleteConfirm.gateId]);
+
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteConfirm({ isOpen: false, gateId: null, gateName: '' });
+  }, []);
+
   // キーボードイベント処理
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (selectedGate) {
         if (e.key === 'Delete' || e.key === 'Backspace') {
           e.preventDefault();
-          dispatch({ 
-            type: ACTIONS.REMOVE_GATE, 
-            payload: { gateId: selectedGate.id } 
+          // 削除確認ダイアログを表示
+          setDeleteConfirm({
+            isOpen: true,
+            gateId: selectedGate.id,
+            gateName: selectedGate.type
           });
         } else if (e.key === 'Escape') {
           dispatch({ type: ACTIONS.SET_SELECTED_GATE, payload: null });
@@ -231,6 +317,10 @@ const LogicCircuitBuilderRefactored = () => {
             onToggleAutoMode={toggleAutoMode}
             onUpdateSpeed={updateSimulationSpeed}
             onReset={handleReset}
+            onUndo={undo}
+            onRedo={redo}
+            canUndo={canUndo}
+            canRedo={canRedo}
           />
 
           {/* キャンバス */}
@@ -270,6 +360,15 @@ const LogicCircuitBuilderRefactored = () => {
           onSaveCircuit={handleSaveCircuit}
         />
       </div>
+      
+      {/* 削除確認ダイアログ */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        title="ゲートの削除"
+        message={`${deleteConfirm.gateName}ゲートとその接続を削除しますか？`}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
     </div>
   );
 };

@@ -47,15 +47,19 @@ const Canvas = memo(({
               height={CANVAS.GRID_SIZE} 
               patternUnits="userSpaceOnUse"
             >
-              <path 
-                d={`M ${CANVAS.GRID_SIZE} 0 L 0 0 0 ${CANVAS.GRID_SIZE}`} 
-                fill="none" 
-                stroke="#f0f0f0" 
-                strokeWidth="1"
+              <circle 
+                cx={1} 
+                cy={1} 
+                r={0.5} 
+                fill="#e5e7eb"
               />
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
+          <rect 
+            width={CANVAS.WIDTH} 
+            height={CANVAS.HEIGHT} 
+            fill="url(#grid)" 
+          />
 
           {/* 接続線 */}
           {connections.map((conn, index) => {

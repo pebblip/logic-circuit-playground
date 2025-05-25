@@ -19,7 +19,11 @@ const Toolbar = memo(({
   onCalculate,
   onToggleAutoMode,
   onUpdateSpeed,
-  onReset
+  onReset,
+  onUndo,
+  onRedo,
+  canUndo,
+  canRedo
 }) => {
   const availableGates = getAvailableGateTypes(currentLevel, unlockedLevels);
   const inputGates = gates.filter(g => g.type === 'INPUT');
@@ -48,6 +52,38 @@ const Toolbar = memo(({
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Undo/Redo */}
+          <div className="flex items-center gap-1 border-r pr-3 mr-3">
+            <button
+              onClick={onUndo}
+              disabled={!canUndo}
+              className={`p-1.5 text-sm rounded transition-colors ${
+                canUndo 
+                  ? 'text-gray-700 hover:bg-gray-100' 
+                  : 'text-gray-400 cursor-not-allowed'
+              }`}
+              title="元に戻す (Ctrl+Z)"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+              </svg>
+            </button>
+            <button
+              onClick={onRedo}
+              disabled={!canRedo}
+              className={`p-1.5 text-sm rounded transition-colors ${
+                canRedo 
+                  ? 'text-gray-700 hover:bg-gray-100' 
+                  : 'text-gray-400 cursor-not-allowed'
+              }`}
+              title="やり直す (Ctrl+Y)"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
+              </svg>
+            </button>
+          </div>
+          
           {/* 実行制御 */}
           <button
             onClick={onCalculate}

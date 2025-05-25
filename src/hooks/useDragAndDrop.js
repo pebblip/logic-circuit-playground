@@ -5,6 +5,16 @@ import { getSVGPoint } from '../utils/svg';
 import { constrainGatePosition } from '../utils/circuit';
 import { CANVAS } from '../constants/circuit';
 
+// グリッドのサイズ（ピクセル）
+const GRID_SIZE = 20;
+
+/**
+ * 座標をグリッドにスナップする
+ */
+const snapToGrid = (value) => {
+  return Math.round(value / GRID_SIZE) * GRID_SIZE;
+};
+
 /**
  * ドラッグ&ドロップ機能を管理するカスタムフック
  * @param {Function} onGateMove - ゲート移動時のコールバック
@@ -47,13 +57,19 @@ export const useDragAndDrop = (onGateMove) => {
     setMousePosition(point);
     
     if (draggedGate && dragOffset) {
-      const newPosition = constrainGatePosition(
+      const rawPosition = constrainGatePosition(
         point.x - dragOffset.x,
         point.y - dragOffset.y,
         CANVAS
       );
       
-      onGateMove(draggedGate.id, newPosition.x, newPosition.y);
+      // グリッドにスナップ
+      const snappedPosition = {
+        x: snapToGrid(rawPosition.x),
+        y: snapToGrid(rawPosition.y)
+      };
+      
+      onGateMove(draggedGate.id, snappedPosition.x, snappedPosition.y);
     }
   }, [draggedGate, dragOffset, onGateMove]);
 

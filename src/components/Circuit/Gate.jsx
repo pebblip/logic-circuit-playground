@@ -19,9 +19,15 @@ const Gate = memo(({
 }) => {
   const gateInfo = GATE_TYPES[gate.type];
   const isIOGate = gate.type === 'INPUT' || gate.type === 'OUTPUT' || gate.type === 'CLOCK';
+  const [isHovered, setIsHovered] = React.useState(false);
   
   return (
-    <g transform={`translate(${gate.x}, ${gate.y})`} data-testid={`gate-${gate.id}`}>
+    <g 
+      transform={`translate(${gate.x}, ${gate.y})`} 
+      data-testid={`gate-${gate.id}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* ゲート本体 */}
       {isIOGate ? (
         <circle
@@ -29,13 +35,13 @@ const Gate = memo(({
           cy={0}
           r={GATE_UI.CIRCLE_RADIUS}
           fill={
-            gate.type === 'INPUT' ? (gate.value ? '#000' : '#fff') :
+            gate.type === 'INPUT' ? (gate.value ? '#059669' : '#fff') :
             gate.type === 'CLOCK' ? (gate.value ? '#3b82f6' : '#fff') :
-            '#f9f9f9'
+            isHovered ? '#f3f4f6' : '#f9f9f9'
           }
-          stroke={isSelected ? "#3b82f6" : "#333"}
+          stroke={isSelected ? "#3b82f6" : isHovered ? "#6b7280" : "#333"}
           strokeWidth={isSelected ? "3" : "2"}
-          className="cursor-pointer"
+          className="cursor-pointer transition-colors"
           onClick={(e) => onGateClick(e, gate)}
           onDoubleClick={(e) => onGateDoubleClick(e, gate)}
           onMouseDown={(e) => onGateMouseDown(e, gate)}
@@ -47,10 +53,10 @@ const Gate = memo(({
           width={GATE_UI.RECT_WIDTH}
           height={GATE_UI.RECT_HEIGHT}
           rx={GATE_UI.RECT_CORNER_RADIUS}
-          fill="#fff"
-          stroke={isSelected ? "#3b82f6" : "#333"}
+          fill={isHovered ? '#f9fafb' : '#fff'}
+          stroke={isSelected ? "#3b82f6" : isHovered ? "#6b7280" : "#333"}
           strokeWidth={isSelected ? "3" : "2"}
-          className="cursor-pointer"
+          className="cursor-pointer transition-all"
           onClick={(e) => onGateClick(e, gate)}
           onDoubleClick={(e) => onGateDoubleClick(e, gate)}
           onMouseDown={(e) => onGateMouseDown(e, gate)}
@@ -82,9 +88,9 @@ const Gate = memo(({
           cy={-20 + (i * GATE_UI.TERMINAL_SPACING)}
           r={GATE_UI.TERMINAL_RADIUS}
           fill="#fff"
-          stroke="#333"
+          stroke={isHovered ? "#6b7280" : "#333"}
           strokeWidth="2"
-          className="cursor-crosshair hover:fill-gray-200"
+          className="cursor-crosshair hover:fill-blue-100 transition-colors"
           onMouseUp={(e) => onTerminalMouseUp(e, gate, i)}
         />
       ))}
@@ -96,25 +102,37 @@ const Gate = memo(({
           cx={GATE_UI.RECT_WIDTH / 2}
           cy={gateInfo.outputs === 1 ? 0 : -10 + (i * GATE_UI.OUTPUT_SPACING)}
           r={GATE_UI.TERMINAL_RADIUS}
-          fill="#333"
-          className="cursor-crosshair hover:fill-gray-600"
+          fill={isHovered ? "#4b5563" : "#333"}
+          className="cursor-crosshair hover:fill-blue-500 transition-colors"
           onMouseDown={(e) => onTerminalMouseDown(e, gate, true, i)}
         />
       ))}
 
       {/* OUTPUT値の表示 */}
       {gate.type === 'OUTPUT' && gate.value !== null && (
-        <text
-          x={0}
-          y={-50}
-          textAnchor="middle"
-          fill={gate.value ? '#000' : '#999'}
-          fontSize="24"
-          fontWeight="bold"
-          className="pointer-events-none select-none"
-        >
-          {gate.value ? '1' : '0'}
-        </text>
+        <g transform="translate(0, -55)">
+          <rect
+            x={-20}
+            y={-15}
+            width={40}
+            height={30}
+            rx={4}
+            fill={gate.value ? '#059669' : '#f3f4f6'}
+            stroke={gate.value ? '#047857' : '#d1d5db'}
+            strokeWidth={2}
+          />
+          <text
+            x={0}
+            y={5}
+            textAnchor="middle"
+            fill={gate.value ? '#fff' : '#6b7280'}
+            fontSize="20"
+            fontWeight="bold"
+            className="pointer-events-none select-none"
+          >
+            {gate.value ? '1' : '0'}
+          </text>
+        </g>
       )}
     </g>
   );
