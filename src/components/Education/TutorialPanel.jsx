@@ -20,10 +20,11 @@ const TutorialPanel = ({
 }) => {
   return (
     <div 
-      className="absolute top-20 right-4 w-96 p-6 rounded-lg shadow-lg z-50"
+      className="absolute top-20 right-4 w-96 p-6 rounded-lg shadow-lg"
       style={{ 
         backgroundColor: colors.ui.surface,
-        border: `2px solid ${colors.ui.accent.primary}`
+        border: `2px solid ${colors.ui.accent.primary}`,
+        zIndex: 9999
       }}
     >
       {/* ヘッダー */}

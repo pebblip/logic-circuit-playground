@@ -9,8 +9,9 @@ import { colors, spacing, typography, shadows, radius } from '../../styles/desig
 /**
  * モダンな情報パネル
  */
-const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections, height }) => {
-  const [activeTab, setActiveTab] = useState('description');
+const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections, simulation, height }) => {
+  const [activeTab, setActiveTab] = useState('reference');
+  const [consoleMessages, setConsoleMessages] = useState([]);
 
   const tabStyle = (isActive) => ({
     padding: `${spacing.sm} ${spacing.lg}`,
@@ -24,18 +25,23 @@ const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections, height
     transition: 'all 0.2s',
   });
 
-  const renderDescription = () => {
-    const gateDescriptions = {
-      AND: { symbol: '∧', desc: 'すべての入力が1（真）のときのみ1を出力します。', example: '1 ∧ 1 = 1, 1 ∧ 0 = 0' },
-      OR: { symbol: '∨', desc: 'いずれかの入力が1（真）のとき1を出力します。', example: '1 ∨ 0 = 1, 0 ∨ 0 = 0' },
-      NOT: { symbol: '¬', desc: '入力を反転します。', example: '¬1 = 0, ¬0 = 1' },
-      XOR: { symbol: '⊕', desc: '入力が異なるとき1を出力します。', example: '1 ⊕ 0 = 1, 1 ⊕ 1 = 0' },
-      NAND: { symbol: '⊼', desc: 'ANDの出力を反転します。', example: '1 ⊼ 1 = 0, 1 ⊼ 0 = 1' },
-      NOR: { symbol: '⊽', desc: 'ORの出力を反転します。', example: '1 ⊽ 0 = 0, 0 ⊽ 0 = 1' },
-      HALF_ADDER: { symbol: 'HA', desc: '2つの1ビット数を加算し、和（S）と桁上げ（C）を出力します。', example: '1 + 1 = S:0, C:1' },
-      FULL_ADDER: { symbol: 'FA', desc: '2つの1ビット数と桁上げ入力を加算します。', example: '1 + 1 + 1 = S:1, C:1' },
-      SR_LATCH: { symbol: 'SR', desc: '基本的な記憶素子。S（セット）とR（リセット）で状態を制御します。' },
-      D_FF: { symbol: 'D-FF', desc: 'クロックの立ち上がりでD入力の値を記憶します。' },
+  const renderReference = () => {
+    // 全ゲートのリファレンス情報
+    const gateReference = {
+      // レベル1
+      AND: { symbol: '∧', desc: 'すべての入力が1（真）のときのみ1を出力します。', usage: '複数条件の同時成立判定' },
+      OR: { symbol: '∨', desc: 'いずれかの入力が1（真）のとき1を出力します。', usage: '複数条件のいずれか成立判定' },
+      NOT: { symbol: '¬', desc: '入力を反転します。', usage: '信号の反転、否定条件' },
+      // レベル2
+      NAND: { symbol: '⊼', desc: 'ANDの出力を反転します。万能ゲート。', usage: '他のすべてのゲートを構成可能' },
+      NOR: { symbol: '⊽', desc: 'ORの出力を反転します。', usage: 'いずれも0のとき1を出力' },
+      XOR: { symbol: '⊕', desc: '入力が異なるとき1を出力します。', usage: '不一致検出、加算器の構成要素' },
+      SR_LATCH: { symbol: 'SR', desc: '基本的な記憶素子。', usage: '1ビットの状態保持' },
+      D_FF: { symbol: 'D-FF', desc: 'クロック同期記憶素子。', usage: '同期式回路の記憶要素' },
+      CLOCK: { symbol: '⏰', desc: '周期的な信号を生成。', usage: '同期式回路のタイミング制御' },
+      // レベル3
+      HALF_ADDER: { symbol: 'HA', desc: '2ビットの加算（桁上げなし）。', usage: '加算器の基本要素' },
+      FULL_ADDER: { symbol: 'FA', desc: '2ビット+桁上げの加算。', usage: '多ビット加算器の構成' },
     };
 
     return (

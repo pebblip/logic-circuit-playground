@@ -74,7 +74,7 @@ const TruthTable = memo(({ gates, connections }) => {
     
     return {
       inputs: inputs.map((input, index) => `IN${index + 1}`),
-      outputs: outputValues.length > 0 ? outputValues[0].name : '',
+      outputs: outputs.length > 0 ? outputs[0].name : '',
       rows
     };
   }, [gates, connections]);

@@ -15,7 +15,7 @@ import Canvas from './Circuit/Canvas';
 import Toolbar from './UI/Toolbar';
 import LevelPanel from './UI/LevelPanel';
 import PropertiesPanel from './UI/PropertiesPanel';
-import InfoPanel from './UI/InfoPanel';
+import InfoPanel from './UI/InfoPanelRedesigned';
 
 // 教育コンポーネント
 import TutorialPanel from './Education/TutorialPanel';
@@ -111,6 +111,28 @@ const LogicCircuitBuilder = () => {
   const currentStep = getCurrentTutorialStep();
   const isStepCompleted = currentStep ? validateTutorialStep(state) : false;
   
+  // Force re-render when tutorial changes
+  useEffect(() => {
+    // Re-render when tutorial changes
+  }, [currentTutorial, getCurrentTutorialStep]);
+  
+  // コンポーネントのマウント時の処理
+  useEffect(() => {
+    // レベル変更関数をグローバルに公開（一時的な解決策）
+    window.onLevelChange = (newLevel) => {
+      dispatch({ type: ACTIONS.SET_CURRENT_LEVEL, payload: newLevel });
+    };
+    
+    return () => {
+      delete window.onLevelChange;
+    };
+  }, []);
+  
+  // Track tutorial state changes
+  useEffect(() => {
+    // Tutorial state updated
+  }, [currentTutorial, tutorialStep, currentStep, learningMode]);
+  
   // チャレンジの開始
   const handleStartChallenge = useCallback((challengeId) => {
     // 既存のチャレンジやチュートリアルをクリア
@@ -122,15 +144,23 @@ const LogicCircuitBuilder = () => {
       completeTutorial();
     }
     
-    const challenge = LEARNING_OBJECTIVES[`level${currentLevel}`]?.basics?.find(obj => obj.id === challengeId) ||
-                     LEARNING_OBJECTIVES[`level${currentLevel}`]?.constructions?.find(obj => obj.id === challengeId) ||
-                     LEARNING_OBJECTIVES[`level${currentLevel}`]?.advanced?.find(obj => obj.id === challengeId);
+    const levelObjectives = LEARNING_OBJECTIVES[`level${currentLevel}`];
+    if (!levelObjectives) {
+      return;
+    }
+    
+    const challenge = levelObjectives.basics?.find(obj => obj.id === challengeId) ||
+                     levelObjectives.constructions?.find(obj => obj.id === challengeId) ||
+                     levelObjectives.advanced?.find(obj => obj.id === challengeId);
     
     if (challenge) {
       if (challenge.type === 'truth_table') {
         setCurrentChallenge(challenge);
       } else if (challenge.type === 'construction') {
         startTutorial(challengeId);
+      } else if (challenge.type === 'verification') {
+        // verificationタイプの処理を追加（現在は未実装）
+        alert(`検証チャレンジ「${challenge.name}」は現在実装中です。\nLevel 1の「構築」カテゴリーに、NANDゲートとSRラッチを作るチュートリアルがあります。`);
       }
     }
   }, [currentLevel, currentTutorial, completeTutorial, startTutorial]);
@@ -157,7 +187,9 @@ const LogicCircuitBuilder = () => {
   // ゲート追加
   const addGate = useCallback((type) => {
     const gridSize = 20;
-    const baseX = 500;
+    // 学習モードの場合は、パネルを避けて配置
+    const isLearning = learningMode !== 'sandbox';
+    const baseX = isLearning ? 600 : 500;  // 学習モード時は右寄りに配置
     const baseY = 300;
     const randomOffsetX = Math.floor((Math.random() - 0.5) * 10) * gridSize;
     const randomOffsetY = Math.floor((Math.random() - 0.5) * 5) * gridSize;
@@ -420,27 +452,30 @@ const LogicCircuitBuilder = () => {
           )}
           
           {/* チュートリアルパネル */}
-          {currentTutorial && currentStep && (
-            <TutorialPanel
-              currentStep={tutorialStep}
-              totalSteps={TUTORIAL_STEPS[currentTutorial]?.length || 0}
-              instruction={currentStep.instruction}
-              hint={currentStep.hint}
-              showHint={showHint}
-              onShowHint={() => setShowHint(true)}
-              onSkip={() => {
-                setLearningMode('sandbox');
-                setShowHint(false);
-                setCurrentChallenge(null);
-              }}
-              onComplete={() => {
-                if (isStepCompleted) {
-                  nextTutorialStep();
+          {currentTutorial && (
+            <>
+              <TutorialPanel
+                currentStep={tutorialStep}
+                totalSteps={TUTORIAL_STEPS[currentTutorial]?.length || 0}
+                instruction={currentStep?.instruction || 'チュートリアルを読み込み中...'}
+                hint={currentStep?.hint || ''}
+                showHint={showHint}
+                onShowHint={() => setShowHint(true)}
+                onSkip={() => {
+                  setLearningMode('sandbox');
                   setShowHint(false);
-                }
-              }}
-              isStepCompleted={isStepCompleted}
-            />
+                  setCurrentChallenge(null);
+                  completeTutorial();
+                }}
+                onComplete={() => {
+                  if (isStepCompleted) {
+                    nextTutorialStep();
+                    setShowHint(false);
+                  }
+                }}
+                isStepCompleted={isStepCompleted}
+              />
+            </>
           )}
           
           {/* 真理値表チャレンジ */}
@@ -499,6 +534,8 @@ const LogicCircuitBuilder = () => {
           selectedGate={selectedGate}
           gates={gates}
           connections={connections}
+          simulation={simulation}
+          autoMode={autoMode}
           height={`calc(${bottomPanelHeight} - 4px)`}
         />
       </div>

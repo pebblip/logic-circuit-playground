@@ -103,6 +103,80 @@ export const LEARNING_OBJECTIVES = {
         completed: false
       }
     ]
+  },
+  level3: {
+    basics: [
+      {
+        id: 'half_adder',
+        name: '半加算器の理解',
+        description: '半加算器の動作原理を学習',
+        type: 'truth_table',
+        targetGate: 'HALF_ADDER',
+        completed: false
+      },
+      {
+        id: 'full_adder',
+        name: '全加算器の理解',
+        description: '全加算器の動作原理を学習',
+        type: 'truth_table',
+        targetGate: 'FULL_ADDER',
+        completed: false
+      }
+    ],
+    constructions: [
+      {
+        id: 'build_half_adder',
+        name: '半加算器を作る',
+        description: 'XORゲートとANDゲートで半加算器を構築',
+        type: 'construction',
+        allowedGates: ['XOR', 'AND'],
+        targetBehavior: 'HALF_ADDER',
+        hint: '半加算器は1ビットの加算を行います',
+        completed: false
+      },
+      {
+        id: 'build_full_adder',
+        name: '全加算器を作る',
+        description: '2つの半加算器とORゲートで全加算器を構築',
+        type: 'construction',
+        allowedGates: ['XOR', 'AND', 'OR'],
+        targetBehavior: 'FULL_ADDER',
+        hint: '全加算器は桁上がり入力も考慮します',
+        completed: false
+      },
+      {
+        id: 'build_4bit_adder',
+        name: '4ビット加算器を作る',
+        description: '4つの全加算器を連結して4ビット加算器を構築',
+        type: 'construction',
+        allowedGates: ['XOR', 'AND', 'OR'],
+        targetBehavior: '4BIT_ADDER',
+        hint: '桁上がりを次の全加算器に伝播させます',
+        completed: false
+      }
+    ],
+    advanced: [
+      {
+        id: 'build_comparator',
+        name: '比較器を作る',
+        description: '2つの数値を比較する回路を構築',
+        type: 'construction',
+        allowedGates: ['AND', 'OR', 'NOT', 'XOR'],
+        targetBehavior: 'COMPARATOR',
+        hint: 'A=B, A>B, A<Bを判定します',
+        completed: false
+      },
+      {
+        id: 'build_multiplexer',
+        name: 'マルチプレクサを作る',
+        description: '選択信号により入力を切り替える回路を構築',
+        type: 'construction',
+        allowedGates: ['AND', 'OR', 'NOT'],
+        targetBehavior: 'MULTIPLEXER',
+        hint: '選択信号で複数の入力から1つを選びます',
+        completed: false
+      }
+    ]
   }
 };
 
@@ -191,6 +265,123 @@ export const TUTORIAL_STEPS = {
         return inputs.length >= 2 && norGates.length >= 2;
       },
       hint: 'Set(S)とReset(R)の入力を追加します'
+    }
+  ],
+  
+  build_half_adder: [
+    {
+      step: 1,
+      instruction: 'XORゲートを配置してください',
+      validation: (state) => state.gates.some(g => g.type === 'XOR'),
+      hint: 'XORゲートは2つの入力が異なるときに1を出力します'
+    },
+    {
+      step: 2,
+      instruction: 'ANDゲートを配置してください',
+      validation: (state) => state.gates.some(g => g.type === 'AND'),
+      hint: 'ANDゲートは桁上がり（Carry）を計算します'
+    },
+    {
+      step: 3,
+      instruction: '2つの入力（INPUT）を追加してください',
+      validation: (state) => state.gates.filter(g => g.type === 'INPUT').length >= 2,
+      hint: '加算する2つのビットを入力します'
+    },
+    {
+      step: 4,
+      instruction: '2つの出力（OUTPUT）を追加してください',
+      validation: (state) => state.gates.filter(g => g.type === 'OUTPUT').length >= 2,
+      hint: '和（Sum）と桁上がり（Carry）の出力が必要です'
+    },
+    {
+      step: 5,
+      instruction: '入力をXORゲートとANDゲートの両方に接続してください',
+      validation: (state) => {
+        const inputs = state.gates.filter(g => g.type === 'INPUT');
+        const xorGate = state.gates.find(g => g.type === 'XOR');
+        const andGate = state.gates.find(g => g.type === 'AND');
+        if (!xorGate || !andGate || inputs.length < 2) return false;
+        
+        // 各入力がXORとANDの両方に接続されているか確認
+        return inputs.every(input => 
+          state.connections.some(c => c.from === input.id && c.to === xorGate.id) &&
+          state.connections.some(c => c.from === input.id && c.to === andGate.id)
+        );
+      },
+      hint: '両方の入力を各ゲートに接続します'
+    },
+    {
+      step: 6,
+      instruction: 'XORゲートの出力を和（Sum）出力に、ANDゲートの出力を桁上がり（Carry）出力に接続',
+      validation: (state) => {
+        const xorGate = state.gates.find(g => g.type === 'XOR');
+        const andGate = state.gates.find(g => g.type === 'AND');
+        const outputs = state.gates.filter(g => g.type === 'OUTPUT');
+        if (!xorGate || !andGate || outputs.length < 2) return false;
+        
+        return state.connections.some(c => c.from === xorGate.id && c.toType === 'OUTPUT') &&
+               state.connections.some(c => c.from === andGate.id && c.toType === 'OUTPUT');
+      },
+      hint: 'XOR出力→和、AND出力→桁上がり'
+    }
+  ],
+
+  build_full_adder: [
+    {
+      step: 1,
+      instruction: '2つのXORゲートを配置してください',
+      validation: (state) => state.gates.filter(g => g.type === 'XOR').length >= 2,
+      hint: '全加算器では2段階のXOR演算が必要です'
+    },
+    {
+      step: 2,
+      instruction: '2つのANDゲートを配置してください',
+      validation: (state) => state.gates.filter(g => g.type === 'AND').length >= 2,
+      hint: '2つの桁上がりを計算するために必要です'
+    },
+    {
+      step: 3,
+      instruction: '1つのORゲートを配置してください',
+      validation: (state) => state.gates.some(g => g.type === 'OR'),
+      hint: '最終的な桁上がりを計算します'
+    },
+    {
+      step: 4,
+      instruction: '3つの入力を追加（A, B, 桁上がり入力）',
+      validation: (state) => state.gates.filter(g => g.type === 'INPUT').length >= 3,
+      hint: 'A + B + 前の桁からの桁上がりを計算します'
+    },
+    {
+      step: 5,
+      instruction: 'AとBを1つ目のXORゲートに接続',
+      validation: (state) => {
+        const inputs = state.gates.filter(g => g.type === 'INPUT');
+        const xorGates = state.gates.filter(g => g.type === 'XOR');
+        if (inputs.length < 2 || xorGates.length < 1) return false;
+        
+        // 最初の2つの入力が最初のXORに接続されているか
+        return state.connections.filter(c => 
+          c.to === xorGates[0].id && 
+          (c.from === inputs[0].id || c.from === inputs[1].id)
+        ).length >= 2;
+      },
+      hint: 'まずAとBのXORを計算します'
+    },
+    {
+      step: 6,
+      instruction: '回路を完成させて全加算器の動作を確認',
+      validation: (state) => {
+        // 簡易的な検証：必要なゲートと接続が存在するか
+        const hasRequiredGates = 
+          state.gates.filter(g => g.type === 'XOR').length >= 2 &&
+          state.gates.filter(g => g.type === 'AND').length >= 2 &&
+          state.gates.some(g => g.type === 'OR') &&
+          state.gates.filter(g => g.type === 'INPUT').length >= 3 &&
+          state.gates.filter(g => g.type === 'OUTPUT').length >= 2;
+        
+        return hasRequiredGates && state.connections.length >= 10;
+      },
+      hint: '1つ目のXOR出力と桁上がり入力を2つ目のXORへ、桁上がり計算にはANDとORを使用'
     }
   ]
 };

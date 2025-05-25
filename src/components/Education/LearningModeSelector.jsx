@@ -29,9 +29,36 @@ const LearningModeSelector = ({
     >
       {/* ヘッダー */}
       <div className="p-4 border-b" style={{ borderColor: colors.ui.border }}>
-        <h3 className="text-lg font-bold mb-2" style={{ color: colors.ui.text.primary }}>
-          学習モード
-        </h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-bold" style={{ color: colors.ui.text.primary }}>
+            学習モード
+          </h3>
+          <div className="flex items-center gap-2">
+            <span className="text-sm" style={{ color: colors.ui.text.secondary }}>
+              レベル:
+            </span>
+            <select
+              value={currentLevel}
+              onChange={(e) => {
+                // レベル切り替え機能を追加
+                const newLevel = parseInt(e.target.value);
+                if (window.onLevelChange) {
+                  window.onLevelChange(newLevel);
+                }
+              }}
+              className="px-2 py-1 rounded border text-sm"
+              style={{
+                backgroundColor: colors.ui.surface,
+                borderColor: colors.ui.border,
+                color: colors.ui.text.primary
+              }}
+            >
+              <option value={1}>レベル1</option>
+              <option value={2}>レベル2</option>
+              <option value={3}>レベル3</option>
+            </select>
+          </div>
+        </div>
         
         {/* 進捗表示 */}
         <div className="mb-3">
@@ -122,7 +149,11 @@ const LearningModeSelector = ({
                           : colors.ui.border
                       }`
                     }}
-                    onClick={() => !objective.completed && onStartChallenge(objective.id)}
+                    onClick={() => {
+                      if (!objective.completed) {
+                        onStartChallenge(objective.id);
+                      }
+                    }}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">

@@ -79,7 +79,6 @@ export const useEducation = () => {
   const awardBadge = useCallback((badgeId) => {
     setEarnedBadges(prev => [...prev, badgeId]);
     // バッジ獲得の通知を表示（実装は後で）
-    console.log(`🎉 バッジを獲得しました: ${BADGES[badgeId].name}`);
   }, []);
 
   // チュートリアルを開始
@@ -125,7 +124,8 @@ export const useEducation = () => {
   // 現在のチュートリアルステップを取得
   const getCurrentTutorialStep = useCallback(() => {
     if (currentTutorial && TUTORIAL_STEPS[currentTutorial]) {
-      return TUTORIAL_STEPS[currentTutorial][tutorialStep];
+      const step = TUTORIAL_STEPS[currentTutorial][tutorialStep];
+      return step;
     }
     return null;
   }, [currentTutorial, tutorialStep]);

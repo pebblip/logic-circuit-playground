@@ -84,6 +84,10 @@ const Toolbar = memo(({
         </div>
         {currentLevelGates.map(gateType => {
           const gateInfo = GATE_TYPES[gateType];
+          if (!gateInfo) {
+            console.warn(`Gate type "${gateType}" not found in GATE_TYPES`);
+            return null;
+          }
           const isUnlocked = unlockedLevels[gateInfo.level];
           
           return (
@@ -295,6 +299,25 @@ const Toolbar = memo(({
           title="ヘルプ"
         >
           ?
+        </button>
+
+        {/* デバッグ用：進捗リセット */}
+        <button
+          onClick={() => {
+            if (window.confirm('学習進捗をリセットしますか？')) {
+              localStorage.removeItem('learningProgress');
+              localStorage.removeItem('earnedBadges');
+              window.location.reload();
+            }
+          }}
+          style={{
+            ...secondaryButtonStyle,
+            padding: spacing.sm,
+            color: colors.ui.text.secondary,
+          }}
+          title="進捗リセット"
+        >
+          🔄
         </button>
       </div>
     </div>

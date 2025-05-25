@@ -14,12 +14,12 @@ export const LEVELS = {
   },
   3: {
     name: "演算回路",
-    gates: ['XOR', 'HALF_ADDER', 'FULL_ADDER', 'BUS'],
+    gates: ['XOR', 'HALF_ADDER', 'FULL_ADDER'],
     description: "加算器と演算回路を構築しましょう"
   },
   4: {
     name: "CPU要素",
-    gates: ['REGISTER', 'ALU', 'MUX', 'DECODER'],
+    gates: [],  // 未実装のため一時的に空にする
     description: "簡単なCPUを作ってみましょう"
   }
 };
@@ -81,10 +81,9 @@ export const SIMULATION = {
   CLOCK_INTERVAL_BASE: 1000 // ミリ秒
 };
 
-// タブ定義
+// タブ定義（再設計）
 export const TABS = {
-  DESCRIPTION: { id: 'description', label: '回路説明' },
-  TIMING: { id: 'timing', label: 'タイミング' },
-  TRUTH: { id: 'truth', label: '真理値表' },
-  TUTORIAL: { id: 'tutorial', label: 'チュートリアル' }
+  REFERENCE: { id: 'reference', label: 'リファレンス' },
+  CONSOLE: { id: 'console', label: 'コンソール' },
+  TRUTH: { id: 'truth', label: '真理値表' }
 };

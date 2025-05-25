@@ -18,6 +18,31 @@ const TruthTableChallenge = ({
 }) => {
   const [isCorrect, setIsCorrect] = useState(false);
   const gateInfo = GATE_TYPES[targetGate];
+  
+  // ゲート情報が見つからない場合のエラーハンドリング
+  if (!gateInfo) {
+    return (
+      <div className="absolute top-20 right-4 w-96 p-6 rounded-lg shadow-lg z-50"
+        style={{ 
+          backgroundColor: colors.ui.surface,
+          border: `2px solid ${colors.ui.accent.error}`
+        }}
+      >
+        <p style={{ color: colors.ui.accent.error }}>エラー: 不明なゲートタイプ「{targetGate}」</p>
+        <button
+          onClick={onCancel}
+          className="mt-4 px-4 py-2 rounded"
+          style={{
+            backgroundColor: colors.ui.background,
+            color: colors.ui.text.secondary
+          }}
+        >
+          閉じる
+        </button>
+      </div>
+    );
+  }
+  
   const requiredInputs = targetGate === 'NOT' ? 1 : gateInfo.inputs;
   
   // 期待される真理値表
@@ -42,6 +67,30 @@ const TruthTableChallenge = ({
   
   const expectedTable = expectedTables[targetGate];
   
+  // 真理値表が定義されていない場合のエラーハンドリング
+  if (!expectedTable) {
+    return (
+      <div className="absolute top-20 right-4 w-96 p-6 rounded-lg shadow-lg z-50"
+        style={{ 
+          backgroundColor: colors.ui.surface,
+          border: `2px solid ${colors.ui.accent.error}`
+        }}
+      >
+        <p style={{ color: colors.ui.accent.error }}>エラー: ゲート「{targetGate}」の真理値表が定義されていません</p>
+        <button
+          onClick={onCancel}
+          className="mt-4 px-4 py-2 rounded"
+          style={{
+            backgroundColor: colors.ui.background,
+            color: colors.ui.text.secondary
+          }}
+        >
+          閉じる
+        </button>
+      </div>
+    );
+  }
+  
   // 現在の回路の状態を確認
   useEffect(() => {
     checkCircuit();
@@ -59,7 +108,6 @@ const TruthTableChallenge = ({
     }
     
     // 入力数の確認
-    const requiredInputs = targetGate === 'NOT' ? 1 : gateInfo.inputs;
     if (inputGates.length < requiredInputs) {
       setIsCorrect(false);
       return;
@@ -75,7 +123,7 @@ const TruthTableChallenge = ({
   
   return (
     <div 
-      className="absolute top-20 left-1/2 transform -translate-x-1/2 w-96 p-6 rounded-lg shadow-lg z-50"
+      className="absolute top-20 right-4 w-96 p-6 rounded-lg shadow-lg z-50"
       style={{ 
         backgroundColor: colors.ui.surface,
         border: `2px solid ${colors.ui.accent.primary}`
@@ -114,7 +162,7 @@ const TruthTableChallenge = ({
             </tr>
           </thead>
           <tbody>
-            {expectedTable.map((row, i) => (
+            {expectedTable && expectedTable.map((row, i) => (
               <tr key={i} style={{ borderBottom: `1px solid ${colors.ui.border}` }}>
                 {row.inputs.map((input, j) => (
                   <td key={`in${j}`} className="p-2 text-center">{input}</td>
