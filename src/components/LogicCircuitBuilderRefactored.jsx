@@ -257,6 +257,8 @@ const LogicCircuitBuilderRefactored = () => {
           <InfoPanel
             currentLevel={currentLevel}
             selectedGate={selectedGate}
+            gates={gates}
+            connections={connections}
           />
         </div>
 

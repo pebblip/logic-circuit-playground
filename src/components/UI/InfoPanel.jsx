@@ -1,12 +1,14 @@
 // 情報パネルコンポーネント
 
 import React, { memo, useState } from 'react';
+import PropTypes from 'prop-types';
 import { LEVELS, TABS, GATE_TYPES } from '../../constants/circuit';
+import TruthTable from './TruthTable';
 
 /**
  * 情報パネルコンポーネント
  */
-const InfoPanel = memo(({ currentLevel, selectedGate }) => {
+const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections }) => {
   const [activeTab, setActiveTab] = useState('description');
 
   return (
@@ -70,7 +72,7 @@ const InfoPanel = memo(({ currentLevel, selectedGate }) => {
         )}
         
         {activeTab === 'truth' && (
-          <p className="text-sm text-gray-500">真理値表は今後実装予定です。</p>
+          <TruthTable gates={gates} connections={connections} />
         )}
       </div>
     </div>
@@ -78,5 +80,12 @@ const InfoPanel = memo(({ currentLevel, selectedGate }) => {
 });
 
 InfoPanel.displayName = 'InfoPanel';
+
+InfoPanel.propTypes = {
+  currentLevel: PropTypes.number.isRequired,
+  selectedGate: PropTypes.object,
+  gates: PropTypes.array.isRequired,
+  connections: PropTypes.array.isRequired
+};
 
 export default InfoPanel;
