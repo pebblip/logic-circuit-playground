@@ -3,6 +3,69 @@
 import { GATE_TYPES, SIMULATION } from '../constants/circuit';
 
 /**
+ * SR Latchの計算
+ * @param {boolean} S - Set入力
+ * @param {boolean} R - Reset入力
+ * @param {Object} memory - 現在のメモリ状態
+ * @returns {Array} [Q, Q']の出力
+ */
+const calculateSRLatch = (S, R, memory = {}) => {
+  // 初期状態
+  let Q = memory.Q !== undefined ? memory.Q : false;
+  let Qbar = memory.Qbar !== undefined ? memory.Qbar : true;
+  
+  // SR Latchのロジック
+  if (S && !R) {
+    // Set
+    Q = true;
+    Qbar = false;
+  } else if (!S && R) {
+    // Reset
+    Q = false;
+    Qbar = true;
+  } else if (S && R) {
+    // 禁止状態（両方true）
+    Q = true;
+    Qbar = true;
+  }
+  // S=0, R=0の場合は前の状態を保持
+  
+  // メモリ更新
+  memory.Q = Q;
+  memory.Qbar = Qbar;
+  
+  return [Q, Qbar];
+};
+
+/**
+ * D Flip-Flopの計算
+ * @param {boolean} D - Data入力
+ * @param {boolean} CLK - Clock入力
+ * @param {Object} memory - 現在のメモリ状態
+ * @returns {Array} [Q, Q']の出力
+ */
+const calculateDFlipFlop = (D, CLK, memory = {}) => {
+  // 初期状態
+  let Q = memory.Q !== undefined ? memory.Q : false;
+  let Qbar = memory.Qbar !== undefined ? memory.Qbar : true;
+  let prevCLK = memory.prevCLK !== undefined ? memory.prevCLK : false;
+  
+  // 立ち上がりエッジ検出
+  if (!prevCLK && CLK) {
+    // クロックの立ち上がりでDの値をラッチ
+    Q = D;
+    Qbar = !D;
+  }
+  
+  // メモリ更新
+  memory.Q = Q;
+  memory.Qbar = Qbar;
+  memory.prevCLK = CLK;
+  
+  return [Q, Qbar];
+};
+
+/**
  * 回路の計算を実行
  * @param {Array} gates - ゲートの配列
  * @param {Array} connections - 接続の配列
@@ -10,11 +73,15 @@ import { GATE_TYPES, SIMULATION } from '../constants/circuit';
  */
 export const calculateCircuit = (gates, connections) => {
   const simulation = {};
+  const gateMemory = {};
   
-  // 入力とクロックの初期値設定
+  // 入力とクロックの初期値設定、メモリの初期化
   gates.forEach(gate => {
     if (gate.type === 'INPUT' || gate.type === 'CLOCK') {
       simulation[gate.id] = gate.value;
+    }
+    if (gate.memory) {
+      gateMemory[gate.id] = gate.memory;
     }
   });
 
@@ -31,16 +98,40 @@ export const calculateCircuit = (gates, connections) => {
         const gateInfo = GATE_TYPES[gate.type];
         const inputConnections = connections.filter(c => c.to === gate.id);
         
-        if (inputConnections.length === gateInfo.inputs && gateInfo.func) {
+        if (inputConnections.length === gateInfo.inputs) {
           const inputValues = inputConnections
             .sort((a, b) => a.toInput - b.toInput)
             .map(c => simulation[c.from]);
           
           if (inputValues.every(v => v !== undefined)) {
-            const result = gateInfo.func(...inputValues);
-            if (simulation[gate.id] !== result) {
-              simulation[gate.id] = result;
-              changed = true;
+            let results = [];
+            
+            // 特殊なゲートの処理
+            if (gate.type === 'SR_LATCH') {
+              results = calculateSRLatch(inputValues[0], inputValues[1], gateMemory[gate.id]);
+            } else if (gate.type === 'D_FF') {
+              results = calculateDFlipFlop(inputValues[0], inputValues[1], gateMemory[gate.id]);
+            } else if (gateInfo.func) {
+              // 通常のゲート
+              const result = gateInfo.func(...inputValues);
+              results = [result];
+            }
+            
+            // 出力値の更新
+            if (results.length > 0) {
+              if (simulation[gate.id] !== results[0]) {
+                simulation[gate.id] = results[0];
+                changed = true;
+              }
+              
+              // 複数出力の場合
+              for (let i = 1; i < results.length; i++) {
+                const outputKey = `${gate.id}_out${i}`;
+                if (simulation[outputKey] !== results[i]) {
+                  simulation[outputKey] = results[i];
+                  changed = true;
+                }
+              }
             }
           }
         }
@@ -63,6 +154,18 @@ export const createGate = (type, x, y, clockSignal = false) => {
   const gateInfo = GATE_TYPES[type];
   if (!gateInfo) return null;
 
+  // メモリの初期化
+  let memory = null;
+  if (gateInfo.hasMemory) {
+    if (type === 'SR_LATCH') {
+      memory = { Q: false, Qbar: true };
+    } else if (type === 'D_FF') {
+      memory = { Q: false, Qbar: true, prevCLK: false };
+    } else {
+      memory = {};
+    }
+  }
+
   return {
     id: Date.now() + Math.random(), // より確実なユニークID
     type,
@@ -71,7 +174,7 @@ export const createGate = (type, x, y, clockSignal = false) => {
     inputs: Array(gateInfo.inputs).fill(null),
     outputs: Array(gateInfo.outputs).fill(null),
     value: type === 'INPUT' ? true : type === 'CLOCK' ? clockSignal : null,
-    memory: gateInfo.hasMemory ? {} : null
+    memory
   };
 };
 

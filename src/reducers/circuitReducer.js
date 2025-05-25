@@ -31,7 +31,7 @@ export const initialState = {
   connections: [],
   selectedGate: null,
   currentLevel: 1,
-  unlockedLevels: { 1: true },
+  unlockedLevels: { 1: true, 2: true }, // レベル2も最初からアンロック
   savedCircuits: []
 };
 

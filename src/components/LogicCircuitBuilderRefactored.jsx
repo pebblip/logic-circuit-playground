@@ -36,6 +36,7 @@ const LogicCircuitBuilderRefactored = () => {
 
   const {
     svgRef,
+    draggedGate,
     connectionDrag,
     mousePosition,
     handleGateMouseDown,
@@ -87,7 +88,8 @@ const LogicCircuitBuilderRefactored = () => {
 
   // クロック信号が変わったら回路を再計算（自動モード時）
   useEffect(() => {
-    if (autoMode) {
+    // ドラッグ中は更新をスキップ
+    if (autoMode && !draggedGate) {
       // クロックゲートの値を更新
       const updatedGates = gates.map(gate => 
         gate.type === 'CLOCK' ? { ...gate, value: clockSignal } : gate
@@ -106,7 +108,7 @@ const LogicCircuitBuilderRefactored = () => {
       
       dispatch({ type: ACTIONS.SET_GATES, payload: finalGates });
     }
-  }, [clockSignal, autoMode, gates, calculateCircuitWithGates]);
+  }, [clockSignal, autoMode, gates, calculateCircuitWithGates, draggedGate]);
 
   // イベントハンドラー
   const handleGateClick = useCallback((e, gate) => {

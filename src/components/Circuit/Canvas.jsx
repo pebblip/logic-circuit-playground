@@ -61,7 +61,9 @@ const Canvas = memo(({
           {connections.map((conn, index) => {
             const fromGate = gates.find(g => g.id === conn.from);
             const toGate = gates.find(g => g.id === conn.to);
-            const isActive = simulation[conn.from];
+            // 複数出力の場合は正しい出力を参照
+            const simKey = conn.fromOutput > 0 ? `${conn.from}_out${conn.fromOutput}` : conn.from;
+            const isActive = simulation[simKey];
 
             return (
               <Connection
