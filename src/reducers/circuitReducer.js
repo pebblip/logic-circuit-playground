@@ -6,21 +6,27 @@ import { createGate } from '../utils/circuit';
 export const ACTIONS = {
   ADD_GATE: 'ADD_GATE',
   REMOVE_GATE: 'REMOVE_GATE',
+  DELETE_GATE: 'DELETE_GATE',
   MOVE_GATE: 'MOVE_GATE',
+  UPDATE_GATE: 'UPDATE_GATE',
   UPDATE_GATE_VALUE: 'UPDATE_GATE_VALUE',
   UPDATE_GATES_BATCH: 'UPDATE_GATES_BATCH',
   SET_GATES: 'SET_GATES',
   
   ADD_CONNECTION: 'ADD_CONNECTION',
   REMOVE_CONNECTION: 'REMOVE_CONNECTION',
+  DELETE_CONNECTION: 'DELETE_CONNECTION',
   SET_CONNECTIONS: 'SET_CONNECTIONS',
   
   SET_SELECTED_GATE: 'SET_SELECTED_GATE',
+  SELECT_GATE: 'SELECT_GATE',
   SET_CURRENT_LEVEL: 'SET_CURRENT_LEVEL',
   UNLOCK_LEVEL: 'UNLOCK_LEVEL',
+  LEVEL_UP: 'LEVEL_UP',
   
   SAVE_CIRCUIT: 'SAVE_CIRCUIT',
   LOAD_CIRCUIT: 'LOAD_CIRCUIT',
+  CLEAR_CIRCUIT: 'CLEAR_CIRCUIT',
   
   RESET: 'RESET'
 };
@@ -52,8 +58,9 @@ export const circuitReducer = (state, action) => {
       };
     }
     
-    case ACTIONS.REMOVE_GATE: {
-      const { gateId } = action.payload;
+    case ACTIONS.REMOVE_GATE: 
+    case ACTIONS.DELETE_GATE: {
+      const gateId = typeof action.payload === 'string' ? action.payload : action.payload.gateId;
       return {
         ...state,
         gates: state.gates.filter(g => g.id !== gateId),
@@ -70,6 +77,16 @@ export const circuitReducer = (state, action) => {
         ...state,
         gates: state.gates.map(gate => 
           gate.id === gateId ? { ...gate, x, y } : gate
+        )
+      };
+    }
+    
+    case ACTIONS.UPDATE_GATE: {
+      const { id, updates } = action.payload;
+      return {
+        ...state,
+        gates: state.gates.map(gate => 
+          gate.id === id ? { ...gate, ...updates } : gate
         )
       };
     }
@@ -104,32 +121,46 @@ export const circuitReducer = (state, action) => {
     
     // 接続関連
     case ACTIONS.ADD_CONNECTION: {
-      const { from, fromOutput, to, toInput } = action.payload;
+      const connection = action.payload;
       
-      // 既存の接続をチェック
-      const existingConnection = state.connections.find(c => 
-        c.to === to && c.toInput === toInput
+      // 既存の接続をチェック（同じ入力端子への接続を防ぐ）
+      const existingConnectionIndex = state.connections.findIndex(c => 
+        c.to === connection.to && 
+        c.toTerminal === connection.toTerminal // toTerminalが完全一致の場合のみ置き換え
       );
       
-      if (existingConnection) return state;
+      // 既存の接続がある場合は置き換える
+      if (existingConnectionIndex !== -1) {
+        const newConnections = [...state.connections];
+        newConnections[existingConnectionIndex] = connection;
+        return {
+          ...state,
+          connections: newConnections
+        };
+      }
       
+      // 新しい接続を追加
       return {
         ...state,
-        connections: [...state.connections, {
-          from,
-          fromOutput: fromOutput || 0,
-          to,
-          toInput
-        }]
+        connections: [...state.connections, connection]
       };
     }
     
-    case ACTIONS.REMOVE_CONNECTION: {
-      const { index } = action.payload;
-      return {
-        ...state,
-        connections: state.connections.filter((_, i) => i !== index)
-      };
+    case ACTIONS.REMOVE_CONNECTION: 
+    case ACTIONS.DELETE_CONNECTION: {
+      const connectionId = action.payload;
+      // indexかIDで削除をサポート
+      if (typeof connectionId === 'number') {
+        return {
+          ...state,
+          connections: state.connections.filter((_, i) => i !== connectionId)
+        };
+      } else {
+        return {
+          ...state,
+          connections: state.connections.filter(c => c.id !== connectionId)
+        };
+      }
     }
     
     case ACTIONS.SET_CONNECTIONS: {
@@ -140,10 +171,16 @@ export const circuitReducer = (state, action) => {
     }
     
     // 選択関連
-    case ACTIONS.SET_SELECTED_GATE: {
+    case ACTIONS.SET_SELECTED_GATE:
+    case ACTIONS.SELECT_GATE: {
+      const gate = action.payload;
       return {
         ...state,
-        selectedGate: action.payload
+        selectedGate: gate,
+        gates: state.gates.map(g => ({
+          ...g,
+          selected: g.id === gate?.id
+        }))
       };
     }
     
@@ -163,6 +200,27 @@ export const circuitReducer = (state, action) => {
           ...state.unlockedLevels,
           [level]: true
         }
+      };
+    }
+    
+    case ACTIONS.LEVEL_UP: {
+      const nextLevel = state.currentLevel + 1;
+      return {
+        ...state,
+        currentLevel: nextLevel,
+        unlockedLevels: {
+          ...state.unlockedLevels,
+          [nextLevel]: true
+        }
+      };
+    }
+    
+    case ACTIONS.CLEAR_CIRCUIT: {
+      return {
+        ...state,
+        gates: [],
+        connections: [],
+        selectedGate: null
       };
     }
     

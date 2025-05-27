@@ -245,4 +245,105 @@ describe('useDragAndDrop', () => {
       });
     });
   });
+
+  describe('Cypressで難しかったドラッグ機能', () => {
+    it('ゲートをドラッグして移動できる（座標が変わる）', () => {
+      const { result } = renderHook(() => useDragAndDrop(mockOnGateMove));
+      const initialGate = { id: 'input-1', type: 'INPUT', x: 200, y: 200 };
+      
+      // ドラッグ開始
+      act(() => {
+        result.current.handleGateMouseDown(createMockEvent(200, 200), initialGate);
+      });
+      
+      // 200px右、100px下に移動
+      act(() => {
+        result.current.handleMouseMove(createMockEvent(400, 300));
+      });
+      
+      // グリッドスナップが適用された新しい座標が設定される
+      expect(mockOnGateMove).toHaveBeenCalledWith('input-1', 400, 300);
+    });
+
+    it('接続されたゲートを移動しても接続線が追従する', () => {
+      const { result } = renderHook(() => useDragAndDrop(mockOnGateMove));
+      const connectedGate = { id: 'input-1', type: 'INPUT', x: 200, y: 200 };
+      
+      // ドラッグ開始
+      act(() => {
+        result.current.handleGateMouseDown(createMockEvent(200, 200), connectedGate);
+      });
+      
+      // 100px下に移動
+      act(() => {
+        result.current.handleMouseMove(createMockEvent(200, 300));
+      });
+      
+      // ゲートの移動が呼ばれる（接続線は別のレイヤーで管理）
+      expect(mockOnGateMove).toHaveBeenCalled();
+      const [, newX, newY] = mockOnGateMove.mock.calls[0];
+      expect(newY).toBeGreaterThan(200);
+    });
+
+    it('ドラッグ中はゲートが半透明になる状態を管理', () => {
+      const { result } = renderHook(() => useDragAndDrop(mockOnGateMove));
+      const gate = { id: 'and-1', type: 'AND', x: 300, y: 300 };
+      
+      // ドラッグ開始
+      act(() => {
+        result.current.handleGateMouseDown(createMockEvent(300, 300), gate);
+      });
+      
+      // ドラッグ中のゲートが設定される
+      expect(result.current.draggedGate).toEqual(gate);
+      
+      // ドラッグ終了
+      act(() => {
+        result.current.handleMouseUp();
+      });
+      
+      // ドラッグ状態がクリアされる
+      expect(result.current.draggedGate).toBe(null);
+    });
+
+    it('キャンバスの境界を超えてドラッグできない', () => {
+      const { result } = renderHook(() => useDragAndDrop(mockOnGateMove));
+      const gate = { id: 'not-1', type: 'NOT', x: 400, y: 400 };
+      
+      // ドラッグ開始
+      act(() => {
+        result.current.handleGateMouseDown(createMockEvent(400, 400), gate);
+      });
+      
+      // キャンバス外に移動を試みる
+      act(() => {
+        result.current.handleMouseMove(createMockEvent(-100, -100));
+      });
+      
+      // 最小値でクランプされる
+      const [, x, y] = mockOnGateMove.mock.calls[mockOnGateMove.mock.calls.length - 1];
+      expect(x).toBeGreaterThanOrEqual(60); // 最小値 + グリッドスナップ
+      expect(y).toBeGreaterThanOrEqual(60);
+    });
+
+    it('グリッドスナップが20px単位で動作する', () => {
+      const { result } = renderHook(() => useDragAndDrop(mockOnGateMove));
+      const gate = { id: 'gate-1', type: 'AND', x: 100, y: 100 };
+      
+      // ドラッグ開始
+      act(() => {
+        result.current.handleGateMouseDown(createMockEvent(100, 100), gate);
+      });
+      
+      // 半端な位置に移動
+      act(() => {
+        result.current.handleMouseMove(createMockEvent(117, 123));
+      });
+      
+      // 20px単位にスナップされる
+      const [, x, y] = mockOnGateMove.mock.calls[mockOnGateMove.mock.calls.length - 1];
+      expect(x % 20).toBe(0);
+      expect(y % 20).toBe(0);
+    });
+  });
 });

@@ -1,9 +1,11 @@
 // 学習モード選択コンポーネント
 
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Map, BookOpen, Trophy } from 'lucide-react';
 import { colors } from '../../styles/design-tokens';
 import { LEARNING_OBJECTIVES } from '../../constants/education';
+import CurriculumMap from './CurriculumMap';
 
 /**
  * 学習モード選択とチャレンジ一覧
@@ -15,10 +17,17 @@ const LearningModeSelector = ({
   onModeChange,
   onStartChallenge,
   calculateProgress,
-  currentTutorial
+  currentTutorial,
+  earnedBadges = []
 }) => {
+  const [showCurriculumMap, setShowCurriculumMap] = useState(false);
   const levelProgress = calculateProgress(`level${currentLevel}`);
   const objectives = LEARNING_OBJECTIVES[`level${currentLevel}`] || {};
+  
+  // 完了した目標を抽出
+  const completedObjectives = Object.entries(progress)
+    .filter(([_, completed]) => completed)
+    .map(([id]) => id);
 
   return (
     <div 
@@ -35,6 +44,13 @@ const LearningModeSelector = ({
             学習モード
           </h3>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowCurriculumMap(true)}
+              className="p-2 rounded hover:bg-gray-100 transition-colors"
+              title="カリキュラムマップを表示"
+            >
+              <Map className="w-5 h-5" style={{ color: colors.ui.accent.primary }} />
+            </button>
             <span className="text-sm" style={{ color: colors.ui.text.secondary }}>
               レベル:
             </span>
@@ -228,6 +244,35 @@ const LearningModeSelector = ({
           </div>
         </div>
       )}
+      
+      {/* カリキュラムマップモーダル */}
+      {showCurriculumMap && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h3 className="text-xl font-bold">学習カリキュラム</h3>
+              <button
+                onClick={() => setShowCurriculumMap(false)}
+                className="p-1 hover:bg-gray-100 rounded transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <CurriculumMap
+                currentLevel={currentLevel}
+                completedObjectives={completedObjectives}
+                currentObjective={currentTutorial}
+                earnedBadges={earnedBadges}
+                onObjectiveSelect={(objective) => {
+                  setShowCurriculumMap(false);
+                  onStartChallenge(objective);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -239,7 +284,8 @@ LearningModeSelector.propTypes = {
   onModeChange: PropTypes.func.isRequired,
   onStartChallenge: PropTypes.func.isRequired,
   calculateProgress: PropTypes.func.isRequired,
-  currentTutorial: PropTypes.string
+  currentTutorial: PropTypes.string,
+  earnedBadges: PropTypes.array
 };
 
 export default LearningModeSelector;

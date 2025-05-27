@@ -26,7 +26,8 @@ const Canvas = memo(({
   onConnectionDelete,
   onCanvasClick,
   onMouseMove,
-  onMouseUp
+  onMouseUp,
+  onContextMenu
 }) => {
   return (
     <div className="relative w-full h-full" style={{ backgroundColor: colors.ui.background }}>
@@ -167,13 +168,14 @@ const Canvas = memo(({
             <Gate
               key={gate.id}
               gate={gate}
-              isSelected={selectedGate?.id === gate.id}
+              isSelected={selectedGate && selectedGate.id === gate.id}
               simulation={simulation}
               onGateClick={onGateClick}
               onGateDoubleClick={onGateDoubleClick}
               onGateMouseDown={onGateMouseDown}
               onTerminalMouseDown={onTerminalMouseDown}
               onTerminalMouseUp={onTerminalMouseUp}
+              onContextMenu={(e) => onContextMenu && onContextMenu(e, gate.id)}
             />
           ))}
         </g>
@@ -227,7 +229,8 @@ Canvas.propTypes = {
   onConnectionDelete: PropTypes.func.isRequired,
   onCanvasClick: PropTypes.func.isRequired,
   onMouseMove: PropTypes.func.isRequired,
-  onMouseUp: PropTypes.func.isRequired
+  onMouseUp: PropTypes.func.isRequired,
+  onContextMenu: PropTypes.func
 };
 
 export default Canvas;

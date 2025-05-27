@@ -6,13 +6,14 @@ import { useCircuitSimulation } from '../hooks/useCircuitSimulation';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useHistory } from '../hooks/useHistory';
 import { useEducation } from '../hooks/useEducation';
+import { useErrorFeedback } from '../hooks/useErrorFeedback';
 import { CANVAS } from '../constants/circuit';
 import { TUTORIAL_STEPS, LEARNING_OBJECTIVES } from '../constants/education';
 import { layout, colors, shadows } from '../styles/design-tokens';
 
 // UIコンポーネント
 import Canvas from './Circuit/Canvas';
-import Toolbar from './UI/ToolbarRedesigned';
+import Toolbar from './UI/Toolbar';
 import LevelPanel from './UI/LevelPanel';
 import RightPanel from './UI/RightPanel';
 import FloatingHelpWindow from './UI/FloatingHelpWindow';
@@ -22,6 +23,7 @@ import TutorialPanel from './Education/TutorialPanel';
 import LearningModeSelector from './Education/LearningModeSelector';
 import BadgeDisplay from './Education/BadgeDisplay';
 import TruthTableChallenge from './Education/TruthTableChallenge';
+import ErrorFeedback from './Education/ErrorFeedback';
 
 /**
  * モダンUI版論理回路ビルダー
@@ -35,6 +37,7 @@ const LogicCircuitBuilder = () => {
   const [isRightPanelCollapsed, setIsRightPanelCollapsed] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [consoleOutput, setConsoleOutput] = useState([]);
+  const [tutorialAttemptCount, setTutorialAttemptCount] = useState(0);
   
   // コンソールログを追加
   const addConsoleLog = useCallback((message, type = 'info') => {
@@ -122,6 +125,29 @@ const LogicCircuitBuilder = () => {
   const [currentChallenge, setCurrentChallenge] = useState(null);
   const currentStep = getCurrentTutorialStep();
   const isStepCompleted = currentStep ? validateTutorialStep(state) : false;
+  
+  // 現在の目標を取得
+  const getCurrentObjective = useCallback(() => {
+    if (currentChallenge) return currentChallenge;
+    if (currentTutorial && TUTORIAL_STEPS[currentTutorial]) {
+      return {
+        id: currentTutorial,
+        targetBehavior: currentTutorial.toUpperCase().replace(/_/g, '_')
+      };
+    }
+    return null;
+  }, [currentChallenge, currentTutorial]);
+  
+  // エラーフィードバック
+  const {
+    errors,
+    dismissError,
+    clearAllErrors,
+    applyAutoFix,
+    errorStats,
+    hasErrors,
+    errorSummary
+  } = useErrorFeedback(gates, connections, getCurrentObjective());
   
   // Force re-render when tutorial changes
   useEffect(() => {
@@ -475,6 +501,7 @@ const LogicCircuitBuilder = () => {
               onStartChallenge={handleStartChallenge}
               calculateProgress={calculateProgress}
               currentTutorial={currentTutorial}
+              earnedBadges={earnedBadges}
             />
           )}
           
@@ -495,14 +522,21 @@ const LogicCircuitBuilder = () => {
                   // チュートリアルを完了せずにスキップ
                   setCurrentTutorial(null);
                   setTutorialStep(0);
+                  setTutorialAttemptCount(0);
                 }}
                 onComplete={() => {
                   if (isStepCompleted) {
                     nextTutorialStep();
                     setShowHint(false);
+                    setTutorialAttemptCount(0);
+                  } else {
+                    // ステップが完了していない場合は試行回数を増やす
+                    setTutorialAttemptCount(prev => prev + 1);
                   }
                 }}
                 isStepCompleted={isStepCompleted}
+                tutorialId={currentTutorial}
+                attemptCount={tutorialAttemptCount}
                 title={(() => {
                   // チュートリアルIDから目標情報を取得
                   for (const [level, categories] of Object.entries(LEARNING_OBJECTIVES)) {
@@ -531,6 +565,33 @@ const LogicCircuitBuilder = () => {
                 setCurrentChallenge(null);
               }}
               onCancel={() => setCurrentChallenge(null)}
+            />
+          )}
+          
+          {/* エラーフィードバック */}
+          {learningMode !== 'sandbox' && (
+            <ErrorFeedback
+              errors={errors}
+              onDismiss={dismissError}
+              onFixSuggestion={(errorId, action) => {
+                const fix = applyAutoFix(errorId, action);
+                if (fix) {
+                  // 自動修正アクションを実行
+                  switch (fix.type) {
+                    case 'REMOVE_GATE':
+                      dispatch({ type: ACTIONS.REMOVE_GATE, payload: fix.gateId });
+                      break;
+                    case 'AUTO_CONNECT':
+                      // 自動接続のロジックを実装（必要に応じて）
+                      addConsoleLog('自動接続機能は現在開発中です', 'info');
+                      break;
+                    default:
+                      console.log('Unknown fix action:', fix);
+                  }
+                }
+              }}
+              showAutoFix={true}
+              position="bottom-right"
             />
           )}
         </div>

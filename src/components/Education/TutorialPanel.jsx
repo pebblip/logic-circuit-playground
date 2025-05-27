@@ -1,8 +1,10 @@
 // チュートリアルパネルコンポーネント
 
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { colors } from '../../styles/design-tokens';
+import EnhancedTutorial from './EnhancedTutorial';
+import { X, BookOpen } from 'lucide-react';
 
 /**
  * チュートリアルパネル
@@ -17,8 +19,11 @@ const TutorialPanel = ({
   onSkip,
   onComplete,
   isStepCompleted,
-  title 
+  title,
+  tutorialId,
+  attemptCount = 0
 }) => {
+  const [showEnhancedTutorial, setShowEnhancedTutorial] = useState(false);
   return (
     <div 
       className="absolute top-20 right-4 w-96 p-6 rounded-lg shadow-lg"
@@ -34,9 +39,18 @@ const TutorialPanel = ({
           <h3 className="text-lg font-bold" style={{ color: colors.ui.text.primary }}>
             チュートリアル
           </h3>
-          <span className="text-sm" style={{ color: colors.ui.text.secondary }}>
-            ステップ {currentStep + 1} / {totalSteps}
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowEnhancedTutorial(true)}
+              className="p-1.5 rounded hover:bg-gray-100 transition-colors"
+              title="詳細な学習コンテンツを表示"
+            >
+              <BookOpen className="w-5 h-5" style={{ color: colors.ui.accent.primary }} />
+            </button>
+            <span className="text-sm" style={{ color: colors.ui.text.secondary }}>
+              ステップ {currentStep + 1} / {totalSteps}
+            </span>
+          </div>
         </div>
         {title && (
           <h4 className="text-sm font-medium" style={{ color: colors.ui.accent.primary }}>
@@ -135,6 +149,38 @@ const TutorialPanel = ({
           </span>
         </div>
       )}
+      
+      {/* 詳細チュートリアルモーダル */}
+      {showEnhancedTutorial && tutorialId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h3 className="text-xl font-bold">学習コンテンツ</h3>
+              <button
+                onClick={() => setShowEnhancedTutorial(false)}
+                className="p-1 hover:bg-gray-100 rounded transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <EnhancedTutorial
+                tutorialId={tutorialId}
+                currentStep={currentStep}
+                attemptCount={attemptCount}
+                onStepComplete={() => {
+                  setShowEnhancedTutorial(false);
+                  onComplete();
+                }}
+                onTutorialComplete={() => {
+                  setShowEnhancedTutorial(false);
+                  onComplete();
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -149,7 +195,9 @@ TutorialPanel.propTypes = {
   onSkip: PropTypes.func.isRequired,
   onComplete: PropTypes.func.isRequired,
   isStepCompleted: PropTypes.bool.isRequired,
-  title: PropTypes.string
+  title: PropTypes.string,
+  tutorialId: PropTypes.string,
+  attemptCount: PropTypes.number
 };
 
 export default TutorialPanel;

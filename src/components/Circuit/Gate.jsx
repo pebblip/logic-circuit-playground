@@ -16,7 +16,10 @@ const Gate = memo(({
   onGateDoubleClick,
   onGateMouseDown,
   onTerminalMouseDown,
-  onTerminalMouseUp
+  onTerminalMouseUp,
+  onTerminalHover,
+  isTerminalHighlighted,
+  onContextMenu
 }) => {
   const gateInfo = GATE_TYPES[gate.type];
   const isIOGate = gate.type === 'INPUT' || gate.type === 'OUTPUT' || gate.type === 'CLOCK';
@@ -38,6 +41,7 @@ const Gate = memo(({
   
   // 信号の状態を取得
   const getSignalState = (gateId, outputIndex = 0) => {
+    if (!simulation || typeof simulation !== 'object') return false;
     const key = outputIndex === 0 ? gateId : `${gateId}_out${outputIndex}`;
     return simulation[key] === true;
   };
@@ -150,7 +154,7 @@ const Gate = memo(({
       data-testid={`gate-${gate.id}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'move' }}
     >
       {/* フィルター定義 */}
       <defs>
@@ -172,7 +176,16 @@ const Gate = memo(({
         onDoubleClick={(e) => onGateDoubleClick(e, gate)}
         onMouseDown={(e) => {
           e.preventDefault(); // デフォルトのドラッグ動作を防ぐ
-          onGateMouseDown(e, gate);
+          e.stopPropagation();
+          if (onGateMouseDown) {
+            onGateMouseDown(e, gate);
+          }
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          if (onContextMenu) {
+            onContextMenu(e);
+          }
         }}
       >
         {isIOGate ? renderIOSignal() : renderGate()}
@@ -196,8 +209,9 @@ const Gate = memo(({
               r={15}
               fill="transparent"
               className="cursor-crosshair"
-              onMouseUp={(e) => onTerminalMouseUp(e, gate, i)}
-              onMouseDown={(e) => onTerminalMouseDown(e, gate, false, i)}
+              onMouseUp={(e) => onTerminalMouseUp(gate.id, `in${i}`, true, e)}
+              onMouseEnter={() => onTerminalHover && onTerminalHover(gate.id, `in${i}`, true, true)}
+              onMouseLeave={() => onTerminalHover && onTerminalHover(gate.id, `in${i}`, true, false)}
               style={{ pointerEvents: 'all' }}
             />
             {/* 外側の円 */}
@@ -205,7 +219,7 @@ const Gate = memo(({
               cx={isIOGate ? 0 : -GATE_UI.RECT_WIDTH / 2 - 10}
               cy={cy}
               r={8}
-              fill={colors.ui.surface}
+              fill={isTerminalHighlighted && isTerminalHighlighted(`in${i}`, true) ? '#10b981' : colors.ui.surface}
               stroke={isHovered ? colors.ui.accent.primary : colors.ui.border}
               strokeWidth="2"
               style={{ pointerEvents: 'none' }}
@@ -236,8 +250,10 @@ const Gate = memo(({
               r={15}
               fill="transparent"
               className="cursor-crosshair"
-              onMouseDown={(e) => onTerminalMouseDown(e, gate, true, i)}
-              onMouseUp={(e) => onTerminalMouseUp(e, gate, i)}
+              onMouseDown={(e) => onTerminalMouseDown(gate.id, `out${i}`, false, e)}
+              onMouseUp={(e) => onTerminalMouseUp(gate.id, `out${i}`, false, e)}
+              onMouseEnter={() => onTerminalHover && onTerminalHover(gate.id, `out${i}`, false, true)}
+              onMouseLeave={() => onTerminalHover && onTerminalHover(gate.id, `out${i}`, false, false)}
               style={{ pointerEvents: 'all' }}
             />
             {/* 端子本体 */}
@@ -307,9 +323,12 @@ Gate.propTypes = {
   simulation: PropTypes.object.isRequired,
   onGateClick: PropTypes.func.isRequired,
   onGateDoubleClick: PropTypes.func.isRequired,
-  onGateMouseDown: PropTypes.func.isRequired,
+  onGateMouseDown: PropTypes.func,
   onTerminalMouseDown: PropTypes.func.isRequired,
-  onTerminalMouseUp: PropTypes.func.isRequired
+  onTerminalMouseUp: PropTypes.func.isRequired,
+  onTerminalHover: PropTypes.func,
+  isTerminalHighlighted: PropTypes.func,
+  onContextMenu: PropTypes.func
 };
 
 export default Gate;

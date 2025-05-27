@@ -21,7 +21,12 @@ const Connection = memo(({ connection, gates, simulation, onDelete }) => {
   const fromX = getGateOutputX(fromGate);
   const fromY = getGateOutputY(fromGate, outputIndex);
   const toX = getGateInputX(toGate);
-  const toY = getGateInputY(toGate, connection.toInput || 0);
+  // toTerminalから数値を抽出（例: 'in0' -> 0, 'in1' -> 1）
+  const toInputIndex = connection.toTerminal ? 
+    parseInt(connection.toTerminal.replace('in', '')) : 
+    (connection.toInput || 0);
+  
+  const toY = getGateInputY(toGate, toInputIndex);
   
   const path = getConnectionPath(fromX, fromY, toX, toY);
   

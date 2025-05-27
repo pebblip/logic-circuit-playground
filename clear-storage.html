@@ -1,0 +1,28 @@
+<\!DOCTYPE html>
+<html>
+<head>
+    <title>Clear LocalStorage</title>
+</head>
+<body>
+    <h1>LocalStorage Cleaner</h1>
+    <button onclick="clearStorage()">Clear LocalStorage for localhost:5173</button>
+    <div id="result"></div>
+    
+    <script>
+    function clearStorage() {
+        // localhost:5173のLocalStorageをクリア
+        window.open('http://localhost:5173', 'clearWindow');
+        
+        document.getElementById('result').innerHTML = `
+            <p>以下の手順でLocalStorageをクリアしてください：</p>
+            <ol>
+                <li>新しく開いたタブでデベロッパーツールを開く（F12）</li>
+                <li>Consoleタブで以下を実行：<br>
+                    <code>localStorage.clear(); location.reload();</code>
+                </li>
+            </ol>
+        `;
+    }
+    </script>
+</body>
+</html>
