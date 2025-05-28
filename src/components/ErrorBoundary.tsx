@@ -1,14 +1,23 @@
 // エラーバウンダリコンポーネント
 
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { Component, ReactNode, ErrorInfo } from 'react';
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+  errorInfo: ErrorInfo | null;
+}
 
 /**
  * エラーバウンダリコンポーネント
  * アプリケーション全体のエラーをキャッチして適切に表示
  */
-class ErrorBoundary extends React.Component {
-  constructor(props) {
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { 
       hasError: false, 
@@ -17,12 +26,12 @@ class ErrorBoundary extends React.Component {
     };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     // エラーが発生したら状態を更新
-    return { hasError: true };
+    return { hasError: true, error, errorInfo: null };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // エラー情報を保存
     this.setState({
       error,
@@ -33,7 +42,7 @@ class ErrorBoundary extends React.Component {
     console.error('Error caught by boundary:', error, errorInfo);
   }
 
-  handleReset = () => {
+  handleReset = (): void => {
     this.setState({ 
       hasError: false, 
       error: null,
@@ -41,7 +50,7 @@ class ErrorBoundary extends React.Component {
     });
   };
 
-  render() {
+  render(): ReactNode {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -103,9 +112,5 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
-
-ErrorBoundary.propTypes = {
-  children: PropTypes.node.isRequired
-};
 
 export default ErrorBoundary;

@@ -2,17 +2,70 @@
  * 回路の保存・読み込みを管理するユーティリティ
  */
 
+interface UserPreferences {
+  mode: string | null;
+  theme: string;
+  tutorialCompleted: boolean;
+  showTutorialOnStartup: boolean;
+}
+
+interface TutorialState {
+  completed: boolean;
+  lastStep: number;
+  timestamp?: number;
+}
+
+interface CircuitMetadata {
+  createdAt: number;
+  updatedAt: number;
+  version: number;
+  gateCount: number;
+  connectionCount: number;
+}
+
+interface SavedCircuit {
+  gates: any[];
+  connections: any[];
+  metadata: CircuitMetadata;
+}
+
+interface CustomGateMetadata {
+  createdAt: number;
+  updatedAt: number;
+  version: number;
+  category: string;
+}
+
+interface CustomGate {
+  inputs: any[];
+  outputs: any[];
+  circuit: {
+    gates: any[];
+    connections: any[];
+  };
+  metadata: CustomGateMetadata;
+}
+
+interface ExportData {
+  version: string;
+  exportedAt: string;
+  savedCircuits: Record<string, SavedCircuit>;
+  customGates: Record<string, CustomGate>;
+  preferences: UserPreferences;
+  tutorialState: TutorialState;
+}
+
 const STORAGE_KEYS = {
   SAVED_CIRCUITS: 'logicPlayground_savedCircuits',
   CUSTOM_GATES: 'logicPlayground_customGates',
   USER_PREFERENCES: 'logicPlayground_userPreferences',
   TUTORIAL_STATE: 'logicPlayground_tutorialState'
-};
+} as const;
 
 /**
  * ユーザー設定を取得
  */
-export const getUserPreferences = () => {
+export const getUserPreferences = (): UserPreferences => {
   try {
     const prefs = localStorage.getItem(STORAGE_KEYS.USER_PREFERENCES);
     return prefs ? JSON.parse(prefs) : {
@@ -35,7 +88,7 @@ export const getUserPreferences = () => {
 /**
  * ユーザー設定を保存
  */
-export const saveUserPreferences = (preferences) => {
+export const saveUserPreferences = (preferences: UserPreferences): boolean => {
   try {
     localStorage.setItem(STORAGE_KEYS.USER_PREFERENCES, JSON.stringify(preferences));
     return true;
@@ -48,7 +101,7 @@ export const saveUserPreferences = (preferences) => {
 /**
  * チュートリアル状態を保存
  */
-export const saveTutorialState = (state) => {
+export const saveTutorialState = (state: Partial<TutorialState>): boolean => {
   try {
     localStorage.setItem(STORAGE_KEYS.TUTORIAL_STATE, JSON.stringify({
       completed: state.completed || false,
@@ -65,7 +118,7 @@ export const saveTutorialState = (state) => {
 /**
  * チュートリアル状態を取得
  */
-export const getTutorialState = () => {
+export const getTutorialState = (): TutorialState => {
   try {
     const state = localStorage.getItem(STORAGE_KEYS.TUTORIAL_STATE);
     return state ? JSON.parse(state) : { completed: false, lastStep: 0 };
@@ -78,7 +131,7 @@ export const getTutorialState = () => {
 /**
  * 保存された回路一覧を取得
  */
-export const getSavedCircuits = () => {
+export const getSavedCircuits = (): Record<string, SavedCircuit> => {
   try {
     const circuits = localStorage.getItem(STORAGE_KEYS.SAVED_CIRCUITS);
     return circuits ? JSON.parse(circuits) : {};
@@ -91,7 +144,7 @@ export const getSavedCircuits = () => {
 /**
  * 回路を保存
  */
-export const saveCircuit = (name, circuitData) => {
+export const saveCircuit = (name: string, circuitData: any): boolean => {
   try {
     const circuits = getSavedCircuits();
     
@@ -124,7 +177,7 @@ export const saveCircuit = (name, circuitData) => {
 /**
  * 回路を読み込み
  */
-export const loadCircuit = (name) => {
+export const loadCircuit = (name: string): SavedCircuit | null => {
   try {
     const circuits = getSavedCircuits();
     return circuits[name] || null;
@@ -137,7 +190,7 @@ export const loadCircuit = (name) => {
 /**
  * 回路を削除
  */
-export const deleteCircuit = (name) => {
+export const deleteCircuit = (name: string): boolean => {
   try {
     const circuits = getSavedCircuits();
     if (!circuits[name]) return false;
@@ -157,7 +210,7 @@ export const deleteCircuit = (name) => {
 /**
  * カスタムゲート一覧を取得
  */
-export const getCustomGates = () => {
+export const getCustomGates = (): Record<string, CustomGate> => {
   try {
     const gates = localStorage.getItem(STORAGE_KEYS.CUSTOM_GATES);
     return gates ? JSON.parse(gates) : {};
@@ -170,7 +223,7 @@ export const getCustomGates = () => {
 /**
  * カスタムゲートとして保存
  */
-export const saveAsCustomGate = (name, gateDefinition) => {
+export const saveAsCustomGate = (name: string, gateDefinition: any): boolean => {
   try {
     const customGates = getCustomGates();
     
@@ -206,14 +259,14 @@ export const saveAsCustomGate = (name, gateDefinition) => {
 /**
  * カスタムゲートを保存（新しいAPIエイリアス）
  */
-export const saveCustomGate = (gateDefinition) => {
+export const saveCustomGate = (gateDefinition: any): boolean => {
   return saveAsCustomGate(gateDefinition.name, gateDefinition);
 };
 
 /**
  * 回路をURLエンコード（共有用）
  */
-export const encodeCircuitForURL = (circuitData) => {
+export const encodeCircuitForURL = (circuitData: any): string | null => {
   try {
     const json = JSON.stringify({
       g: circuitData.gates,
@@ -229,7 +282,7 @@ export const encodeCircuitForURL = (circuitData) => {
 /**
  * URLから回路をデコード
  */
-export const decodeCircuitFromURL = (encodedData) => {
+export const decodeCircuitFromURL = (encodedData: string): any | null => {
   try {
     const json = decodeURIComponent(atob(encodedData));
     const data = JSON.parse(json);
@@ -246,7 +299,7 @@ export const decodeCircuitFromURL = (encodedData) => {
 /**
  * ストレージの使用量を取得
  */
-export const getStorageUsage = () => {
+export const getStorageUsage = (): number => {
   let totalSize = 0;
   
   for (const key of Object.values(STORAGE_KEYS)) {
@@ -263,8 +316,8 @@ export const getStorageUsage = () => {
 /**
  * すべてのデータをエクスポート
  */
-export const exportAllData = () => {
-  const data = {
+export const exportAllData = (): void => {
+  const data: ExportData = {
     version: '1.0',
     exportedAt: new Date().toISOString(),
     savedCircuits: getSavedCircuits(),
@@ -285,10 +338,10 @@ export const exportAllData = () => {
 /**
  * データをインポート
  */
-export const importData = async (file) => {
+export const importData = async (file: File): Promise<boolean> => {
   try {
     const text = await file.text();
-    const data = JSON.parse(text);
+    const data = JSON.parse(text) as ExportData;
     
     if (!data.version || data.version !== '1.0') {
       throw new Error('Unsupported file version');

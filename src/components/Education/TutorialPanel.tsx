@@ -1,15 +1,29 @@
 // チュートリアルパネルコンポーネント
 
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { colors } from '../../styles/design-tokens';
 import EnhancedTutorial from './EnhancedTutorial';
 import { X, BookOpen } from 'lucide-react';
 
+interface TutorialPanelProps {
+  currentStep: number;
+  totalSteps: number;
+  instruction: string;
+  hint?: string;
+  showHint: boolean;
+  onShowHint: () => void;
+  onSkip: () => void;
+  onComplete: () => void;
+  isStepCompleted: boolean;
+  title?: string;
+  tutorialId?: string;
+  attemptCount?: number;
+}
+
 /**
  * チュートリアルパネル
  */
-const TutorialPanel = ({ 
+const TutorialPanel: React.FC<TutorialPanelProps> = ({ 
   currentStep, 
   totalSteps, 
   instruction, 
@@ -24,6 +38,7 @@ const TutorialPanel = ({
   attemptCount = 0
 }) => {
   const [showEnhancedTutorial, setShowEnhancedTutorial] = useState(false);
+  
   return (
     <div 
       className="absolute top-20 right-4 w-96 p-6 rounded-lg shadow-lg"
@@ -183,21 +198,6 @@ const TutorialPanel = ({
       )}
     </div>
   );
-};
-
-TutorialPanel.propTypes = {
-  currentStep: PropTypes.number.isRequired,
-  totalSteps: PropTypes.number.isRequired,
-  instruction: PropTypes.string.isRequired,
-  hint: PropTypes.string,
-  showHint: PropTypes.bool.isRequired,
-  onShowHint: PropTypes.func.isRequired,
-  onSkip: PropTypes.func.isRequired,
-  onComplete: PropTypes.func.isRequired,
-  isStepCompleted: PropTypes.bool.isRequired,
-  title: PropTypes.string,
-  tutorialId: PropTypes.string,
-  attemptCount: PropTypes.number
 };
 
 export default TutorialPanel;

@@ -1,0 +1,66 @@
+/**
+ * ゲートファクトリー
+ */
+
+import { ID, Position } from '@/types/common';
+import { GateType } from '@/types/gate';
+import { BaseGate } from './BaseGate';
+import { InputGate } from './InputGate';
+import { OutputGate } from './OutputGate';
+import { ANDGate } from './ANDGate';
+import { ORGate } from './ORGate';
+import { NOTGate } from './NOTGate';
+import { NANDGate } from './NANDGate';
+import { NORGate } from './NORGate';
+import { XORGate } from './XORGate';
+import { XNORGate } from './XNORGate';
+import { CustomGate } from './CustomGate';
+
+export class GateFactory {
+  private static nextId = 1;
+  private static customGateDefinitions = new Map<string, any>();
+
+  static create(type: GateType | string, position: Position, id?: ID): BaseGate {
+    const gateId = id || `gate_${this.nextId++}`;
+
+    switch (type) {
+      case GateType.INPUT:
+        return new InputGate(gateId, position);
+      case GateType.OUTPUT:
+        return new OutputGate(gateId, position);
+      case GateType.AND:
+        return new ANDGate(gateId, position);
+      case GateType.OR:
+        return new ORGate(gateId, position);
+      case GateType.NOT:
+        return new NOTGate(gateId, position);
+      case GateType.NAND:
+        return new NANDGate(gateId, position);
+      case GateType.NOR:
+        return new NORGate(gateId, position);
+      case GateType.XOR:
+        return new XORGate(gateId, position);
+      case GateType.XNOR:
+        return new XNORGate(gateId, position);
+      default:
+        // カスタムゲートのチェック
+        const customDefinition = this.customGateDefinitions.get(type);
+        if (customDefinition) {
+          return new CustomGate(gateId, position, type, customDefinition);
+        }
+        throw new Error(`Unknown gate type: ${type}`);
+    }
+  }
+  
+  static registerCustomGate(type: string, definition: any): void {
+    this.customGateDefinitions.set(type, definition);
+  }
+  
+  static getCustomGateDefinition(type: string): any | undefined {
+    return this.customGateDefinitions.get(type);
+  }
+
+  static resetIdCounter(): void {
+    this.nextId = 1;
+  }
+}
