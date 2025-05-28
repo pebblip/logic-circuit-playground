@@ -1,6 +1,11 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 // ViewModelのインポート
 import { UltraModernCircuitViewModel } from '../viewmodels/UltraModernCircuitViewModel';
+import { useDiscovery } from '../hooks/useDiscovery';
+import { DiscoveryModeSelector } from './UI/DiscoveryModeSelector';
+import { DiscoveryNotification } from './UI/DiscoveryNotification';
+import { ExperimentNotebook } from './ExperimentNotebook';
+import { DiscoveryTutorial } from './DiscoveryTutorial';
 import { 
   saveUserPreferences, 
   getUserPreferences,
@@ -12,8 +17,12 @@ import {
 } from '../utils/circuitStorage';
 import { migrateAllCustomGates } from '../utils/customGateMigration';
 
+// モード関連のインポート
+import { CircuitMode, DEFAULT_MODE } from '../types/mode';
+import { getGatesForMode } from '../constants/modeGates';
+// import { ModeSelector } from './UI/ModeSelector'; // 旧モードセレクター
+
 // Import all required components
-import ModeSelector from './ModeSelector';
 import TutorialSystemV2 from './TutorialSystemV2';
 import ChallengeSystem from './ChallengeSystem';
 import ExtendedChallengeSystem from './ExtendedChallengeSystem';
@@ -21,6 +30,11 @@ import ProgressTracker from './ProgressTracker';
 import SaveLoadPanel from './SaveLoadPanel';
 import GateDefinitionDialog from './GateDefinitionDialog';
 import CustomGateDetail from './CustomGateDetail';
+import { ClockControl } from './ClockControl';
+
+// 改善されたゲートコンポーネント
+import { ImprovedGateComponent } from './Circuit/ImprovedGateComponent';
+import { PIN_CONSTANTS } from '../constants/ui';
 
 // Types
 interface UltraModernGate {
@@ -60,6 +74,8 @@ interface Preferences {
 interface DrawingWire {
   from: string;
   fromOutput?: number;
+  fromInput?: number;
+  pinType?: 'input' | 'output';
   startX: number;
   startY: number;
   endX: number;
@@ -137,8 +153,23 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
   const [isDraggingGate, setIsDraggingGate] = useState(false);
   const [drawingWire, setDrawingWire] = useState<DrawingWire | null>(null);
   
-  // 教育機能
-  const [userMode, setUserMode] = useState<string | null>(null);
+  // モード状態
+  const [currentMode, setCurrentMode] = useState<CircuitMode>(DEFAULT_MODE);
+  
+  // 発見システム
+  const { 
+    progress: discoveryProgress, 
+    checkDiscoveries, 
+    incrementExperiments,
+    discoveries,
+    milestones 
+  } = useDiscovery();
+  const [showDiscoveryNotification, setShowDiscoveryNotification] = useState<string[]>([]);
+  const [showDiscoveryTutorial, setShowDiscoveryTutorial] = useState(false);
+  
+  // 教育機能（レガシー、新しいcurrentModeシステムに移行中）
+  const [userMode, setUserMode] = useState<string | null>('free');
+  console.log('[DEBUG] UltraModernCircuitWithViewModel - userMode:', userMode);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showChallenge, setShowChallenge] = useState(false);
   const [showExtendedChallenge, setShowExtendedChallenge] = useState(false);
@@ -162,6 +193,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
   const [showGateDefinition, setShowGateDefinition] = useState(false);
   const [showCustomGatePanel, setShowCustomGatePanel] = useState(false);
   const [selectedCustomGateDetail, setSelectedCustomGateDetail] = useState<string | null>(null);
+  const [showNotebook, setShowNotebook] = useState(false);
   
   // カスタムゲート
   const [customGates, setCustomGates] = useState<Record<string, CustomGateDefinition>>({});
@@ -172,6 +204,17 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     const urlDebug = new URLSearchParams(window.location.search).has('debug');
     return envDebug || urlDebug;
   });
+  
+  // 設定からテーマを読み込み
+  useEffect(() => {
+    const settings = localStorage.getItem('logic-circuit-settings');
+    if (settings) {
+      const parsed = JSON.parse(settings);
+      if (parsed.theme) {
+        setSelectedTheme(parsed.theme);
+      }
+    }
+  }, []);
   
   // ViewModelからのデータ（リアクティブ）
   const [gates, setGates] = useState<UltraModernGate[]>([]);
@@ -198,6 +241,15 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
         resultMap[key] = value;
       });
       setSimulationResults(resultMap);
+      
+      // 発見チェック（discoveryモードのときのみ）
+      if (currentMode === 'discovery') {
+        const circuit = viewModel.toJSON();
+        const newDiscoveries = checkDiscoveries(circuit);
+        if (newDiscoveries && newDiscoveries.length > 0) {
+          setShowDiscoveryNotification(newDiscoveries);
+        }
+      }
     };
     
     viewModel.on('gatesChanged', updateGates);
@@ -217,7 +269,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
       viewModel.off('connectionsChanged', updateConnections);
       viewModel.off('simulationCompleted', updateSimulation);
     };
-  }, [viewModel]);
+  }, [viewModel, currentMode, checkDiscoveries]);
 
   // モダンデザインシステム（変更なし）
   const themes: Record<string, Theme> = {
@@ -539,6 +591,189 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
           </g>
         </g>
       )
+    },
+    CLOCK: {
+      name: 'クロック',
+      icon: (isActive) => (
+        <g>
+          <rect x={-GATE_SIZE/2} y={-GATE_SIZE/2} width={GATE_SIZE} height={GATE_SIZE} rx={GATE_SIZE/2}
+            fill={isActive ? theme.colors.gate.activeBg : theme.colors.gate.bg}
+            stroke={isActive ? theme.colors.gate.activeBorder : theme.colors.gate.border}
+            strokeWidth="2"
+          />
+          <g transform="scale(0.8)">
+            {/* クロックの文字盤 */}
+            <circle cx={0} cy={0} r={15}
+              fill="none"
+              stroke={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+              strokeWidth="2"
+            />
+            {/* 針 */}
+            <line x1={0} y1={0} x2={0} y2={-10}
+              stroke={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <line x1={0} y1={0} x2={7} y2={0}
+              stroke={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            {/* 中心の点 */}
+            <circle cx={0} cy={0} r={2}
+              fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+            />
+          </g>
+        </g>
+      )
+    },
+    D_FLIP_FLOP: {
+      name: 'D-FF',
+      icon: (isActive) => (
+        <g>
+          <rect x={-GATE_SIZE/2} y={-GATE_SIZE/2} width={GATE_SIZE} height={GATE_SIZE} rx={4}
+            fill={isActive ? theme.colors.gate.activeBg : theme.colors.gate.bg}
+            stroke={isActive ? theme.colors.gate.activeBorder : theme.colors.gate.border}
+            strokeWidth="2"
+          />
+          <text x={0} y={-8} textAnchor="middle" 
+            fontSize="10" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            D
+          </text>
+          <text x={0} y={4} textAnchor="middle" 
+            fontSize="10" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            FF
+          </text>
+          {/* CLK入力の三角形 */}
+          <path d={`M ${-GATE_SIZE/2} ${GATE_SIZE/2 - 10} l 5 5 l -5 5`}
+            fill="none"
+            stroke={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+            strokeWidth="1.5"
+          />
+        </g>
+      ),
+      inputs: 2,  // D, CLK
+      outputs: 2  // Q, Q'
+    },
+    SR_LATCH: {
+      name: 'SR-L',
+      icon: (isActive) => (
+        <g>
+          <rect x={-GATE_SIZE/2} y={-GATE_SIZE/2} width={GATE_SIZE} height={GATE_SIZE} rx={4}
+            fill={isActive ? theme.colors.gate.activeBg : theme.colors.gate.bg}
+            stroke={isActive ? theme.colors.gate.activeBorder : theme.colors.gate.border}
+            strokeWidth="2"
+          />
+          <text x={0} y={-8} textAnchor="middle" 
+            fontSize="10" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            SR
+          </text>
+          <text x={0} y={4} textAnchor="middle" 
+            fontSize="8" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            LATCH
+          </text>
+          {/* S/Rラベル */}
+          <text x={-GATE_SIZE/2 - 4} y={-8} textAnchor="end" 
+            fontSize="7"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            S
+          </text>
+          <text x={-GATE_SIZE/2 - 4} y={8} textAnchor="end" 
+            fontSize="7"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            R
+          </text>
+        </g>
+      ),
+      inputs: 2,  // S, R
+      outputs: 2  // Q, Q'
+    },
+    REGISTER_4BIT: {
+      name: 'REG4',
+      icon: (isActive) => (
+        <g>
+          <rect x={-GATE_SIZE/2} y={-GATE_SIZE/2} width={GATE_SIZE} height={GATE_SIZE} rx={4}
+            fill={isActive ? theme.colors.gate.activeBg : theme.colors.gate.bg}
+            stroke={isActive ? theme.colors.gate.activeBorder : theme.colors.gate.border}
+            strokeWidth="2"
+          />
+          <text x={0} y={-8} textAnchor="middle" 
+            fontSize="9" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            REG
+          </text>
+          <text x={0} y={4} textAnchor="middle" 
+            fontSize="9" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            4BIT
+          </text>
+          {/* CLK入力の三角形 */}
+          <path d={`M ${-GATE_SIZE/2} ${GATE_SIZE/2 - 10} l 5 5 l -5 5`}
+            fill="none"
+            stroke={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+            strokeWidth="1.5"
+          />
+        </g>
+      ),
+      inputs: 6,  // D0-D3, CLK, RST
+      outputs: 4  // Q0-Q3
+    },
+    MUX_2TO1: {
+      name: 'MUX',
+      icon: (isActive) => (
+        <g>
+          <rect x={-GATE_SIZE/2} y={-GATE_SIZE/2} width={GATE_SIZE} height={GATE_SIZE} rx={4}
+            fill={isActive ? theme.colors.gate.activeBg : theme.colors.gate.bg}
+            stroke={isActive ? theme.colors.gate.activeBorder : theme.colors.gate.border}
+            strokeWidth="2"
+          />
+          <text x={0} y={-8} textAnchor="middle" 
+            fontSize="9" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            MUX
+          </text>
+          <text x={0} y={4} textAnchor="middle" 
+            fontSize="8" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            2:1
+          </text>
+          {/* A/B/SELラベル */}
+          <text x={-GATE_SIZE/2 - 4} y={-12} textAnchor="end" 
+            fontSize="7"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            A
+          </text>
+          <text x={-GATE_SIZE/2 - 4} y={0} textAnchor="end" 
+            fontSize="7"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            B
+          </text>
+          <text x={-GATE_SIZE/2 - 4} y={12} textAnchor="end" 
+            fontSize="7"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            S
+          </text>
+        </g>
+      ),
+      inputs: 3,  // A, B, SEL
+      outputs: 1  // Y
     }
   };
   
@@ -573,6 +808,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
 
   // ゲート追加（ViewModelを使用）
   const addGate = useCallback((type: string) => {
+    console.log('addGate called with type:', type);
     const centerX = svgRef.current ? svgRef.current.clientWidth / 2 : 400;
     const centerY = svgRef.current ? (svgRef.current.clientHeight - 60) / 2 : 300;
     
@@ -592,10 +828,13 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     y = Math.round(y / 20) * 20;
     
     // ViewModelにゲートを追加
-    viewModel.addGate(type as GateTypes, x, y);
+    viewModel.addGate(type, x, y);
     
     // 進捗を更新
     setProgress(prev => ({ ...prev, gatesPlaced: prev.gatesPlaced + 1 }));
+    
+    // 実験カウントを増やす
+    incrementExperiments();
     
     // 最初のゲート配置バッジ
     if (progress.gatesPlaced === 0 && !badges.includes('first-gate')) {
@@ -698,6 +937,58 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     setDrawingWire(null);
   }, [drawingWire, showTutorial, viewModel]);
 
+  // 汎用的な接続開始関数
+  const startConnection = useCallback((gateId: string, pinType: 'input' | 'output', pinIndex: number, x: number, y: number) => {
+    setDrawingWire({ 
+      from: gateId, 
+      fromOutput: pinType === 'output' ? pinIndex : undefined,
+      fromInput: pinType === 'input' ? pinIndex : undefined,
+      pinType,
+      startX: x, 
+      startY: y, 
+      endX: x, 
+      endY: y 
+    });
+  }, []);
+
+  // 汎用的な接続完了関数
+  const completeConnection = useCallback((gateId: string, pinType: 'input' | 'output', pinIndex: number) => {
+    if (!drawingWire || drawingWire.from === gateId) {
+      setDrawingWire(null);
+      return;
+    }
+    
+    let fromGate, fromOutput, toGate, toInput;
+    
+    if (drawingWire.pinType === 'output' && pinType === 'input') {
+      // 出力から入力へ
+      fromGate = drawingWire.from;
+      fromOutput = drawingWire.fromOutput || 0;
+      toGate = gateId;
+      toInput = pinIndex;
+    } else if (drawingWire.pinType === 'input' && pinType === 'output') {
+      // 入力から出力へ（逆方向）
+      fromGate = gateId;
+      fromOutput = pinIndex;
+      toGate = drawingWire.from;
+      toInput = drawingWire.fromInput || 0;
+    } else {
+      // 不正な接続
+      setDrawingWire(null);
+      return;
+    }
+    
+    viewModel.addConnection(fromGate, fromOutput, toGate, toInput);
+    
+    if (showTutorial) {
+      window.dispatchEvent(new CustomEvent('tutorial-action', { 
+        detail: { action: 'WIRE_CONNECTED' } 
+      }));
+    }
+    
+    setDrawingWire(null);
+  }, [drawingWire, showTutorial, viewModel]);
+
   // カスタムゲート関連の関数
   const simulateCustomGate = viewModel.simulateCustomGate.bind(viewModel);
 
@@ -729,6 +1020,11 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     if (urlCircuit) {
       viewModel.loadCircuit(urlCircuit);
     }
+    
+    // 発見モードで初回アクセスの場合、チュートリアルを表示
+    if (currentMode === 'discovery' && !localStorage.getItem('logic-circuit-tutorial-completed')) {
+      setShowDiscoveryTutorial(true);
+    }
   }, []);
 
   // ゲート描画
@@ -738,6 +1034,12 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     
     const isActive = simulationResults[gate.id] || false;
     const isDragging = draggedGate && draggedGate.id === gate.id;
+    
+    // CLOCKゲートの場合は動作状態も確認
+    let clockState = null;
+    if (gate.type === 'CLOCK') {
+      clockState = viewModel.getClockState(gate.id);
+    }
     
     return (
       <g key={gate.id} transform={`translate(${gate.x}, ${gate.y})`}>
@@ -785,13 +1087,48 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
           onMouseDown={(e) => handleGateMouseDown(e, gate)}
           onContextMenu={(e) => {
             e.preventDefault();
-            deleteGate(gate.id);
+            if (gate.type === 'CLOCK') {
+              // CLOCKゲートの場合はメニューを表示
+              const clockState = viewModel.getClockState(gate.id);
+              if (clockState) {
+                const action = confirm(
+                  `クロックゲート制御\n\n` +
+                  `現在の状態: ${clockState.isRunning ? '動作中' : '停止中'}\n` +
+                  `間隔: ${clockState.interval}ms\n\n` +
+                  `OK: ${clockState.isRunning ? '停止' : '開始'}\n` +
+                  `キャンセル: ゲートを削除`
+                );
+                if (action) {
+                  if (clockState.isRunning) {
+                    viewModel.stopClock(gate.id);
+                  } else {
+                    viewModel.startClock(gate.id);
+                  }
+                } else {
+                  if (confirm('このクロックゲートを削除しますか？')) {
+                    deleteGate(gate.id);
+                  }
+                }
+              }
+            } else {
+              deleteGate(gate.id);
+            }
           }}
           onClick={(e) => {
             e.stopPropagation();
             if (!isDraggingGate) {
               if (gate.type === 'INPUT') {
                 toggleInput(gate.id);
+              } else if (gate.type === 'CLOCK') {
+                // CLOCKゲートをクリックで開始/停止
+                const clockState = viewModel.getClockState(gate.id);
+                if (clockState) {
+                  if (clockState.isRunning) {
+                    viewModel.stopClock(gate.id);
+                  } else {
+                    viewModel.startClock(gate.id);
+                  }
+                }
               }
             }
           }}
@@ -802,30 +1139,64 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
             }
           }}
         >
-          {gateType.icon(isActive as boolean)}
+          {gate.type === 'CLOCK' && clockState ? 
+            gateType.icon(isActive as boolean, { isRunning: clockState.isRunning }) :
+            gateType.icon(isActive as boolean)
+          }
         </g>
         
         {/* 接続端子 */}
         {gate.type !== 'INPUT' && (
           <>
             {/* カスタムゲートの場合は複数入力ピンを表示 */}
-            {gateType.isCustom && gate.inputs ? (
-              gate.inputs.map((input, index) => {
-                const inputCount = gate.inputs!.length;
+            {(gateType.isCustom && gate.inputs) || gate.type === 'REGISTER_4BIT' || gate.type === 'MUX_2TO1' ? (
+              (() => {
+                let inputs;
+                if (gate.type === 'REGISTER_4BIT') {
+                  inputs = [
+                    {name: 'D0'}, {name: 'D1'}, {name: 'D2'}, {name: 'D3'},
+                    {name: 'CLK'}, {name: 'RST'}
+                  ];
+                } else if (gate.type === 'MUX_2TO1') {
+                  inputs = [{name: 'A'}, {name: 'B'}, {name: 'SEL'}];
+                } else {
+                  inputs = gate.inputs;
+                }
+                return inputs.map((input, index) => {
+                const inputCount = inputs.length;
                 const spacing = Math.min(20, (GATE_SIZE - 10) / (inputCount + 1));
                 const yOffset = -GATE_SIZE/2 + spacing * (index + 1);
                 
                 return (
                   <g key={`input-${index}`}>
+                    {/* 見えない大きな当たり判定エリア */}
+                    <circle 
+                      cx={-GATE_SIZE/2 - 8} 
+                      cy={yOffset + GATE_SIZE/2 - GATE_SIZE/2}
+                      r="12"
+                      fill="transparent"
+                      stroke="none"
+                      style={{ cursor: 'crosshair' }}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                        startConnection(
+                          gate.id,
+                          'input',
+                          index,
+                          gate.x - GATE_SIZE/2 - 8,
+                          gate.y + yOffset + GATE_SIZE/2 - GATE_SIZE/2
+                        );
+                      }}
+                    />
+                    {/* 表示用のピン */}
                     <circle 
                       cx={-GATE_SIZE/2 - 8} 
                       cy={yOffset + GATE_SIZE/2 - GATE_SIZE/2}
                       r="4"
                       fill={theme.colors.signal.off} 
                       stroke="none"
-                      style={{ cursor: 'crosshair' }}
+                      style={{ pointerEvents: 'none' }}
                       data-terminal="input"
-                      onMouseUp={() => completeWireConnection(gate.id, index)} 
                     />
                     {/* ピン名を表示 */}
                     <text 
@@ -840,64 +1211,132 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
                     </text>
                   </g>
                 );
-              })
+              });
+              })()
             ) : (
               // 標準ゲートの場合は従来通り
-              (gate.type === 'AND' || gate.type === 'OR' || gate.type === 'NAND' || gate.type === 'NOR' || gate.type === 'XNOR') ? (
+              (gate.type === 'AND' || gate.type === 'OR' || gate.type === 'NAND' || gate.type === 'NOR' || gate.type === 'XNOR' || gate.type === 'D_FLIP_FLOP' || gate.type === 'SR_LATCH') ? (
                 <>
+                  {/* 入力ピン1 - 大きな当たり判定 */}
+                  <circle cx={-GATE_SIZE/2 - 8} cy={-10} r="12"
+                    fill="transparent" 
+                    stroke="none"
+                    style={{ cursor: 'crosshair' }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      startConnection(gate.id, 'input', 0, gate.x - GATE_SIZE/2 - 8, gate.y - 10);
+                    }}
+                    onMouseUp={(e) => {
+                      e.stopPropagation();
+                      completeConnection(gate.id, 'input', 0);
+                    }} />
+                  {/* 入力ピン1 - 表示 */}
                   <circle cx={-GATE_SIZE/2 - 8} cy={-10} r="4"
                     fill={theme.colors.signal.off} 
                     stroke="none"
+                    style={{ pointerEvents: 'none' }}
+                    data-terminal="input" />
+                  
+                  {/* 入力ピン2 - 大きな当たり判定 */}
+                  <circle cx={-GATE_SIZE/2 - 8} cy={10} r="12"
+                    fill="transparent" 
+                    stroke="none"
                     style={{ cursor: 'crosshair' }}
-                    data-terminal="input"
-                    onMouseUp={() => completeWireConnection(gate.id, 0)} />
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      startConnection(gate.id, 'input', 1, gate.x - GATE_SIZE/2 - 8, gate.y + 10);
+                    }}
+                    onMouseUp={(e) => {
+                      e.stopPropagation();
+                      completeConnection(gate.id, 'input', 1);
+                    }} />
+                  {/* 入力ピン2 - 表示 */}
                   <circle cx={-GATE_SIZE/2 - 8} cy={10} r="4"
                     fill={theme.colors.signal.off} 
                     stroke="none"
-                    style={{ cursor: 'crosshair' }}
-                    data-terminal="input"
-                    onMouseUp={() => completeWireConnection(gate.id, 1)} />
+                    style={{ pointerEvents: 'none' }}
+                    data-terminal="input" />
                 </>
               ) : (
-                <circle cx={-GATE_SIZE/2 - 8} cy={0} r="4"
-                  fill={theme.colors.signal.off} 
-                  stroke="none"
-                  style={{ cursor: 'crosshair' }}
-                  data-terminal="input"
-                  onMouseUp={() => completeWireConnection(gate.id, 0)} />
+                <>
+                  {/* 単一入力ピン - 大きな当たり判定 */}
+                  <circle cx={-GATE_SIZE/2 - 8} cy={0} r="12"
+                    fill="transparent" 
+                    stroke="none"
+                    style={{ cursor: 'crosshair' }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      startConnection(gate.id, 'input', 0, gate.x - GATE_SIZE/2 - 8, gate.y);
+                    }}
+                    onMouseUp={(e) => {
+                      e.stopPropagation();
+                      completeConnection(gate.id, 'input', 0);
+                    }} />
+                  {/* 単一入力ピン - 表示 */}
+                  <circle cx={-GATE_SIZE/2 - 8} cy={0} r="4"
+                    fill={theme.colors.signal.off} 
+                    stroke="none"
+                    style={{ pointerEvents: 'none' }}
+                    data-terminal="input" />
+                </>
               )
             )}
           </>
         )}
         
+        {/* 出力ピン */}
         {gate.type !== 'OUTPUT' && (
           <>
             {/* カスタムゲートの場合は複数出力ピンを表示 */}
-            {gateType.isCustom && gate.outputs ? (
-              gate.outputs.map((output, index) => {
-                const outputCount = gate.outputs!.length;
+            {(gateType.isCustom && gate.outputs) || gate.type === 'D_FLIP_FLOP' || gate.type === 'SR_LATCH' || gate.type === 'REGISTER_4BIT' ? (
+              (() => {
+                let outputs;
+                if (gate.type === 'D_FLIP_FLOP' || gate.type === 'SR_LATCH') {
+                  outputs = [{name: 'Q'}, {name: 'Q\''}];
+                } else if (gate.type === 'REGISTER_4BIT') {
+                  outputs = [{name: 'Q0'}, {name: 'Q1'}, {name: 'Q2'}, {name: 'Q3'}];
+                } else {
+                  outputs = gate.outputs;
+                }
+                return outputs.map((output, index) => {
+                const outputCount = outputs.length;
                 const spacing = Math.min(20, (GATE_SIZE - 10) / (outputCount + 1));
                 const yOffset = -GATE_SIZE/2 + spacing * (index + 1);
                 
                 return (
                   <g key={`output-${index}`}>
+                    {/* 見えない大きな当たり判定エリア */}
+                    <circle 
+                      cx={GATE_SIZE/2 + 8} 
+                      cy={yOffset + GATE_SIZE/2 - GATE_SIZE/2}
+                      r="12"
+                      fill="transparent" 
+                      stroke="none"
+                      style={{ cursor: 'crosshair' }}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                        startConnection(
+                          gate.id,
+                          'output',
+                          index,
+                          gate.x + GATE_SIZE/2 + 8, 
+                          gate.y + yOffset + GATE_SIZE/2 - GATE_SIZE/2
+                        );
+                      }}
+                      onMouseUp={(e) => {
+                        e.stopPropagation();
+                        completeConnection(gate.id, 'output', index);
+                      }} 
+                    />
+                    {/* 表示用のピン */}
                     <circle 
                       cx={GATE_SIZE/2 + 8} 
                       cy={yOffset + GATE_SIZE/2 - GATE_SIZE/2}
                       r="4"
                       fill={theme.colors.signal.off} 
                       stroke="none"
-                      style={{ cursor: 'crosshair' }}
+                      style={{ pointerEvents: 'none' }}
                       data-terminal="output"
-                      onMouseDown={(e) => {
-                        e.stopPropagation();
-                        startWireConnection(
-                          gate.id, 
-                          gate.x + GATE_SIZE/2 + 8, 
-                          gate.y + yOffset + GATE_SIZE/2 - GATE_SIZE/2,
-                          index // 出力インデックスを追加
-                        );
-                      }} 
                     />
                     {/* ピン名を表示 */}
                     <text 
@@ -912,18 +1351,31 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
                     </text>
                   </g>
                 );
-              })
+              });
+              })()
             ) : (
               // 標準ゲートの場合は従来通り
-              <circle cx={GATE_SIZE/2 + 8} cy={0} r="4"
-                fill={theme.colors.signal.off} 
-                stroke="none"
-                style={{ cursor: 'crosshair' }}
-                data-terminal="output"
-                onMouseDown={(e) => {
-                  e.stopPropagation();
-                  startWireConnection(gate.id, gate.x + GATE_SIZE/2 + 8, gate.y);
-                }} />
+              <>
+                {/* 単一出力ピン - 大きな当たり判定 */}
+                <circle cx={GATE_SIZE/2 + 8} cy={0} r="12"
+                  fill="transparent" 
+                  stroke="none"
+                  style={{ cursor: 'crosshair' }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    startConnection(gate.id, 'output', 0, gate.x + GATE_SIZE/2 + 8, gate.y);
+                  }}
+                  onMouseUp={(e) => {
+                    e.stopPropagation();
+                    completeConnection(gate.id, 'output', 0);
+                  }} />
+                {/* 単一出力ピン - 表示 */}
+                <circle cx={GATE_SIZE/2 + 8} cy={0} r="4"
+                  fill={theme.colors.signal.off} 
+                  stroke="none"
+                  style={{ pointerEvents: 'none' }}
+                  data-terminal="output" />
+              </>
             )}
           </>
         )}
@@ -1031,9 +1483,10 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     viewModel.loadCircuit(circuitData);
   };
 
-  if (!userMode) {
-    return <ModeSelector onModeSelected={handleModeSelected} />;
-  }
+  // userModeは廃止し、新しいcurrentModeシステムを使用
+  // if (!userMode) {
+  //   return <ModeSelector onModeSelected={handleModeSelected} />;
+  // }
 
   // 元のレンダリング構造をそのまま保持
   return (
@@ -1065,6 +1518,12 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
         </h1>
         
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          {/* モード選択 */}
+          <DiscoveryModeSelector
+            currentMode={currentMode}
+            onModeChange={setCurrentMode}
+          />
+          
           {/* テーマ選択 */}
           <select
             value={selectedTheme}
@@ -1085,11 +1544,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
           </select>
           
           <button
-            onClick={() => {
-              // モード選択画面に戻る
-              setUserMode(null);
-              saveUserPreferences({ ...preferences, mode: null });
-            }}
+            onClick={() => setShowNotebook(true)}
             style={{
               padding: '8px 16px',
               borderRadius: '6px',
@@ -1099,11 +1554,14 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
               fontSize: '14px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
             }}
             onMouseEnter={(e) => (e.target as HTMLElement).style.background = theme.colors.ui.buttonHover}
             onMouseLeave={(e) => (e.target as HTMLElement).style.background = theme.colors.ui.buttonBg}
           >
-            モード: {userMode === 'learning' ? '学習' : userMode === 'free' ? '自由制作' : '上級者'}
+            📔 ノート
           </button>
           
           <button
@@ -1278,10 +1736,11 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
         }}>
         {Object.entries(gateTypes)
           .filter(([type]) => {
-            // 上級者モードまたはデバッグモードでは全ゲート表示
-            if (userMode === 'advanced' || debugMode) return true;
-            // それ以外は基本ゲートのみ
-            return !['NAND', 'NOR', 'XNOR'].includes(type);
+            // デバッグモードでは全ゲート表示
+            if (debugMode) return true;
+            // 現在のモードで利用可能なゲートのみ表示
+            const availableGates = getGatesForMode(currentMode);
+            return availableGates.includes(type as any);
           })
           .map(([type, config]) => (
           <button
@@ -1692,6 +2151,29 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
         <CustomGateDetail
           gateName={selectedCustomGateDetail}
           onClose={() => setSelectedCustomGateDetail(null)}
+        />
+      )}
+      
+      {/* 発見通知 */}
+      {showDiscoveryNotification.length > 0 && (
+        <DiscoveryNotification
+          discoveryIds={showDiscoveryNotification}
+          onClose={() => setShowDiscoveryNotification([])}
+        />
+      )}
+      
+      {/* 実験ノート */}
+      <ExperimentNotebook
+        isOpen={showNotebook}
+        onClose={() => setShowNotebook(false)}
+        currentCircuit={viewModel.toJSON()}
+        discoveries={Object.keys(discoveryProgress.discoveries).filter(key => discoveryProgress.discoveries[key])}
+      />
+      
+      {/* 発見チュートリアル */}
+      {showDiscoveryTutorial && (
+        <DiscoveryTutorial
+          onClose={() => setShowDiscoveryTutorial(false)}
         />
       )}
     </div>
