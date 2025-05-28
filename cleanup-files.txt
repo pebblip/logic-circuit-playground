@@ -1,0 +1,93 @@
+# 削除対象ファイルリスト
+
+## 古いコンポーネント（使用されていないJSXファイル）
+src/components/Header.jsx
+src/components/TutorialSystem.jsx
+src/components/ProfessionalCircuit.jsx
+src/components/LogicCircuitJP.jsx
+src/components/ModernLogicCircuit.jsx
+src/components/CleanLogicCircuit.jsx
+src/components/LogicCircuitBuilderV3.jsx
+src/components/LogicCircuitBuilder.jsx
+src/components/DebugPanel.jsx
+src/components/LogicCircuitBuilderV2.jsx
+src/components/BestLogicCircuit.jsx
+src/components/LogicCircuitBuilderEnhanced.jsx
+src/components/LogicCircuitPlayground.jsx
+src/components/WireConnection.jsx
+src/components/Canvas.jsx
+src/components/SimpleLogicCircuitDebug.jsx
+src/components/UltimateLogicCircuit.jsx
+src/components/UltraModernCircuit.jsx
+src/components/LogicCircuitUniversal.jsx
+src/components/TestWireConnection.jsx
+src/components/StableLogicCircuit.jsx
+src/components/LogicCircuitV4.jsx
+src/components/ModernProfessionalCircuit.jsx
+src/components/LearningControls.jsx
+src/components/ContextualHelp.jsx
+src/components/StyledStableCircuit.jsx
+src/components/SimpleLogicCircuit.jsx
+src/components/ToolBar.jsx
+
+## UIコンポーネント（未使用）
+src/components/UI/SlideInPanel.jsx
+src/components/UI/FloatingHelpWindow.jsx
+src/components/UI/UltraMinimalHeader.jsx
+src/components/UI/Console.jsx
+src/components/UI/RadialMenu.jsx
+src/components/UI/ContextMenu.jsx
+src/components/UI/InfoPanel.jsx
+src/components/UI/RightPanel.jsx
+src/components/UI/SmartHints.jsx
+src/components/UI/LevelPanel.jsx
+src/components/UI/GateIcon.jsx
+src/components/UI/ToolbarRedesigned.jsx
+src/components/UI/FloatingToolPalette.jsx
+src/components/UI/TruthTable.jsx
+src/components/UI/PartsPanel.jsx
+src/components/UI/QuickAccessBar.jsx
+src/components/UI/GateReference.jsx
+src/components/UI/ErrorMessage.jsx
+src/components/UI/SimpleToolPalette.jsx
+src/components/UI/HeaderV4.jsx
+src/components/UI/MinimalHeader.jsx
+src/components/UI/PropertiesPanel.jsx
+src/components/UI/SavedCircuitsPanel.jsx
+src/components/UI/DockToolbar.jsx
+src/components/UI/OperationGuide.jsx
+src/components/UI/ChallengeBar.jsx
+src/components/UI/Toolbar.jsx
+
+## 教育コンポーネント（JSX版）
+src/components/Education/CurriculumMap.jsx
+src/components/Education/TutorialAnimation.jsx
+src/components/Education/TutorialOverlay.jsx
+src/components/Education/BadgeDisplay.jsx
+src/components/Education/TruthTableChallenge.jsx
+src/components/Education/LearningModeSelector.jsx
+src/components/Education/EnhancedTutorial.jsx
+src/components/Education/ErrorFeedback.jsx
+src/components/Education/WelcomeTutorial.jsx
+
+## バックアップファイル
+src/components/UltraModernCircuit.backup.jsx
+
+## TypeScriptに移行済みのJSXファイル
+src/components/TutorialSystemV2.jsx
+src/components/ChallengeSystem.jsx
+src/components/ExtendedChallengeSystem.jsx
+src/components/ProgressTracker.jsx
+
+## 未使用のCircuitコンポーネント
+src/components/Circuit/CircuitCanvas.jsx
+src/components/Circuit/ConnectionComponent.jsx
+src/components/Circuit/GateComponent.jsx
+src/components/Circuit/Canvas.jsx
+src/components/Circuit/ToolPalette.jsx
+src/components/Circuit/Connection.jsx
+src/components/Circuit/CanvasV4.jsx
+src/components/Circuit/Gate.jsx
+
+## 古いバージョンのコンポーネント
+src/components/UltraModernCircuitV2.jsx
