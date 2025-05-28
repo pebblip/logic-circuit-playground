@@ -35,6 +35,7 @@ import { ClockControl } from './ClockControl';
 // 改善されたゲートコンポーネント
 import { ImprovedGateComponent } from './Circuit/ImprovedGateComponent';
 import { PIN_CONSTANTS } from '../constants/ui';
+import { PinComponent } from './Circuit/PinComponent';
 
 // Types
 interface UltraModernGate {
@@ -1217,11 +1218,12 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
               // 標準ゲートの場合は従来通り
               (gate.type === 'AND' || gate.type === 'OR' || gate.type === 'NAND' || gate.type === 'NOR' || gate.type === 'XNOR' || gate.type === 'D_FLIP_FLOP' || gate.type === 'SR_LATCH') ? (
                 <>
-                  {/* 入力ピン1 - 大きな当たり判定 */}
-                  <circle cx={-GATE_SIZE/2 - 8} cy={-10} r="12"
-                    fill="transparent" 
-                    stroke="none"
-                    style={{ cursor: 'crosshair' }}
+                  {/* 入力ピン1 */}
+                  <PinComponent
+                    x={-GATE_SIZE/2 - 8}
+                    y={-10}
+                    type="input"
+                    fillColor={theme.colors.signal.off}
                     onMouseDown={(e) => {
                       e.stopPropagation();
                       startConnection(gate.id, 'input', 0, gate.x - GATE_SIZE/2 - 8, gate.y - 10);
@@ -1229,19 +1231,15 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
                     onMouseUp={(e) => {
                       e.stopPropagation();
                       completeConnection(gate.id, 'input', 0);
-                    }} />
-                  {/* 入力ピン1 - 表示 */}
-                  <circle cx={-GATE_SIZE/2 - 8} cy={-10} r="4"
-                    fill={theme.colors.signal.off} 
-                    stroke="none"
-                    style={{ pointerEvents: 'none' }}
-                    data-terminal="input" />
+                    }}
+                  />
                   
-                  {/* 入力ピン2 - 大きな当たり判定 */}
-                  <circle cx={-GATE_SIZE/2 - 8} cy={10} r="12"
-                    fill="transparent" 
-                    stroke="none"
-                    style={{ cursor: 'crosshair' }}
+                  {/* 入力ピン2 */}
+                  <PinComponent
+                    x={-GATE_SIZE/2 - 8}
+                    y={10}
+                    type="input"
+                    fillColor={theme.colors.signal.off}
                     onMouseDown={(e) => {
                       e.stopPropagation();
                       startConnection(gate.id, 'input', 1, gate.x - GATE_SIZE/2 - 8, gate.y + 10);
@@ -1249,36 +1247,24 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
                     onMouseUp={(e) => {
                       e.stopPropagation();
                       completeConnection(gate.id, 'input', 1);
-                    }} />
-                  {/* 入力ピン2 - 表示 */}
-                  <circle cx={-GATE_SIZE/2 - 8} cy={10} r="4"
-                    fill={theme.colors.signal.off} 
-                    stroke="none"
-                    style={{ pointerEvents: 'none' }}
-                    data-terminal="input" />
+                    }}
+                  />
                 </>
               ) : (
-                <>
-                  {/* 単一入力ピン - 大きな当たり判定 */}
-                  <circle cx={-GATE_SIZE/2 - 8} cy={0} r="12"
-                    fill="transparent" 
-                    stroke="none"
-                    style={{ cursor: 'crosshair' }}
-                    onMouseDown={(e) => {
-                      e.stopPropagation();
-                      startConnection(gate.id, 'input', 0, gate.x - GATE_SIZE/2 - 8, gate.y);
-                    }}
-                    onMouseUp={(e) => {
-                      e.stopPropagation();
-                      completeConnection(gate.id, 'input', 0);
-                    }} />
-                  {/* 単一入力ピン - 表示 */}
-                  <circle cx={-GATE_SIZE/2 - 8} cy={0} r="4"
-                    fill={theme.colors.signal.off} 
-                    stroke="none"
-                    style={{ pointerEvents: 'none' }}
-                    data-terminal="input" />
-                </>
+                <PinComponent
+                  x={-GATE_SIZE/2 - 8}
+                  y={0}
+                  type="input"
+                  fillColor={theme.colors.signal.off}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    startConnection(gate.id, 'input', 0, gate.x - GATE_SIZE/2 - 8, gate.y);
+                  }}
+                  onMouseUp={(e) => {
+                    e.stopPropagation();
+                    completeConnection(gate.id, 'input', 0);
+                  }}
+                />
               )
             )}
           </>
@@ -1355,27 +1341,20 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
               })()
             ) : (
               // 標準ゲートの場合は従来通り
-              <>
-                {/* 単一出力ピン - 大きな当たり判定 */}
-                <circle cx={GATE_SIZE/2 + 8} cy={0} r="12"
-                  fill="transparent" 
-                  stroke="none"
-                  style={{ cursor: 'crosshair' }}
-                  onMouseDown={(e) => {
-                    e.stopPropagation();
-                    startConnection(gate.id, 'output', 0, gate.x + GATE_SIZE/2 + 8, gate.y);
-                  }}
-                  onMouseUp={(e) => {
-                    e.stopPropagation();
-                    completeConnection(gate.id, 'output', 0);
-                  }} />
-                {/* 単一出力ピン - 表示 */}
-                <circle cx={GATE_SIZE/2 + 8} cy={0} r="4"
-                  fill={theme.colors.signal.off} 
-                  stroke="none"
-                  style={{ pointerEvents: 'none' }}
-                  data-terminal="output" />
-              </>
+              <PinComponent
+                x={GATE_SIZE/2 + 8}
+                y={0}
+                type="output"
+                fillColor={theme.colors.signal.off}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  startConnection(gate.id, 'output', 0, gate.x + GATE_SIZE/2 + 8, gate.y);
+                }}
+                onMouseUp={(e) => {
+                  e.stopPropagation();
+                  completeConnection(gate.id, 'output', 0);
+                }}
+              />
             )}
           </>
         )}

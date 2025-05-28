@@ -5,6 +5,10 @@
 import { ID, Position, PinType } from '@/types/common';
 
 export class Pin {
+  // 表示とインタラクションの定数
+  static readonly VISUAL_RADIUS = 4;
+  static readonly HIT_RADIUS = 12;
+  
   private _id: ID;
   private _name: string;
   private _type: PinType;
@@ -29,9 +33,7 @@ export class Pin {
 
   // Setters
   set value(val: boolean) {
-    if (this._type === PinType.INPUT || this._type === PinType.OUTPUT) {
-      this._value = val;
-    }
+    this._value = val;
   }
 
   set connected(val: boolean) {
