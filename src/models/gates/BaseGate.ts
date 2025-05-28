@@ -8,13 +8,13 @@ import { Pin } from '@/models/Pin';
 
 export abstract class BaseGate {
   protected _id: ID;
-  protected _type: GateType;
+  protected _type: GateType | string; // stringも許可（CLOCKなどのため）
   protected _position: Position;
   protected _inputs: Pin[] = [];
   protected _outputs: Pin[] = [];
   protected _size = { width: 50, height: 50 };
 
-  constructor(id: ID, type: GateType, position: Position) {
+  constructor(id: ID, type: GateType | string, position: Position) {
     this._id = id;
     this._type = type;
     this._position = position;
@@ -28,11 +28,15 @@ export abstract class BaseGate {
 
   // Getters
   get id(): ID { return this._id; }
-  get type(): GateType { return this._type; }
+  get type(): GateType | string { return this._type; }
   get position(): Position { return { ...this._position }; }
   get inputs(): Pin[] { return this._inputs; }
   get outputs(): Pin[] { return this._outputs; }
   get size() { return { ...this._size }; }
+  
+  // メソッド形式のgetters（互換性のため）
+  getInputs(): Pin[] { return this._inputs; }
+  getOutputs(): Pin[] { return this._outputs; }
 
   // Common methods
   move(position: Position): void {
@@ -76,7 +80,7 @@ export abstract class BaseGate {
     this._outputs.forEach(pin => pin.reset());
   }
 
-  toJSON(): GateData {
+  serialize(): any {
     return {
       id: this._id,
       type: this._type,
@@ -84,6 +88,10 @@ export abstract class BaseGate {
       inputs: this._inputs.map(pin => pin.toJSON()),
       outputs: this._outputs.map(pin => pin.toJSON())
     };
+  }
+  
+  toJSON(): GateData {
+    return this.serialize();
   }
 
   // Helper method for creating pins

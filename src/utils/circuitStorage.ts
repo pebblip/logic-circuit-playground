@@ -282,9 +282,19 @@ export const encodeCircuitForURL = (circuitData: any): string | null => {
 /**
  * URLから回路をデコード
  */
-export const decodeCircuitFromURL = (encodedData: string): any | null => {
+export const decodeCircuitFromURL = (encodedData?: string): any | null => {
   try {
-    const json = decodeURIComponent(atob(encodedData));
+    // 引数が指定されていない場合は、URLパラメータから取得
+    let dataToUse = encodedData;
+    if (!dataToUse) {
+      const urlParams = new URLSearchParams(window.location.search);
+      dataToUse = urlParams.get('circuit');
+      if (!dataToUse) {
+        return null; // URLパラメータが存在しない場合は null を返す
+      }
+    }
+
+    const json = decodeURIComponent(atob(dataToUse));
     const data = JSON.parse(json);
     return {
       gates: data.g || [],

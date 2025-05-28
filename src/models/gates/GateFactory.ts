@@ -15,12 +15,17 @@ import { NORGate } from './NORGate';
 import { XORGate } from './XORGate';
 import { XNORGate } from './XNORGate';
 import { CustomGate } from './CustomGate';
+import { ClockGate } from './ClockGate';
+import { DFlipFlopGate } from './DFlipFlopGate';
+import { SRLatchGate } from './SRLatchGate';
+import { Register4BitGate } from './Register4BitGate';
+import { Mux2to1Gate } from './Mux2to1Gate';
 
 export class GateFactory {
   private static nextId = 1;
   private static customGateDefinitions = new Map<string, any>();
 
-  static create(type: GateType | string, position: Position, id?: ID): BaseGate {
+  static create(type: GateType | string, position: Position, id?: ID, options?: any): BaseGate {
     const gateId = id || `gate_${this.nextId++}`;
 
     switch (type) {
@@ -42,6 +47,16 @@ export class GateFactory {
         return new XORGate(gateId, position);
       case GateType.XNOR:
         return new XNORGate(gateId, position);
+      case 'CLOCK':
+        return new ClockGate(gateId, position, options?.interval);
+      case 'D_FLIP_FLOP':
+        return new DFlipFlopGate(gateId, position.x, position.y);
+      case 'SR_LATCH':
+        return new SRLatchGate(gateId, position.x, position.y);
+      case 'REGISTER_4BIT':
+        return new Register4BitGate(gateId, position.x, position.y);
+      case 'MUX_2TO1':
+        return new Mux2to1Gate(gateId, position.x, position.y);
       default:
         // カスタムゲートのチェック
         const customDefinition = this.customGateDefinitions.get(type);

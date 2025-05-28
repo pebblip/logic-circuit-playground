@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { UltraModernCircuitViewModel } from '../UltraModernCircuitViewModel';
 
 describe('UltraModernCircuitViewModel', () => {
@@ -124,6 +124,88 @@ describe('UltraModernCircuitViewModel', () => {
       
       expect(restoredInput1?.value).toBe(true);
       expect(restoredInput2?.value).toBe(false);
+    });
+  });
+
+  describe('クロックゲートのテスト', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('CLOCKゲートを追加できる', () => {
+      const gate = viewModel.addGate('CLOCK', 200, 200);
+      
+      expect(gate).toBeDefined();
+      expect(gate.type).toBe('CLOCK');
+      expect(gate.x).toBe(200);
+      expect(gate.y).toBe(200);
+      
+      const gates = viewModel.getGates();
+      expect(gates).toHaveLength(1);
+      expect(gates[0].type).toBe('CLOCK');
+    });
+
+    it('クロックの制御ができる', () => {
+      const gate = viewModel.addGate('CLOCK', 200, 200);
+      
+      // クロックを開始
+      viewModel.startClock(gate.id);
+      
+      const state = viewModel.getClockState(gate.id);
+      expect(state).toBeDefined();
+      expect(state?.isRunning).toBe(true);
+      expect(state?.interval).toBe(1000);
+      
+      // インターバルを変更
+      viewModel.setClockInterval(gate.id, 500);
+      const newState = viewModel.getClockState(gate.id);
+      expect(newState?.interval).toBe(500);
+      
+      // クロックを停止
+      viewModel.stopClock(gate.id);
+      const stoppedState = viewModel.getClockState(gate.id);
+      expect(stoppedState?.isRunning).toBe(false);
+    });
+
+    it('クロックがシミュレーションをトリガーする', () => {
+      const clock = viewModel.addGate('CLOCK', 100, 100);
+      const output = viewModel.addGate('OUTPUT', 300, 100);
+      
+      // 接続
+      viewModel.addConnection(clock.id, 0, output.id, 0);
+      
+      // 初期状態
+      let gates = viewModel.getGates();
+      let outputGate = gates.find(g => g.id === output.id);
+      expect(outputGate?.value).toBe(false);
+      
+      // クロックを開始
+      viewModel.startClock(clock.id);
+      
+      // 100ms後（デフォルト1000msなのでまだ変化なし）
+      vi.advanceTimersByTime(100);
+      gates = viewModel.getGates();
+      outputGate = gates.find(g => g.id === output.id);
+      expect(outputGate?.value).toBe(false);
+      
+      // 1000ms後（最初のトグル）
+      vi.advanceTimersByTime(900);
+      gates = viewModel.getGates();
+      outputGate = gates.find(g => g.id === output.id);
+      expect(outputGate?.value).toBe(true);
+      
+      // 2000ms後（2回目のトグル）
+      vi.advanceTimersByTime(1000);
+      gates = viewModel.getGates();
+      outputGate = gates.find(g => g.id === output.id);
+      expect(outputGate?.value).toBe(false);
+      
+      // クロックを停止
+      viewModel.stopClock(clock.id);
     });
   });
 });

@@ -5,11 +5,12 @@ import PropTypes from 'prop-types';
 import { LEVELS, TABS, GATE_TYPES } from '../../constants/circuit';
 import TruthTable from './TruthTable';
 import { colors, spacing, typography, shadows, radius } from '../../styles/design-tokens';
+import { ClockControl } from '../ClockControl';
 
 /**
  * モダンな情報パネル
  */
-const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections, simulation, height }) => {
+const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections, simulation, height, viewModel }) => {
   const [activeTab, setActiveTab] = useState('reference');
   const [consoleMessages, setConsoleMessages] = useState([]);
 

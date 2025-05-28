@@ -73,6 +73,25 @@ const renderGateShape = (type: string, isActive: boolean, size: number) => {
         </>
       );
 
+    case 'CLOCK':
+      return (
+        <>
+          <rect x={-halfSize} y={-halfSize} width={size} height={size} rx={halfSize}
+            fill={fillColor}
+            stroke={strokeColor}
+            strokeWidth="2"
+          />
+          <path 
+            d={`M 0,-${halfSize/2} L ${halfSize/2},0 L 0,${halfSize/2} L -${halfSize/2},0 Z`}
+            fill={textColor}
+            stroke="none"
+          />
+          <circle cx={0} cy={0} r={3}
+            fill={strokeColor}
+          />
+        </>
+      );
+
     default:
       // カスタムゲート
       return (

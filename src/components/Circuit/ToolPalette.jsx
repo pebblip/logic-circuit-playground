@@ -18,7 +18,7 @@ const GATE_CATEGORIES = [
     gates: [
       { type: GateType.INPUT, label: '入力', icon: 'IN' },
       { type: GateType.OUTPUT, label: '出力', icon: 'OUT' },
-      { type: GateType.CLOCK, label: 'クロック', icon: 'CLK' },
+      { type: 'CLOCK', label: 'クロック', icon: 'CLK' },
     ],
   },
   {
@@ -27,16 +27,6 @@ const GATE_CATEGORIES = [
       { type: GateType.NAND, label: 'NAND', icon: '⊼' },
       { type: GateType.NOR, label: 'NOR', icon: '⊽' },
       { type: GateType.XNOR, label: 'XNOR', icon: '⊙' },
-      { type: GateType.BUFFER, label: 'バッファ', icon: '▷' },
-    ],
-  },
-  {
-    name: 'フリップフロップ',
-    gates: [
-      { type: GateType.SR_LATCH, label: 'SR Latch', icon: 'SR' },
-      { type: GateType.D_FLIPFLOP, label: 'D-FF', icon: 'D' },
-      { type: GateType.JK_FLIPFLOP, label: 'JK-FF', icon: 'JK' },
-      { type: GateType.T_FLIPFLOP, label: 'T-FF', icon: 'T' },
     ],
   },
 ];

@@ -3,6 +3,7 @@ import UltraModernCircuitWithViewModel from './components/UltraModernCircuitWith
 import ErrorBoundary from './components/ErrorBoundary'
 
 function App(): React.ReactElement {
+  // 発見システムを統合した実装
   return (
     <ErrorBoundary>
       <UltraModernCircuitWithViewModel />

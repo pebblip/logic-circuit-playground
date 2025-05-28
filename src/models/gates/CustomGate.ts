@@ -2,15 +2,19 @@ import { BaseGate } from './BaseGate';
 import { ID, Position } from '@/types/common';
 import { GateType } from '@/types/gate';
 import { Circuit } from '../Circuit';
+import { GateFactory } from './GateFactory';
 
 export class CustomGate extends BaseGate {
   private internalCircuit: Circuit;
   private inputGateIds: ID[] = [];
   private outputGateIds: ID[] = [];
+  private definition: any;
   
   constructor(id: ID, position: Position, public customType: string, definition: any) {
+    // definitionを先に保存
     super(id, customType as GateType, position);
     this.internalCircuit = new Circuit();
+    this.definition = definition;
     if (definition) {
       this.setupFromDefinition(definition);
     }
@@ -22,33 +26,36 @@ export class CustomGate extends BaseGate {
       // 入力ゲートの作成
       this.inputGateIds = definition.inputs.map((input: any, index: number) => {
         const gateId = `${this.id}_input_${index}`;
-        this.internalCircuit.addGate({
-          id: gateId,
-          type: GateType.INPUT,
-          position: { x: 0, y: index * 50 }
-        });
+        const inputGate = GateFactory.create(
+          GateType.INPUT,
+          { x: 0, y: index * 50 },
+          gateId
+        );
+        this.internalCircuit.addGate(inputGate);
         return gateId;
       });
       
       // 出力ゲートの作成
       this.outputGateIds = definition.outputs.map((output: any, index: number) => {
         const gateId = `${this.id}_output_${index}`;
-        this.internalCircuit.addGate({
-          id: gateId,
-          type: GateType.OUTPUT,
-          position: { x: 300, y: index * 50 }
-        });
+        const outputGate = GateFactory.create(
+          GateType.OUTPUT,
+          { x: 300, y: index * 50 },
+          gateId
+        );
+        this.internalCircuit.addGate(outputGate);
         return gateId;
       });
       
       // 内部ゲートの作成
       definition.circuit.gates?.forEach((gate: any) => {
         if (gate.type !== 'INPUT' && gate.type !== 'OUTPUT') {
-          this.internalCircuit.addGate({
-            id: `${this.id}_${gate.id}`,
-            type: gate.type as GateType,
-            position: { x: gate.x, y: gate.y }
-          });
+          const internalGate = GateFactory.create(
+            gate.type as GateType,
+            { x: gate.x, y: gate.y },
+            `${this.id}_${gate.id}`
+          );
+          this.internalCircuit.addGate(internalGate);
         }
       });
       
@@ -68,7 +75,7 @@ export class CustomGate extends BaseGate {
       });
     }
     
-    this.initializePins();
+    this.initializeCustomPins();
   }
   
   private resolveInternalGateId(externalId: string, definition: any): ID | null {
@@ -89,15 +96,24 @@ export class CustomGate extends BaseGate {
   }
   
   protected initializePins(): void {
+    // setupFromDefinitionで後から初期化される
+    // ここでは何もしない
+  }
+  
+  private initializeCustomPins(): void {
     // 入力ピンの初期化
-    this.inputGateIds.forEach((_, index) => {
-      this.addInput(`in${index}`);
-    });
+    if (this.definition && this.definition.inputs) {
+      this._inputs = this.definition.inputs.map((input: any, index: number) => {
+        return this.createPin(input.name || `in${index}`, 'input', index, this.definition.inputs.length);
+      });
+    }
     
     // 出力ピンの初期化
-    this.outputGateIds.forEach((_, index) => {
-      this.addOutput(`out${index}`);
-    });
+    if (this.definition && this.definition.outputs) {
+      this._outputs = this.definition.outputs.map((output: any, index: number) => {
+        return this.createPin(output.name || `out${index}`, 'output', index, this.definition.outputs.length);
+      });
+    }
   }
   
   public compute(): void {

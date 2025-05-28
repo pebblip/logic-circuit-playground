@@ -12,15 +12,21 @@ export class OutputGate extends BaseGate {
   }
 
   protected initializePins(): void {
-    // 出力ゲートは入力ピンのみ
+    // 出力ゲートは入力ピンと出力ピンの両方を持つ
     this._inputs = [
       this.createPin('IN', 'input', 0, 1)
+    ];
+    
+    // 視覚化のために出力ピンも作成
+    this._outputs = [
+      this.createPin('OUT', 'output', 0, 1)
     ];
   }
 
   public compute(): void {
-    // 出力ゲートは入力をそのまま内部状態として保持
-    // 視覚化のため
+    // 入力値をそのまま出力に反映
+    const inputValue = this.getInputValue(0);
+    this.setOutputValue(0, inputValue);
   }
 
   public getValue(): boolean {

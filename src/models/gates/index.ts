@@ -12,4 +12,5 @@ export { NANDGate } from './NANDGate';
 export { NORGate } from './NORGate';
 export { XORGate } from './XORGate';
 export { XNORGate } from './XNORGate';
+export { ClockGate } from './ClockGate';
 export { GateFactory } from './GateFactory';

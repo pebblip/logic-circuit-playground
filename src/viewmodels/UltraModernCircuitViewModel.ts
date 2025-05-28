@@ -2,6 +2,7 @@ import { EventEmitter } from '../utils/EventEmitter';
 import { Circuit } from '../models/Circuit';
 import { BaseGate } from '../models/gates/BaseGate';
 import { InputGate } from '../models/gates/InputGate';
+import { ClockGate } from '../models/gates/ClockGate';
 import { GateFactory } from '../models/gates/GateFactory';
 import { GateType } from '../types/gate';
 import { Position, ID } from '../types/common';
@@ -43,6 +44,11 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     super();
     this.circuit = new Circuit();
   }
+  
+  // Circuitモデルを取得（発見システム用） - 既存のメソッドと統合
+  getCircuitModel(): Circuit {
+    return this.circuit;
+  }
 
   // ゲート取得（UltraModern形式）
   getGates(): UltraModernGate[] {
@@ -66,7 +72,7 @@ export class UltraModernCircuitViewModel extends EventEmitter {
         value = result !== undefined ? result : false;
       }
       
-      return {
+      const baseGate: UltraModernGate = {
         id: ultraId,
         type: gate.type,
         x: gate.position.x,
@@ -78,24 +84,29 @@ export class UltraModernCircuitViewModel extends EventEmitter {
           outputs: customGateInfo.outputs
         })
       };
+      
+      // クロックゲートの場合、追加情報を含める
+      if (gate instanceof ClockGate) {
+        return {
+          ...baseGate,
+          isRunning: gate.getIsRunning(),
+          interval: gate.getInterval()
+        } as any;
+      }
+      
+      return baseGate;
     });
   }
 
   // 接続取得（UltraModern形式）
   getConnections(): UltraModernConnection[] {
     return this.circuit.getConnections().map(conn => {
-      const fromGate = this.circuit.getGate(conn.fromGateId);
-      const toGate = this.circuit.getGate(conn.toGateId);
-      
-      const fromOutputIndex = fromGate?.outputs.findIndex(p => p.id === conn.fromPinId) || 0;
-      const toInputIndex = toGate?.inputs.findIndex(p => p.id === conn.toPinId) || 0;
-      
       return {
         id: conn.id,
         from: this.reverseGateIdMap.get(conn.fromGateId) || conn.fromGateId,
-        fromOutput: fromOutputIndex,
+        fromOutput: conn.fromOutputIndex,
         to: this.reverseGateIdMap.get(conn.toGateId) || conn.toGateId,
-        toInput: toInputIndex
+        toInput: conn.toInputIndex
       };
     });
   }
@@ -122,6 +133,15 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     
     // 内部モデルにゲートを追加
     const gate = GateFactory.create(gateType, { x, y });
+    
+    // クロックゲートの場合、コールバックを設定
+    if (gate instanceof ClockGate) {
+      gate.onToggle = () => {
+        this.simulate();
+        this.emit('simulationCompleted', this.simulationResults);
+      };
+    }
+    
     this.circuit.addGate(gate);
     
     // IDマッピングを保存
@@ -259,6 +279,15 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     return new Map(this.customGates);
   }
 
+  // シミュレーション結果取得
+  getSimulationResults(): Record<string, boolean | boolean[]> {
+    const results: Record<string, boolean | boolean[]> = {};
+    this.simulationResults.forEach((value, key) => {
+      results[key] = value;
+    });
+    return results;
+  }
+
   // シミュレーション実行
   simulate(): void {
     const result = this.circuit.simulate();
@@ -289,6 +318,54 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     // TODO: カスタムゲートの内部回路シミュレーション実装
     // 現在は元のロジックをそのまま使用することを想定
     return {};
+  }
+
+  // クロックゲート制御
+  startClock(ultraId: string): void {
+    const internalId = this.gateIdMap.get(ultraId);
+    if (!internalId) return;
+    
+    const gate = this.circuit.getGate(internalId);
+    if (gate && gate instanceof ClockGate) {
+      gate.start();
+      this.emit('clockStateChanged', ultraId, true);
+    }
+  }
+
+  stopClock(ultraId: string): void {
+    const internalId = this.gateIdMap.get(ultraId);
+    if (!internalId) return;
+    
+    const gate = this.circuit.getGate(internalId);
+    if (gate && gate instanceof ClockGate) {
+      gate.stop();
+      this.emit('clockStateChanged', ultraId, false);
+    }
+  }
+
+  setClockInterval(ultraId: string, interval: number): void {
+    const internalId = this.gateIdMap.get(ultraId);
+    if (!internalId) return;
+    
+    const gate = this.circuit.getGate(internalId);
+    if (gate && gate instanceof ClockGate) {
+      gate.setInterval(interval);
+      this.emit('clockIntervalChanged', ultraId, interval);
+    }
+  }
+
+  getClockState(ultraId: string): { isRunning: boolean; interval: number } | null {
+    const internalId = this.gateIdMap.get(ultraId);
+    if (!internalId) return null;
+    
+    const gate = this.circuit.getGate(internalId);
+    if (gate && gate instanceof ClockGate) {
+      return {
+        isRunning: gate.getIsRunning(),
+        interval: gate.getInterval()
+      };
+    }
+    return null;
   }
 
   // 回路のクリア
