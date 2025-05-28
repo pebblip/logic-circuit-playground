@@ -27,13 +27,13 @@ export const PIN_CONSTANTS = {
       ACTIVE: '#70E898',
     }
   }
-};
+} as const;
 
 // グリッドスナップ
 export const GRID_CONSTANTS = {
   SIZE: 20,  // グリッドサイズ
   SNAP_ENABLED: true,  // スナップ有効/無効
-};
+} as const;
 
 // ゲート配置
 export const GATE_PLACEMENT = {
@@ -48,4 +48,9 @@ export const GATE_PLACEMENT = {
   // 最大配置位置（画面外を防ぐ）
   MAX_X: 800,
   MAX_Y: 600,
-};
+} as const;
+
+// 型定義
+export type PinConstants = typeof PIN_CONSTANTS;
+export type GridConstants = typeof GRID_CONSTANTS;
+export type GatePlacement = typeof GATE_PLACEMENT;

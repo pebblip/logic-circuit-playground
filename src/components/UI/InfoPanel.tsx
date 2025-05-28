@@ -1,20 +1,50 @@
 // モダンな情報パネルコンポーネント
 
 import React, { memo, useState } from 'react';
-import PropTypes from 'prop-types';
 import { LEVELS, TABS, GATE_TYPES } from '../../constants/circuit';
 import TruthTable from './TruthTable';
 import { colors, spacing, typography, shadows, radius } from '../../styles/design-tokens';
 import { ClockControl } from '../ClockControl';
+import type { Gate, Connection } from '../../models';
+
+interface InfoPanelProps {
+  currentLevel: number;
+  selectedGate?: Gate | null;
+  gates: Gate[];
+  connections: Connection[];
+  simulation?: any;
+  height?: string;
+  viewModel?: any;
+}
+
+interface GateDescription {
+  symbol: string;
+  desc: string;
+  usage: string;
+  example?: string;
+}
+
+interface Tutorial {
+  title: string;
+  steps: string[];
+}
 
 /**
  * モダンな情報パネル
  */
-const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections, simulation, height, viewModel }) => {
+const InfoPanel = memo<InfoPanelProps>(({ 
+  currentLevel, 
+  selectedGate, 
+  gates, 
+  connections, 
+  simulation, 
+  height, 
+  viewModel 
+}) => {
   const [activeTab, setActiveTab] = useState('reference');
-  const [consoleMessages, setConsoleMessages] = useState([]);
+  const [consoleMessages, setConsoleMessages] = useState<string[]>([]);
 
-  const tabStyle = (isActive) => ({
+  const tabStyle = (isActive: boolean): React.CSSProperties => ({
     padding: `${spacing.sm} ${spacing.lg}`,
     fontSize: typography.size.sm,
     fontWeight: isActive ? typography.weight.semibold : typography.weight.medium,
@@ -26,24 +56,24 @@ const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections, simula
     transition: 'all 0.2s',
   });
 
+  const gateDescriptions: Record<string, GateDescription> = {
+    // レベル1
+    AND: { symbol: '∧', desc: 'すべての入力が1（真）のときのみ1を出力します。', usage: '複数条件の同時成立判定' },
+    OR: { symbol: '∨', desc: 'いずれかの入力が1（真）のとき1を出力します。', usage: '複数条件のいずれか成立判定' },
+    NOT: { symbol: '¬', desc: '入力を反転します。', usage: '信号の反転、否定条件' },
+    // レベル2
+    NAND: { symbol: '⊼', desc: 'ANDの出力を反転します。万能ゲート。', usage: '他のすべてのゲートを構成可能' },
+    NOR: { symbol: '⊽', desc: 'ORの出力を反転します。', usage: 'いずれも0のとき1を出力' },
+    XOR: { symbol: '⊕', desc: '入力が異なるとき1を出力します。', usage: '不一致検出、加算器の構成要素' },
+    SR_LATCH: { symbol: 'SR', desc: '基本的な記憶素子。', usage: '1ビットの状態保持' },
+    D_FF: { symbol: 'D-FF', desc: 'クロック同期記憶素子。', usage: '同期式回路の記憶要素' },
+    CLOCK: { symbol: '⏰', desc: '周期的な信号を生成。', usage: '同期式回路のタイミング制御' },
+    // レベル3
+    HALF_ADDER: { symbol: 'HA', desc: '2ビットの加算（桁上げなし）。', usage: '加算器の基本要素' },
+    FULL_ADDER: { symbol: 'FA', desc: '2ビット+桁上げの加算。', usage: '多ビット加算器の構成' },
+  };
+
   const renderReference = () => {
-    // 全ゲートのリファレンス情報
-    const gateReference = {
-      // レベル1
-      AND: { symbol: '∧', desc: 'すべての入力が1（真）のときのみ1を出力します。', usage: '複数条件の同時成立判定' },
-      OR: { symbol: '∨', desc: 'いずれかの入力が1（真）のとき1を出力します。', usage: '複数条件のいずれか成立判定' },
-      NOT: { symbol: '¬', desc: '入力を反転します。', usage: '信号の反転、否定条件' },
-      // レベル2
-      NAND: { symbol: '⊼', desc: 'ANDの出力を反転します。万能ゲート。', usage: '他のすべてのゲートを構成可能' },
-      NOR: { symbol: '⊽', desc: 'ORの出力を反転します。', usage: 'いずれも0のとき1を出力' },
-      XOR: { symbol: '⊕', desc: '入力が異なるとき1を出力します。', usage: '不一致検出、加算器の構成要素' },
-      SR_LATCH: { symbol: 'SR', desc: '基本的な記憶素子。', usage: '1ビットの状態保持' },
-      D_FF: { symbol: 'D-FF', desc: 'クロック同期記憶素子。', usage: '同期式回路の記憶要素' },
-      CLOCK: { symbol: '⏰', desc: '周期的な信号を生成。', usage: '同期式回路のタイミング制御' },
-      // レベル3
-      HALF_ADDER: { symbol: 'HA', desc: '2ビットの加算（桁上げなし）。', usage: '加算器の基本要素' },
-      FULL_ADDER: { symbol: 'FA', desc: '2ビット+桁上げの加算。', usage: '多ビット加算器の構成' },
-    };
 
     return (
       <div className="p-4">
@@ -98,7 +128,7 @@ const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections, simula
   };
 
   const renderTutorial = () => {
-    const tutorials = {
+    const tutorials: Record<number, Tutorial> = {
       1: {
         title: '基本ゲートをマスターしよう',
         steps: [
@@ -196,7 +226,7 @@ const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections, simula
       
       {/* タブコンテンツ */}
       <div className="flex-1 overflow-auto">
-        {activeTab === 'description' && renderDescription()}
+        {activeTab === 'reference' && renderReference()}
         {activeTab === 'tutorial' && renderTutorial()}
         {activeTab === 'timing' && (
           <div className="p-4 text-center">
@@ -214,13 +244,5 @@ const InfoPanel = memo(({ currentLevel, selectedGate, gates, connections, simula
 });
 
 InfoPanel.displayName = 'InfoPanel';
-
-InfoPanel.propTypes = {
-  currentLevel: PropTypes.number.isRequired,
-  selectedGate: PropTypes.object,
-  gates: PropTypes.array.isRequired,
-  connections: PropTypes.array.isRequired,
-  height: PropTypes.string
-};
 
 export default InfoPanel;

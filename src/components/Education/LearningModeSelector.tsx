@@ -1,16 +1,34 @@
 // 学習モード選択コンポーネント
 
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Map, BookOpen, Trophy } from 'lucide-react';
 import { colors } from '../../styles/design-tokens';
 import { LEARNING_OBJECTIVES } from '../../constants/education';
 import CurriculumMap from './CurriculumMap';
 
+type LearningMode = 'sandbox' | 'tutorial' | 'challenge';
+
+interface LearningModeSelectorProps {
+  learningMode: LearningMode;
+  progress: Record<string, boolean>;
+  currentLevel: number;
+  onModeChange: (mode: LearningMode) => void;
+  onStartChallenge: (challengeId: string) => void;
+  calculateProgress: (levelKey: string) => number;
+  currentTutorial?: string | null;
+  earnedBadges?: string[];
+}
+
+declare global {
+  interface Window {
+    onLevelChange?: (level: number) => void;
+  }
+}
+
 /**
  * 学習モード選択とチャレンジ一覧
  */
-const LearningModeSelector = ({ 
+const LearningModeSelector: React.FC<LearningModeSelectorProps> = ({ 
   learningMode, 
   progress,
   currentLevel,
@@ -152,7 +170,7 @@ const LearningModeSelector = ({
               </h4>
               
               <div className="space-y-2">
-                {items.map(objective => (
+                {items.map((objective: any) => (
                   <div
                     key={objective.id}
                     className="p-3 rounded cursor-pointer transition-all hover:shadow-md"
@@ -275,17 +293,6 @@ const LearningModeSelector = ({
       )}
     </div>
   );
-};
-
-LearningModeSelector.propTypes = {
-  learningMode: PropTypes.oneOf(['sandbox', 'tutorial', 'challenge']).isRequired,
-  progress: PropTypes.object.isRequired,
-  currentLevel: PropTypes.number.isRequired,
-  onModeChange: PropTypes.func.isRequired,
-  onStartChallenge: PropTypes.func.isRequired,
-  calculateProgress: PropTypes.func.isRequired,
-  currentTutorial: PropTypes.string,
-  earnedBadges: PropTypes.array
 };
 
 export default LearningModeSelector;

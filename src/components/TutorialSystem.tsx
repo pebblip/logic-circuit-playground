@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
+interface TutorialSystemProps {
+  onComplete: () => void;
+  onSkip: () => void;
+}
+
 /**
  * チュートリアルシステム
  * 初心者向けのステップバイステップガイド
  */
-const TutorialSystem = ({ onComplete, onSkip }) => {
+const TutorialSystem: React.FC<TutorialSystemProps> = ({ onComplete, onSkip }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isActive, setIsActive] = useState(true);
   

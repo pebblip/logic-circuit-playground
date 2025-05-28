@@ -1,14 +1,28 @@
 // 真理値表チャレンジコンポーネント
 
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { colors } from '../../styles/design-tokens';
 import { GATE_TYPES } from '../../constants/circuit';
+import type { Gate, Connection } from '../../models';
+
+interface TruthTableChallengeProps {
+  targetGate: string;
+  gates: Gate[];
+  connections: Connection[];
+  simulation: any;
+  onComplete: () => void;
+  onCancel: () => void;
+}
+
+interface TruthTableRow {
+  inputs: number[];
+  output: number;
+}
 
 /**
  * 真理値表チャレンジ
  */
-const TruthTableChallenge = ({ 
+const TruthTableChallenge: React.FC<TruthTableChallengeProps> = ({ 
   targetGate, 
   gates, 
   connections,
@@ -46,7 +60,7 @@ const TruthTableChallenge = ({
   const requiredInputs = targetGate === 'NOT' ? 1 : gateInfo.inputs;
   
   // 期待される真理値表
-  const expectedTables = {
+  const expectedTables: Record<string, TruthTableRow[]> = {
     'AND': [
       { inputs: [0, 0], output: 0 },
       { inputs: [0, 1], output: 0 },
@@ -221,15 +235,6 @@ const TruthTableChallenge = ({
       </div>
     </div>
   );
-};
-
-TruthTableChallenge.propTypes = {
-  targetGate: PropTypes.string.isRequired,
-  gates: PropTypes.array.isRequired,
-  connections: PropTypes.array.isRequired,
-  simulation: PropTypes.object.isRequired,
-  onComplete: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired
 };
 
 export default TruthTableChallenge;

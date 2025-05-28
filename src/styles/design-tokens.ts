@@ -45,7 +45,7 @@ export const colors = {
     surface: '#1f2937',
     border: '#374151',
   }
-};
+} as const;
 
 export const spacing = {
   xs: '0.25rem',   // 4px
@@ -54,7 +54,7 @@ export const spacing = {
   lg: '1.5rem',    // 24px
   xl: '2rem',      // 32px
   xxl: '3rem',     // 48px
-};
+} as const;
 
 export const animation = {
   // トランジション
@@ -68,7 +68,7 @@ export const animation = {
   pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
   flow: 'flow 1s linear infinite',
   glow: 'glow 1.5s ease-in-out infinite',
-};
+} as const;
 
 export const layout = {
   // 固定サイズ
@@ -92,7 +92,7 @@ export const layout = {
     minWidth: '800px',
     minHeight: '600px',
   }
-};
+} as const;
 
 export const typography = {
   // フォントサイズ
@@ -119,7 +119,7 @@ export const typography = {
     base: 1.5,
     relaxed: 1.75,
   }
-};
+} as const;
 
 export const shadows = {
   sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
@@ -128,7 +128,7 @@ export const shadows = {
   lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
   xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
   inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
-};
+} as const;
 
 export const radius = {
   sm: '0.25rem',    // 4px
@@ -137,4 +137,13 @@ export const radius = {
   lg: '0.75rem',    // 12px
   xl: '1rem',       // 16px
   full: '9999px',
-};
+} as const;
+
+// 型定義
+export type Colors = typeof colors;
+export type Spacing = typeof spacing;
+export type Animation = typeof animation;
+export type Layout = typeof layout;
+export type Typography = typeof typography;
+export type Shadows = typeof shadows;
+export type Radius = typeof radius;
