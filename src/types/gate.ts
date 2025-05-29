@@ -16,6 +16,18 @@ export enum GateType {
   XOR = 'XOR',
   XNOR = 'XNOR',
   
+  // 演算ゲート
+  HALF_ADDER = 'HALF_ADDER',
+  FULL_ADDER = 'FULL_ADDER',
+  
+  // 記憶素子
+  D_FLIP_FLOP = 'D_FLIP_FLOP',
+  SR_LATCH = 'SR_LATCH',
+  REGISTER_4BIT = 'REGISTER_4BIT',
+  
+  // マルチプレクサ
+  MUX_2TO1 = 'MUX_2TO1',
+  
   // カスタムゲート
   CUSTOM = 'CUSTOM',
   

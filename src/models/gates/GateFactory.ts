@@ -20,6 +20,8 @@ import { DFlipFlopGate } from './DFlipFlopGate';
 import { SRLatchGate } from './SRLatchGate';
 import { Register4BitGate } from './Register4BitGate';
 import { Mux2to1Gate } from './Mux2to1Gate';
+import { HalfAdderGate } from './HalfAdderGate';
+import { FullAdderGate } from './FullAdderGate';
 
 export class GateFactory {
   private static nextId = 1;
@@ -57,6 +59,10 @@ export class GateFactory {
         return new Register4BitGate(gateId, position.x, position.y);
       case 'MUX_2TO1':
         return new Mux2to1Gate(gateId, position.x, position.y);
+      case 'HALF_ADDER':
+        return new HalfAdderGate(gateId, position.x, position.y);
+      case 'FULL_ADDER':
+        return new FullAdderGate(gateId, position.x, position.y);
       default:
         // カスタムゲートのチェック
         const customDefinition = this.customGateDefinitions.get(type);
