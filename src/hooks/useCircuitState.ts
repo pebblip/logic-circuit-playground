@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
-import { Gate } from '../models/Gate';
+import { Gate } from '../models/gates/BaseGate';
 import { Connection } from '../models/Connection';
-import { CircuitViewModel } from '../viewmodels/CircuitViewModel';
+import { UltraModernCircuitViewModel } from '../viewmodels/UltraModernCircuitViewModel';
 
 interface UseCircuitStateProps {
-  viewModel: CircuitViewModel;
+  viewModel: UltraModernCircuitViewModel;
 }
 
 interface UseCircuitStateReturn {

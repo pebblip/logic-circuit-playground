@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Gate } from '../models/Gate';
+import { Gate } from '../models/gates/BaseGate';
 
 interface DragOffset {
   x: number;

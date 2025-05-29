@@ -115,3 +115,5 @@ export abstract class BaseGate {
     );
   }
 }
+
+export { BaseGate as Gate };

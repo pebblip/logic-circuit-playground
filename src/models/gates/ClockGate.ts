@@ -1,5 +1,6 @@
 import { BaseGate } from './BaseGate';
-import { ID, Position } from '../../types/common';
+import { ID, Position, PinType } from '../../types/common';
+import { GateType } from '../../types/gate';
 import { Pin } from '../Pin';
 
 export class ClockGate extends BaseGate {
@@ -11,14 +12,17 @@ export class ClockGate extends BaseGate {
   public onToggle?: () => void; // トグル時のコールバック
   
   constructor(id: ID, position: Position, interval: number = 1000) {
-    super(id, 'CLOCK', position);
+    super(id, GateType.CLOCK, position);
     this.interval = interval;
   }
   
   protected initializePins(): void {
     // クロックゲートは出力ピンのみ
     this._outputs = [
-      new Pin(`${this._id}_out_0`, this._id, 'output', 0)
+      new Pin(`${this._id}_out_0`, 'CLK', PinType.OUTPUT, {
+        x: this._position.x + this._size.width / 2 + 8,
+        y: this._position.y
+      })
     ];
   }
   

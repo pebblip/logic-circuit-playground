@@ -2,11 +2,12 @@
  * 回路クラス
  */
 
-import { ID } from '@/types/common';
-import { CircuitData, SimulationResult } from '@/types/circuit';
+import { ID } from '../types/common';
+import { CircuitData, SimulationResult, UltraModernGate } from '../types/circuit';
 import { BaseGate } from './gates/BaseGate';
 import { Connection } from './Connection';
-import { EventEmitter } from '@/utils/EventEmitter';
+import { EventEmitter } from '../utils/EventEmitter';
+import { GateData } from '../types/gate';
 
 export class Circuit extends EventEmitter {
   private _gates: Map<ID, BaseGate> = new Map();
@@ -188,7 +189,15 @@ export class Circuit extends EventEmitter {
   // Serialization
   toJSON(): CircuitData {
     return {
-      gates: this.getGates().map(gate => gate.toJSON()),
+      gates: this.getGates().map(gate => {
+        const data = gate.toJSON() as GateData;
+        // UltraModernGateとの互換性のためにx,yを追加
+        return {
+          ...data,
+          x: gate.position.x,
+          y: gate.position.y
+        } as UltraModernGate;
+      }),
       connections: this.getConnections().map(conn => conn.toJSON())
     };
   }

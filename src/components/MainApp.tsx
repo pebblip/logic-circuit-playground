@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import UltraModernCircuitWithViewModel from './UltraModernCircuitWithViewModel';
 import { getUserPreferences, saveUserPreferences } from '../utils/circuitStorage';
+import { UserPreferences } from '../types/UltraModernComponentTypes';
 
 export const MainApp: React.FC = () => {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -13,7 +14,9 @@ export const MainApp: React.FC = () => {
     if (!prefs.mode) {
       saveUserPreferences({ 
         mode: 'discovery',
-        tutorialCompleted: false 
+        tutorialCompleted: false,
+        theme: 'dark',
+        showTutorialOnStartup: true
       });
     }
     

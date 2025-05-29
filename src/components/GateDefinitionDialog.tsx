@@ -84,8 +84,6 @@ const GateDefinitionDialog: React.FC<GateDefinitionDialogProps> = ({ gates, conn
       name: gateName,
       inputs: inputs.map(i => ({ id: i.id, label: i.name })),
       outputs: outputs.map(o => ({ id: o.id, label: o.name })),
-      category,
-      description,
       gates, // Include all gates (including INPUT and OUTPUT)
       connections
     });

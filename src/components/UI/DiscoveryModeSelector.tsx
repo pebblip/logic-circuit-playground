@@ -149,7 +149,6 @@ export const DiscoveryModeSelector: React.FC<DiscoveryModeSelectorProps> = ({
                       position: 'absolute',
                       bottom: '-4px',
                       left: '50%',
-                      transform: 'translateX(-50%)',
                       width: '8px',
                       height: '8px',
                       background: '#1f2937',

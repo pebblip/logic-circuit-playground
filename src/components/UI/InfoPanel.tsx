@@ -5,7 +5,8 @@ import { LEVELS, TABS, GATE_TYPES } from '../../constants/circuit';
 import TruthTable from './TruthTable';
 import { colors, spacing, typography, shadows, radius } from '../../styles/design-tokens';
 import { ClockControl } from '../ClockControl';
-import type { Gate, Connection } from '../../models';
+import type { Connection } from '../../models';
+import type { Gate } from '../../models/gates/BaseGate';
 
 interface InfoPanelProps {
   currentLevel: number;

@@ -150,7 +150,7 @@ export const saveCircuit = (name: string, circuitData: any): boolean => {
     
     // 名前の重複チェック
     if (circuits[name]) {
-      const confirm = window.confirm(`"${name}" は既に存在します。上書きしますか？`);
+      const confirmOverwrite = window.confirm(`"${name}" は既に存在します。上書きしますか？`);
       if (!confirm) return false;
     }
     
@@ -195,8 +195,8 @@ export const deleteCircuit = (name: string): boolean => {
     const circuits = getSavedCircuits();
     if (!circuits[name]) return false;
     
-    const confirm = window.confirm(`"${name}" を削除しますか？`);
-    if (!confirm) return false;
+    const confirmDelete = window.confirm(`"${name}" を削除しますか？`);
+    if (!confirmDelete) return false;
     
     delete circuits[name];
     localStorage.setItem(STORAGE_KEYS.SAVED_CIRCUITS, JSON.stringify(circuits));
@@ -229,8 +229,8 @@ export const saveAsCustomGate = (name: string, gateDefinition: any): boolean => 
     
     // 名前の重複チェック
     if (customGates[name]) {
-      const confirm = window.confirm(`カスタムゲート "${name}" は既に存在します。上書きしますか？`);
-      if (!confirm) return false;
+      const confirmOverwrite = window.confirm(`カスタムゲート "${name}" は既に存在します。上書きしますか？`);
+      if (!confirmOverwrite) return false;
     }
     
     customGates[name] = {
@@ -288,7 +288,7 @@ export const decodeCircuitFromURL = (encodedData?: string): any | null => {
     let dataToUse = encodedData;
     if (!dataToUse) {
       const urlParams = new URLSearchParams(window.location.search);
-      dataToUse = urlParams.get('circuit');
+      dataToUse = urlParams.get('circuit') || undefined;
       if (!dataToUse) {
         return null; // URLパラメータが存在しない場合は null を返す
       }

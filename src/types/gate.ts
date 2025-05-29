@@ -17,16 +17,22 @@ export enum GateType {
   XNOR = 'XNOR',
   
   // カスタムゲート
-  CUSTOM = 'CUSTOM'
+  CUSTOM = 'CUSTOM',
+  
+  // 特殊ゲート
+  CLOCK = 'CLOCK'
 }
 
 export interface GateData {
   id: ID;
-  type: GateType;
+  type: GateType | string;
   position: Position;
   inputs: Pin[];
   outputs: Pin[];
   customType?: string; // カスタムゲートの場合の名前
+  // UltraModernGateとの互換性のため追加
+  x?: number;
+  y?: number;
 }
 
 export interface CustomGateDefinition {

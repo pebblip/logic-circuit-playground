@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Gate } from '../models/Gate';
+import { Gate } from '../models/gates/BaseGate';
 
 interface CustomGate {
   id: string;
@@ -82,7 +82,7 @@ export function useCustomGates(): UseCustomGatesReturn {
 
   const simulateCustomGate = useCallback((gate: Gate, inputs: boolean[]): boolean[] => {
     // カスタムゲートのシミュレーションロジック
-    const customGateDef = customGates[gate.gateType.replace('CUSTOM_', '')];
+    const customGateDef = customGates[gate.type.replace('CUSTOM_', '')];
     if (!customGateDef) return [];
     
     // 実際のシミュレーションロジックはここに実装

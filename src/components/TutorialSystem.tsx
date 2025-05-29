@@ -186,7 +186,7 @@ const TutorialSystem: React.FC<TutorialSystemProps> = ({ onComplete, onSkip }) =
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         zIndex: 999,
         pointerEvents: currentStepData.waitFor ? 'none' : 'auto'
-      }} onClick={currentStepData.waitFor ? null : handleSkip} />
+      }} onClick={currentStepData.waitFor ? null : handleSkip as any} />
 
       {/* チュートリアルボックス */}
       <div style={{ 

@@ -14,7 +14,7 @@ describe('ModeSelector', () => {
   it('探検モードが選択された状態で正しく表示される', () => {
     render(
       <ModeSelector
-        currentMode="discovery" as CircuitMode
+        currentMode="discovery"
         onModeChange={mockOnModeChange}
       />
     );
@@ -26,7 +26,7 @@ describe('ModeSelector', () => {
   it('実験室モードに切り替えができる', () => {
     render(
       <ModeSelector
-        currentMode="discovery" as CircuitMode
+        currentMode="discovery"
         onModeChange={mockOnModeChange}
       />
     );
@@ -40,7 +40,7 @@ describe('ModeSelector', () => {
   it('チャレンジモードに切り替えができる', () => {
     render(
       <ModeSelector
-        currentMode="discovery" as CircuitMode
+        currentMode="discovery"
         onModeChange={mockOnModeChange}
       />
     );
@@ -54,7 +54,7 @@ describe('ModeSelector', () => {
   it('全てのモードが表示される', () => {
     render(
       <ModeSelector
-        currentMode="discovery" as CircuitMode
+        currentMode="discovery"
         onModeChange={mockOnModeChange}
       />
     );
@@ -67,7 +67,7 @@ describe('ModeSelector', () => {
   it('各モードに正しいアイコンが表示される', () => {
     render(
       <ModeSelector
-        currentMode="discovery" as CircuitMode
+        currentMode="discovery"
         onModeChange={mockOnModeChange}
       />
     );
@@ -80,7 +80,7 @@ describe('ModeSelector', () => {
   it('ホバー時に説明がツールチップとして表示される', () => {
     render(
       <ModeSelector
-        currentMode="discovery" as CircuitMode
+        currentMode="discovery"
         onModeChange={mockOnModeChange}
       />
     );

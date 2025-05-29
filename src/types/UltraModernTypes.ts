@@ -1,18 +1,18 @@
 // UltraModernCircuitWithViewModel specific types
 
 import { ReactNode } from 'react';
-import { Gate, Connection } from './CircuitTypes';
+import { Gate, Connection } from './circuit';
 
 // ViewModel Gate type
-export interface UltraModernGate extends Gate {
+export interface UltraModernGate {
   id: string;
   type: string;
   x: number;
   y: number;
-  value?: boolean | boolean[];
+  value?: boolean;
   circuit?: any;
-  inputs?: any[];
-  outputs?: any[];
+  inputs?: Array<{ id: string; name: string; value?: boolean }>;
+  outputs?: Array<{ id: string; name: string; value?: boolean }>;
   selected?: boolean;
 }
 

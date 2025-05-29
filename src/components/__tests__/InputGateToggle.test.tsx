@@ -57,7 +57,7 @@ describe('入力ゲートのトグル機能', () => {
     // INPUTゲートを追加
     // ツールパレットから最初のボタンを探す（通常はINPUTゲート）
     const buttons = container.querySelectorAll('button');
-    let inputButton = null;
+    let inputButton: HTMLButtonElement | null = null;
     
     // SVGアイコンを持つボタンを探す
     buttons.forEach(button => {

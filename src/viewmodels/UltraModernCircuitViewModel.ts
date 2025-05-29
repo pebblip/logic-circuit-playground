@@ -6,7 +6,6 @@ import { ClockGate } from '../models/gates/ClockGate';
 import { GateFactory } from '../models/gates/GateFactory';
 import { GateType } from '../types/gate';
 import { Position, ID } from '../types/common';
-import { Connection } from '../types/circuit';
 
 // UltraModernCircuit用の拡張インターフェース
 interface UltraModernGate {
@@ -220,6 +219,20 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     this.simulate();
     this.emit('gatesChanged', this.getGates());
   }
+  
+  // deleteGateメソッドのエイリアス（互換性のため）
+  deleteGate(ultraId: string): void {
+    const internalId = this.gateIdMap.get(ultraId);
+    if (!internalId) return;
+    
+    this.circuit.removeGate(internalId);
+    this.gateIdMap.delete(ultraId);
+    this.reverseGateIdMap.delete(internalId);
+    this.simulationResults.delete(ultraId);
+    
+    this.simulate();
+    this.emit('gatesChanged', this.getGates());
+  }
 
   // 入力値切り替え
   toggleInput(ultraId: string): void {
@@ -261,13 +274,13 @@ export class UltraModernCircuitViewModel extends EventEmitter {
       this.simulate();
       this.emit('connectionsChanged', this.getConnections());
       
-      return {
+      return conn ? {
         id: conn.id,
         from: fromUltraId,
         fromOutput,
         to: toUltraId,
         toInput
-      };
+      } : null;
     } catch (error) {
       console.error('Failed to add connection:', error);
       return null;

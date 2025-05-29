@@ -1,14 +1,10 @@
 import { useState, useCallback } from 'react';
+import { Progress } from '../types/circuit';
 
 interface Badge {
   id: string;
   name: string;
   unlocked: boolean;
-}
-
-interface Progress {
-  level: number;
-  completedChallenges: string[];
 }
 
 interface UseEducationalFeaturesReturn {
@@ -25,7 +21,7 @@ interface UseEducationalFeaturesReturn {
   badges: Badge[];
   setBadges: (badges: Badge[]) => void;
   progress: Progress;
-  setProgress: (progress: Progress) => void;
+  setProgress: React.Dispatch<React.SetStateAction<Progress>>;
   preferences: any;
   setPreferences: (prefs: any) => void;
 }
@@ -37,7 +33,16 @@ export function useEducationalFeatures(): UseEducationalFeaturesReturn {
   const [showExtendedChallenge, setShowExtendedChallenge] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const [badges, setBadges] = useState<Badge[]>([]);
-  const [progress, setProgress] = useState<Progress>({ level: 1, completedChallenges: [] });
+  const [progress, setProgress] = useState<Progress>({
+    'basics-learn-gates': false,
+    'basics-first-connection': false,
+    'basics-signal-flow': false,
+    'basics-complete-circuit': false,
+    'basics-truth-table': false,
+    gatesPlaced: 0,
+    wiresConnected: 0,
+    challengesCompleted: 0
+  });
   const [preferences, setPreferences] = useState({});
 
   return {

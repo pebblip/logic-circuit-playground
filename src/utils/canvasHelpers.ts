@@ -1,6 +1,11 @@
 // Canvas helper functions for UltraModernCircuitWithViewModel
 
-import { UltraModernGate, Point } from '../types/UltraModernTypes';
+import { UltraModernGate } from '../types/UltraModernTypes';
+
+export interface Point {
+  x: number;
+  y: number;
+}
 
 export interface BezierPath {
   path: string;

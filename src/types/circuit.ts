@@ -99,4 +99,18 @@ export interface GateType {
   isCustom?: boolean;
 }
 
+export interface SimulationResult {
+  gateStates: Map<string, boolean[]>;
+  timestamp: number;
+}
+
 export type SimulationResults = Record<string, boolean | boolean[]>;
+
+export interface CircuitData {
+  gates: UltraModernGate[];
+  connections: UltraModernConnection[];
+  customGates?: CustomGateDefinition[];
+}
+
+export type Gate = UltraModernGate;
+export type Connection = UltraModernConnection;

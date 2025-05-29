@@ -14,8 +14,8 @@ interface TutorialSystemV2Props {
 const TutorialSystemV2: React.FC<TutorialSystemV2Props> = ({ onComplete, onSkip }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isActive, setIsActive] = useState(true);
-  const [highlightRect, setHighlightRect] = useState(null);
-  const highlightCheckInterval = useRef(null);
+  const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
+  const highlightCheckInterval = useRef<NodeJS.Timeout | null>(null);
   
   // チュートリアルのステップ定義（シンプル化）
   const tutorialSteps = [
@@ -23,8 +23,8 @@ const TutorialSystemV2: React.FC<TutorialSystemV2Props> = ({ onComplete, onSkip 
       id: 'welcome',
       title: 'ようこそ！',
       content: '論理回路プレイグラウンドへようこそ！\nここでは、コンピュータの基礎となる論理回路を楽しく学べます。',
-      target: null,
-      action: null
+      target: null as string | null,
+      action: null as string | null
     },
     {
       id: 'toolbar',
@@ -104,14 +104,14 @@ const TutorialSystemV2: React.FC<TutorialSystemV2Props> = ({ onComplete, onSkip 
     }
 
     // セレクタに基づいて要素を探す
-    let element = null;
+    let element: Element | null = null;
     
     if (currentStepData.target.includes(':contains')) {
       // :contains疑似セレクタの処理
       const [selector, text] = currentStepData.target.split(':contains("');
       const searchText = text.replace('")', '');
       const elements = document.querySelectorAll(selector || 'button');
-      element = Array.from(elements).find(el => el.textContent.includes(searchText));
+      element = Array.from(elements).find(el => el.textContent?.includes(searchText)) || null;
     } else {
       element = document.querySelector(currentStepData.target);
     }
@@ -123,7 +123,7 @@ const TutorialSystemV2: React.FC<TutorialSystemV2Props> = ({ onComplete, onSkip 
         left: rect.left - 5,
         width: rect.width + 10,
         height: rect.height + 10
-      });
+      } as DOMRect);
     } else {
       setHighlightRect(null);
     }
@@ -146,14 +146,14 @@ const TutorialSystemV2: React.FC<TutorialSystemV2Props> = ({ onComplete, onSkip 
   useEffect(() => {
     if (!currentStepData.waitFor) return;
 
-    const handleAction = (event) => {
+    const handleAction = (event: CustomEvent<{ action: string }>) => {
       if (event.detail.action === currentStepData.waitFor) {
         setTimeout(nextStep, 500); // 少し待ってから次へ
       }
     };
 
-    window.addEventListener('tutorial-action', handleAction);
-    return () => window.removeEventListener('tutorial-action', handleAction);
+    window.addEventListener('tutorial-action', handleAction as EventListener);
+    return () => window.removeEventListener('tutorial-action', handleAction as EventListener);
   }, [currentStep, currentStepData]);
 
   if (!isActive) return null;
@@ -170,13 +170,16 @@ const TutorialSystemV2: React.FC<TutorialSystemV2Props> = ({ onComplete, onSkip 
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
         zIndex: 998,
         pointerEvents: currentStepData.waitFor ? 'none' : 'auto'
-      }} onClick={currentStepData.waitFor ? null : handleSkip} />
+      }} onClick={currentStepData.waitFor ? undefined : handleSkip} />
 
       {/* ハイライト */}
       {highlightRect && (
         <div style={{
           position: 'fixed',
-          ...highlightRect,
+          top: highlightRect.top,
+          left: highlightRect.left,
+          width: highlightRect.width,
+          height: highlightRect.height,
           border: '3px solid #00ff88',
           borderRadius: '8px',
           backgroundColor: 'transparent',

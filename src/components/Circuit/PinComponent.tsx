@@ -4,7 +4,7 @@ import { Pin } from '@/models/Pin';
 interface PinComponentProps {
   x: number;
   y: number;
-  type: 'input' | 'output';
+  type: 'INPUT' | 'OUTPUT' | 'input' | 'output';
   onMouseDown: (e: React.MouseEvent) => void;
   onMouseUp?: (e: React.MouseEvent) => void;
   fillColor?: string;
