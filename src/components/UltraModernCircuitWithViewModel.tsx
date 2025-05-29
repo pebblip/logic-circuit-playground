@@ -49,108 +49,18 @@ import { PIN_CONSTANTS } from '../constants/ui';
 import { PinComponent } from './Circuit/PinComponent';
 
 // Types
-interface UltraModernGate {
-  id: string;
-  type: string;
-  x: number;
-  y: number;
-  inputs?: Array<{ id: string; name: string; value?: boolean }>;
-  outputs?: Array<{ id: string; name: string; value?: boolean }>;
-  value?: boolean;
-}
-
-interface UltraModernConnection {
-  id: string;
-  from: string;
-  fromOutput?: number;
-  to: string;
-  toInput?: number;
-}
-
-interface Progress {
-  'basics-learn-gates': boolean;
-  'basics-first-connection': boolean;
-  'basics-signal-flow': boolean;
-  'basics-complete-circuit': boolean;
-  'basics-truth-table': boolean;
-  gatesPlaced: number;
-  wiresConnected: number;
-  challengesCompleted: number;
-}
-
-interface Preferences {
-  tutorialCompleted?: boolean;
-  mode?: string | null;
-}
-
-interface DrawingWire {
-  from: string;
-  fromOutput?: number;
-  fromInput?: number;
-  pinType?: 'input' | 'output';
-  startX: number;
-  startY: number;
-  endX: number;
-  endY: number;
-}
-
-interface DragOffset {
-  x: number;
-  y: number;
-}
-
-interface CustomGateDefinition {
-  name: string;
-  inputs: Array<{ id: string; name: string }>;
-  outputs: Array<{ id: string; name: string }>;
-  circuit: {
-    gates: UltraModernGate[];
-    connections: UltraModernConnection[];
-  };
-}
-
-interface Theme {
-  name: string;
-  colors: {
-    background: string;
-    canvas: string;
-    grid: string;
-    gate: {
-      bg: string;
-      border: string;
-      text: string;
-      activeBg: string;
-      activeBorder: string;
-      activeText: string;
-    };
-    signal: {
-      off: string;
-      on: string;
-      flow: string;
-    };
-    ui: {
-      primary: string;
-      secondary: string;
-      accent: string;
-      border: string;
-      hover: string;
-      buttonBg: string;
-      buttonHover: string;
-      buttonActive: string;
-    };
-  };
-}
-
-interface GateType {
-  name: string;
-  icon: (isActive: boolean) => React.ReactNode;
-  inputs?: number;
-  outputs?: number;
-  circuit?: any;
-  isCustom?: boolean;
-}
-
-type SimulationResults = Record<string, boolean | boolean[]>;
+import {
+  UltraModernGate,
+  UltraModernConnection,
+  Progress,
+  Preferences,
+  DrawingWire,
+  DragOffset,
+  CustomGateDefinition,
+  Theme,
+  GateType,
+  SimulationResults
+} from '../types/circuit';
 
 const UltraModernCircuitWithViewModel: React.FC = () => {
   // ViewModelの初期化
@@ -218,7 +128,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     preferences,
     setPreferences
   } = useEducationalFeatures();
-  console.log('[DEBUG] UltraModernCircuitWithViewModel - userMode:', userMode);
+  // console.log('[DEBUG] UltraModernCircuitWithViewModel - userMode:', userMode);
   
   // パネル表示
   const {
@@ -272,6 +182,8 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
   // Refs
   const svgRef = useRef<SVGSVGElement>(null);
   const nextGateId = useRef(1);
+  const dragStartPos = useRef<{ x: number; y: number } | null>(null);
+  const hasDraggedRef = useRef(false);
 
   // ViewModelのイベントを購読
   useViewModelSubscription({
@@ -296,11 +208,11 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     },
     onSaveCircuit: (circuit) => {
       // セーブ処理
-      console.log('Circuit saved:', circuit);
+      // console.log('Circuit saved:', circuit);
     },
     onNotification: (message, type) => {
       // 通知処理
-      console.log('Notification:', message, type);
+      // console.log('Notification:', message, type);
     }
   });
 
@@ -841,7 +753,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
 
   // ゲート追加（ViewModelを使用）
   const addGate = useCallback((type: string) => {
-    console.log('addGate called with type:', type);
+    // console.log('addGate called with type:', type);
     const centerX = svgRef.current ? svgRef.current.clientWidth / 2 : 400;
     const centerY = svgRef.current ? (svgRef.current.clientHeight - 60) / 2 : 300;
     
@@ -861,7 +773,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     y = Math.round(y / 20) * 20;
     
     // ViewModelにゲートを追加
-    viewModel.addGate(type, x, y);
+    viewModel.addGate(type, { x, y });
     
     // 進捗を更新
     setProgress(prev => ({ ...prev, gatesPlaced: prev.gatesPlaced + 1 }));
@@ -889,7 +801,10 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
 
   // 入力値切り替え（ViewModelを使用）
   const toggleInput = useCallback((gateId: string) => {
+    console.log('[DEBUG] toggleInput called with gateId:', gateId);
+    const beforeState = simulationResults[gateId];
     viewModel.toggleInput(gateId);
+    console.log('[DEBUG] State before:', beforeState, 'State after:', simulationResults[gateId]);
     
     // チュートリアルアクションを発火
     if (showTutorial) {
@@ -897,133 +812,77 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
         detail: { action: 'INPUT_TOGGLED' } 
       }));
     }
-  }, [viewModel, showTutorial]);
+  }, [viewModel, showTutorial, simulationResults]);
 
   // イベントハンドラー
   const handleGateMouseDown = useCallback((e: React.MouseEvent, gate: UltraModernGate) => {
     e.stopPropagation();
     const rect = svgRef.current!.getBoundingClientRect();
-    setDraggedGate(gate);
-    setDragOffset({
+    dragStartPos.current = { x: gate.x, y: gate.y };
+    hasDraggedRef.current = false;
+    startDragging(gate.id, {
       x: e.clientX - rect.left - gate.x,
       y: e.clientY - rect.top - gate.y
     });
-    setIsDraggingGate(false);
-  }, []);
+  }, [startDragging]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (draggedGate && svgRef.current) {
+    if (draggedGate && dragOffset && svgRef.current) {
       const rect = svgRef.current.getBoundingClientRect();
-      const newX = Math.round((e.clientX - rect.left - dragOffset!.x) / 20) * 20;
-      const newY = Math.round((e.clientY - rect.top - dragOffset!.y) / 20) * 20;
+      const newX = Math.round((e.clientX - rect.left - dragOffset.x) / 20) * 20;
+      const newY = Math.round((e.clientY - rect.top - dragOffset.y) / 20) * 20;
       
-      if (Math.abs(newX - draggedGate.x) > 5 || Math.abs(newY - draggedGate.y) > 5) {
-        setIsDraggingGate(true);
+      // ドラッグ開始位置から一定以上移動したらドラッグとみなす
+      if (dragStartPos.current) {
+        const distance = Math.sqrt(
+          Math.pow(newX - dragStartPos.current.x, 2) + 
+          Math.pow(newY - dragStartPos.current.y, 2)
+        );
+        if (distance > 5) {
+          hasDraggedRef.current = true;
+        }
       }
       
-      // ViewModelでゲートを移動
-      viewModel.moveGate(draggedGate.id, newX, newY);
+      // 直接ViewModelを更新（stateの更新は不要）
+      viewModel.moveGate(draggedGate, newX, newY);
     }
 
     if (drawingWire && svgRef.current) {
       const rect = svgRef.current.getBoundingClientRect();
-      setDrawingWire(prev => ({
-        ...prev!,
-        endX: e.clientX - rect.left,
-        endY: e.clientY - rect.top
-      }));
+      updateWirePosition(e.clientX - rect.left, e.clientY - rect.top);
     }
-  }, [draggedGate, dragOffset, drawingWire, viewModel]);
+  }, [draggedGate, dragOffset, drawingWire, viewModel, updateWirePosition]);
 
   const handleMouseUp = useCallback(() => {
-    setTimeout(() => {
-      setIsDraggingGate(false);
-    }, 100);
-    
-    setDraggedGate(null);
-    setDragOffset(null);
+    stopDragging();
     if (drawingWire) {
-      setDrawingWire(null);
+      cancelWireConnection();
     }
-  }, [drawingWire]);
+    // ドラッグフラグをリセット（少し遅延させる）
+    setTimeout(() => {
+      hasDraggedRef.current = false;
+    }, 50);
+  }, [drawingWire, stopDragging, cancelWireConnection]);
 
-  const startWireConnection = useCallback((gateId: string, x: number, y: number, outputIndex = 0) => {
-    setDrawingWire({ from: gateId, fromOutput: outputIndex, startX: x, startY: y, endX: x, endY: y });
-  }, []);
-
-  const completeWireConnection = useCallback((toGateId: string, inputIndex: number) => {
-    if (drawingWire && drawingWire.from !== toGateId) {
-      viewModel.addConnection(
-        drawingWire.from,
-        drawingWire.fromOutput || 0,
-        toGateId,
-        inputIndex
-      );
-      
-      // チュートリアルアクションを発火
-      if (showTutorial) {
-        window.dispatchEvent(new CustomEvent('tutorial-action', { 
-          detail: { action: 'WIRE_CONNECTED' } 
-        }));
-      }
-    }
-    setDrawingWire(null);
-  }, [drawingWire, showTutorial, viewModel]);
+  // ワイヤー接続関数はカスタムフックから取得済み
 
   // 汎用的な接続開始関数
   const startConnection = useCallback((gateId: string, pinType: 'input' | 'output', pinIndex: number, x: number, y: number) => {
-    setDrawingWire({ 
-      from: gateId, 
-      fromOutput: pinType === 'output' ? pinIndex : undefined,
-      fromInput: pinType === 'input' ? pinIndex : undefined,
-      pinType,
-      startX: x, 
-      startY: y, 
-      endX: x, 
-      endY: y 
-    });
-  }, []);
+    startWireConnection(gateId, pinIndex, pinType === 'output', x, y);
+  }, [startWireConnection]);
 
   // 汎用的な接続完了関数
   const completeConnection = useCallback((gateId: string, pinType: 'input' | 'output', pinIndex: number) => {
-    if (!drawingWire || drawingWire.from === gateId) {
-      setDrawingWire(null);
-      return;
-    }
-    
-    let fromGate, fromOutput, toGate, toInput;
-    
-    if (drawingWire.pinType === 'output' && pinType === 'input') {
-      // 出力から入力へ
-      fromGate = drawingWire.from;
-      fromOutput = drawingWire.fromOutput || 0;
-      toGate = gateId;
-      toInput = pinIndex;
-    } else if (drawingWire.pinType === 'input' && pinType === 'output') {
-      // 入力から出力へ（逆方向）
-      fromGate = gateId;
-      fromOutput = pinIndex;
-      toGate = drawingWire.from;
-      toInput = drawingWire.fromInput || 0;
-    } else {
-      // 不正な接続
-      setDrawingWire(null);
-      return;
-    }
-    
-    viewModel.addConnection(fromGate, fromOutput, toGate, toInput);
+    completeWireConnection(gateId, pinIndex, pinType === 'output');
     
     if (showTutorial) {
       window.dispatchEvent(new CustomEvent('tutorial-action', { 
         detail: { action: 'WIRE_CONNECTED' } 
       }));
     }
-    
-    setDrawingWire(null);
-  }, [drawingWire, showTutorial, viewModel]);
+  }, [completeWireConnection, showTutorial]);
 
-  // カスタムゲート関連の関数
-  const simulateCustomGate = viewModel.simulateCustomGate.bind(viewModel);
+  // カスタムゲート関連の関数はフックから取得済み
 
   // 初期化処理
   useEffect(() => {
@@ -1058,6 +917,9 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     if (currentMode === 'discovery' && !localStorage.getItem('logic-circuit-tutorial-completed')) {
       setShowDiscoveryTutorial(true);
     }
+    
+    // 初期データを取得するために、ViewModelに初期化完了を通知
+    // ViewModelが内部でイベントを発火する
   }, []);
 
   // ゲート描画
@@ -1066,7 +928,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     if (!gateType) return null;
     
     const isActive = simulationResults[gate.id] || false;
-    const isDragging = draggedGate && draggedGate.id === gate.id;
+    const isDragging = draggedGate === gate.id;
     
     // CLOCKゲートの場合は動作状態も確認
     let clockState = null;
@@ -1149,8 +1011,15 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
           }}
           onClick={(e) => {
             e.stopPropagation();
-            if (!isDraggingGate) {
+            console.log('[DEBUG] Gate onClick:', {
+              gateType: gate.type,
+              hasDragged: hasDraggedRef.current,
+              gateId: gate.id
+            });
+            // 実際にドラッグした場合はクリックを無視
+            if (!hasDraggedRef.current) {
               if (gate.type === 'INPUT') {
+                console.log('[DEBUG] Toggling INPUT gate:', gate.id);
                 toggleInput(gate.id);
               } else if (gate.type === 'CLOCK') {
                 // CLOCKゲートをクリックで開始/停止
@@ -1555,7 +1424,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
           </select>
           
           <button
-            onClick={() => setShowNotebook(true)}
+            onClick={toggleNotebook}
             style={{
               padding: '8px 16px',
               borderRadius: '6px',
@@ -1618,7 +1487,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
           )}
           
           <button
-            onClick={() => setShowSaveLoad(!showSaveLoad)}
+            onClick={toggleSaveLoad}
             style={{
               padding: '8px 16px',
               borderRadius: '6px',
@@ -1638,7 +1507,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
           {/* カスタムゲートパネル切り替えボタン */}
           {Object.keys(customGates).length > 0 && (
             <button
-              onClick={() => setShowCustomGatePanel(!showCustomGatePanel)}
+              onClick={toggleCustomGatePanel}
               style={{
                 padding: '8px 16px',
                 borderRadius: '6px',
@@ -1663,9 +1532,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
           {/* ゲート化ボタン（回路がある場合のみ表示） */}
           {gates.length > 0 && (
             <button
-              onClick={() => {
-                setShowGateDefinition(true);
-              }}
+              onClick={toggleGateDefinition}
               style={{
                 padding: '8px 16px',
                 borderRadius: '6px',
@@ -1690,7 +1557,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
           )}
           
           <button
-            onClick={() => setShowHelp(!showHelp)}
+            onClick={toggleHelp}
             style={{
               padding: '8px 16px',
               borderRadius: '6px',
@@ -2035,7 +1902,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
             <li>ESCキーで選択解除</li>
           </ul>
           <button
-            onClick={() => setShowHelp(false)}
+            onClick={toggleHelp}
             style={{
               marginTop: '16px',
               width: '100%',
@@ -2127,7 +1994,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
         <SaveLoadPanel
           currentCircuit={viewModel.toJSON()}
           onLoad={handleLoadCircuit}
-          onClose={() => setShowSaveLoad(false)}
+          onClose={toggleSaveLoad}
         />
       )}
       
@@ -2176,9 +2043,9 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
       {/* 実験ノート */}
       <ExperimentNotebook
         isOpen={showNotebook}
-        onClose={() => setShowNotebook(false)}
+        onClose={toggleNotebook}
         currentCircuit={viewModel.toJSON()}
-        discoveries={Object.keys(discoveryProgress.discoveries).filter(key => discoveryProgress.discoveries[key])}
+        discoveries={discoveryProgress?.discoveries ? Object.keys(discoveryProgress.discoveries).filter(key => discoveryProgress.discoveries[key]) : []}
       />
       
       {/* 発見チュートリアル */}

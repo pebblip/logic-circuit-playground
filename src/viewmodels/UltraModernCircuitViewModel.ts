@@ -112,7 +112,8 @@ export class UltraModernCircuitViewModel extends EventEmitter {
   }
 
   // ゲート追加（UltraModern互換）
-  addGate(type: string, x: number, y: number): UltraModernGate {
+  addGate(type: string, position: { x: number; y: number }): UltraModernGate {
+    const { x, y } = position;
     const ultraId = `gate_${this.nextGateId++}`;
     
     // 標準ゲートタイプに変換
@@ -139,6 +140,7 @@ export class UltraModernCircuitViewModel extends EventEmitter {
       gate.onToggle = () => {
         this.simulate();
         this.emit('simulationCompleted', this.simulationResults);
+        this.emit('simulationResultsChanged', this.simulationResults);
       };
     }
     
@@ -155,7 +157,7 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     this.simulate();
     
     // イベント発火
-    this.emit('gatesChanged');
+    this.emit('gatesChanged', this.getGates());
     
     // 初期値を取得
     let initialValue: boolean | undefined;
@@ -188,7 +190,7 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     if (!gate) return;
     
     gate.move({ x, y });
-    this.emit('gatesChanged');
+    this.emit('gatesChanged', this.getGates());
   }
 
   // ゲート削除
@@ -202,7 +204,7 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     this.simulationResults.delete(ultraId);
     
     this.simulate();
-    this.emit('gatesChanged');
+    this.emit('gatesChanged', this.getGates());
   }
 
   // 入力値切り替え
@@ -219,7 +221,7 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     }
     
     this.simulate();
-    this.emit('gatesChanged');
+    this.emit('gatesChanged', this.getGates());
   }
 
   // 接続追加
@@ -243,7 +245,7 @@ export class UltraModernCircuitViewModel extends EventEmitter {
       const conn = this.circuit.addConnection(fromInternalId, fromOutput, toInternalId, toInput);
       
       this.simulate();
-      this.emit('connectionsChanged');
+      this.emit('connectionsChanged', this.getConnections());
       
       return {
         id: conn.id,
@@ -263,7 +265,7 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     this.circuit.removeConnection(connectionId);
     
     this.simulate();
-    this.emit('connectionsChanged');
+    this.emit('connectionsChanged', this.getConnections());
   }
 
   // カスタムゲート登録
@@ -311,6 +313,7 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     });
     
     this.emit('simulationCompleted', this.simulationResults);
+    this.emit('simulationResultsChanged', this.simulationResults);
   }
 
   // カスタムゲートの内部回路シミュレーション
