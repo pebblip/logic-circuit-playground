@@ -17,6 +17,17 @@ import {
 } from '../utils/circuitStorage';
 import { migrateAllCustomGates } from '../utils/customGateMigration';
 
+// カスタムフックのインポート
+import { useCircuitState } from '../hooks/useCircuitState';
+import { useUIInteraction } from '../hooks/useUIInteraction';
+import { usePanelVisibility } from '../hooks/usePanelVisibility';
+import { useWireDrawing } from '../hooks/useWireDrawing';
+import { useEducationalFeatures } from '../hooks/useEducationalFeatures';
+import { useCustomGates } from '../hooks/useCustomGates';
+import { useDiscoverySystem } from '../hooks/useDiscoverySystem';
+import { useTheme } from '../hooks/useTheme';
+import { useViewModelSubscription } from '../hooks/useViewModelSubscription';
+
 // モード関連のインポート
 import { CircuitMode, DEFAULT_MODE } from '../types/mode';
 import { getGatesForMode } from '../constants/modeGates';
@@ -145,14 +156,29 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
   // ViewModelの初期化
   const [viewModel] = useState(() => new UltraModernCircuitViewModel());
   
-  // UI状態
-  const [selectedTheme, setSelectedTheme] = useState<'modern' | 'neon' | 'minimal'>('modern');
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
-  const [hoveredGate, setHoveredGate] = useState<string | null>(null);
-  const [draggedGate, setDraggedGate] = useState<UltraModernGate | null>(null);
-  const [dragOffset, setDragOffset] = useState<DragOffset | null>(null);
-  const [isDraggingGate, setIsDraggingGate] = useState(false);
-  const [drawingWire, setDrawingWire] = useState<DrawingWire | null>(null);
+  // カスタムフックの使用
+  const {
+    selectedTool,
+    setSelectedTool,
+    hoveredGate,
+    setHoveredGate,
+    draggedGate,
+    dragOffset,
+    isDraggingGate,
+    startDragging,
+    updateDragging,
+    stopDragging
+  } = useUIInteraction();
+  
+  const { selectedTheme, setSelectedTheme } = useTheme();
+  
+  const {
+    drawingWire,
+    startWireConnection,
+    updateWirePosition,
+    completeWireConnection,
+    cancelWireConnection
+  } = useWireDrawing({ viewModel });
   
   // モード状態
   const [currentMode, setCurrentMode] = useState<CircuitMode>(DEFAULT_MODE);
@@ -165,39 +191,60 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     discoveries,
     milestones 
   } = useDiscovery();
-  const [showDiscoveryNotification, setShowDiscoveryNotification] = useState<string[]>([]);
-  const [showDiscoveryTutorial, setShowDiscoveryTutorial] = useState(false);
+  
+  const {
+    showDiscoveryNotification,
+    showDiscoveryTutorial,
+    setShowDiscoveryNotification,
+    setShowDiscoveryTutorial
+  } = useDiscoverySystem();
   
   // 教育機能（レガシー、新しいcurrentModeシステムに移行中）
-  const [userMode, setUserMode] = useState<string | null>('free');
+  const {
+    userMode,
+    setUserMode,
+    showTutorial,
+    setShowTutorial,
+    showChallenge,
+    setShowChallenge,
+    showExtendedChallenge,
+    setShowExtendedChallenge,
+    showProgress,
+    setShowProgress,
+    badges,
+    setBadges,
+    progress,
+    setProgress,
+    preferences,
+    setPreferences
+  } = useEducationalFeatures();
   console.log('[DEBUG] UltraModernCircuitWithViewModel - userMode:', userMode);
-  const [showTutorial, setShowTutorial] = useState(false);
-  const [showChallenge, setShowChallenge] = useState(false);
-  const [showExtendedChallenge, setShowExtendedChallenge] = useState(false);
-  const [showProgress, setShowProgress] = useState(false);
-  const [badges, setBadges] = useState<string[]>([]);
-  const [progress, setProgress] = useState<Progress>({
-    'basics-learn-gates': false,
-    'basics-first-connection': false,
-    'basics-signal-flow': false,
-    'basics-complete-circuit': false,
-    'basics-truth-table': false,
-    gatesPlaced: 0,
-    wiresConnected: 0,
-    challengesCompleted: 0
-  });
-  const [preferences, setPreferences] = useState<Preferences>({});
   
   // パネル表示
-  const [showHelp, setShowHelp] = useState(false);
-  const [showSaveLoad, setShowSaveLoad] = useState(false);
-  const [showGateDefinition, setShowGateDefinition] = useState(false);
-  const [showCustomGatePanel, setShowCustomGatePanel] = useState(false);
-  const [selectedCustomGateDetail, setSelectedCustomGateDetail] = useState<string | null>(null);
-  const [showNotebook, setShowNotebook] = useState(false);
+  const {
+    showHelp,
+    showSaveLoad,
+    showGateDefinition,
+    showCustomGatePanel,
+    showNotebook,
+    selectedCustomGateDetail,
+    toggleHelp,
+    toggleSaveLoad,
+    toggleGateDefinition,
+    toggleCustomGatePanel,
+    toggleNotebook,
+    setSelectedCustomGateDetail
+  } = usePanelVisibility();
   
   // カスタムゲート
-  const [customGates, setCustomGates] = useState<Record<string, CustomGateDefinition>>({});
+  const {
+    customGates,
+    setCustomGates,
+    addCustomGate,
+    removeCustomGate,
+    updateCustomGate,
+    simulateCustomGate
+  } = useCustomGates();
   
   // デバッグモード（環境変数またはURLパラメータで有効化）
   const [debugMode] = useState(() => {
@@ -227,16 +274,11 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
   const nextGateId = useRef(1);
 
   // ViewModelのイベントを購読
-  useEffect(() => {
-    const updateGates = () => {
-      setGates(viewModel.getGates());
-    };
-    
-    const updateConnections = () => {
-      setConnections(viewModel.getConnections());
-    };
-    
-    const updateSimulation = (results: Map<string, boolean | boolean[]>) => {
+  useViewModelSubscription({
+    viewModel,
+    onGatesChanged: setGates,
+    onConnectionsChanged: setConnections,
+    onSimulationResultsChanged: (results) => {
       const resultMap: SimulationResults = {};
       results.forEach((value, key) => {
         resultMap[key] = value;
@@ -251,26 +293,16 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
           setShowDiscoveryNotification(newDiscoveries);
         }
       }
-    };
-    
-    viewModel.on('gatesChanged', updateGates);
-    viewModel.on('connectionsChanged', updateConnections);
-    viewModel.on('simulationCompleted', updateSimulation);
-    viewModel.on('cleared', () => {
-      updateGates();
-      updateConnections();
-    });
-    
-    // 初期データ取得
-    updateGates();
-    updateConnections();
-    
-    return () => {
-      viewModel.off('gatesChanged', updateGates);
-      viewModel.off('connectionsChanged', updateConnections);
-      viewModel.off('simulationCompleted', updateSimulation);
-    };
-  }, [viewModel, currentMode, checkDiscoveries]);
+    },
+    onSaveCircuit: (circuit) => {
+      // セーブ処理
+      console.log('Circuit saved:', circuit);
+    },
+    onNotification: (message, type) => {
+      // 通知処理
+      console.log('Notification:', message, type);
+    }
+  });
 
   // モダンデザインシステム（変更なし）
   const themes: Record<string, Theme> = {
