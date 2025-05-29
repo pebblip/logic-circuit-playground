@@ -19,6 +19,11 @@ export enum GateType {
   // 演算ゲート
   HALF_ADDER = 'HALF_ADDER',
   FULL_ADDER = 'FULL_ADDER',
+  ADDER_4BIT = 'ADDER_4BIT',
+  
+  // 数値入出力
+  NUMBER_4BIT_INPUT = 'NUMBER_4BIT_INPUT',
+  NUMBER_4BIT_DISPLAY = 'NUMBER_4BIT_DISPLAY',
   
   // 記憶素子
   D_FLIP_FLOP = 'D_FLIP_FLOP',

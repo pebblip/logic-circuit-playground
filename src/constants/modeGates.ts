@@ -29,6 +29,9 @@ export const MODE_GATE_SETS: Record<CircuitMode, (GateType | string)[]> = {
     'MUX_2TO1',
     'HALF_ADDER',
     'FULL_ADDER',
+    'ADDER_4BIT',
+    'NUMBER_4BIT_INPUT',
+    'NUMBER_4BIT_DISPLAY',
     'CUSTOM'
   ],
   
