@@ -55,7 +55,7 @@ describe('ゲートドラッグのバグ確認', () => {
     const { container } = render(<UltraModernCircuitWithViewModel />);
 
     // ANDゲートを追加
-    const andButton = container.querySelector('button[title="ANDゲート"]');
+    const andButton = container.querySelector('[data-testid="gate-button-AND"]');
     expect(andButton).toBeInTheDocument();
     fireEvent.click(andButton!);
 
@@ -100,7 +100,7 @@ describe('ゲートドラッグのバグ確認', () => {
     const { container } = render(<UltraModernCircuitWithViewModel />);
 
     // ANDゲートを追加
-    const andButton = container.querySelector('button[title="ANDゲート"]');
+    const andButton = container.querySelector('[data-testid="gate-button-AND"]');
     fireEvent.click(andButton!);
 
     await waitFor(() => {

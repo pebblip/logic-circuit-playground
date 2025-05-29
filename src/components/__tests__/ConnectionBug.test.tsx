@@ -36,11 +36,11 @@ describe('接続線のバグテスト', () => {
     }
     
     // ゲートを追加
-    const inputButton = await waitFor(() => screen.getByText('入力'));
-    fireEvent.click(inputButton);
+    const inputButton = container.querySelector('[data-testid="gate-button-INPUT"]');
+    if (inputButton) fireEvent.click(inputButton);
     
-    const andButton = await waitFor(() => screen.getByText('AND'));
-    fireEvent.click(andButton);
+    const andButton = container.querySelector('[data-testid="gate-button-AND"]');
+    if (andButton) fireEvent.click(andButton);
     
     await waitFor(() => {
       const gates = container.querySelectorAll('[data-gate-id]');

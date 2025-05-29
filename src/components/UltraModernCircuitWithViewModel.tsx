@@ -937,7 +937,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     }
     
     return (
-      <g key={gate.id} transform={`translate(${gate.x}, ${gate.y})`}>
+      <g key={gate.id} data-testid={`gate-${gate.id}`} transform={`translate(${gate.x}, ${gate.y})`}>
         {/* ホバーエフェクト */}
         {hoveredGate === gate.id && selectedTheme !== 'minimal' && (
           <>
@@ -1623,6 +1623,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
           .map(([type, config]) => (
           <button
             key={type}
+            data-testid={`gate-button-${type}`}
             onClick={(e) => {
               e.stopPropagation();
               addGate(type);  // 即座に配置！
@@ -1699,6 +1700,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
             {Object.entries(customGates).map(([name, gateDef]) => (
               <div key={name} style={{ position: 'relative' }}>
                 <button
+                  data-testid={`custom-gate-button-${name}`}
                   onClick={() => addGate(name)}
                   style={{
                     width: '60px',

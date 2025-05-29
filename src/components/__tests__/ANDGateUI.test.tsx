@@ -24,10 +24,7 @@ describe('ANDゲートのUI接続テスト', () => {
     }
     
     // ANDゲートを追加
-    const toolbar = container.querySelector('div[style*="display: flex"]');
-    const andButton = Array.from(container.querySelectorAll('button')).find(
-      btn => btn.textContent === 'AND'
-    );
+    const andButton = container.querySelector('[data-testid="gate-button-AND"]');
     
     if (andButton) {
       fireEvent.click(andButton);

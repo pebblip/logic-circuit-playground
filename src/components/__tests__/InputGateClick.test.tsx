@@ -105,21 +105,12 @@ describe('入力ゲートのクリック動作', () => {
     // 手動でゲートを追加する代わりに、ViewModelに直接アクセスする方法を探す
     // または、UIを通じてゲートを追加する
     
-    // ツールパレットの構造を調査
-    const buttons = container.querySelectorAll('button');
-    console.log('ボタンの数:', buttons.length);
+    // INPUTゲートボタンをdata-testidで取得
+    const inputButton = container.querySelector('[data-testid="gate-button-INPUT"]');
+    expect(inputButton).toBeInTheDocument();
     
-    // SVGを含むボタンを探す
-    let gateButton: HTMLButtonElement | null = null;
-    buttons.forEach((button, index) => {
-      if (button.querySelector('svg') && button.textContent?.includes('INPUT')) {
-        console.log(`Button ${index}: ${button.textContent}`);
-        gateButton = button as HTMLButtonElement;
-      }
-    });
-
-    if (gateButton) {
-      fireEvent.click(gateButton);
+    if (inputButton) {
+      fireEvent.click(inputButton);
       
       // ゲートが追加されるまで待つ
       await waitFor(() => {
