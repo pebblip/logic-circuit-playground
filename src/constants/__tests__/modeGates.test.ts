@@ -3,109 +3,107 @@ import { CircuitMode } from '../../types/mode';
 
 describe('modeGates', () => {
   describe('MODE_GATE_SETS', () => {
-    it('学習モードは基本ゲートのみを含む', () => {
-      const learningGates = MODE_GATE_SETS.learning;
+    it('discoveryモードは基本ゲートのみを含む', () => {
+      const discoveryGates = MODE_GATE_SETS.discovery;
       
-      expect(learningGates).toContain('INPUT');
-      expect(learningGates).toContain('OUTPUT');
-      expect(learningGates).toContain('AND');
-      expect(learningGates).toContain('OR');
-      expect(learningGates).toContain('NOT');
-      expect(learningGates).toContain('CLOCK');
+      expect(discoveryGates).toContain('INPUT');
+      expect(discoveryGates).toContain('OUTPUT');
+      expect(discoveryGates).toContain('AND');
+      expect(discoveryGates).toContain('OR');
+      expect(discoveryGates).toContain('NOT');
       
       // 上級ゲートは含まない
-      expect(learningGates).not.toContain('NAND');
-      expect(learningGates).not.toContain('XOR');
-      expect(learningGates).not.toContain('D_FLIP_FLOP');
+      expect(discoveryGates).not.toContain('NAND');
+      expect(discoveryGates).not.toContain('XOR');
+      expect(discoveryGates).not.toContain('D_FLIP_FLOP');
     });
 
-    it('構築モードは多くのゲートを含む', () => {
-      const buildingGates = MODE_GATE_SETS.building;
-      
-      expect(buildingGates).toContain('INPUT');
-      expect(buildingGates).toContain('OUTPUT');
-      expect(buildingGates).toContain('AND');
-      expect(buildingGates).toContain('NAND');
-      expect(buildingGates).toContain('XOR');
-      expect(buildingGates).toContain('D_FLIP_FLOP');
-      expect(buildingGates).toContain('CUSTOM');
-    });
-
-    it('CPUモードは全てのゲートを含む', () => {
-      const cpuGates = MODE_GATE_SETS.cpu;
+    it('sandboxモードは全てのゲートを含む', () => {
+      const sandboxGates = MODE_GATE_SETS.sandbox;
       
       // 基本ゲート
-      expect(cpuGates).toContain('INPUT');
-      expect(cpuGates).toContain('OUTPUT');
-      expect(cpuGates).toContain('AND');
+      expect(sandboxGates).toContain('INPUT');
+      expect(sandboxGates).toContain('OUTPUT');
+      expect(sandboxGates).toContain('AND');
+      expect(sandboxGates).toContain('OR');
+      expect(sandboxGates).toContain('NOT');
       
       // 上級ゲート
-      expect(cpuGates).toContain('NAND');
-      expect(cpuGates).toContain('XOR');
-      expect(cpuGates).toContain('D_FLIP_FLOP');
-      expect(cpuGates).toContain('CUSTOM');
+      expect(sandboxGates).toContain('NAND');
+      expect(sandboxGates).toContain('NOR');
+      expect(sandboxGates).toContain('XOR');
+      expect(sandboxGates).toContain('XNOR');
       
-      // 構築モード以上のゲート数を持つ
-      expect(cpuGates.length).toBeGreaterThanOrEqual(MODE_GATE_SETS.building.length);
+      // 特殊ゲート
+      expect(sandboxGates).toContain('CLOCK');
+      expect(sandboxGates).toContain('D_FLIP_FLOP');
+      expect(sandboxGates).toContain('SR_LATCH');
+      expect(sandboxGates).toContain('REGISTER_4BIT');
+      expect(sandboxGates).toContain('MUX_2TO1');
+    });
+
+    it('challengeモードは特定のゲートセットを含む', () => {
+      const challengeGates = MODE_GATE_SETS.challenge;
+      
+      expect(challengeGates).toContain('INPUT');
+      expect(challengeGates).toContain('OUTPUT');
+      expect(challengeGates).toContain('AND');
+      expect(challengeGates).toContain('NAND');
+      expect(challengeGates).toContain('XOR');
+      
+      // チャレンジモードは全てのゲートを含まない
+      expect(challengeGates).not.toContain('CLOCK');
+      expect(challengeGates).not.toContain('D_FLIP_FLOP');
     });
   });
 
   describe('getGatesForMode', () => {
     it('指定されたモードの正しいゲートセットを返す', () => {
-      expect(getGatesForMode('learning')).toBe(MODE_GATE_SETS.learning);
-      expect(getGatesForMode('building')).toBe(MODE_GATE_SETS.building);
-      expect(getGatesForMode('cpu')).toBe(MODE_GATE_SETS.cpu);
+      const discoveryGates = getGatesForMode('discovery');
+      expect(discoveryGates).toEqual(MODE_GATE_SETS.discovery);
+      
+      const sandboxGates = getGatesForMode('sandbox');
+      expect(sandboxGates).toEqual(MODE_GATE_SETS.sandbox);
     });
 
-    it('無効なモードの場合はlearningモードを返す', () => {
-      const invalidMode = 'invalid' as CircuitMode;
-      expect(getGatesForMode(invalidMode)).toBe(MODE_GATE_SETS.learning);
+    it('discoveryモードでアンロックされたゲートを追加できる', () => {
+      const unlockedGates = ['NAND', 'XOR'];
+      const gates = getGatesForMode('discovery', unlockedGates);
+      
+      // 基本ゲートに加えてアンロックされたゲートも含む
+      expect(gates).toContain('AND');
+      expect(gates).toContain('NAND');
+      expect(gates).toContain('XOR');
     });
   });
 
   describe('isGateAvailableInMode', () => {
-    it('学習モードで基本ゲートが利用可能', () => {
-      expect(isGateAvailableInMode('AND', 'learning')).toBe(true);
-      expect(isGateAvailableInMode('OR', 'learning')).toBe(true);
-      expect(isGateAvailableInMode('NOT', 'learning')).toBe(true);
+    it('discoveryモードで基本ゲートが利用可能', () => {
+      expect(isGateAvailableInMode('INPUT', 'discovery')).toBe(true);
+      expect(isGateAvailableInMode('AND', 'discovery')).toBe(true);
+      expect(isGateAvailableInMode('NOT', 'discovery')).toBe(true);
     });
 
-    it('学習モードで上級ゲートが利用不可', () => {
-      expect(isGateAvailableInMode('NAND', 'learning')).toBe(false);
-      expect(isGateAvailableInMode('XOR', 'learning')).toBe(false);
-      expect(isGateAvailableInMode('D_FLIP_FLOP', 'learning')).toBe(false);
+    it('discoveryモードで上級ゲートが利用不可', () => {
+      expect(isGateAvailableInMode('D_FLIP_FLOP', 'discovery')).toBe(false);
+      expect(isGateAvailableInMode('SR_LATCH', 'discovery')).toBe(false);
     });
 
-    it('構築モードで多くのゲートが利用可能', () => {
-      expect(isGateAvailableInMode('AND', 'building')).toBe(true);
-      expect(isGateAvailableInMode('NAND', 'building')).toBe(true);
-      expect(isGateAvailableInMode('XOR', 'building')).toBe(true);
-      expect(isGateAvailableInMode('D_FLIP_FLOP', 'building')).toBe(true);
-    });
-
-    it('CPUモードで全てのゲートが利用可能', () => {
-      expect(isGateAvailableInMode('AND', 'cpu')).toBe(true);
-      expect(isGateAvailableInMode('NAND', 'cpu')).toBe(true);
-      expect(isGateAvailableInMode('XOR', 'cpu')).toBe(true);
-      expect(isGateAvailableInMode('D_FLIP_FLOP', 'cpu')).toBe(true);
-      expect(isGateAvailableInMode('CUSTOM', 'cpu')).toBe(true);
+    it('sandboxモードで全てのゲートが利用可能', () => {
+      expect(isGateAvailableInMode('INPUT', 'sandbox')).toBe(true);
+      expect(isGateAvailableInMode('CLOCK', 'sandbox')).toBe(true);
+      expect(isGateAvailableInMode('D_FLIP_FLOP', 'sandbox')).toBe(true);
+      expect(isGateAvailableInMode('CUSTOM', 'sandbox')).toBe(true);
     });
   });
 
   describe('モード間の包含関係', () => {
-    it('上位モードは下位モードの全ゲートを含む', () => {
-      const learningGates = MODE_GATE_SETS.learning;
-      const buildingGates = MODE_GATE_SETS.building;
-      const cpuGates = MODE_GATE_SETS.cpu;
-
-      // 構築モードは学習モードの全ゲートを含む
-      learningGates.forEach(gate => {
-        expect(buildingGates).toContain(gate);
-      });
-
-      // CPUモードは構築モードの全ゲートを含む
-      buildingGates.forEach(gate => {
-        expect(cpuGates).toContain(gate);
+    it('sandboxモードはdiscoveryモードの全ゲートを含む', () => {
+      const discoveryGates = MODE_GATE_SETS.discovery;
+      const sandboxGates = MODE_GATE_SETS.sandbox;
+      
+      discoveryGates.forEach(gate => {
+        expect(sandboxGates).toContain(gate);
       });
     });
   });
