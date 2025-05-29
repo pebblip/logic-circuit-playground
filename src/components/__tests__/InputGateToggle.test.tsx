@@ -1,8 +1,7 @@
-import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import UltraModernCircuitWithViewModel from '../UltraModernCircuitWithViewModel';
-import { vi } from 'vitest';
+import { vi, describe, beforeEach, afterEach, test, expect } from 'vitest';
 
 // モックの設定
 vi.mock('../../hooks/useDiscovery', () => ({

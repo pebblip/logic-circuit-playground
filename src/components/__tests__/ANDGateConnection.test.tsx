@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { UltraModernCircuitViewModel } from '../../viewmodels/UltraModernCircuitViewModel';
 
 describe('ANDゲートの接続バグ', () => {
