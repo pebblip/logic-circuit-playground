@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logic Circuit Playground - Refined UI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans JP', sans-serif;
+            background: #0a0e27;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* アニメーション */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* モード選択画面 */
+        .mode-selection {
+            position: fixed;
+            inset: 0;
+            background: #0a0e27;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .mode-header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .mode-logo {
+            font-size: 64px;
+            margin-bottom: 24px;
+        }
+
+        .mode-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .mode-subtitle {
+            font-size: 18px;
+            color: #64748b;
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        .mode-option {
+            background: #0f1419;
+            border: 2px solid #1e293b;
+            border-radius: 16px;
+            padding: 32px;
+            width: 300px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-option:hover {
+            transform: translateY(-8px);
+            border-color: #3b82f6;
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+        }
+
+        .mode-option.discovery:hover {
+            border-color: #10b981;
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2);
+        }
+
+        .mode-option.challenge:hover {
+            border-color: #f59e0b;
+            box-shadow: 0 20px 40px rgba(245, 158, 11, 0.2);
+        }
+
+        .mode-option-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .mode-option-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .mode-option-desc {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* メインアプリ */
+        .app {
+            display: none;
+            height: 100vh;
+            background: #0f1419;
+        }
+
+        /* ヘッダー */
+        .header {
+            height: 60px;
+            background: rgba(15, 20, 25, 0.8);
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mode-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 20px;
+            font-size: 14px;
+            color: #3b82f6;
+        }
+
+        .mode-badge.discovery {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .mode-badge.challenge {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+
+        .header-center {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            width: 30%;
+            transition: width 0.5s ease;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        /* メインコンテンツ */
+        .main-content {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        /* サイドバー */
+        .sidebar {
+            width: 280px;
+            background: #0a0e27;
+            border-right: 1px solid #1e293b;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-count {
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .gate-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .gate-item {
+            aspect-ratio: 1;
+            background: #1e293b;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            transition: all 0.2s;
+            position: relative;
+            padding: 8px;
+        }
+
+        .gate-item:hover {
+            background: #334155;
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .gate-symbol {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .gate-name {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .gate-item.input .gate-symbol {
+            color: #10b981;
+        }
+
+        .gate-item.output .gate-symbol {
+            color: #3b82f6;
+        }
+
+        .gate-item.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .gate-item.locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 12px;
+        }
+
+        /* キャンバス */
+        .canvas-container {
+            flex: 1;
+            background: #0a0e27;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-bg {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+        }
+
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        /* 右パネル */
+        .right-panel {
+            width: 320px;
+            background: #0a0e27;
+            border-left: 1px solid #1e293b;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-tabs {
+            display: flex;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .panel-tab {
+            flex: 1;
+            padding: 16px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .panel-tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* デモギャラリー */
+        .demo-section {
+            margin-bottom: 24px;
+        }
+
+        .demo-section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .demo-card {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .demo-card:hover {
+            background: #334155;
+            transform: translateX(4px);
+        }
+
+        .demo-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .demo-desc {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .demo-difficulty {
+            display: flex;
+            gap: 2px;
+        }
+
+        .star {
+            font-size: 12px;
+            color: #fbbf24;
+        }
+
+        .star.empty {
+            color: #334155;
+        }
+
+        /* フローティングボタン */
+        .fab-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #3b82f6;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .fab-menu {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .fab-menu.open {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .fab-item {
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .fab-item:hover {
+            background: #334155;
+        }
+
+        /* ウェルカムメッセージ */
+        .welcome-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .welcome-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .welcome-text {
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtext {
+            font-size: 14px;
+            color: #475569;
+        }
+
+        /* 実験室モード追加スタイル */
+        .mode-switch-banner {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .all-gates-unlocked {
+            color: #3b82f6;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- モード選択画面 -->
+    <div class="mode-selection" id="modeSelection">
+        <div class="mode-header">
+            <div class="mode-logo">⚡</div>
+            <h1 class="mode-title">Logic Circuit Playground</h1>
+            <p class="mode-subtitle">論理回路から始まる、コンピュータの世界</p>
+        </div>
+        
+        <div class="mode-grid">
+            <div class="mode-option discovery" onclick="startMode('discovery')">
+                <div class="mode-option-icon">🔍</div>
+                <h2 class="mode-option-title">探検モード</h2>
+                <p class="mode-option-desc">
+                    はじめての方へ<br>
+                    段階的に論理回路を学習
+                </p>
+            </div>
+            
+            <div class="mode-option sandbox" onclick="startMode('sandbox')">
+                <div class="mode-option-icon">🧪</div>
+                <h2 class="mode-option-title">実験室モード</h2>
+                <p class="mode-option-desc">
+                    自由に制作<br>
+                    全ての機能が使用可能
+                </p>
+            </div>
+            
+            <div class="mode-option challenge" onclick="startMode('challenge')">
+                <div class="mode-option-icon">🏆</div>
+                <h2 class="mode-option-title">チャレンジ</h2>
+                <p class="mode-option-desc">
+                    腕試し<br>
+                    パズルで実力アップ
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- メインアプリ -->
+    <div class="app" id="app">
+        <!-- ヘッダー -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <div class="logo-icon">⚡</div>
+                    <span>Logic Circuit Playground</span>
+                </div>
+                <div class="mode-badge" id="modeBadge">
+                    <span id="modeIcon">🧪</span>
+                    <span id="modeName">実験室モード</span>
+                </div>
+            </div>
+            
+            <div class="header-center" id="progressSection" style="display: none;">
+                <div class="progress-indicator">
+                    <span class="progress-text">Stage 1: Discovery</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <span style="font-size: 12px; color: #10b981; margin-right: 16px;">
+                    ✓ 自動保存中
+                </span>
+                <button class="header-btn">
+                    <span>💾</span>
+                    <span>保存</span>
+                </button>
+                <button class="header-btn">
+                    <span>📤</span>
+                    <span>共有</span>
+                </button>
+                <button class="header-btn">
+                    <span>⚙️</span>
+                    <span>設定</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 実験室モードバナー -->
+        <div class="mode-switch-banner" id="sandboxBanner" style="display: none;">
+            <span class="all-gates-unlocked">✨ 実験室モードでは全てのゲートが使用可能です</span>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <!-- サイドバー -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="section-title">
+                        基本ゲート
+                        <span class="section-count" id="basicCount">6</span>
+                    </h3>
+                    <div class="gate-grid">
+                        <div class="gate-item input" draggable="true">
+                            <div class="gate-symbol">IN</div>
+                            <div class="gate-name">入力</div>
+                        </div>
+                        <div class="gate-item output" draggable="true">
+                            <div class="gate-symbol">OUT</div>
+                            <div class="gate-name">出力</div>
+                        </div>
+                        <div class="gate-item" draggable="true">
+                            <div class="gate-symbol">AND</div>
+                            <div class="gate-name">AND</div>
+                        </div>
+                        <div class="gate-item" draggable="true">
+                            <div class="gate-symbol">OR</div>
+                            <div class="gate-name">OR</div>
+                        </div>
+                        <div class="gate-item" draggable="true" id="notGate">
+                            <div class="gate-symbol">NOT</div>
+                            <div class="gate-name">NOT</div>
+                        </div>
+                        <div class="gate-item" draggable="true" id="xorGate">
+                            <div class="gate-symbol">XOR</div>
+                            <div class="gate-name">XOR</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section" id="advancedSection">
+                    <h3 class="section-title">
+                        複合ゲート
+                        <span class="section-count">3</span>
+                    </h3>
+                    <div class="gate-grid">
+                        <div class="gate-item locked" id="nandGate">
+                            <div class="gate-symbol">NAND</div>
+                            <div class="gate-name">NAND</div>
+                        </div>
+                        <div class="gate-item locked" id="norGate">
+                            <div class="gate-symbol">NOR</div>
+                            <div class="gate-name">NOR</div>
+                        </div>
+                        <div class="gate-item locked" id="xnorGate">
+                            <div class="gate-symbol">XNOR</div>
+                            <div class="gate-name">XNOR</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section" id="arithmeticSection">
+                    <h3 class="section-title">
+                        演算ゲート
+                        <span class="section-count">6</span>
+                    </h3>
+                    <div class="gate-grid">
+                        <div class="gate-item locked">
+                            <div class="gate-symbol">HA</div>
+                            <div class="gate-name">半加算器</div>
+                        </div>
+                        <div class="gate-item locked">
+                            <div class="gate-symbol">FA</div>
+                            <div class="gate-name">全加算器</div>
+                        </div>
+                        <div class="gate-item locked">
+                            <div class="gate-symbol">4+</div>
+                            <div class="gate-name">4bit加算</div>
+                        </div>
+                        <div class="gate-item locked">
+                            <div class="gate-symbol">🔢</div>
+                            <div class="gate-name">数値入力</div>
+                        </div>
+                        <div class="gate-item locked">
+                            <div class="gate-symbol">📊</div>
+                            <div class="gate-name">数値表示</div>
+                        </div>
+                        <div class="gate-item locked">
+                            <div class="gate-symbol">MUX</div>
+                            <div class="gate-name">マルチプレクサ</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section" id="memorySection">
+                    <h3 class="section-title">
+                        記憶素子
+                        <span class="section-count">4</span>
+                    </h3>
+                    <div class="gate-grid">
+                        <div class="gate-item locked">
+                            <div class="gate-symbol">SR</div>
+                            <div class="gate-name">SRラッチ</div>
+                        </div>
+                        <div class="gate-item locked">
+                            <div class="gate-symbol">DFF</div>
+                            <div class="gate-name">Dフリップフロップ</div>
+                        </div>
+                        <div class="gate-item locked">
+                            <div class="gate-symbol">REG</div>
+                            <div class="gate-name">レジスタ</div>
+                        </div>
+                        <div class="gate-item locked">
+                            <div class="gate-symbol">⏰</div>
+                            <div class="gate-name">クロック</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- キャンバス -->
+            <div class="canvas-container">
+                <div class="canvas-bg"></div>
+                <div class="grid-overlay"></div>
+                
+                <div class="welcome-hint" id="welcomeHint">
+                    <div class="welcome-icon">🎨</div>
+                    <div class="welcome-text">ゲートをドラッグして配置しよう</div>
+                    <div class="welcome-subtext">右のデモギャラリーも見てみてね</div>
+                </div>
+            </div>
+
+            <!-- 右パネル -->
+            <aside class="right-panel">
+                <div class="panel-tabs">
+                    <button class="panel-tab active" onclick="switchTab('demos')">デモ</button>
+                    <button class="panel-tab" onclick="switchTab('properties')">プロパティ</button>
+                    <button class="panel-tab" onclick="switchTab('progress')">進捗</button>
+                </div>
+                
+                <div class="panel-content" id="demosPanel">
+                    <div class="demo-section">
+                        <div class="demo-section-header">
+                            <span>🎯</span>
+                            <span>基本回路</span>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-title">
+                                <span>💡</span>
+                                <span>はじめてのAND回路</span>
+                            </div>
+                            <div class="demo-desc">2つの入力が両方1の時に光る</div>
+                            <div class="demo-difficulty">
+                                <span class="star">⭐</span>
+                                <span class="star empty">⭐</span>
+                                <span class="star empty">⭐</span>
+                            </div>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-title">
+                                <span>🔄</span>
+                                <span>OR回路を作ろう</span>
+                            </div>
+                            <div class="demo-desc">どちらかが1なら光る</div>
+                            <div class="demo-difficulty">
+                                <span class="star">⭐</span>
+                                <span class="star empty">⭐</span>
+                                <span class="star empty">⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-section">
+                        <div class="demo-section-header">
+                            <span>🧮</span>
+                            <span>算術演算</span>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-title">
+                                <span>➕</span>
+                                <span>半加算器</span>
+                            </div>
+                            <div class="demo-desc">1ビットの足し算回路</div>
+                            <div class="demo-difficulty">
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star empty">⭐</span>
+                            </div>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-title">
+                                <span>🔢</span>
+                                <span>4ビット電卓</span>
+                            </div>
+                            <div class="demo-desc">0〜15の計算ができる</div>
+                            <div class="demo-difficulty">
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel-content" id="propertiesPanel" style="display: none;">
+                    <p style="color: #64748b; text-align: center; margin-top: 40px;">
+                        ゲートを選択すると<br>プロパティが表示されます
+                    </p>
+                </div>
+                
+                <div class="panel-content" id="progressPanel" style="display: none;">
+                    <p style="color: #64748b; text-align: center; margin-top: 40px;">
+                        探検モードで<br>進捗を確認できます
+                    </p>
+                </div>
+            </aside>
+        </div>
+
+        <!-- フローティングボタン -->
+        <div class="fab-container">
+            <div class="fab-menu" id="fabMenu">
+                <button class="fab-item">
+                    <span>💾</span>
+                    <span>クイック保存</span>
+                </button>
+                <button class="fab-item">
+                    <span>📦</span>
+                    <span>カスタムゲート化</span>
+                </button>
+                <button class="fab-item">
+                    <span>❓</span>
+                    <span>ヘルプ</span>
+                </button>
+                <button class="fab-item">
+                    <span>🔄</span>
+                    <span>リセット</span>
+                </button>
+            </div>
+            <button class="fab" onclick="toggleFabMenu()">+</button>
+        </div>
+    </div>
+
+    <script>
+        // モード開始
+        function startMode(mode) {
+            document.getElementById('modeSelection').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            
+            const badge = document.getElementById('modeBadge');
+            const modeIcon = document.getElementById('modeIcon');
+            const modeName = document.getElementById('modeName');
+            const sandboxBanner = document.getElementById('sandboxBanner');
+            const progressSection = document.getElementById('progressSection');
+            
+            if (mode === 'discovery') {
+                badge.className = 'mode-badge discovery';
+                modeIcon.textContent = '🔍';
+                modeName.textContent = '探検モード';
+                progressSection.style.display = 'flex';
+                
+                // 段階的に解放
+                document.getElementById('notGate').classList.add('locked');
+                document.getElementById('xorGate').classList.add('locked');
+                document.getElementById('basicCount').textContent = '4/6';
+            } else if (mode === 'sandbox') {
+                badge.className = 'mode-badge';
+                modeIcon.textContent = '🧪';
+                modeName.textContent = '実験室モード';
+                sandboxBanner.style.display = 'block';
+                
+                // 全ゲート解放
+                document.querySelectorAll('.gate-item.locked').forEach(gate => {
+                    gate.classList.remove('locked');
+                });
+            } else if (mode === 'challenge') {
+                badge.className = 'mode-badge challenge';
+                modeIcon.textContent = '🏆';
+                modeName.textContent = 'チャレンジモード';
+            }
+            
+            // ウェルカムメッセージを3秒後に消す
+            setTimeout(() => {
+                document.getElementById('welcomeHint').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('welcomeHint').style.display = 'none';
+                }, 500);
+            }, 3000);
+        }
+
+        // タブ切り替え
+        function switchTab(tabName) {
+            // タブボタンの状態更新
+            document.querySelectorAll('.panel-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // パネルの表示切り替え
+            document.querySelectorAll('.panel-content').forEach(panel => {
+                panel.style.display = 'none';
+            });
+            document.getElementById(tabName + 'Panel').style.display = 'block';
+        }
+
+        // FABメニュー開閉
+        function toggleFabMenu() {
+            const menu = document.getElementById('fabMenu');
+            menu.classList.toggle('open');
+            
+            const fab = document.querySelector('.fab');
+            fab.style.transform = menu.classList.contains('open') ? 'rotate(45deg)' : 'rotate(0)';
+        }
+
+        // ドラッグ&ドロップ
+        document.querySelectorAll('.gate-item:not(.locked)').forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.effectAllowed = 'copy';
+                item.style.opacity = '0.5';
+            });
+            
+            item.addEventListener('dragend', () => {
+                item.style.opacity = '1';
+            });
+        });
+
+        // 自動保存表示
+        setInterval(() => {
+            const saveIndicator = document.querySelector('.header-right > span');
+            saveIndicator.style.opacity = '0.5';
+            setTimeout(() => {
+                saveIndicator.style.opacity = '1';
+            }, 1000);
+        }, 30000);
+    </script>
+</body>
+</html>

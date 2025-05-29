@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logic Circuit Playground - UIモックアップ（拡張版）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e27;
+            color: #fff;
+            overflow-x: auto;
+        }
+        
+        /* メインレイアウト */
+        .container {
+            width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .screen {
+            background: #0f1419;
+            border: 2px solid #1e293b;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        
+        .screen-title {
+            text-align: center;
+            margin: 40px 0 20px;
+            font-size: 24px;
+            color: #3b82f6;
+        }
+        
+        /* ヘッダー */
+        .header {
+            height: 60px;
+            background: rgba(15, 20, 25, 0.8);
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 32px;
+        }
+        
+        .nav-item {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        
+        .nav-item.active {
+            color: #3b82f6;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .mode-selector {
+            display: flex;
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 4px;
+        }
+        
+        .mode-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .mode-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        /* メインコンテンツ */
+        .main-content {
+            display: flex;
+            height: calc(100vh - 140px);
+            min-height: 600px;
+        }
+        
+        /* サイドバー */
+        .sidebar {
+            width: 280px;
+            background: #0a0e27;
+            border-right: 1px solid #1e293b;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid #1e293b;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .gate-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .gate-item {
+            aspect-ratio: 1;
+            background: #1e293b;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .gate-item:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .gate-locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .gate-locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 12px;
+        }
+        
+        .custom-gate {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-color: #8b5cf6;
+        }
+        
+        /* キャンバス */
+        .canvas-area {
+            flex: 1;
+            background: #0a0e27;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(30, 41, 59, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 41, 59, 0.2) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        
+        /* 右パネル */
+        .right-panel {
+            width: 320px;
+            background: #0a0e27;
+            border-left: 1px solid #1e293b;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid #1e293b;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 14px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+        
+        /* プログレストラッカー */
+        .progress-tracker {
+            padding: 20px;
+        }
+        
+        .stage-item {
+            margin-bottom: 20px;
+        }
+        
+        .stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .stage-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .stage-progress {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #1e293b;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        /* デモギャラリー */
+        .demo-gallery {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+        
+        .demo-category {
+            margin-bottom: 24px;
+        }
+        
+        .demo-category-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: color 0.2s;
+        }
+        
+        .demo-category-header:hover {
+            color: #3b82f6;
+        }
+        
+        .demo-category-icon {
+            font-size: 20px;
+        }
+        
+        .demo-category-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .demo-card {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .demo-card:hover {
+            background: #334155;
+            transform: translateX(4px);
+        }
+        
+        .demo-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .demo-desc {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .demo-difficulty {
+            display: flex;
+            gap: 2px;
+            margin-top: 8px;
+        }
+        
+        .star {
+            font-size: 12px;
+        }
+        
+        /* フローティングメニュー */
+        .floating-menu {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-end;
+            z-index: 100;
+        }
+        
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #3b82f6;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transition: all 0.2s;
+        }
+        
+        .fab:hover {
+            transform: scale(1.1);
+        }
+        
+        .fab-menu {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .fab-item {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .fab-item:hover {
+            background: #334155;
+        }
+        
+        /* ヘルプウィンドウ */
+        .help-window {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            max-width: 90%;
+            background: #1e293b;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+            z-index: 200;
+        }
+        
+        .help-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #334155;
+            background: #0f1419;
+            border-radius: 12px 12px 0 0;
+            cursor: move;
+        }
+        
+        .help-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .help-tabs {
+            display: flex;
+            gap: 16px;
+            padding: 0 20px;
+            margin-top: 16px;
+        }
+        
+        .help-tab {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .help-tab.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        
+        .help-content {
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+        }
+        
+        /* カスタムゲート定義ダイアログ */
+        .custom-gate-dialog {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            background: #0f1419;
+            border: 2px solid #8b5cf6;
+            border-radius: 12px;
+            padding: 24px;
+            z-index: 200;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+        
+        .dialog-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #8b5cf6;
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+        
+        .pin-list {
+            background: #1e293b;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+        
+        .pin-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px;
+            background: #0a0e27;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        
+        .pin-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .pin-indicator.input {
+            background: #10b981;
+        }
+        
+        .pin-indicator.output {
+            background: #f59e0b;
+        }
+        
+        .dialog-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #8b5cf6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #7c3aed;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+        
+        .btn-secondary:hover {
+            background: #1e293b;
+        }
+
+        /* 設定パネル */
+        .settings-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            background: #1e293b;
+            border: 2px solid #64748b;
+            border-radius: 12px;
+            padding: 24px;
+            z-index: 200;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .settings-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-group {
+            margin-bottom: 24px;
+        }
+
+        .settings-label {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #94a3b8;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: #334155;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .switch.active {
+            background: #3b82f6;
+        }
+
+        .switch-thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .switch.active .switch-thumb {
+            transform: translateX(24px);
+        }
+
+        .slider {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        /* ツールチップ */
+        .tooltip {
+            position: absolute;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 300;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 画面1: メイン作業画面（拡張版） -->
+        <h2 class="screen-title">1. メイン作業画面（実験室モード）- 拡張版</h2>
+        <div class="screen">
+            <!-- ヘッダー -->
+            <header class="header">
+                <div class="logo">
+                    <div class="logo-icon">⚡</div>
+                    <span>Logic Circuit Playground</span>
+                </div>
+                
+                <nav class="nav">
+                    <a href="#" class="nav-item">ホーム</a>
+                    <a href="#" class="nav-item active">プレイグラウンド</a>
+                    <a href="#" class="nav-item">学習</a>
+                    <a href="#" class="nav-item">コミュニティ</a>
+                </nav>
+                
+                <div class="header-actions">
+                    <div class="mode-selector">
+                        <button class="mode-btn">
+                            <span>🔍</span>
+                            <span>探検</span>
+                        </button>
+                        <button class="mode-btn active">
+                            <span>🧪</span>
+                            <span>実験室</span>
+                        </button>
+                        <button class="mode-btn">
+                            <span>🏆</span>
+                            <span>チャレンジ</span>
+                        </button>
+                    </div>
+                    <button class="mode-btn">
+                        <span>💾</span>
+                    </button>
+                    <button class="mode-btn">
+                        <span>⚙️</span>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- メインコンテンツ -->
+            <div class="main-content">
+                <!-- 左サイドバー -->
+                <aside class="sidebar">
+                    <div class="sidebar-section">
+                        <h3 class="section-title">基本ゲート</h3>
+                        <div class="gate-grid">
+                            <div class="gate-item" title="入力ゲート - クリックで値を切り替え">
+                                <span style="font-size: 24px;">⭕</span>
+                            </div>
+                            <div class="gate-item" title="出力ゲート - 結果を表示">
+                                <span style="font-size: 24px;">⬜</span>
+                            </div>
+                            <div class="gate-item" title="ANDゲート - 両方が1の時のみ1を出力">
+                                <span style="font-size: 20px;">AND</span>
+                            </div>
+                            <div class="gate-item" title="ORゲート - どちらかが1なら1を出力">
+                                <span style="font-size: 20px;">OR</span>
+                            </div>
+                            <div class="gate-item" title="NOTゲート - 入力を反転">
+                                <span style="font-size: 20px;">NOT</span>
+                            </div>
+                            <div class="gate-item" title="XORゲート - 入力が異なる時に1を出力">
+                                <span style="font-size: 20px;">XOR</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3 class="section-title">演算ゲート</h3>
+                        <div class="gate-grid">
+                            <div class="gate-item">
+                                <span style="font-size: 16px;">半加</span>
+                            </div>
+                            <div class="gate-item">
+                                <span style="font-size: 16px;">全加</span>
+                            </div>
+                            <div class="gate-item">
+                                <span style="font-size: 16px;">4bit+</span>
+                            </div>
+                            <div class="gate-item">
+                                <span style="font-size: 24px;">🔢</span>
+                            </div>
+                            <div class="gate-item">
+                                <span style="font-size: 24px;">📊</span>
+                            </div>
+                            <div class="gate-item gate-locked">
+                                <span style="font-size: 16px;">ALU</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3 class="section-title">記憶素子</h3>
+                        <div class="gate-grid">
+                            <div class="gate-item">
+                                <span style="font-size: 16px;">SR</span>
+                            </div>
+                            <div class="gate-item">
+                                <span style="font-size: 16px;">D-FF</span>
+                            </div>
+                            <div class="gate-item">
+                                <span style="font-size: 16px;">REG</span>
+                            </div>
+                            <div class="gate-item">
+                                <span style="font-size: 24px;">⏰</span>
+                            </div>
+                            <div class="gate-item gate-locked">
+                                <span style="font-size: 16px;">RAM</span>
+                            </div>
+                            <div class="gate-item gate-locked">
+                                <span style="font-size: 16px;">CNT</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- カスタムゲートセクション -->
+                    <div class="sidebar-section">
+                        <h3 class="section-title">カスタムゲート</h3>
+                        <div class="gate-grid">
+                            <div class="gate-item custom-gate">
+                                <span style="font-size: 14px;">半加算</span>
+                            </div>
+                            <div class="gate-item custom-gate">
+                                <span style="font-size: 14px;">MUX</span>
+                            </div>
+                            <div class="gate-item custom-gate">
+                                <span style="font-size: 24px;">📦</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 12px;">
+                            <button class="btn btn-secondary" style="width: 100%; font-size: 12px;">
+                                + カスタムゲートを作成
+                            </button>
+                        </div>
+                    </div>
+                </aside>
+                
+                <!-- キャンバスエリア -->
+                <div class="canvas-area">
+                    <div class="grid-bg"></div>
+                    <!-- ツールチップサンプル -->
+                    <div class="tooltip" style="top: 200px; left: 400px;">
+                        ANDゲート: 両方の入力が1の時のみ1を出力
+                    </div>
+                </div>
+                
+                <!-- 右パネル -->
+                <aside class="right-panel">
+                    <div class="tab-header">
+                        <button class="tab-btn">プロパティ</button>
+                        <button class="tab-btn active">デモ</button>
+                        <button class="tab-btn">進捗</button>
+                    </div>
+                    
+                    <!-- デモギャラリータブ（拡張版） -->
+                    <div class="demo-gallery">
+                        <div class="demo-category">
+                            <div class="demo-category-header">
+                                <span class="demo-category-icon">🧮</span>
+                                <span class="demo-category-title">算術演算</span>
+                                <span style="font-size: 12px; color: #64748b;">(3)</span>
+                            </div>
+                            <div class="demo-card">
+                                <div class="demo-title">🧮 4ビット電卓</div>
+                                <div class="demo-desc">2つの数値を加算する</div>
+                                <div class="demo-difficulty">
+                                    <span class="star">⭐</span>
+                                    <span class="star">⭐</span>
+                                    <span class="star">☆</span>
+                                </div>
+                            </div>
+                            <div class="demo-card">
+                                <div class="demo-title">➕ 半加算器</div>
+                                <div class="demo-desc">基本的な加算回路</div>
+                                <div class="demo-difficulty">
+                                    <span class="star">⭐</span>
+                                    <span class="star">☆</span>
+                                    <span class="star">☆</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="demo-category">
+                            <div class="demo-category-header">
+                                <span class="demo-category-icon">💾</span>
+                                <span class="demo-category-title">記憶素子</span>
+                                <span style="font-size: 12px; color: #64748b;">(2)</span>
+                            </div>
+                            <div class="demo-card">
+                                <div class="demo-title">⏱️ カウンタ回路</div>
+                                <div class="demo-desc">0から15まで数える</div>
+                                <div class="demo-difficulty">
+                                    <span class="star">⭐</span>
+                                    <span class="star">⭐</span>
+                                    <span class="star">⭐</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="demo-category">
+                            <div class="demo-category-header">
+                                <span class="demo-category-icon">🎯</span>
+                                <span class="demo-category-title">チャレンジ</span>
+                                <span style="font-size: 12px; color: #64748b;">(1)</span>
+                            </div>
+                            <div class="demo-card">
+                                <div class="demo-title">💡 7セグメントデコーダ</div>
+                                <div class="demo-desc">数字を表示する</div>
+                                <div class="demo-difficulty">
+                                    <span class="star">⭐</span>
+                                    <span class="star">⭐</span>
+                                    <span class="star">⭐</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <!-- フローティングヘルプウィンドウ -->
+            <div class="help-window" style="display: none;">
+                <div class="help-header">
+                    <div class="help-title">
+                        <span>❓</span>
+                        <span>ヘルプ & ドキュメント</span>
+                    </div>
+                    <button style="background: none; border: none; color: white; cursor: pointer;">✕</button>
+                </div>
+                <div class="help-tabs">
+                    <button class="help-tab active">ゲートリファレンス</button>
+                    <button class="help-tab">操作ガイド</button>
+                    <button class="help-tab">ショートカット</button>
+                </div>
+                <div class="help-content">
+                    <h3 style="margin-bottom: 16px;">基本ゲート</h3>
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #3b82f6; margin-bottom: 8px;">ANDゲート</h4>
+                        <p style="font-size: 14px; line-height: 1.6; color: #94a3b8;">
+                            両方の入力が1（真）の時のみ1（真）を出力します。<br>
+                            真理値表: 00→0, 01→0, 10→0, 11→1
+                        </p>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #3b82f6; margin-bottom: 8px;">ORゲート</h4>
+                        <p style="font-size: 14px; line-height: 1.6; color: #94a3b8;">
+                            どちらかの入力が1（真）なら1（真）を出力します。<br>
+                            真理値表: 00→0, 01→1, 10→1, 11→1
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- カスタムゲート定義ダイアログ -->
+            <div class="custom-gate-dialog" style="display: none;">
+                <h2 class="dialog-title">📦 カスタムゲートの作成</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">ゲート名</label>
+                    <input type="text" class="form-input" placeholder="例: 半加算器、4to1MUX">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">カテゴリ</label>
+                    <select class="form-input">
+                        <option>カスタム</option>
+                        <option>算術</option>
+                        <option>メモリ</option>
+                        <option>制御</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">入力ピン (3)</label>
+                    <div class="pin-list">
+                        <div class="pin-item">
+                            <div class="pin-indicator input"></div>
+                            <input type="text" class="form-input" value="IN1" style="margin: 0;">
+                        </div>
+                        <div class="pin-item">
+                            <div class="pin-indicator input"></div>
+                            <input type="text" class="form-input" value="IN2" style="margin: 0;">
+                        </div>
+                        <div class="pin-item">
+                            <div class="pin-indicator input"></div>
+                            <input type="text" class="form-input" value="Cin" style="margin: 0;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">出力ピン (2)</label>
+                    <div class="pin-list">
+                        <div class="pin-item">
+                            <div class="pin-indicator output"></div>
+                            <input type="text" class="form-input" value="SUM" style="margin: 0;">
+                        </div>
+                        <div class="pin-item">
+                            <div class="pin-indicator output"></div>
+                            <input type="text" class="form-input" value="CARRY" style="margin: 0;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dialog-actions">
+                    <button class="btn btn-secondary">キャンセル</button>
+                    <button class="btn btn-primary">作成</button>
+                </div>
+            </div>
+
+            <!-- 設定パネル -->
+            <div class="settings-panel" style="display: none;">
+                <h2 class="settings-title">
+                    <span>⚙️</span>
+                    <span>設定</span>
+                </h2>
+
+                <div class="settings-group">
+                    <div class="settings-label">テーマ</div>
+                    <div class="toggle-switch">
+                        <span>ダークモード</span>
+                        <div class="switch active">
+                            <div class="switch-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-label">グリッド</div>
+                    <div class="toggle-switch">
+                        <span>グリッドにスナップ</span>
+                        <div class="switch active">
+                            <div class="switch-thumb"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 12px;">
+                        <span style="font-size: 12px; color: #64748b;">グリッドサイズ: 32px</span>
+                        <input type="range" class="slider" min="16" max="64" value="32">
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-label">アニメーション</div>
+                    <div style="margin-top: 8px;">
+                        <span style="font-size: 12px; color: #64748b;">アニメーション速度</span>
+                        <input type="range" class="slider" min="0" max="100" value="50">
+                    </div>
+                </div>
+
+                <div class="dialog-actions">
+                    <button class="btn btn-secondary">リセット</button>
+                    <button class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 画面4: フローティングアクションボタン（展開時） -->
+        <h2 class="screen-title">4. フローティングアクションボタン展開時</h2>
+        <div class="screen" style="height: 400px;">
+            <div class="floating-menu" style="position: relative; bottom: auto; right: auto; margin: 50px auto; width: fit-content;">
+                <div class="fab-menu">
+                    <button class="fab-item">
+                        <span>📚</span>
+                        <span>デモギャラリー</span>
+                    </button>
+                    <button class="fab-item">
+                        <span>📦</span>
+                        <span>カスタムゲート化</span>
+                    </button>
+                    <button class="fab-item">
+                        <span>💾</span>
+                        <span>保存</span>
+                    </button>
+                    <button class="fab-item">
+                        <span>📤</span>
+                        <span>共有</span>
+                    </button>
+                    <button class="fab-item">
+                        <span>❓</span>
+                        <span>ヘルプ</span>
+                    </button>
+                </div>
+                <button class="fab" style="transform: rotate(45deg);">+</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
