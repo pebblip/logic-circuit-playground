@@ -2,6 +2,7 @@ import React from 'react';
 import { render, fireEvent, waitFor, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import UltraModernCircuitWithViewModel from '../UltraModernCircuitWithViewModel';
+import { UltraModernCircuitViewModel } from '../../viewmodels/UltraModernCircuitViewModel';
 import { vi } from 'vitest';
 
 // モックの設定
@@ -70,7 +71,6 @@ describe('入力ゲートのクリック動作', () => {
     
     // ViewModelが取得できない場合は、直接作成
     if (!capturedViewModel) {
-      const { UltraModernCircuitViewModel } = require('../../viewmodels/UltraModernCircuitViewModel');
       capturedViewModel = new UltraModernCircuitViewModel();
     }
 

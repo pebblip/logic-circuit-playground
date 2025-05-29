@@ -111,9 +111,23 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     });
   }
 
-  // ゲート追加（UltraModern互換）
-  addGate(type: string, position: { x: number; y: number }): UltraModernGate {
-    const { x, y } = position;
+  // ゲート追加（UltraModern互換）- オーバーロード対応
+  addGate(type: string, positionOrX: { x: number; y: number } | number, y?: number): UltraModernGate {
+    // 引数の形式を判定
+    let x: number;
+    let yPos: number;
+    
+    if (typeof positionOrX === 'object' && positionOrX !== null) {
+      // オブジェクト形式: addGate(type, { x, y })
+      x = positionOrX.x;
+      yPos = positionOrX.y;
+    } else if (typeof positionOrX === 'number' && typeof y === 'number') {
+      // 個別引数形式: addGate(type, x, y)
+      x = positionOrX;
+      yPos = y;
+    } else {
+      throw new Error('Invalid arguments for addGate');
+    }
     const ultraId = `gate_${this.nextGateId++}`;
     
     // 標準ゲートタイプに変換
@@ -133,7 +147,7 @@ export class UltraModernCircuitViewModel extends EventEmitter {
     }
     
     // 内部モデルにゲートを追加
-    const gate = GateFactory.create(gateType, { x, y });
+    const gate = GateFactory.create(gateType, { x, y: yPos });
     
     // クロックゲートの場合、コールバックを設定
     if (gate instanceof ClockGate) {
@@ -171,7 +185,7 @@ export class UltraModernCircuitViewModel extends EventEmitter {
       id: ultraId,
       type,
       x,
-      y,
+      y: yPos,
       value: initialValue,
       ...(customGateInfo && {
         circuit: customGateInfo.circuit,
