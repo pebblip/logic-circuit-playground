@@ -70,7 +70,7 @@ describe('ゲートドラッグのバグ確認', () => {
 
     // 初期位置を記録
     const initialTransform = gate!.getAttribute('transform');
-    expect(initialTransform).toMatch(/translate\((\d+), (\d+)\)/);
+    expect(initialTransform).toMatch(/translate\((-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?)\)/);
 
     // ドラッグ開始
     const svg = container.querySelector('svg');
@@ -119,7 +119,7 @@ describe('ゲートドラッグのバグ確認', () => {
     // グリッドにスナップされた位置になっていることを確認
     await waitFor(() => {
       const transform = gate!.getAttribute('transform');
-      const match = transform!.match(/translate\((\d+), (\d+)\)/);
+      const match = transform!.match(/translate\((-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?)\)/);
       expect(match).toBeTruthy();
       
       const x = parseInt(match![1]);
