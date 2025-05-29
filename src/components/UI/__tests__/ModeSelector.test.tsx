@@ -11,96 +11,84 @@ describe('ModeSelector', () => {
     mockOnModeChange.mockClear();
   });
 
-  it.skip('学習モードが選択された状態で正しく表示される', () => {
-    // モード名が learning/building/cpu から discovery/sandbox/challenge に変更されたためスキップ
-    // TODO: 新しいモード名に対応したテストに書き直す
+  it('探検モードが選択された状態で正しく表示される', () => {
     render(
       <ModeSelector
-        currentMode="learning"
+        currentMode="discovery" as CircuitMode
         onModeChange={mockOnModeChange}
       />
     );
 
-    const learningButton = screen.getByText('学習モード');
-    expect(learningButton).toBeInTheDocument();
+    const discoveryButton = screen.getByText('探検モード');
+    expect(discoveryButton).toBeInTheDocument();
   });
 
-  it.skip('構築モードに切り替えができる', () => {
-    // モード名が learning/building/cpu から discovery/sandbox/challenge に変更されたためスキップ
-    // TODO: 新しいモード名に対応したテストに書き直す
+  it('実験室モードに切り替えができる', () => {
     render(
       <ModeSelector
-        currentMode="learning"
+        currentMode="discovery" as CircuitMode
         onModeChange={mockOnModeChange}
       />
     );
 
-    const buildingButton = screen.getByText('構築モード');
-    fireEvent.click(buildingButton);
+    const sandboxButton = screen.getByText('実験室モード');
+    fireEvent.click(sandboxButton);
 
-    expect(mockOnModeChange).toHaveBeenCalledWith('building');
+    expect(mockOnModeChange).toHaveBeenCalledWith('sandbox');
   });
 
-  it.skip('CPUモードに切り替えができる', () => {
-    // モード名が learning/building/cpu から discovery/sandbox/challenge に変更されたためスキップ
-    // TODO: 新しいモード名に対応したテストに書き直す
+  it('チャレンジモードに切り替えができる', () => {
     render(
       <ModeSelector
-        currentMode="learning"
+        currentMode="discovery" as CircuitMode
         onModeChange={mockOnModeChange}
       />
     );
 
-    const cpuButton = screen.getByText('CPUモード');
-    fireEvent.click(cpuButton);
+    const challengeButton = screen.getByText('チャレンジモード');
+    fireEvent.click(challengeButton);
 
-    expect(mockOnModeChange).toHaveBeenCalledWith('cpu');
+    expect(mockOnModeChange).toHaveBeenCalledWith('challenge');
   });
 
-  it.skip('全てのモードが表示される', () => {
-    // モード名が learning/building/cpu から discovery/sandbox/challenge に変更されたためスキップ
-    // TODO: 新しいモード名に対応したテストに書き直す
+  it('全てのモードが表示される', () => {
     render(
       <ModeSelector
-        currentMode="learning"
+        currentMode="discovery" as CircuitMode
         onModeChange={mockOnModeChange}
       />
     );
 
-    expect(screen.getByText('学習モード')).toBeInTheDocument();
-    expect(screen.getByText('構築モード')).toBeInTheDocument();
-    expect(screen.getByText('CPUモード')).toBeInTheDocument();
+    expect(screen.getByText('探検モード')).toBeInTheDocument();
+    expect(screen.getByText('実験室モード')).toBeInTheDocument();
+    expect(screen.getByText('チャレンジモード')).toBeInTheDocument();
   });
 
-  it.skip('各モードに正しいアイコンが表示される', () => {
-    // モード名が learning/building/cpu から discovery/sandbox/challenge に変更されたためスキップ
-    // TODO: 新しいモード名に対応したテストに書き直す
+  it('各モードに正しいアイコンが表示される', () => {
     render(
       <ModeSelector
-        currentMode="learning"
+        currentMode="discovery" as CircuitMode
         onModeChange={mockOnModeChange}
       />
     );
 
-    expect(screen.getByText('🎓')).toBeInTheDocument();
-    expect(screen.getByText('🔧')).toBeInTheDocument();
-    expect(screen.getByText('💻')).toBeInTheDocument();
+    expect(screen.getByText('🔍')).toBeInTheDocument(); // 探検モード
+    expect(screen.getByText('🧪')).toBeInTheDocument(); // 実験室モード
+    expect(screen.getByText('🏆')).toBeInTheDocument(); // チャレンジモード
   });
 
-  it.skip('ホバー時に説明がツールチップとして表示される', () => {
-    // モード名が learning/building/cpu から discovery/sandbox/challenge に変更されたためスキップ
-    // TODO: 新しいモード名に対応したテストに書き直す
+  it('ホバー時に説明がツールチップとして表示される', () => {
     render(
       <ModeSelector
-        currentMode="learning"
+        currentMode="discovery" as CircuitMode
         onModeChange={mockOnModeChange}
       />
     );
 
-    const learningButton = screen.getByText('学習モード');
-    expect(learningButton.closest('button')).toHaveAttribute(
+    const discoveryButton = screen.getByText('探検モード');
+    expect(discoveryButton.closest('button')).toHaveAttribute(
       'title',
-      '基本的な論理ゲートを学習'
+      '論理ゲートの世界を探検しよう！'
     );
   });
 });

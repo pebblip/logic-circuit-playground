@@ -53,7 +53,7 @@ describe('ゲートドラッグのバグ確認', () => {
 
   test.skip('ゲートをドラッグしてもちらつかない', async () => {
     // ViewModelの実装変更により、ドラッグ処理のタイミングが変わったためスキップ
-    // TODO: 新しいViewModelアーキテクチャに合わせてテストを更新する
+    // TODO: ViewModelのドラッグ実装を詳細に確認してテストを修正
     const { container } = render(<UltraModernCircuitWithViewModel />);
 
     // ANDゲートを追加
@@ -74,18 +74,31 @@ describe('ゲートドラッグのバグ確認', () => {
     const initialTransform = gate!.getAttribute('transform');
     expect(initialTransform).toMatch(/translate\((-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?)\)/);
 
-    // ドラッグ開始
+    // ドラッグ開始 - ゲート要素直接ではなくSVG上でイベントを発火
     const svg = container.querySelector('svg');
-    fireEvent.mouseDown(gate!, { clientX: 300, clientY: 200 });
+    const gateRect = gate!.getBoundingClientRect();
+    const svgRect = svg!.getBoundingClientRect();
+    
+    // ゲートの中心位置でマウスダウン
+    const startX = gateRect.left - svgRect.left + gateRect.width / 2;
+    const startY = gateRect.top - svgRect.top + gateRect.height / 2;
+    
+    fireEvent.mouseDown(svg!, { 
+      clientX: svgRect.left + startX, 
+      clientY: svgRect.top + startY 
+    });
 
     // ドラッグ中の移動
-    fireEvent.mouseMove(svg!, { clientX: 350, clientY: 250 });
+    fireEvent.mouseMove(svg!, { 
+      clientX: svgRect.left + startX + 50, 
+      clientY: svgRect.top + startY + 50 
+    });
 
     // ゲートの位置が更新されていることを確認
     await waitFor(() => {
       const currentTransform = gate!.getAttribute('transform');
       expect(currentTransform).not.toBe(initialTransform);
-    });
+    }, { timeout: 2000 });
 
     // ドラッグ終了
     fireEvent.mouseUp(svg!);
@@ -99,8 +112,8 @@ describe('ゲートドラッグのバグ確認', () => {
   });
 
   test.skip('ドラッグ後にゲートが正しい位置に配置される', async () => {
-    // ViewModelの実装変更により、グリッドスナップ処理が変わったためスキップ
-    // TODO: 新しいViewModelアーキテクチャに合わせてテストを更新する
+    // ViewModelの実装変更により、グリッドスナップ処理が変わったためスキップ  
+    // TODO: グリッドスナップ処理の実装を確認してテストを修正
     const { container } = render(<UltraModernCircuitWithViewModel />);
 
     // ANDゲートを追加
@@ -115,9 +128,25 @@ describe('ゲートドラッグのバグ確認', () => {
     const gate = container.querySelector('g[data-testid^="gate-"]');
     const svg = container.querySelector('svg');
 
-    // ドラッグ操作
-    fireEvent.mouseDown(gate!, { clientX: 300, clientY: 200 });
-    fireEvent.mouseMove(svg!, { clientX: 400, clientY: 300 });
+    // ドラッグ操作 - 新しいViewModelアーキテクチャに合わせて調整
+    const gateRect = gate!.getBoundingClientRect();
+    const svgRect = svg!.getBoundingClientRect();
+    
+    // ゲートの中心でドラッグ開始
+    const startX = gateRect.left - svgRect.left + gateRect.width / 2;
+    const startY = gateRect.top - svgRect.top + gateRect.height / 2;
+    
+    fireEvent.mouseDown(svg!, { 
+      clientX: svgRect.left + startX, 
+      clientY: svgRect.top + startY 
+    });
+    
+    // グリッドにスナップされる位置に移動 (100, 100に移動)
+    fireEvent.mouseMove(svg!, { 
+      clientX: svgRect.left + 100, 
+      clientY: svgRect.top + 100 
+    });
+    
     fireEvent.mouseUp(svg!);
 
     // グリッドにスナップされた位置になっていることを確認
