@@ -2,16 +2,16 @@ import { CircuitMode } from '../types/mode';
 import { GateType } from '../types/gate';
 
 export const MODE_GATE_SETS: Record<CircuitMode, (GateType | string)[]> = {
-  discovery: [
+  learning: [
     'INPUT',
     'OUTPUT', 
     'AND',
     'OR',
     'NOT',
-    // 発見によってアンロックされるゲートは動的に追加
+    // 学習進度によってアンロックされるゲートは動的に追加
   ],
   
-  sandbox: [
+  free: [
     // すべてのゲートが利用可能
     'INPUT',
     'OUTPUT',
@@ -35,8 +35,8 @@ export const MODE_GATE_SETS: Record<CircuitMode, (GateType | string)[]> = {
     'CUSTOM'
   ],
   
-  challenge: [
-    // チャレンジごとに異なるゲートセット
+  puzzle: [
+    // パズルごとに異なるゲートセット
     'INPUT',
     'OUTPUT',
     'AND',
@@ -50,10 +50,10 @@ export const MODE_GATE_SETS: Record<CircuitMode, (GateType | string)[]> = {
 };
 
 export function getGatesForMode(mode: CircuitMode, unlockedGates?: string[]): (GateType | string)[] {
-  const baseGates = MODE_GATE_SETS[mode] || MODE_GATE_SETS.discovery;
+  const baseGates = MODE_GATE_SETS[mode] || MODE_GATE_SETS.learning;
   
-  // discoveryモードの場合、アンロックされたゲートを追加
-  if (mode === 'discovery' && unlockedGates) {
+  // learningモードの場合、アンロックされたゲートを追加
+  if (mode === 'learning' && unlockedGates) {
     const allGates = [...baseGates];
     unlockedGates.forEach(gate => {
       if (!allGates.includes(gate)) {

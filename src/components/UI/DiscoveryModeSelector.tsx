@@ -18,15 +18,15 @@ export const DiscoveryModeSelector: React.FC<DiscoveryModeSelectorProps> = ({
 
   // モードが解放されているかチェック
   const isModeUnlocked = (modeId: CircuitMode): boolean => {
-    if (modeId === 'discovery') return true; // 最初から利用可能
+    if (modeId === 'learning') return true; // 最初から利用可能
     
-    // サンドボックスモードの解放条件
-    if (modeId === 'sandbox') {
+    // 自由モードの解放条件
+    if (modeId === 'free') {
       return milestones.find(m => m.id === 'memory_architect')?.achieved || false;
     }
     
-    // チャレンジモードの解放条件
-    if (modeId === 'challenge') {
+    // パズルモードの解放条件
+    if (modeId === 'puzzle') {
       return milestones.find(m => m.id === 'cpu_builder')?.achieved || false;
     }
     
@@ -142,8 +142,8 @@ export const DiscoveryModeSelector: React.FC<DiscoveryModeSelectorProps> = ({
                       color: '#fbbf24',
                       fontSize: '11px'
                     }}>
-                      {mode.id === 'sandbox' && 'メモリーアーキテクトを達成で解放'}
-                      {mode.id === 'challenge' && 'CPUビルダーを達成で解放'}
+                      {mode.id === 'free' && 'メモリーアーキテクトを達成で解放'}
+                      {mode.id === 'puzzle' && 'CPUビルダーを達成で解放'}
                     </div>
                     <div style={{
                       position: 'absolute',

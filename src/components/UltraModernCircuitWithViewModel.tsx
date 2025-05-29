@@ -197,8 +197,8 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
       });
       setSimulationResults(resultMap);
       
-      // 発見チェック（discoveryモードのときのみ）
-      if (currentMode === 'discovery') {
+      // 発見チェック（learningモードのときのみ）
+      if (currentMode === 'learning') {
         const circuit = viewModel.toJSON();
         const newDiscoveries = checkDiscoveries(circuit);
         if (newDiscoveries && newDiscoveries.length > 0) {
@@ -996,7 +996,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     }
     
     // 発見モードで初回アクセスの場合、チュートリアルを表示
-    if (currentMode === 'discovery' && !localStorage.getItem('logic-circuit-tutorial-completed')) {
+    if (currentMode === 'learning' && !localStorage.getItem('logic-circuit-tutorial-completed')) {
       setShowDiscoveryTutorial(true);
     }
     
@@ -1137,7 +1137,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
               // TODO: ViewModelから値を取得する必要がある
               // 現在はデフォルト値を表示
               const value = (gate as any).value || 0;
-              return gateType.icon(isActive as boolean, value);
+              return gateType.icon(isActive as boolean);
             } else if (gate.type === 'CLOCK' && clockState) {
               return gateType.icon(isActive as boolean);
             } else {

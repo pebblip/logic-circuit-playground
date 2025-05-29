@@ -34,5 +34,12 @@
     }
   },
   "include": ["src"],
+  "exclude": [
+    "src/stories/**/*",
+    "src/components/Circuit/Number4BitGateComponent.tsx",
+    "src/components/Layout/**/*",
+    "src/components/ModeSelection/**/*",
+    "src/design-system/**/*"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

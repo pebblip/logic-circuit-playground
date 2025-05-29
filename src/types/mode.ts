@@ -1,4 +1,6 @@
-export type CircuitMode = 'discovery' | 'sandbox' | 'challenge';
+export type AppMode = 'learning' | 'free' | 'puzzle';
+export type CircuitMode = AppMode; // 新しい主要型
+export type LearningMode = AppMode; // 互換性のためのエイリアス
 
 export interface ModeConfig {
   id: CircuitMode;
@@ -17,23 +19,23 @@ export interface ModeFeatures {
 }
 
 export const MODE_CONFIGS: Record<CircuitMode, ModeConfig> = {
-  discovery: {
-    id: 'discovery',
-    name: '探検モード',
-    description: '論理ゲートの世界を探検しよう！',
-    icon: '🔍',
+  learning: {
+    id: 'learning',
+    name: '📚 学習モード',
+    description: 'ステップバイステップで論理回路を学ぼう！',
+    icon: '📚',
     features: {
-      availableGates: ['AND', 'OR', 'NOT', 'XOR'],
+      availableGates: ['INPUT', 'OUTPUT', 'AND', 'OR', 'NOT'],
       allowCustomGates: false,
       showHints: true,
       trackDiscoveries: true,
     }
   },
-  sandbox: {
-    id: 'sandbox', 
-    name: '実験室モード',
-    description: '自由に回路を作って実験しよう！',
-    icon: '🧪',
+  free: {
+    id: 'free', 
+    name: '🎨 自由モード',
+    description: '制限なしで自由に回路を創作しよう！',
+    icon: '🎨',
     features: {
       availableGates: [], // すべて利用可能
       allowCustomGates: true,
@@ -41,18 +43,18 @@ export const MODE_CONFIGS: Record<CircuitMode, ModeConfig> = {
       trackDiscoveries: false,
     }
   },
-  challenge: {
-    id: 'challenge',
-    name: 'チャレンジモード',
-    description: 'パズルに挑戦して新しい発見を！',
-    icon: '🏆',
+  puzzle: {
+    id: 'puzzle',
+    name: '🧩 パズルモード',
+    description: 'ゲーム感覚で楽しく問題に挑戦！',
+    icon: '🧩',
     features: {
-      availableGates: [], // チャレンジごとに設定
+      availableGates: [], // パズルごとに設定
       allowCustomGates: false,
-      showHints: false,
+      showHints: true,
       trackDiscoveries: true,
     }
   }
 };
 
-export const DEFAULT_MODE: CircuitMode = 'discovery';
+export const DEFAULT_MODE: CircuitMode = 'learning';

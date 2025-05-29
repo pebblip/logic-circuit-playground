@@ -11,84 +11,84 @@ describe('ModeSelector', () => {
     mockOnModeChange.mockClear();
   });
 
-  it('探検モードが選択された状態で正しく表示される', () => {
+  it('学習モードが選択された状態で正しく表示される', () => {
     render(
       <ModeSelector
-        currentMode="discovery"
+        currentMode="learning"
         onModeChange={mockOnModeChange}
       />
     );
 
-    const discoveryButton = screen.getByText('探検モード');
-    expect(discoveryButton).toBeInTheDocument();
+    const learningButton = screen.getByText('📚 学習モード');
+    expect(learningButton).toBeInTheDocument();
   });
 
-  it('実験室モードに切り替えができる', () => {
+  it('自由制作モードに切り替えができる', () => {
     render(
       <ModeSelector
-        currentMode="discovery"
+        currentMode="learning"
         onModeChange={mockOnModeChange}
       />
     );
 
-    const sandboxButton = screen.getByText('実験室モード');
-    fireEvent.click(sandboxButton);
+    const freeButton = screen.getByText('🎨 自由モード');
+    fireEvent.click(freeButton);
 
-    expect(mockOnModeChange).toHaveBeenCalledWith('sandbox');
+    expect(mockOnModeChange).toHaveBeenCalledWith('free');
   });
 
-  it('チャレンジモードに切り替えができる', () => {
+  it('パズルモードに切り替えができる', () => {
     render(
       <ModeSelector
-        currentMode="discovery"
+        currentMode="learning"
         onModeChange={mockOnModeChange}
       />
     );
 
-    const challengeButton = screen.getByText('チャレンジモード');
-    fireEvent.click(challengeButton);
+    const puzzleButton = screen.getByText('🧩 パズルモード');
+    fireEvent.click(puzzleButton);
 
-    expect(mockOnModeChange).toHaveBeenCalledWith('challenge');
+    expect(mockOnModeChange).toHaveBeenCalledWith('puzzle');
   });
 
   it('全てのモードが表示される', () => {
     render(
       <ModeSelector
-        currentMode="discovery"
+        currentMode="learning"
         onModeChange={mockOnModeChange}
       />
     );
 
-    expect(screen.getByText('探検モード')).toBeInTheDocument();
-    expect(screen.getByText('実験室モード')).toBeInTheDocument();
-    expect(screen.getByText('チャレンジモード')).toBeInTheDocument();
+    expect(screen.getByText('📚 学習モード')).toBeInTheDocument();
+    expect(screen.getByText('🎨 自由モード')).toBeInTheDocument();
+    expect(screen.getByText('🧩 パズルモード')).toBeInTheDocument();
   });
 
   it('各モードに正しいアイコンが表示される', () => {
     render(
       <ModeSelector
-        currentMode="discovery"
+        currentMode="learning"
         onModeChange={mockOnModeChange}
       />
     );
 
-    expect(screen.getByText('🔍')).toBeInTheDocument(); // 探検モード
-    expect(screen.getByText('🧪')).toBeInTheDocument(); // 実験室モード
-    expect(screen.getByText('🏆')).toBeInTheDocument(); // チャレンジモード
+    expect(screen.getByText('📚')).toBeInTheDocument(); // 学習モード
+    expect(screen.getByText('🎨')).toBeInTheDocument(); // 自由制作モード
+    expect(screen.getByText('🧩')).toBeInTheDocument(); // パズルモード
   });
 
   it('ホバー時に説明がツールチップとして表示される', () => {
     render(
       <ModeSelector
-        currentMode="discovery"
+        currentMode="learning"
         onModeChange={mockOnModeChange}
       />
     );
 
-    const discoveryButton = screen.getByText('探検モード');
-    expect(discoveryButton.closest('button')).toHaveAttribute(
+    const learningButton = screen.getByText('📚 学習モード');
+    expect(learningButton.closest('button')).toHaveAttribute(
       'title',
-      '論理ゲートの世界を探検しよう！'
+      'ステップバイステップで論理回路を学ぼう！'
     );
   });
 });
