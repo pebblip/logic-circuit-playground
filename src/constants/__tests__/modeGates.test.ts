@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { getGatesForMode, isGateAvailableInMode, MODE_GATE_SETS } from '../modeGates';
 import { CircuitMode } from '../../types/mode';
 

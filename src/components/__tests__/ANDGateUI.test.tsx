@@ -43,13 +43,13 @@ describe('ANDゲートのUI接続テスト', () => {
     // ANDゲートは2つの入力ピンを持つべき
     expect(inputPins.length).toBeGreaterThanOrEqual(2);
     
-    // 各ピンのイベントハンドラーを確認
+    // 各ピンの属性を確認
     inputPins.forEach((pin, index) => {
       console.log(`Pin ${index}:`, {
         cx: pin.getAttribute('cx'),
         cy: pin.getAttribute('cy'),
-        hasMouseDown: pin.onmousedown !== null,
-        hasMouseUp: pin.onmouseup !== null
+        dataTestId: pin.getAttribute('data-testid'),
+        dataTerminal: pin.getAttribute('data-terminal')
       });
     });
   });

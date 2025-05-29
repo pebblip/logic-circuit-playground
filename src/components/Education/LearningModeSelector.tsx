@@ -130,7 +130,7 @@ const LearningModeSelector: React.FC<LearningModeSelectorProps> = ({
               color: learningMode === 'sandbox' 
                 ? 'white' 
                 : colors.ui.text.primary,
-              ringColor: colors.ui.accent.primary
+              boxShadow: learningMode === 'sandbox' ? '0 0 0 2px ' + colors.ui.accent.primary : 'none'
             }}
           >
             自由制作
@@ -147,7 +147,7 @@ const LearningModeSelector: React.FC<LearningModeSelectorProps> = ({
               color: learningMode === 'tutorial' 
                 ? 'white' 
                 : colors.ui.text.primary,
-              ringColor: colors.ui.accent.primary
+              boxShadow: learningMode === 'tutorial' ? '0 0 0 2px ' + colors.ui.accent.primary : 'none'
             }}
           >
             学習

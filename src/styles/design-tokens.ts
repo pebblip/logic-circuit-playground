@@ -28,6 +28,7 @@ export const colors = {
       success: '#10b981',
       warning: '#f59e0b',
       error: '#ef4444',
+      info: '#3b82f6',
     }
   },
   
