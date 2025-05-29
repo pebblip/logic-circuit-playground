@@ -55,20 +55,25 @@ export class Circuit extends EventEmitter {
     fromGateId: ID,
     fromOutputIndex: number,
     toGateId: ID,
-    toInputIndex: number
+    toInputIndex: number,
+    options: { silent?: boolean } = {}
   ): Connection | null {
     const fromGate = this._gates.get(fromGateId);
     const toGate = this._gates.get(toGateId);
 
     if (!fromGate || !toGate) {
-      console.error('Cannot connect: gate not found');
+      if (!options.silent) {
+        console.error('Cannot connect: gate not found');
+      }
       return null;
     }
 
     // Check if connection already exists
     const existing = this.findConnection(fromGateId, fromOutputIndex, toGateId, toInputIndex);
     if (existing) {
-      console.warn('Connection already exists');
+      if (!options.silent) {
+        console.warn('Connection already exists');
+      }
       return existing;
     }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
 import { UltraModernCircuitViewModel } from '../../viewmodels/UltraModernCircuitViewModel';
@@ -60,7 +60,10 @@ describe('入力ゲートの統合テスト', () => {
     const { getByTestId } = render(<TestComponent viewModel={viewModel} />);
 
     // INPUTゲートを追加
-    const gate = viewModel.addGate('INPUT', { x: 100, y: 100 });
+    let gate: any;
+    await act(async () => {
+      gate = viewModel.addGate('INPUT', { x: 100, y: 100 });
+    });
 
     // ゲートが表示されるまで待つ
     await waitFor(() => {
@@ -71,7 +74,9 @@ describe('入力ゲートの統合テスト', () => {
     expect(getByTestId(`state-${gate.id}`)).toHaveTextContent('State: OFF');
 
     // トグルボタンをクリック
-    fireEvent.click(getByTestId(`toggle-${gate.id}`));
+    await act(async () => {
+      fireEvent.click(getByTestId(`toggle-${gate.id}`));
+    });
 
     // 状態が更新されるまで待つ
     await waitFor(() => {
@@ -79,7 +84,9 @@ describe('入力ゲートの統合テスト', () => {
     });
 
     // もう一度トグル
-    fireEvent.click(getByTestId(`toggle-${gate.id}`));
+    await act(async () => {
+      fireEvent.click(getByTestId(`toggle-${gate.id}`));
+    });
 
     await waitFor(() => {
       expect(getByTestId(`state-${gate.id}`)).toHaveTextContent('State: OFF');
@@ -95,7 +102,10 @@ describe('入力ゲートの統合テスト', () => {
     const { getByTestId } = render(<TestComponent viewModel={viewModel} />);
 
     // ゲート追加
-    const gate = viewModel.addGate('INPUT', { x: 100, y: 100 });
+    let gate: any;
+    await act(async () => {
+      gate = viewModel.addGate('INPUT', { x: 100, y: 100 });
+    });
     
     await waitFor(() => {
       expect(getByTestId(`gate-${gate.id}`)).toBeInTheDocument();
@@ -105,7 +115,9 @@ describe('入力ゲートの統合テスト', () => {
     eventLog.length = 0;
 
     // トグル実行
-    fireEvent.click(getByTestId(`toggle-${gate.id}`));
+    await act(async () => {
+      fireEvent.click(getByTestId(`toggle-${gate.id}`));
+    });
 
     await waitFor(() => {
       // 両方のイベントが発火されることを確認

@@ -76,7 +76,7 @@ describe('Circuit', () => {
       circuit.addGate(gate2);
       
       circuit.addConnection(gate1.id, 0, gate2.id, 0);
-      circuit.addConnection(gate1.id, 0, gate2.id, 0);
+      circuit.addConnection(gate1.id, 0, gate2.id, 0, { silent: true });
       
       expect(circuit.getConnections()).toHaveLength(1);
     });
