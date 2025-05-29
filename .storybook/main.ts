@@ -1,21 +1,29 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 
 const config: StorybookConfig = {
-  stories: ['../src/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
+  stories: [
+    "../src/**/*.mdx",
+    "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
+  ],
   addons: [
-    '@storybook/addon-essentials',
-    '@storybook/addon-interactions',
-    '@storybook/addon-links',
+    "@storybook/addon-essentials",
+    "@storybook/addon-onboarding",
+    "@storybook/addon-interactions",
+    "@storybook/addon-links"
   ],
   framework: {
-    name: '@storybook/react-vite',
-    options: {},
+    name: "@storybook/react-vite",
+    options: {}
   },
-  docs: {
-    autodocs: 'tag',
+  core: {
+    builder: '@storybook/builder-vite',
   },
   viteFinal: async (config) => {
-    // Viteの設定をカスタマイズ
+    // Emotionサポートのための設定
+    config.optimizeDeps = {
+      ...config.optimizeDeps,
+      include: ['@emotion/react', '@emotion/styled'],
+    };
     return config;
   },
 };

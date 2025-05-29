@@ -1,22 +1,13 @@
-import type { Preview } from '@storybook/react';
 import React from 'react';
-import { ThemeProvider } from '../src/design-system/themes/ThemeProvider';
-import { darkTheme } from '../src/design-system/themes/dark';
-import { generateGlobalStyles } from '../src/design-system/themes/ThemeProvider';
-
-// グローバルスタイルを適用
-const globalStyles = generateGlobalStyles(darkTheme);
-const styleElement = document.createElement('style');
-styleElement.textContent = globalStyles;
-document.head.appendChild(styleElement);
+import type { Preview } from '@storybook/react';
+import { ThemeProvider } from '../src/design-system/ThemeProvider';
 
 const preview: Preview = {
   parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' },
     controls: {
       matchers: {
         color: /(background|color)$/i,
-        date: /Date$/,
+        date: /Date$/i,
       },
     },
     backgrounds: {
@@ -24,7 +15,7 @@ const preview: Preview = {
       values: [
         {
           name: 'dark',
-          value: '#0a0e27',
+          value: '#050510',
         },
         {
           name: 'light',
@@ -35,10 +26,8 @@ const preview: Preview = {
   },
   decorators: [
     (Story) => (
-      <ThemeProvider theme={darkTheme}>
-        <div style={{ padding: '20px' }}>
-          <Story />
-        </div>
+      <ThemeProvider>
+        <Story />
       </ThemeProvider>
     ),
   ],

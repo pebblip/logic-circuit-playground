@@ -537,6 +537,88 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
         </g>
       )
     },
+    NUMBER_4BIT_INPUT: {
+      name: '4bit入力',
+      icon: (isActive, value = 0) => (
+        <g>
+          <rect x={-GATE_SIZE/2} y={-GATE_SIZE/2} width={GATE_SIZE} height={GATE_SIZE} rx={4}
+            fill={isActive ? theme.colors.gate.activeBg : theme.colors.gate.bg}
+            stroke={isActive ? theme.colors.gate.activeBorder : theme.colors.gate.border}
+            strokeWidth="2"
+          />
+          <text x={0} y={-5} textAnchor="middle" 
+            fontSize="18" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            {value || 0}
+          </text>
+          <text x={0} y={10} textAnchor="middle" 
+            fontSize="8"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            4BIT IN
+          </text>
+        </g>
+      ),
+      outputs: 4
+    },
+    NUMBER_4BIT_DISPLAY: {
+      name: '4bit表示',
+      icon: (isActive, value = 0) => (
+        <g>
+          <rect x={-GATE_SIZE/2} y={-GATE_SIZE/2} width={GATE_SIZE} height={GATE_SIZE} rx={4}
+            fill={isActive ? theme.colors.gate.activeBg : theme.colors.gate.bg}
+            stroke={isActive ? theme.colors.gate.activeBorder : theme.colors.gate.border}
+            strokeWidth="2"
+          />
+          <text x={0} y={-5} textAnchor="middle" 
+            fontSize="18" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            {value || 0}
+          </text>
+          <text x={0} y={10} textAnchor="middle" 
+            fontSize="8"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            DISPLAY
+          </text>
+        </g>
+      ),
+      inputs: 4
+    },
+    ADDER_4BIT: {
+      name: '4bit加算',
+      icon: (isActive) => (
+        <g>
+          <rect x={-GATE_SIZE/2} y={-GATE_SIZE/2} width={GATE_SIZE} height={GATE_SIZE} rx={4}
+            fill={isActive ? theme.colors.gate.activeBg : theme.colors.gate.bg}
+            stroke={isActive ? theme.colors.gate.activeBorder : theme.colors.gate.border}
+            strokeWidth="2"
+          />
+          <text x={0} y={-8} textAnchor="middle" 
+            fontSize="9" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            ADD
+          </text>
+          <text x={0} y={4} textAnchor="middle" 
+            fontSize="9" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            4BIT
+          </text>
+          <text x={0} y={14} textAnchor="middle" 
+            fontSize="14" fontWeight="bold"
+            fill={isActive ? theme.colors.gate.activeText : theme.colors.gate.text}
+          >
+            +
+          </text>
+        </g>
+      ),
+      inputs: 9,  // A0-A3, B0-B3, Cin
+      outputs: 5  // S0-S3, Cout
+    },
     CLOCK: {
       name: 'クロック',
       icon: (isActive) => (
@@ -1031,6 +1113,14 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
                     viewModel.startClock(gate.id);
                   }
                 }
+              } else if (gate.type === 'NUMBER_4BIT_INPUT') {
+                // NUMBER_4BIT_INPUTゲートをクリックで値を変更
+                const currentValue = (gate as any).value || 0;
+                const newValue = (currentValue + 1) % 16; // 0-15をループ
+                // TODO: ViewModelに値を設定するメソッドが必要
+                (gate as any).value = newValue;
+                // 再描画をトリガー
+                viewModel.simulate();
               }
             }
           }}
@@ -1041,17 +1131,26 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
             }
           }}
         >
-          {gate.type === 'CLOCK' && clockState ? 
-            gateType.icon(isActive as boolean) :
-            gateType.icon(isActive as boolean)
-          }
+          {(() => {
+            // NUMBER_4BIT_INPUTの場合は値を渡す
+            if (gate.type === 'NUMBER_4BIT_INPUT' || gate.type === 'NUMBER_4BIT_DISPLAY') {
+              // TODO: ViewModelから値を取得する必要がある
+              // 現在はデフォルト値を表示
+              const value = (gate as any).value || 0;
+              return gateType.icon(isActive as boolean, value);
+            } else if (gate.type === 'CLOCK' && clockState) {
+              return gateType.icon(isActive as boolean);
+            } else {
+              return gateType.icon(isActive as boolean);
+            }
+          })()}
         </g>
         
         {/* 接続端子 */}
         {gate.type !== 'INPUT' && (
           <>
             {/* カスタムゲートの場合は複数入力ピンを表示 */}
-            {(gateType.isCustom && gate.inputs) || gate.type === 'REGISTER_4BIT' || gate.type === 'MUX_2TO1' ? (
+            {(gateType.isCustom && gate.inputs) || gate.type === 'REGISTER_4BIT' || gate.type === 'MUX_2TO1' || gate.type === 'NUMBER_4BIT_DISPLAY' || gate.type === 'ADDER_4BIT' ? (
               (() => {
                 let inputs;
                 if (gate.type === 'REGISTER_4BIT') {
@@ -1061,6 +1160,14 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
                   ];
                 } else if (gate.type === 'MUX_2TO1') {
                   inputs = [{name: 'A'}, {name: 'B'}, {name: 'SEL'}];
+                } else if (gate.type === 'NUMBER_4BIT_DISPLAY') {
+                  inputs = [{name: 'D0'}, {name: 'D1'}, {name: 'D2'}, {name: 'D3'}];
+                } else if (gate.type === 'ADDER_4BIT') {
+                  inputs = [
+                    {name: 'A0'}, {name: 'A1'}, {name: 'A2'}, {name: 'A3'},
+                    {name: 'B0'}, {name: 'B1'}, {name: 'B2'}, {name: 'B3'},
+                    {name: 'Cin'}
+                  ];
                 } else {
                   inputs = gate.inputs;
                 }
@@ -1175,13 +1282,17 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
         {gate.type !== 'OUTPUT' && (
           <>
             {/* カスタムゲートの場合は複数出力ピンを表示 */}
-            {(gateType.isCustom && gate.outputs) || gate.type === 'D_FLIP_FLOP' || gate.type === 'SR_LATCH' || gate.type === 'REGISTER_4BIT' ? (
+            {(gateType.isCustom && gate.outputs) || gate.type === 'D_FLIP_FLOP' || gate.type === 'SR_LATCH' || gate.type === 'REGISTER_4BIT' || gate.type === 'NUMBER_4BIT_INPUT' || gate.type === 'ADDER_4BIT' ? (
               (() => {
                 let outputs;
                 if (gate.type === 'D_FLIP_FLOP' || gate.type === 'SR_LATCH') {
                   outputs = [{name: 'Q'}, {name: 'Q\''}];
                 } else if (gate.type === 'REGISTER_4BIT') {
                   outputs = [{name: 'Q0'}, {name: 'Q1'}, {name: 'Q2'}, {name: 'Q3'}];
+                } else if (gate.type === 'NUMBER_4BIT_INPUT') {
+                  outputs = [{name: 'D0'}, {name: 'D1'}, {name: 'D2'}, {name: 'D3'}];
+                } else if (gate.type === 'ADDER_4BIT') {
+                  outputs = [{name: 'S0'}, {name: 'S1'}, {name: 'S2'}, {name: 'S3'}, {name: 'Cout'}];
                 } else {
                   outputs = gate.outputs;
                 }
@@ -1572,6 +1683,59 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
             onMouseLeave={(e) => (e.target as HTMLElement).style.background = theme.colors.ui.buttonBg}
           >
             ヘルプ
+          </button>
+          
+          <button
+            onClick={() => {
+              // 4ビット電卓デモを読み込む
+              const demoCircuit = {
+                gates: [
+                  { id: 'num_a', type: 'NUMBER_4BIT_INPUT', x: 100, y: 150, value: 3 },
+                  { id: 'num_b', type: 'NUMBER_4BIT_INPUT', x: 100, y: 350, value: 5 },
+                  { id: 'adder', type: 'ADDER_4BIT', x: 350, y: 250 },
+                  { id: 'result', type: 'NUMBER_4BIT_DISPLAY', x: 600, y: 200 },
+                  { id: 'carry_out', type: 'OUTPUT', x: 600, y: 350 }
+                ],
+                connections: [
+                  // A入力を加算器へ
+                  { from: 'num_a', fromOutput: 0, to: 'adder', toInput: 0 },
+                  { from: 'num_a', fromOutput: 1, to: 'adder', toInput: 1 },
+                  { from: 'num_a', fromOutput: 2, to: 'adder', toInput: 2 },
+                  { from: 'num_a', fromOutput: 3, to: 'adder', toInput: 3 },
+                  // B入力を加算器へ  
+                  { from: 'num_b', fromOutput: 0, to: 'adder', toInput: 4 },
+                  { from: 'num_b', fromOutput: 1, to: 'adder', toInput: 5 },
+                  { from: 'num_b', fromOutput: 2, to: 'adder', toInput: 6 },
+                  { from: 'num_b', fromOutput: 3, to: 'adder', toInput: 7 },
+                  // 加算結果を表示へ
+                  { from: 'adder', fromOutput: 0, to: 'result', toInput: 0 },
+                  { from: 'adder', fromOutput: 1, to: 'result', toInput: 1 },
+                  { from: 'adder', fromOutput: 2, to: 'result', toInput: 2 },
+                  { from: 'adder', fromOutput: 3, to: 'result', toInput: 3 },
+                  // 桁上げ出力
+                  { from: 'adder', fromOutput: 4, to: 'carry_out', toInput: 0 }
+                ]
+              };
+              viewModel.loadCircuit(demoCircuit);
+            }}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '6px',
+              border: `1px solid ${theme.colors.ui.accent}`,
+              background: 'rgba(0, 255, 136, 0.1)',
+              color: theme.colors.ui.accent,
+              fontSize: '14px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              (e.target as HTMLElement).style.background = 'rgba(0, 255, 136, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              (e.target as HTMLElement).style.background = 'rgba(0, 255, 136, 0.1)';
+            }}
+          >
+            🧮 電卓デモ
           </button>
           
           <button
