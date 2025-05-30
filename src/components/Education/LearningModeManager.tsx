@@ -3,16 +3,19 @@ import { AppMode } from '../../types/mode';
 import { LearningGuide } from './LearningGuide';
 import { TutorialOverlay } from './TutorialOverlay';
 import { AchievementNotification } from './AchievementNotification';
+import { DemoCircuits } from './DemoCircuits';
 import { useLearningProgress } from '../../hooks/useLearningProgress';
 
 interface LearningModeManagerProps {
   currentMode: AppMode;
   className?: string;
+  onLoadCircuit?: (circuitData: any) => void;
 }
 
 export const LearningModeManager: React.FC<LearningModeManagerProps> = ({
   currentMode,
-  className = ''
+  className = '',
+  onLoadCircuit
 }) => {
   const {
     progress,
@@ -26,11 +29,6 @@ export const LearningModeManager: React.FC<LearningModeManagerProps> = ({
 
   const [isTutorialActive, setIsTutorialActive] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
-
-  // 学習モードでない場合は何も表示しない
-  if (currentMode !== 'learning') {
-    return null;
-  }
 
   // 新しい実績が解除された時の処理
   useEffect(() => {
@@ -78,8 +76,13 @@ export const LearningModeManager: React.FC<LearningModeManagerProps> = ({
 
   const statistics = getStatistics();
 
+  // 学習モードでない場合は何も表示しない
+  if (currentMode !== 'learning') {
+    return null;
+  }
+
   return (
-    <div className={`learning-mode-manager ${className}`}>
+    <div className={`learning-mode-manager ${className}`} style={{ padding: '16px' }}>
       {/* 学習ガイドパネル */}
       <LearningGuide
         currentMode={currentMode}
@@ -93,7 +96,9 @@ export const LearningModeManager: React.FC<LearningModeManagerProps> = ({
         border: '1px solid #bae6fd',
         borderRadius: '12px',
         padding: '16px',
-        marginTop: '16px'
+        marginTop: '16px',
+        marginLeft: '0',
+        marginRight: '0'
       }}>
         <div style={{
           display: 'flex',
@@ -240,6 +245,16 @@ export const LearningModeManager: React.FC<LearningModeManagerProps> = ({
         onSkip={handleTutorialSkip}
         isActive={isTutorialActive}
       />
+
+      {/* デモ回路 */}
+      {onLoadCircuit && (
+        <div style={{ marginTop: '16px' }}>
+          <DemoCircuits
+            currentMode={currentMode}
+            onLoadCircuit={onLoadCircuit}
+          />
+        </div>
+      )}
 
       {/* 実績通知 */}
       {showAchievements && newAchievements.length > 0 && (

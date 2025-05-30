@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppMode, MODE_CONFIGS } from '@/types/mode';
 import { useAppMode } from '@/hooks/useAppMode';
+import { TEST_IDS } from '@/constants/testIds';
 
 interface AppModeSelectorProps {
   className?: string;
@@ -53,6 +54,8 @@ export const AppModeSelector: React.FC<AppModeSelectorProps> = ({
               }
             `}
             aria-pressed={isActive}
+            aria-label={`${config.name}に切り替え`}
+            data-testid={`mode-btn-${mode}`}
             title={config.description}
           >
             <span className="mr-2">{config.icon}</span>

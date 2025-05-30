@@ -117,6 +117,18 @@ export const LearningGuide: React.FC<LearningGuideProps> = ({
 
   // レッスン選択処理
   const selectLesson = (lessonId: number) => {
+    // TODO: 実際のレッスン切り替え機能を実装
+    const message = `TODO: レッスン切り替え機能は未実装です。\n\n選択されたレッスン: レッスン${lessonId}\n\n現在の実装:\n- レッスン一覧の表示 ✅\n- 進捗状況の表示 ✅\n- 展開/折りたたみUI ✅\n\n未実装:\n- 実際のレッスン切り替え\n- レッスン内容の読み込み\n- チュートリアル再開機能`;
+    
+    // テスト環境の判定とアラート表示
+    const isTestEnv = process.env.NODE_ENV === 'test' || typeof window === 'undefined' || !window.alert;
+    
+    if (!isTestEnv) {
+      alert(message);
+    } else {
+      console.log(message);
+    }
+    
     setExpandedLesson(expandedLesson === lessonId ? null : lessonId);
     onLessonChange?.(lessonId);
   };
@@ -130,7 +142,12 @@ export const LearningGuide: React.FC<LearningGuideProps> = ({
   const progressPercentage = (completedLessons.length / LEARNING_CURRICULUM.length) * 100;
 
   return (
-    <div className={`learning-guide ${className}`}>
+    <div 
+      className={`learning-guide ${className}`}
+      role="complementary"
+      aria-label="学習ガイドパネル"
+      data-testid="learning-guide"
+    >
       {/* ヘッダー */}
       <div style={{
         background: 'linear-gradient(135deg, #1e40af, #3b82f6)',
@@ -233,12 +250,23 @@ export const LearningGuide: React.FC<LearningGuideProps> = ({
               {/* レッスンヘッダー */}
               <div
                 onClick={() => isUnlocked && selectLesson(lesson.id)}
+                role="button"
+                tabIndex={isUnlocked ? 0 : -1}
+                aria-label={`レッスン${lesson.id}: ${lesson.title}${isCompleted ? ' (完了済み)' : ''}`}
+                aria-expanded={isExpanded}
+                aria-disabled={!isUnlocked}
                 style={{
                   padding: '16px 20px',
                   cursor: isUnlocked ? 'pointer' : 'not-allowed',
                   background: isCurrent ? '#f0f9ff' : isExpanded ? '#fefce8' : 'transparent',
                   borderLeft: isCurrent ? '4px solid #3b82f6' : '4px solid transparent',
                   transition: 'all 0.2s ease'
+                }}
+                onKeyDown={(e) => {
+                  if (isUnlocked && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault();
+                    selectLesson(lesson.id);
+                  }
                 }}
               >
                 <div style={{
