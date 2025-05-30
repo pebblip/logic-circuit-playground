@@ -18,6 +18,11 @@ export const DiscoveryModeSelector: React.FC<DiscoveryModeSelectorProps> = ({
 
   // モードが解放されているかチェック
   const isModeUnlocked = (modeId: CircuitMode): boolean => {
+    // 開発中は全モード利用可能
+    if (process.env.NODE_ENV === 'development') {
+      return true;
+    }
+    
     if (modeId === 'learning') return true; // 最初から利用可能
     
     // 自由モードの解放条件
@@ -90,6 +95,9 @@ export const DiscoveryModeSelector: React.FC<DiscoveryModeSelectorProps> = ({
                 <button
                   onClick={() => isUnlocked && onModeChange(mode.id)}
                   disabled={!isUnlocked}
+                  aria-label={`${mode.name}に切り替え`}
+                  aria-pressed={isActive}
+                  data-testid={`mode-btn-${mode.id}`}
                   style={{
                     padding: '10px 16px',
                     borderRadius: '8px',
