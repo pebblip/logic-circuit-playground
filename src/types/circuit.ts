@@ -3,8 +3,18 @@ export interface UltraModernGate {
   type: string;
   x: number;
   y: number;
-  inputs?: Array<{ id: string; name: string; value?: boolean }>;
-  outputs?: Array<{ id: string; name: string; value?: boolean }>;
+  inputs?: Array<{ 
+    id: string;
+    x: number;
+    y: number;
+    isConnected: boolean;
+  }>;
+  outputs?: Array<{ 
+    id: string;
+    x: number;
+    y: number;
+    isConnected: boolean;
+  }>;
   value?: boolean;
 }
 

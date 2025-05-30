@@ -49,10 +49,8 @@ import { LearningModeManager } from './Education/LearningModeManager';
 import { FreeModeGuide } from './Education/FreeModeGuide';
 import { PuzzleModeManager } from './Education/PuzzleModeManager';
 
-// 改善されたゲートコンポーネント
-import { ImprovedGateComponent } from './Circuit/ImprovedGateComponent';
+// UI定数
 import { PIN_CONSTANTS } from '../constants/ui';
-import { PinComponent } from './Circuit/PinComponent';
 
 // Types
 import {
@@ -361,7 +359,7 @@ const ResponsiveUltraModernCircuit: React.FC = () => {
       const y = Math.round((e.clientY - rect.top) / 20) * 20;
       
       // ViewModelを使用してゲートを追加
-      const gate = viewModel.addGate(selectedTool as GateType, { x, y });
+      const gate = viewModel.addGate(selectedTool as string, { x, y });
       if (gate) {
         viewModel.simulate();
         setSelectedTool(null); // ツール選択をクリア
@@ -379,63 +377,69 @@ const ResponsiveUltraModernCircuit: React.FC = () => {
 
   // ゲート描画
   const renderGate = (gate: UltraModernGate) => {
-    const gateType = getGateTypeInfo(gate.type);
-    if (!gateType) return null;
-    
     const isActive = simulationResults[gate.id] || false;
     const isDragging = draggedGate === gate.id;
+    const GATE_SIZE = 50;
     
     return (
-      <ImprovedGateComponent
-        key={gate.id}
-        gate={gate}
-        isActive={isActive}
-        isDragging={isDragging}
-        isHovered={hoveredGate === gate.id}
-        theme={theme}
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          const rect = svgRef.current?.getBoundingClientRect();
-          if (rect) {
-            startDragging(gate.id, {
-              x: e.clientX - rect.left - gate.x,
-              y: e.clientY - rect.top - gate.y
-            });
-            dragStartPos.current = { x: gate.x, y: gate.y };
-          }
-        }}
-        onMouseUp={(e) => {
-          e.stopPropagation();
-          stopDragging();
-        }}
-        onMouseEnter={() => setHoveredGate(gate.id)}
-        onMouseLeave={() => setHoveredGate(null)}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (!hasDraggedRef.current) {
-            if (gate.type === 'INPUT') {
-              viewModel.toggleInput(gate.id);
+      <g key={gate.id} transform={`translate(${gate.x}, ${gate.y})`}>
+        {/* ホバーエフェクト */}
+        {hoveredGate === gate.id && selectedTheme !== 'minimal' && (
+          <circle cx={0} cy={0} r={GATE_SIZE/2 + 10}
+            fill="none"
+            stroke={theme.colors.ui.accent}
+            strokeWidth="1"
+            opacity="0.3"
+          />
+        )}
+        
+        {/* ゲート本体 */}
+        <g
+          style={{ cursor: gate.type === 'INPUT' || gate.type === 'CLOCK' ? 'pointer' : 'move' }}
+          onMouseEnter={() => setHoveredGate(gate.id)}
+          onMouseLeave={() => setHoveredGate(null)}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            const rect = svgRef.current?.getBoundingClientRect();
+            if (rect) {
+              startDragging(gate.id, {
+                x: e.clientX - rect.left - gate.x,
+                y: e.clientY - rect.top - gate.y
+              });
+              dragStartPos.current = { x: gate.x, y: gate.y };
             }
-          }
-        }}
-        onPinMouseDown={(e, pinType, index) => {
-          e.stopPropagation();
-          const pin = pinType === 'input' ? gate.inputs?.[index] : gate.outputs?.[index];
-          if (pin) {
-            startWireConnection(gate.id, pinType, index, pin.x, pin.y);
-          }
-        }}
-        onPinMouseUp={(e, pinType, index) => {
-          e.stopPropagation();
-          if (drawingWire) {
-            completeWireConnection(gate.id, pinType, index);
-          }
-        }}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          viewModel.removeGate(gate.id);
-        }}
-      />
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!hasDraggedRef.current) {
+              if (gate.type === 'INPUT') {
+                viewModel.toggleInput(gate.id);
+              } else if (gate.type === 'CLOCK') {
+                // CLOCKゲートの開始/停止
+                const clockState = viewModel.getClockState(gate.id);
+                if (clockState) {
+                  if (clockState.isRunning) {
+                    viewModel.stopClock(gate.id);
+                  } else {
+                    viewModel.startClock(gate.id);
+                  }
+                }
+              }
+            }
+          }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            viewModel.removeGate(gate.id);
+          }}
+        >
+          {/* ゲートタイプごとのSVG */}
+          {renderGateShape(gate.type, isActive, GATE_SIZE)}
+        </g>
+        
+        {/* ピン */}
+        {renderGatePins(gate, isActive)}
+      </g>
     );
   };
 
@@ -491,14 +495,183 @@ const ResponsiveUltraModernCircuit: React.FC = () => {
     );
   };
 
-  // ゲートタイプ情報取得（簡易版）
-  const getGateTypeInfo = (type: string) => {
-    // 基本的なゲートタイプ情報を返す
-    return {
-      name: type,
-      inputs: type === 'INPUT' || type === 'OUTPUT' ? 0 : type === 'NOT' ? 1 : 2,
-      outputs: type === 'OUTPUT' ? 0 : 1
-    };
+  // ゲートの形状を描画
+  const renderGateShape = (type: string, isActive: boolean, size: number) => {
+    const halfSize = size / 2;
+    const activeColor = '#00ff88';
+    const inactiveColor = 'rgba(255, 255, 255, 0.2)';
+    const fillColor = isActive ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 255, 255, 0.05)';
+    const strokeColor = isActive ? activeColor : inactiveColor;
+    const textColor = isActive ? activeColor : '#ffffff';
+
+    switch (type) {
+      case 'INPUT':
+        return (
+          <>
+            <circle cx={0} cy={0} r={halfSize} 
+              fill={fillColor}
+              stroke={strokeColor}
+              strokeWidth="2"
+            />
+            <text x={0} y={5} textAnchor="middle" fill={textColor} fontSize="20" fontWeight="bold">
+              {isActive ? '1' : '0'}
+            </text>
+          </>
+        );
+      
+      case 'OUTPUT':
+        return (
+          <>
+            <circle cx={0} cy={0} r={halfSize}
+              fill={fillColor}
+              stroke={strokeColor}
+              strokeWidth="2"
+            />
+            <circle cx={0} cy={0} r={halfSize * 0.6}
+              fill={isActive ? activeColor : 'transparent'}
+            />
+          </>
+        );
+      
+      case 'AND':
+        return (
+          <>
+            <rect x={-halfSize} y={-halfSize} width={size} height={size} rx={8}
+              fill={fillColor}
+              stroke={strokeColor}
+              strokeWidth="2"
+            />
+            <text x={0} y={5} textAnchor="middle" fill={textColor} fontSize="16" fontWeight="bold">
+              AND
+            </text>
+          </>
+        );
+      
+      case 'OR':
+        return (
+          <>
+            <rect x={-halfSize} y={-halfSize} width={size} height={size} rx={8}
+              fill={fillColor}
+              stroke={strokeColor}
+              strokeWidth="2"
+            />
+            <text x={0} y={5} textAnchor="middle" fill={textColor} fontSize="16" fontWeight="bold">
+              OR
+            </text>
+          </>
+        );
+      
+      case 'NOT':
+        return (
+          <>
+            <polygon points={`${-halfSize},-${halfSize} ${halfSize},0 ${-halfSize},${halfSize}`}
+              fill={fillColor}
+              stroke={strokeColor}
+              strokeWidth="2"
+            />
+            <circle cx={halfSize + 5} cy={0} r={5}
+              fill="transparent"
+              stroke={strokeColor}
+              strokeWidth="2"
+            />
+          </>
+        );
+      
+      case 'CLOCK':
+        return (
+          <>
+            <rect x={-halfSize} y={-halfSize} width={size} height={size} rx={8}
+              fill={fillColor}
+              stroke={strokeColor}
+              strokeWidth="2"
+            />
+            <text x={0} y={5} textAnchor="middle" fill={textColor} fontSize="20">
+              ⏰
+            </text>
+          </>
+        );
+      
+      default:
+        // その他のゲート用のデフォルト
+        return (
+          <>
+            <rect x={-halfSize} y={-halfSize} width={size} height={size} rx={8}
+              fill={fillColor}
+              stroke={strokeColor}
+              strokeWidth="2"
+            />
+            <text x={0} y={5} textAnchor="middle" fill={textColor} fontSize="12" fontWeight="bold">
+              {type}
+            </text>
+          </>
+        );
+    }
+  };
+  
+  // ゲートのピンを描画
+  const renderGatePins = (gate: UltraModernGate, isActive: boolean) => {
+    const GATE_SIZE = 50;
+    const pins = [];
+    
+    // 入力ピン
+    if (gate.inputs && gate.inputs.length > 0) {
+      gate.inputs.forEach((pin, index) => {
+        pins.push(
+          <g key={`input-${index}`}>
+            <circle
+              cx={pin.x - gate.x}
+              cy={pin.y - gate.y}
+              r="12"
+              fill="transparent"
+              style={{ cursor: 'crosshair' }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                startWireConnection(gate.id, 'input', index, pin.x, pin.y);
+              }}
+            />
+            <circle
+              cx={pin.x - gate.x}
+              cy={pin.y - gate.y}
+              r="4"
+              fill={isActive ? '#00ff88' : 'rgba(255, 255, 255, 0.6)'}
+              stroke="#ffffff"
+              strokeWidth="1"
+            />
+          </g>
+        );
+      });
+    }
+    
+    // 出力ピン
+    if (gate.outputs && gate.outputs.length > 0) {
+      gate.outputs.forEach((pin, index) => {
+        pins.push(
+          <g key={`output-${index}`}>
+            <circle
+              cx={pin.x - gate.x}
+              cy={pin.y - gate.y}
+              r="12"
+              fill="transparent"
+              style={{ cursor: 'crosshair' }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                startWireConnection(gate.id, 'output', index, pin.x, pin.y);
+              }}
+            />
+            <circle
+              cx={pin.x - gate.x}
+              cy={pin.y - gate.y}
+              r="4"
+              fill={isActive ? '#00ff88' : 'rgba(255, 255, 255, 0.6)'}
+              stroke="#ffffff"
+              strokeWidth="1"
+            />
+          </g>
+        );
+      });
+    }
+    
+    return <>{pins}</>;
   };
 
   // キャンバスコンポーネント

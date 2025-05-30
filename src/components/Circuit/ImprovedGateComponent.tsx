@@ -15,19 +15,31 @@ interface GateData {
   type: string;
   x: number;
   y: number;
-  inputs: Array<{ position: { x: number; y: number }; value?: boolean }>;
-  outputs: Array<{ position: { x: number; y: number }; value?: boolean }>;
-  isActive: () => boolean;
-  isSelected?: boolean;
-  isHovered?: boolean;
+  inputs?: Array<{ 
+    id: string;
+    x: number;
+    y: number;
+    isConnected: boolean;
+  }>;
+  outputs?: Array<{ 
+    id: string;
+    x: number;
+    y: number;
+    isConnected: boolean;
+  }>;
+  value?: boolean;
 }
 
 interface ImprovedGateComponentProps {
   gate: GateData;
+  isActive: boolean;
+  isDragging?: boolean;
+  isHovered?: boolean;
+  theme?: any;
   onMouseDown?: (e: React.MouseEvent) => void;
   onDoubleClick?: (e: React.MouseEvent) => void;
   onContextMenu?: (e: React.MouseEvent) => void;
-  onPinMouseDown?: (gateId: string, pinType: 'input' | 'output', pinIndex: number, x: number, y: number) => void;
+  onPinMouseDown?: (gateId: string, pinType: 'input' | 'output', pinIndex: number, e: React.MouseEvent) => void;
   onPinMouseEnter?: (gateId: string, pinType: 'input' | 'output', pinIndex: number) => void;
   onPinMouseLeave?: () => void;
 }
@@ -132,6 +144,10 @@ const renderGateShape = (type: string, isActive: boolean, size: number) => {
 
 export const ImprovedGateComponent: React.FC<ImprovedGateComponentProps> = ({
   gate,
+  isActive,
+  isDragging,
+  isHovered,
+  theme,
   onMouseDown,
   onDoubleClick,
   onContextMenu,
@@ -140,7 +156,6 @@ export const ImprovedGateComponent: React.FC<ImprovedGateComponentProps> = ({
   onPinMouseLeave
 }) => {
   const size = 50;
-  const isActive = gate.isActive();
   const [hoveredPin, setHoveredPin] = useState<{type: 'input' | 'output', index: number} | null>(null);
 
   const handlePinMouseEnter = (pinType: 'input' | 'output', pinIndex: number) => {
@@ -160,8 +175,10 @@ export const ImprovedGateComponent: React.FC<ImprovedGateComponentProps> = ({
   const handlePinMouseDown = (e: React.MouseEvent, pinType: 'input' | 'output', pinIndex: number) => {
     e.stopPropagation();
     if (onPinMouseDown) {
-      const pin = pinType === 'input' ? gate.inputs[pinIndex] : gate.outputs[pinIndex];
-      onPinMouseDown(gate.id, pinType, pinIndex, gate.x + pin.position.x, gate.y + pin.position.y);
+      const pins = pinType === 'input' ? gate.inputs : gate.outputs;
+      if (pins && pins[pinIndex]) {
+        onPinMouseDown(gate.id, pinType, pinIndex, e);
+      }
     }
   };
 
@@ -220,8 +237,8 @@ export const ImprovedGateComponent: React.FC<ImprovedGateComponentProps> = ({
           <g key={`input-${index}`}>
             {/* 当たり判定エリア（見えない） */}
             <circle
-              cx={pin.position.x}
-              cy={pin.position.y}
+              cx={pin.x - gate.x}
+              cy={pin.y - gate.y}
               r={PIN_CONSTANTS.HIT_RADIUS}
               fill="transparent"
               style={{ cursor: 'crosshair' }}
@@ -231,7 +248,7 @@ export const ImprovedGateComponent: React.FC<ImprovedGateComponentProps> = ({
             />
             
             {/* 視覚的なピン（三角形） */}
-            <g transform={`translate(${pin.position.x}, ${pin.position.y})`}>
+            <g transform={`translate(${pin.x - gate.x}, ${pin.y - gate.y})`}>
               <path
                 d={`M -${visualRadius * 1.2} 0 L ${visualRadius * 0.5} -${visualRadius} L ${visualRadius * 0.5} ${visualRadius} Z`}
                 fill={isHovered ? colors.HOVER : colors.DEFAULT}
@@ -268,8 +285,8 @@ export const ImprovedGateComponent: React.FC<ImprovedGateComponentProps> = ({
           <g key={`output-${index}`}>
             {/* 当たり判定エリア（見えない） */}
             <circle
-              cx={pin.position.x}
-              cy={pin.position.y}
+              cx={pin.x - gate.x}
+              cy={pin.y - gate.y}
               r={PIN_CONSTANTS.HIT_RADIUS}
               fill="transparent"
               style={{ cursor: 'crosshair' }}
@@ -279,7 +296,7 @@ export const ImprovedGateComponent: React.FC<ImprovedGateComponentProps> = ({
             />
             
             {/* 視覚的なピン（円） */}
-            <g transform={`translate(${pin.position.x}, ${pin.position.y})`}>
+            <g transform={`translate(${pin.x - gate.x}, ${pin.y - gate.y})`}>
               <circle
                 r={visualRadius}
                 fill={isHovered ? colors.HOVER : colors.DEFAULT}
