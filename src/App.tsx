@@ -2,6 +2,7 @@ import React from 'react'
 import UltraModernCircuitWithViewModel from './components/UltraModernCircuitWithViewModel'
 import ErrorBoundary from './components/ErrorBoundary'
 import AppModeSelector from './components/mode/AppModeSelector'
+import { LearningModeManager } from './components/Education/LearningModeManager'
 import { useAppMode } from './hooks/useAppMode'
 
 function App(): React.ReactElement {
@@ -26,8 +27,18 @@ function App(): React.ReactElement {
         </header>
         
         {/* メインコンテンツ */}
-        <main className="flex-1">
-          <UltraModernCircuitWithViewModel />
+        <main className="flex-1 flex">
+          {/* 学習モード用サイドパネル */}
+          {currentMode === 'learning' && (
+            <aside className="w-80 bg-gray-100 border-r border-gray-300 overflow-y-auto">
+              <LearningModeManager currentMode={currentMode} />
+            </aside>
+          )}
+          
+          {/* 回路エディタ */}
+          <div className="flex-1">
+            <UltraModernCircuitWithViewModel />
+          </div>
         </main>
       </div>
     </ErrorBoundary>
