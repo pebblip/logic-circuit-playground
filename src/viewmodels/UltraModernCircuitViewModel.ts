@@ -77,10 +77,25 @@ export class UltraModernCircuitViewModel extends EventEmitter {
         x: gate.position.x,
         y: gate.position.y,
         value,
+        // ピン情報を追加
+        inputs: gate.getInputPins().map((pin, index) => ({
+          id: `${ultraId}_input_${index}`,
+          x: gate.position.x + pin.position.x,
+          y: gate.position.y + pin.position.y,
+          isConnected: this.circuit.getConnections().some(conn => 
+            conn.toGateId === gate.id && conn.toInputIndex === index
+          )
+        })),
+        outputs: gate.getOutputPins().map((pin, index) => ({
+          id: `${ultraId}_output_${index}`,
+          x: gate.position.x + pin.position.x,
+          y: gate.position.y + pin.position.y,
+          isConnected: this.circuit.getConnections().some(conn => 
+            conn.fromGateId === gate.id && conn.fromOutputIndex === index
+          )
+        })),
         ...(customGateInfo && {
-          circuit: customGateInfo.circuit,
-          inputs: customGateInfo.inputs,
-          outputs: customGateInfo.outputs
+          circuit: customGateInfo.circuit
         })
       };
       
@@ -180,18 +195,32 @@ export class UltraModernCircuitViewModel extends EventEmitter {
       initialValue = false;
     }
     
-    return {
+    // ピン情報を追加
+    const gateWithPins = {
       id: ultraId,
       type,
       x,
       y: yPos,
       value: initialValue,
+      // ピン情報を追加
+      inputs: gate.getInputPins().map((pin, index) => ({
+        id: `${ultraId}_input_${index}`,
+        x: x + pin.position.x,
+        y: yPos + pin.position.y,
+        isConnected: false
+      })),
+      outputs: gate.getOutputPins().map((pin, index) => ({
+        id: `${ultraId}_output_${index}`,
+        x: x + pin.position.x,
+        y: yPos + pin.position.y,
+        isConnected: false
+      })),
       ...(customGateInfo && {
-        circuit: customGateInfo.circuit,
-        inputs: customGateInfo.inputs,
-        outputs: customGateInfo.outputs
+        circuit: customGateInfo.circuit
       })
     };
+    
+    return gateWithPins;
   }
 
   // ゲート移動

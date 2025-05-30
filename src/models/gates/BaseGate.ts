@@ -37,6 +37,8 @@ export abstract class BaseGate {
   // メソッド形式のgetters（互換性のため）
   getInputs(): Pin[] { return this._inputs; }
   getOutputs(): Pin[] { return this._outputs; }
+  getInputPins(): Pin[] { return this._inputs; }
+  getOutputPins(): Pin[] { return this._outputs; }
 
   // Common methods
   move(position: Position): void {

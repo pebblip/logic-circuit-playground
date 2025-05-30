@@ -1845,13 +1845,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
             data-testid={`gate-button-${type}`}
             onClick={(e) => {
               e.stopPropagation();
-              if (selectedTool === type) {
-                // 既に選択されている場合は選択解除
-                setSelectedTool(null);
-              } else {
-                // ツールを選択
-                setSelectedTool(type);
-              }
+              addGate(type);  // 即座に配置！
             }}
             style={{
               width: '50px',
@@ -2058,22 +2052,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
               background: theme.colors.canvas,
               cursor: selectedTool ? 'crosshair' : 'default',
             }}
-            onClick={(e) => {
-              if (selectedTool) {
-                const rect = svgRef.current?.getBoundingClientRect();
-                if (rect) {
-                  const x = e.clientX - rect.left;
-                  const y = e.clientY - rect.top;
-                  
-                  // ViewModelを使用してゲートを追加
-                  const gate = viewModel.addGate(selectedTool as GateType, { x, y });
-                  if (gate) {
-                    viewModel.simulate();
-                    setSelectedTool(null); // ツール選択をクリア
-                  }
-                }
-              }
-            }}
+            onClick={() => {}}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
           >

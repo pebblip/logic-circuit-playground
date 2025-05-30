@@ -353,7 +353,155 @@ const ResponsiveUltraModernCircuit: React.FC = () => {
     }, 50);
   }, [drawingWire, stopDragging, cancelWireConnection]);
   
-  // キャンバスコンポーネント（既存のSVG部分）
+  // キャンバスクリックハンドラー
+  const handleCanvasClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    if (selectedTool && svgRef.current) {
+      const rect = svgRef.current.getBoundingClientRect();
+      const x = Math.round((e.clientX - rect.left) / 20) * 20;
+      const y = Math.round((e.clientY - rect.top) / 20) * 20;
+      
+      // ViewModelを使用してゲートを追加
+      const gate = viewModel.addGate(selectedTool as GateType, { x, y });
+      if (gate) {
+        viewModel.simulate();
+        setSelectedTool(null); // ツール選択をクリア
+        
+        // 実験カウントを増やす
+        incrementExperiments();
+        
+        // モバイルの場合はツールパレットを閉じる
+        if (isMobile) {
+          setIsToolPaletteOpen(false);
+        }
+      }
+    }
+  }, [selectedTool, viewModel, incrementExperiments, isMobile]);
+
+  // ゲート描画
+  const renderGate = (gate: UltraModernGate) => {
+    const gateType = getGateTypeInfo(gate.type);
+    if (!gateType) return null;
+    
+    const isActive = simulationResults[gate.id] || false;
+    const isDragging = draggedGate === gate.id;
+    
+    return (
+      <ImprovedGateComponent
+        key={gate.id}
+        gate={gate}
+        isActive={isActive}
+        isDragging={isDragging}
+        isHovered={hoveredGate === gate.id}
+        theme={theme}
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          const rect = svgRef.current?.getBoundingClientRect();
+          if (rect) {
+            startDragging(gate.id, {
+              x: e.clientX - rect.left - gate.x,
+              y: e.clientY - rect.top - gate.y
+            });
+            dragStartPos.current = { x: gate.x, y: gate.y };
+          }
+        }}
+        onMouseUp={(e) => {
+          e.stopPropagation();
+          stopDragging();
+        }}
+        onMouseEnter={() => setHoveredGate(gate.id)}
+        onMouseLeave={() => setHoveredGate(null)}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!hasDraggedRef.current) {
+            if (gate.type === 'INPUT') {
+              viewModel.toggleInput(gate.id);
+            }
+          }
+        }}
+        onPinMouseDown={(e, pinType, index) => {
+          e.stopPropagation();
+          const pin = pinType === 'input' ? gate.inputs?.[index] : gate.outputs?.[index];
+          if (pin) {
+            startWireConnection(gate.id, pinType, index, pin.x, pin.y);
+          }
+        }}
+        onPinMouseUp={(e, pinType, index) => {
+          e.stopPropagation();
+          if (drawingWire) {
+            completeWireConnection(gate.id, pinType, index);
+          }
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          viewModel.removeGate(gate.id);
+        }}
+      />
+    );
+  };
+
+  // ワイヤー描画
+  const renderWire = (connection: UltraModernConnection) => {
+    const fromGate = gates.find(g => g.id === connection.from);
+    const toGate = gates.find(g => g.id === connection.to);
+    
+    if (!fromGate || !toGate) return null;
+    
+    // 出力ピンの位置計算
+    const fromPin = fromGate.outputs?.[connection.fromOutput || 0];
+    const toPin = toGate.inputs?.[connection.toInput || 0];
+    
+    if (!fromPin || !toPin) return null;
+    
+    const startX = fromPin.x;
+    const startY = fromPin.y;
+    const endX = toPin.x;
+    const endY = toPin.y;
+    
+    const isActive = simulationResults[connection.from] || false;
+    
+    const midX = (startX + endX) / 2;
+    const path = `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`;
+    
+    return (
+      <g key={connection.id}>
+        {/* アクティブ時のグロー */}
+        {isActive && selectedTheme !== 'minimal' && (
+          <path
+            d={path}
+            fill="none"
+            stroke={theme.colors.signal.on}
+            strokeWidth="6"
+            strokeLinecap="round"
+            opacity="0.3"
+            filter="blur(4px)"
+          />
+        )}
+        
+        <path
+          d={path}
+          fill="none"
+          stroke={isActive ? theme.colors.signal.on : theme.colors.signal.off}
+          strokeWidth="3"
+          strokeLinecap="round"
+          style={{
+            transition: 'stroke 0.3s ease'
+          }}
+        />
+      </g>
+    );
+  };
+
+  // ゲートタイプ情報取得（簡易版）
+  const getGateTypeInfo = (type: string) => {
+    // 基本的なゲートタイプ情報を返す
+    return {
+      name: type,
+      inputs: type === 'INPUT' || type === 'OUTPUT' ? 0 : type === 'NOT' ? 1 : 2,
+      outputs: type === 'OUTPUT' ? 0 : 1
+    };
+  };
+
+  // キャンバスコンポーネント
   const canvasComponent = (
     <svg
       ref={svgRef}
@@ -363,11 +511,38 @@ const ResponsiveUltraModernCircuit: React.FC = () => {
         backgroundColor: theme.colors.background,
         cursor: selectedTool ? 'crosshair' : 'default'
       }}
+      onClick={handleCanvasClick}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
     >
-      {/* 既存のSVG内容をここに移動 */}
-      {/* グリッド、接続線、ゲート等 */}
+      {/* グリッド */}
+      <defs>
+        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+          <circle cx="10" cy="10" r="0.5" fill={selectedTheme === 'minimal' ? '#e0e0e0' : '#333333'} />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)" />
+      
+      {/* ワイヤー */}
+      {connections.map(renderWire)}
+      
+      {/* 描画中のワイヤー */}
+      {drawingWire && (
+        <line
+          x1={drawingWire.startX}
+          y1={drawingWire.startY}
+          x2={drawingWire.endX}
+          y2={drawingWire.endY}
+          stroke={theme.colors.ui.accent}
+          strokeWidth="2"
+          strokeDasharray="5,5"
+          strokeLinecap="round"
+          opacity="0.7"
+        />
+      )}
+      
+      {/* ゲート */}
+      {gates.map(renderGate)}
     </svg>
   );
   
