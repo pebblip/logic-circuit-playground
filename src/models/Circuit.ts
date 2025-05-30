@@ -201,7 +201,7 @@ export class Circuit extends EventEmitter {
           ...data,
           x: gate.position.x,
           y: gate.position.y
-        } as UltraModernGate;
+        } as unknown as UltraModernGate;
       }),
       connections: this.getConnections().map(conn => conn.toJSON())
     };

@@ -362,7 +362,7 @@ const ResponsiveUltraModernCircuit: React.FC = () => {
       const gate = viewModel.addGate(selectedTool as string, { x, y });
       if (gate) {
         viewModel.simulate();
-        setSelectedTool(null); // ツール選択をクリア
+        setSelectedTool(''); // ツール選択をクリア
         
         // 実験カウントを増やす
         incrementExperiments();
@@ -377,7 +377,8 @@ const ResponsiveUltraModernCircuit: React.FC = () => {
 
   // ゲート描画
   const renderGate = (gate: UltraModernGate) => {
-    const isActive = simulationResults[gate.id] || false;
+    const result = simulationResults[gate.id];
+    const isActive = Array.isArray(result) ? result[0] : !!result;
     const isDragging = draggedGate === gate.id;
     const GATE_SIZE = 50;
     
@@ -461,7 +462,8 @@ const ResponsiveUltraModernCircuit: React.FC = () => {
     const endX = toPin.x;
     const endY = toPin.y;
     
-    const isActive = simulationResults[connection.from] || false;
+    const result = simulationResults[connection.from];
+    const isActive = Array.isArray(result) ? result[0] : !!result;
     
     const midX = (startX + endX) / 2;
     const path = `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`;
@@ -611,7 +613,7 @@ const ResponsiveUltraModernCircuit: React.FC = () => {
   // ゲートのピンを描画
   const renderGatePins = (gate: UltraModernGate, isActive: boolean) => {
     const GATE_SIZE = 50;
-    const pins = [];
+    const pins: React.ReactNode[] = [];
     
     // 入力ピン
     if (gate.inputs && gate.inputs.length > 0) {
@@ -626,7 +628,7 @@ const ResponsiveUltraModernCircuit: React.FC = () => {
               style={{ cursor: 'crosshair' }}
               onMouseDown={(e) => {
                 e.stopPropagation();
-                startWireConnection(gate.id, 'input', index, pin.x, pin.y);
+                startWireConnection(gate.id, index, false, pin.x, pin.y);
               }}
             />
             <circle
@@ -655,7 +657,7 @@ const ResponsiveUltraModernCircuit: React.FC = () => {
               style={{ cursor: 'crosshair' }}
               onMouseDown={(e) => {
                 e.stopPropagation();
-                startWireConnection(gate.id, 'output', index, pin.x, pin.y);
+                startWireConnection(gate.id, index, true, pin.x, pin.y);
               }}
             />
             <circle

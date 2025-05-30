@@ -47,10 +47,8 @@ import { LearningModeManager } from './Education/LearningModeManager';
 import { FreeModeGuide } from './Education/FreeModeGuide';
 import { PuzzleModeManager } from './Education/PuzzleModeManager';
 
-// 改善されたゲートコンポーネント
-import { ImprovedGateComponent } from './Circuit/ImprovedGateComponent';
+// UI定数
 import { PIN_CONSTANTS } from '../constants/ui';
-import { PinComponent } from './Circuit/PinComponent';
 
 // Types
 import {
@@ -1232,11 +1230,14 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
               (gate.type === 'AND' || gate.type === 'OR' || gate.type === 'NAND' || gate.type === 'NOR' || gate.type === 'XNOR' || gate.type === 'D_FLIP_FLOP' || gate.type === 'SR_LATCH') ? (
                 <>
                   {/* 入力ピン1 */}
-                  <PinComponent
-                    x={-GATE_SIZE/2 - 8}
-                    y={-10}
-                    type="input"
-                    fillColor={theme.colors.signal.off}
+                  <circle
+                    cx={-GATE_SIZE/2 - 8}
+                    cy={-10}
+                    r="4"
+                    fill={theme.colors.signal.off}
+                    stroke="white"
+                    strokeWidth="1"
+                    style={{ cursor: 'crosshair' }}
                     onMouseDown={(e) => {
                       e.stopPropagation();
                       startConnection(gate.id, 'input', 0, gate.x - GATE_SIZE/2 - 8, gate.y - 10);
@@ -1248,11 +1249,14 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
                   />
                   
                   {/* 入力ピン2 */}
-                  <PinComponent
-                    x={-GATE_SIZE/2 - 8}
-                    y={10}
-                    type="input"
-                    fillColor={theme.colors.signal.off}
+                  <circle
+                    cx={-GATE_SIZE/2 - 8}
+                    cy={10}
+                    r="4"
+                    fill={theme.colors.signal.off}
+                    stroke="white"
+                    strokeWidth="1"
+                    style={{ cursor: 'crosshair' }}
                     onMouseDown={(e) => {
                       e.stopPropagation();
                       startConnection(gate.id, 'input', 1, gate.x - GATE_SIZE/2 - 8, gate.y + 10);
@@ -1264,11 +1268,14 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
                   />
                 </>
               ) : (
-                <PinComponent
-                  x={-GATE_SIZE/2 - 8}
-                  y={0}
-                  type="input"
-                  fillColor={theme.colors.signal.off}
+                <circle
+                  cx={-GATE_SIZE/2 - 8}
+                  cy={0}
+                  r="4"
+                  fill={theme.colors.signal.off}
+                  stroke="white"
+                  strokeWidth="1"
+                  style={{ cursor: 'crosshair' }}
                   onMouseDown={(e) => {
                     e.stopPropagation();
                     startConnection(gate.id, 'input', 0, gate.x - GATE_SIZE/2 - 8, gate.y);
@@ -1358,11 +1365,14 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
               })()
             ) : (
               // 標準ゲートの場合は従来通り
-              <PinComponent
-                x={GATE_SIZE/2 + 8}
-                y={0}
-                type="output"
-                fillColor={theme.colors.signal.off}
+              <circle
+                cx={GATE_SIZE/2 + 8}
+                cy={0}
+                r="4"
+                fill={theme.colors.signal.off}
+                stroke="white"
+                strokeWidth="1"
+                style={{ cursor: 'crosshair' }}
                 onMouseDown={(e) => {
                   e.stopPropagation();
                   startConnection(gate.id, 'output', 0, gate.x + GATE_SIZE/2 + 8, gate.y);
@@ -1836,7 +1846,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
             // デバッグモードでは全ゲート表示
             if (debugMode) return true;
             // 現在のモードで利用可能なゲートのみ表示
-            const availableGates = getGatesForMode(currentMode);
+            const availableGates = getGatesForMode(currentMode || 'free');
             return availableGates.includes(type as any);
           })
           .map(([type, config]) => (
@@ -1847,7 +1857,7 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
               e.stopPropagation();
               if (selectedTool === type) {
                 // 既に選択されている場合は選択解除
-                setSelectedTool(null);
+                setSelectedTool(null as any);
               } else {
                 // ツールを選択
                 setSelectedTool(type);
@@ -2066,10 +2076,10 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
                   const y = e.clientY - rect.top;
                   
                   // ViewModelを使用してゲートを追加
-                  const gate = viewModel.addGate(selectedTool as GateType, { x, y });
+                  const gate = viewModel.addGate(selectedTool as string, { x, y });
                   if (gate) {
                     viewModel.simulate();
-                    setSelectedTool(null); // ツール選択をクリア
+                    setSelectedTool(null as any); // ツール選択をクリア
                   }
                 }
               }
