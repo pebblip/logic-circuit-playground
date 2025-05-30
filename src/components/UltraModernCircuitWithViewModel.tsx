@@ -31,6 +31,7 @@ import { useViewModelSubscription } from '../hooks/useViewModelSubscription';
 // モード関連のインポート
 import { CircuitMode, DEFAULT_MODE } from '../types/mode';
 import { getGatesForMode } from '../constants/modeGates';
+import { useAppMode } from '../hooks/useAppMode';
 // import { ModeSelector } from './UI/ModeSelector'; // 旧モードセレクター
 
 // Import all required components
@@ -42,6 +43,9 @@ import SaveLoadPanel from './SaveLoadPanel';
 import GateDefinitionDialog from './GateDefinitionDialog';
 import CustomGateDetail from './CustomGateDetail';
 import { ClockControl } from './ClockControl';
+import { LearningModeManager } from './Education/LearningModeManager';
+import { FreeModeGuide } from './Education/FreeModeGuide';
+import { PuzzleModeManager } from './Education/PuzzleModeManager';
 
 // 改善されたゲートコンポーネント
 import { ImprovedGateComponent } from './Circuit/ImprovedGateComponent';
@@ -90,8 +94,8 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
     cancelWireConnection
   } = useWireDrawing({ viewModel });
   
-  // モード状態
-  const [currentMode, setCurrentMode] = useState<CircuitMode>(DEFAULT_MODE);
+  // モード状態（App.tsxと共有）
+  const { currentMode, setMode: setCurrentMode } = useAppMode();
   
   // 発見システム
   const { 
@@ -995,8 +999,9 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
       viewModel.loadCircuit(urlCircuit);
     }
     
-    // 発見モードで初回アクセスの場合、チュートリアルを表示
-    if (currentMode === 'learning' && !localStorage.getItem('logic-circuit-tutorial-completed')) {
+    // 自由モードで初回アクセスの場合、発見チュートリアルを表示
+    // 学習モードでは表示しない（LearningModeManagerが独自のチュートリアルを持っているため）
+    if (currentMode === 'free' && !localStorage.getItem('logic-circuit-tutorial-completed')) {
       setShowDiscoveryTutorial(true);
     }
     
@@ -1487,7 +1492,9 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
       background: theme.colors.background,
       fontFamily: '-apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif',
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column'
     }}>
       {/* ヘッダー */}
       <header style={{
@@ -1760,8 +1767,56 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
         </div>
       </header>
 
-      {/* ツールバー（標準ゲートのみ） */}
-      <div 
+      {/* メインコンテンツエリア */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* モード別のサイドパネル */}
+        {(currentMode === 'learning' || currentMode === 'free' || currentMode === 'puzzle') && (
+          <aside style={{
+            width: '320px',
+            background: '#f9fafb',
+            borderRight: '1px solid #e5e7eb',
+            overflowY: 'auto',
+            flexShrink: 0
+          }}>
+            {currentMode === 'learning' && (
+              <LearningModeManager 
+                currentMode={currentMode} 
+                onLoadCircuit={(circuitData) => {
+                  viewModel.loadCircuit(circuitData);
+                }}
+              />
+            )}
+            {currentMode === 'free' && (
+              <FreeModeGuide 
+                currentMode={currentMode}
+                onStartTutorial={() => setShowDiscoveryTutorial(true)}
+              />
+            )}
+            {currentMode === 'puzzle' && (
+              <PuzzleModeManager 
+                currentMode={currentMode}
+                onLoadCircuit={(circuitData) => {
+                  viewModel.loadCircuit(circuitData);
+                }}
+                gates={gates}
+                connections={connections}
+              />
+            )}
+          </aside>
+        )}
+
+        {/* キャンバスエリア */}
+        <div style={{
+          flex: 1,
+          position: 'relative'
+        }}>
+          {/* ツールバー（標準ゲートのみ） */}
+          <div 
         data-tutorial-target="toolbar"
         style={{
           position: 'absolute',
@@ -1988,19 +2043,19 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
         </div>
       )}
 
-      {/* キャンバス */}
-      <svg
-        ref={svgRef}
-        width="100%"
-        height="calc(100% - 60px)"
-        style={{
-          background: theme.colors.canvas,
-          cursor: selectedTool ? 'crosshair' : 'default',
-        }}
-        onClick={() => {}}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-      >
+          {/* キャンバス */}
+          <svg
+            ref={svgRef}
+            width="100%"
+            height="100%"
+            style={{
+              background: theme.colors.canvas,
+              cursor: selectedTool ? 'crosshair' : 'default',
+            }}
+            onClick={() => {}}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+          >
         {/* グリッド */}
         <defs>
           <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
@@ -2029,7 +2084,9 @@ const UltraModernCircuitWithViewModel: React.FC = () => {
         
         {/* ゲート */}
         {gates.map(renderGate)}
-      </svg>
+          </svg>
+        </div>
+      </div>
 
       {/* ヘルプウィンドウ（右サイド） */}
       {showHelp && (
