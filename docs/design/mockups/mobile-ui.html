@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>論理回路プレイグラウンド - モバイル版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* モバイルレイアウト */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+        }
+        
+        /* ヘッダー */
+        .header {
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #00ff88, #00aaff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 18px;
+        }
+        
+        .icon-button:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* キャンバス */
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #0a0a0a;
+            touch-action: none;
+        }
+        
+        .canvas {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-origin: center center;
+        }
+        
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* ゲートの基本スタイル（モックから移植） */
+        .gate {
+            fill: #1a1a1a;
+            stroke: #444;
+            stroke-width: 2;
+            rx: 8;
+            transition: all 0.3s ease;
+            cursor: move;
+        }
+        
+        .gate.active {
+            stroke: #00ff88;
+            stroke-width: 2;
+            fill: rgba(0, 255, 136, 0.05);
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.3));
+        }
+        
+        .gate-text {
+            fill: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            pointer-events: none;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+        }
+        
+        .pin {
+            fill: none;
+            stroke: #666;
+            stroke-width: 2;
+            transition: all 0.2s ease;
+        }
+        
+        .pin.active {
+            fill: #00ff88;
+            stroke: #00ff88;
+            filter: drop-shadow(0 0 6px rgba(0, 255, 136, 0.8));
+        }
+        
+        .pin-line {
+            stroke: #666;
+            stroke-width: 2;
+            transition: all 0.2s ease;
+        }
+        
+        .pin-line.active {
+            stroke: #00ff88;
+        }
+        
+        .wire {
+            fill: none;
+            stroke: #444;
+            stroke-width: 1;
+            stroke-linecap: round;
+            transition: stroke 0.3s ease;
+        }
+        
+        .wire.active {
+            stroke: #00ff88;
+            stroke-width: 1.5;
+            filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.6));
+        }
+        
+        /* ボトムツールバー */
+        .bottom-toolbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 15, 15, 0.98);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            z-index: 100;
+        }
+        
+        .tool-categories {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 4px;
+        }
+        
+        .tool-categories::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category-chip {
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .category-chip.active {
+            background: rgba(0, 255, 136, 0.15);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            max-height: 160px;
+            overflow-y: auto;
+        }
+        
+        .tool-item {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .tool-item:active {
+            transform: scale(0.95);
+            background: rgba(0, 255, 136, 0.15);
+            border-color: #00ff88;
+        }
+        
+        .tool-icon {
+            font-size: 24px;
+        }
+        
+        .tool-name {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* フローティングアクションボタン */
+        .fab-container {
+            position: absolute;
+            bottom: 200px;
+            right: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 90;
+        }
+        
+        .fab {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: rgba(0, 255, 136, 0.9);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .fab:active {
+            transform: scale(0.95);
+        }
+        
+        .fab.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* モード選択（モバイル用） */
+        .mode-selector {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+            z-index: 100;
+        }
+        
+        .mode-button {
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .mode-button.active {
+            background: rgba(0, 255, 136, 0.15);
+            color: #00ff88;
+        }
+        
+        /* タッチエリアの視覚化 */
+        .pin-hit-area {
+            fill: transparent;
+            r: 20;
+        }
+        
+        /* スワイプハンドル */
+        .swipe-handle {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- ヘッダー -->
+        <header class="header">
+            <h1 class="header-title">論理回路</h1>
+            <div class="header-actions">
+                <button class="icon-button">💾</button>
+                <button class="icon-button">📤</button>
+                <button class="icon-button">⚙️</button>
+            </div>
+        </header>
+        
+        <!-- モード選択 -->
+        <div class="mode-selector">
+            <button class="mode-button active">学習</button>
+            <button class="mode-button">自由</button>
+            <button class="mode-button">パズル</button>
+        </div>
+        
+        <!-- キャンバス -->
+        <div class="canvas-container">
+            <div class="canvas">
+                <svg viewBox="0 0 400 600">
+                    <!-- サンプル回路 -->
+                    <!-- INPUT 1 -->
+                    <g transform="translate(80, 100)">
+                        <rect class="switch-track active" x="-25" y="-15" width="50" height="30" rx="15"/>
+                        <circle class="switch-thumb active" cx="5" cy="0" r="10" fill="#00ff88"/>
+                        <circle cx="35" cy="0" r="6" class="pin active"/>
+                        <line x1="25" y1="0" x2="35" y2="0" class="pin-line active"/>
+                        <circle cx="35" cy="0" class="pin-hit-area"/>
+                    </g>
+                    
+                    <!-- INPUT 2 -->
+                    <g transform="translate(80, 200)">
+                        <rect class="switch-track" x="-25" y="-15" width="50" height="30" rx="15" fill="#1a1a1a" stroke="#444"/>
+                        <circle class="switch-thumb" cx="-5" cy="0" r="10" fill="#666"/>
+                        <circle cx="35" cy="0" r="6" class="pin"/>
+                        <line x1="25" y1="0" x2="35" y2="0" class="pin-line"/>
+                        <circle cx="35" cy="0" class="pin-hit-area"/>
+                    </g>
+                    
+                    <!-- AND Gate -->
+                    <g transform="translate(220, 150)">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text">AND</text>
+                        <circle cx="-45" cy="-10" r="6" class="pin active"/>
+                        <line x1="-35" y1="-10" x2="-45" y2="-10" class="pin-line active"/>
+                        <circle cx="-45" cy="10" r="6" class="pin"/>
+                        <line x1="-35" y1="10" x2="-45" y2="10" class="pin-line"/>
+                        <circle cx="45" cy="0" r="6" class="pin"/>
+                        <line x1="35" y1="0" x2="45" y2="0" class="pin-line"/>
+                        <circle cx="-45" cy="-10" class="pin-hit-area"/>
+                        <circle cx="-45" cy="10" class="pin-hit-area"/>
+                        <circle cx="45" cy="0" class="pin-hit-area"/>
+                    </g>
+                    
+                    <!-- OUTPUT -->
+                    <g transform="translate(320, 150)">
+                        <circle class="led-outer" cx="0" cy="0" r="20" fill="#1a1a1a" stroke="#444" stroke-width="2"/>
+                        <circle class="led-inner" cx="0" cy="0" r="15" fill="#333"/>
+                        <text x="0" y="0" class="gate-text" style="font-size: 20px;">💡</text>
+                        <circle cx="-30" cy="0" r="6" class="pin"/>
+                        <line x1="-20" y1="0" x2="-30" y2="0" class="pin-line"/>
+                        <circle cx="-30" cy="0" class="pin-hit-area"/>
+                    </g>
+                    
+                    <!-- Wires -->
+                    <path d="M 115 100 Q 150 110 175 140" class="wire active"/>
+                    <path d="M 115 200 Q 150 190 175 160" class="wire"/>
+                    <path d="M 265 150 L 290 150" class="wire"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- FAB -->
+        <div class="fab-container">
+            <button class="fab secondary">🔄</button>
+            <button class="fab secondary">🔍</button>
+            <button class="fab">▶️</button>
+        </div>
+        
+        <!-- ボトムツールバー -->
+        <div class="bottom-toolbar">
+            <div class="swipe-handle"></div>
+            <div class="tool-categories">
+                <div class="category-chip active">基本</div>
+                <div class="category-chip">特殊</div>
+                <div class="category-chip">入出力</div>
+                <div class="category-chip">カスタム</div>
+            </div>
+            <div class="tools-grid">
+                <div class="tool-item">
+                    <div class="tool-icon">🔲</div>
+                    <div class="tool-name">AND</div>
+                </div>
+                <div class="tool-item">
+                    <div class="tool-icon">🔳</div>
+                    <div class="tool-name">OR</div>
+                </div>
+                <div class="tool-item">
+                    <div class="tool-icon">⭕</div>
+                    <div class="tool-name">NOT</div>
+                </div>
+                <div class="tool-item">
+                    <div class="tool-icon">⬜</div>
+                    <div class="tool-name">XOR</div>
+                </div>
+                <div class="tool-item">
+                    <div class="tool-icon">🔘</div>
+                    <div class="tool-name">INPUT</div>
+                </div>
+                <div class="tool-item">
+                    <div class="tool-icon">💡</div>
+                    <div class="tool-name">OUTPUT</div>
+                </div>
+                <div class="tool-item">
+                    <div class="tool-icon">⏰</div>
+                    <div class="tool-name">CLOCK</div>
+                </div>
+                <div class="tool-item">
+                    <div class="tool-icon">📦</div>
+                    <div class="tool-name">D-FF</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

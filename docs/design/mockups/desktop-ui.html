@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>論理回路プレイグラウンド - PC版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* レイアウトグリッド */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            grid-template-rows: 56px 1fr;
+            height: 100vh;
+            gap: 1px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* ヘッダー */
+        .header {
+            grid-column: 1 / -1;
+            background: rgba(15, 15, 15, 0.98);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00ff88, #00aaff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-right: 40px;
+        }
+        
+        .mode-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 4px;
+            gap: 4px;
+        }
+        
+        .mode-tab {
+            padding: 8px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .mode-tab:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .mode-tab.active {
+            background: rgba(0, 255, 136, 0.15);
+            color: #00ff88;
+        }
+        
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .button {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .button.primary {
+            background: rgba(0, 255, 136, 0.15);
+            border-color: rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+        }
+        
+        .button.primary:hover {
+            background: rgba(0, 255, 136, 0.25);
+            border-color: rgba(0, 255, 136, 0.5);
+        }
+        
+        /* 左サイドバー - ツールパレット */
+        .sidebar-left {
+            background: rgba(10, 10, 10, 0.98);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .tool-card {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: grab;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .tool-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .tool-card:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+        
+        .tool-preview {
+            width: 40px;
+            height: 30px;
+        }
+        
+        .tool-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* メインキャンバス */
+        .main-canvas {
+            background: #0a0a0a;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .canvas-toolbar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 8px;
+            display: flex;
+            gap: 4px;
+            z-index: 50;
+        }
+        
+        .tool-button {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+        
+        .tool-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .tool-button.active {
+            background: rgba(0, 255, 136, 0.15);
+            border-color: rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+        }
+        
+        .canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* 右サイドバー - プロパティ/情報 */
+        .sidebar-right {
+            background: rgba(10, 10, 10, 0.98);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .property-group {
+            margin-bottom: 24px;
+        }
+        
+        .property-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .property-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .property-value {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+        
+        /* ゲートスタイル（完璧版から移植） */
+        .gate {
+            fill: #1a1a1a;
+            stroke: #444;
+            stroke-width: 2;
+            rx: 8;
+            transition: all 0.3s ease;
+            cursor: move;
+        }
+        
+        .gate:hover {
+            stroke: #666;
+            fill: rgba(255, 255, 255, 0.05);
+        }
+        
+        .gate.active {
+            stroke: #00ff88;
+            stroke-width: 2;
+            fill: rgba(0, 255, 136, 0.05);
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.3));
+        }
+        
+        .gate.selected {
+            stroke: #00aaff;
+            stroke-width: 3;
+        }
+        
+        .gate-text {
+            fill: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            pointer-events: none;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+        }
+        
+        .gate-text.small {
+            font-size: 11px;
+            font-weight: 500;
+            fill: #999;
+        }
+        
+        .pin {
+            fill: none;
+            stroke: #666;
+            stroke-width: 2;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .pin:hover {
+            stroke: #00ff88;
+            r: 8;
+        }
+        
+        .pin.connected {
+            fill: #666;
+            stroke: #666;
+        }
+        
+        .pin.active {
+            fill: #00ff88;
+            stroke: #00ff88;
+            filter: drop-shadow(0 0 6px rgba(0, 255, 136, 0.8));
+        }
+        
+        .pin-line {
+            stroke: #666;
+            stroke-width: 2;
+            transition: all 0.2s ease;
+        }
+        
+        .pin-line.active {
+            stroke: #00ff88;
+        }
+        
+        .pin-hit-area {
+            fill: transparent;
+            cursor: pointer;
+        }
+        
+        .wire {
+            fill: none;
+            stroke: #444;
+            stroke-width: 1;
+            stroke-linecap: round;
+            transition: stroke 0.3s ease;
+        }
+        
+        .wire.active {
+            stroke: #00ff88;
+            stroke-width: 1.5;
+            filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.6));
+        }
+        
+        .signal-particle {
+            fill: #00ff88;
+            r: 6;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 1));
+        }
+        
+        /* 特殊形状 */
+        .clock-shape {
+            fill: #1a1a1a;
+            stroke: #444;
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .clock-shape.active {
+            stroke: #00ff88;
+            fill: rgba(0, 255, 136, 0.05);
+        }
+        
+        .custom-gate {
+            fill: rgba(102, 51, 153, 0.1);
+            stroke: #6633cc;
+            stroke-width: 2;
+            rx: 8;
+        }
+        
+        .custom-gate-name {
+            fill: #ccc;
+            font-size: 14px;
+            font-weight: 600;
+            text-anchor: middle;
+        }
+        
+        /* ステータスバー */
+        .status-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 3px;
+            background: #00ff88;
+        }
+        
+        /* スクロールバー */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- ヘッダー -->
+        <header class="header">
+            <div class="logo">論理回路プレイグラウンド</div>
+            <div class="mode-tabs">
+                <button class="mode-tab active">学習モード</button>
+                <button class="mode-tab">自由制作</button>
+                <button class="mode-tab">パズル・チャレンジ</button>
+            </div>
+            <div class="header-actions">
+                <button class="button">
+                    <span>💾</span>
+                    <span>保存</span>
+                </button>
+                <button class="button">
+                    <span>📤</span>
+                    <span>共有</span>
+                </button>
+                <button class="button primary">
+                    <span>▶️</span>
+                    <span>実行</span>
+                </button>
+            </div>
+        </header>
+        
+        <!-- 左サイドバー -->
+        <aside class="sidebar-left">
+            <div class="section-title">
+                <span>🔲</span>
+                <span>基本ゲート</span>
+            </div>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <svg class="tool-preview" viewBox="-50 -30 100 60">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text" x="0" y="0">AND</text>
+                    </svg>
+                    <div class="tool-label">AND</div>
+                </div>
+                <div class="tool-card">
+                    <svg class="tool-preview" viewBox="-50 -30 100 60">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text" x="0" y="0">OR</text>
+                    </svg>
+                    <div class="tool-label">OR</div>
+                </div>
+                <div class="tool-card">
+                    <svg class="tool-preview" viewBox="-50 -30 100 60">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text" x="0" y="0">NOT</text>
+                    </svg>
+                    <div class="tool-label">NOT</div>
+                </div>
+                <div class="tool-card">
+                    <svg class="tool-preview" viewBox="-50 -30 100 60">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text" x="0" y="0">XOR</text>
+                    </svg>
+                    <div class="tool-label">XOR</div>
+                </div>
+                <div class="tool-card">
+                    <svg class="tool-preview" viewBox="-50 -30 100 60">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text" x="0" y="0">NAND</text>
+                    </svg>
+                    <div class="tool-label">NAND</div>
+                </div>
+                <div class="tool-card">
+                    <svg class="tool-preview" viewBox="-50 -30 100 60">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text" x="0" y="0">NOR</text>
+                    </svg>
+                    <div class="tool-label">NOR</div>
+                </div>
+            </div>
+            
+            <div class="section-title">
+                <span>🔌</span>
+                <span>入出力</span>
+            </div>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <svg class="tool-preview" viewBox="-40 -20 80 40">
+                        <rect fill="#1a1a1a" stroke="#444" x="-25" y="-15" width="50" height="30" rx="15"/>
+                        <circle fill="#00ff88" cx="5" cy="0" r="10"/>
+                    </svg>
+                    <div class="tool-label">INPUT</div>
+                </div>
+                <div class="tool-card">
+                    <svg class="tool-preview" viewBox="-25 -25 50 50">
+                        <circle fill="#1a1a1a" stroke="#444" cx="0" cy="0" r="20"/>
+                        <text x="0" y="2" style="font-size: 20px; text-anchor: middle;">💡</text>
+                    </svg>
+                    <div class="tool-label">OUTPUT</div>
+                </div>
+                <div class="tool-card">
+                    <svg class="tool-preview" viewBox="-45 -45 90 90">
+                        <circle class="clock-shape" cx="0" cy="0" r="40"/>
+                        <text x="0" y="2" class="gate-text" style="font-size: 24px;">⏰</text>
+                    </svg>
+                    <div class="tool-label">CLOCK</div>
+                </div>
+            </div>
+            
+            <div class="section-title">
+                <span>⚙️</span>
+                <span>特殊ゲート</span>
+            </div>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <svg class="tool-preview" viewBox="-55 -45 110 90">
+                        <rect class="gate" x="-50" y="-40" width="100" height="80"/>
+                        <text class="gate-text" x="0" y="0">D-FF</text>
+                    </svg>
+                    <div class="tool-label">D-FF</div>
+                </div>
+                <div class="tool-card">
+                    <svg class="tool-preview" viewBox="-55 -45 110 90">
+                        <rect class="gate" x="-50" y="-40" width="100" height="80"/>
+                        <text class="gate-text" x="0" y="0">MUX</text>
+                    </svg>
+                    <div class="tool-label">MUX</div>
+                </div>
+                <div class="tool-card">
+                    <svg class="tool-preview" viewBox="-55 -45 110 90">
+                        <rect class="gate" x="-50" y="-40" width="100" height="80"/>
+                        <text class="gate-text" x="0" y="-10">SR</text>
+                        <text class="gate-text small" x="0" y="10">LATCH</text>
+                    </svg>
+                    <div class="tool-label">SR-LATCH</div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- メインキャンバス -->
+        <main class="main-canvas">
+            <div class="canvas-toolbar">
+                <button class="tool-button active">🖱️</button>
+                <button class="tool-button">✋</button>
+                <button class="tool-button">🔗</button>
+                <button class="tool-button">✂️</button>
+                <div style="width: 1px; height: 24px; background: rgba(255, 255, 255, 0.1); margin: 0 4px;"></div>
+                <button class="tool-button">↩️</button>
+                <button class="tool-button">↪️</button>
+                <button class="tool-button">🗑️</button>
+            </div>
+            
+            <div class="canvas">
+                <svg viewBox="0 0 1200 800">
+                    <!-- グリッド -->
+                    <defs>
+                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <circle cx="10" cy="10" r="0.5" fill="rgba(255, 255, 255, 0.1)"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)"/>
+                    
+                    <!-- サンプル回路 -->
+                    <!-- INPUT 1 -->
+                    <g transform="translate(200, 200)">
+                        <rect class="switch-track active" x="-25" y="-15" width="50" height="30" rx="15" fill="rgba(0, 255, 136, 0.1)" stroke="#00ff88"/>
+                        <circle class="switch-thumb active" cx="5" cy="0" r="10" fill="#00ff88"/>
+                        <circle cx="35" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="35" cy="0" r="6" class="pin connected active"/>
+                        <line x1="25" y1="0" x2="35" y2="0" class="pin-line active"/>
+                        <text x="0" y="-30" class="property-label" style="text-anchor: middle;">INPUT 1</text>
+                    </g>
+                    
+                    <!-- INPUT 2 -->
+                    <g transform="translate(200, 300)">
+                        <rect class="switch-track" x="-25" y="-15" width="50" height="30" rx="15" fill="#1a1a1a" stroke="#444"/>
+                        <circle class="switch-thumb" cx="-5" cy="0" r="10" fill="#666"/>
+                        <circle cx="35" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="35" cy="0" r="6" class="pin"/>
+                        <line x1="25" y1="0" x2="35" y2="0" class="pin-line"/>
+                        <text x="0" y="-30" class="property-label" style="text-anchor: middle;">INPUT 2</text>
+                    </g>
+                    
+                    <!-- XOR Gate -->
+                    <g transform="translate(400, 250)">
+                        <rect class="gate selected" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text">XOR</text>
+                        <circle cx="-45" cy="-10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="-10" r="6" class="pin connected active"/>
+                        <line x1="-35" y1="-10" x2="-45" y2="-10" class="pin-line active"/>
+                        <circle cx="-45" cy="10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="10" r="6" class="pin connected"/>
+                        <line x1="-35" y1="10" x2="-45" y2="10" class="pin-line"/>
+                        <circle cx="45" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="45" cy="0" r="6" class="pin connected active"/>
+                        <line x1="35" y1="0" x2="45" y2="0" class="pin-line active"/>
+                    </g>
+                    
+                    <!-- AND Gate -->
+                    <g transform="translate(600, 250)">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text">AND</text>
+                        <circle cx="-45" cy="-10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="-10" r="6" class="pin connected active"/>
+                        <line x1="-35" y1="-10" x2="-45" y2="-10" class="pin-line active"/>
+                        <circle cx="-45" cy="10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="10" r="6" class="pin connected"/>
+                        <line x1="-35" y1="10" x2="-45" y2="10" class="pin-line"/>
+                        <circle cx="45" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="45" cy="0" r="6" class="pin connected"/>
+                        <line x1="35" y1="0" x2="45" y2="0" class="pin-line"/>
+                    </g>
+                    
+                    <!-- OUTPUT -->
+                    <g transform="translate(800, 250)">
+                        <circle class="led-outer" cx="0" cy="0" r="20" fill="#1a1a1a" stroke="#444" stroke-width="2"/>
+                        <circle class="led-inner" cx="0" cy="0" r="15" fill="#333"/>
+                        <text x="0" y="0" class="gate-text" style="font-size: 20px;">💡</text>
+                        <circle cx="-30" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="-30" cy="0" r="6" class="pin connected"/>
+                        <line x1="-20" y1="0" x2="-30" y2="0" class="pin-line"/>
+                        <text x="0" y="40" class="property-label" style="text-anchor: middle;">OUTPUT</text>
+                    </g>
+                    
+                    <!-- Wires -->
+                    <path d="M 235 200 Q 300 210 355 240" class="wire active"/>
+                    <path d="M 235 300 Q 300 290 355 260" class="wire"/>
+                    <path d="M 445 250 Q 500 250 555 240" class="wire active"/>
+                    <path d="M 235 300 Q 400 350 555 260" class="wire"/>
+                    <path d="M 645 250 L 770 250" class="wire"/>
+                    
+                    <!-- 信号粒子 -->
+                    <circle class="signal-particle">
+                        <animateMotion dur="2s" repeatCount="indefinite">
+                            <mpath href="#wire1"/>
+                        </animateMotion>
+                    </circle>
+                    <path id="wire1" d="M 235 200 Q 300 210 355 240" style="display:none"/>
+                </svg>
+            </div>
+            
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>シミュレーション実行中</span>
+                </div>
+                <div class="status-item">
+                    <span>ゲート: 4</span>
+                </div>
+                <div class="status-item">
+                    <span>接続: 5</span>
+                </div>
+                <div class="status-item">
+                    <span>100% ズーム</span>
+                </div>
+            </div>
+        </main>
+        
+        <!-- 右サイドバー -->
+        <aside class="sidebar-right">
+            <div class="property-group">
+                <div class="section-title">
+                    <span>📝</span>
+                    <span>選択中: XOR ゲート</span>
+                </div>
+                <div class="property-row">
+                    <span class="property-label">タイプ</span>
+                    <span class="property-value">XOR (排他的論理和)</span>
+                </div>
+                <div class="property-row">
+                    <span class="property-label">ID</span>
+                    <span class="property-value">gate_003</span>
+                </div>
+                <div class="property-row">
+                    <span class="property-label">位置</span>
+                    <span class="property-value">X: 400, Y: 250</span>
+                </div>
+                <div class="property-row">
+                    <span class="property-label">入力 A</span>
+                    <span class="property-value" style="color: #00ff88;">HIGH (1)</span>
+                </div>
+                <div class="property-row">
+                    <span class="property-label">入力 B</span>
+                    <span class="property-value">LOW (0)</span>
+                </div>
+                <div class="property-row">
+                    <span class="property-label">出力</span>
+                    <span class="property-value" style="color: #00ff88;">HIGH (1)</span>
+                </div>
+            </div>
+            
+            <div class="property-group">
+                <div class="section-title">
+                    <span>📊</span>
+                    <span>真理値表</span>
+                </div>
+                <table style="width: 100%; font-size: 13px; margin-top: 12px;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.2);">
+                            <th style="padding: 8px; text-align: left;">A</th>
+                            <th style="padding: 8px; text-align: left;">B</th>
+                            <th style="padding: 8px; text-align: left;">出力</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                            <td style="padding: 8px;">0</td>
+                            <td style="padding: 8px;">0</td>
+                            <td style="padding: 8px;">0</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                            <td style="padding: 8px;">0</td>
+                            <td style="padding: 8px;">1</td>
+                            <td style="padding: 8px; color: #00ff88;">1</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: rgba(0, 255, 136, 0.05);">
+                            <td style="padding: 8px; color: #00ff88;">1</td>
+                            <td style="padding: 8px;">0</td>
+                            <td style="padding: 8px; color: #00ff88;">1</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;">1</td>
+                            <td style="padding: 8px;">1</td>
+                            <td style="padding: 8px;">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="property-group">
+                <div class="section-title">
+                    <span>💡</span>
+                    <span>ヒント</span>
+                </div>
+                <div style="padding: 12px; background: rgba(0, 255, 136, 0.05); border-radius: 8px; border: 1px solid rgba(0, 255, 136, 0.1); font-size: 13px; line-height: 1.6;">
+                    XORゲートは「どちらか片方だけ」がONの時に出力がONになります。両方ONまたは両方OFFの時は出力がOFFになります。
+                </div>
+            </div>
+        </aside>
+    </div>
+</body>
+</html>

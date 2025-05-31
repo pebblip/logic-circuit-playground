@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>論理ゲート最終デザイン - 完璧版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            padding: 40px 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 28px;
+            background: linear-gradient(135deg, #00ff88, #00aaff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            color: #00ff88;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .canvas-container {
+            background: #0a0a0a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 40px;
+            overflow-x: auto;
+        }
+        
+        svg {
+            display: block;
+            margin: 0 auto;
+        }
+        
+        /* ゲートの基本スタイル */
+        .gate {
+            fill: #1a1a1a;
+            stroke: #444;
+            stroke-width: 2;
+            rx: 8;
+            transition: all 0.3s ease;
+            cursor: move;
+        }
+        
+        .gate:hover {
+            stroke: #666;
+            fill: rgba(255, 255, 255, 0.05);
+        }
+        
+        .gate.active {
+            stroke: #00ff88;
+            stroke-width: 2;
+            fill: rgba(0, 255, 136, 0.05);
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.3));
+        }
+        
+        .gate.selected {
+            stroke: #00aaff;
+            stroke-width: 3;
+        }
+        
+        /* カスタムゲート */
+        .custom-gate {
+            fill: rgba(102, 51, 153, 0.1);
+            stroke: #6633cc;
+            stroke-width: 2;
+            rx: 8;
+        }
+        
+        .custom-gate-border {
+            fill: none;
+            stroke: #6633cc;
+            stroke-width: 4;
+            rx: 10;
+            opacity: 0.3;
+        }
+        
+        /* カスタムゲート名（外側） */
+        .custom-gate-name {
+            fill: #ccc;
+            font-size: 14px;
+            font-weight: 600;
+            text-anchor: middle;
+        }
+        
+        /* ゲートのテキスト */
+        .gate-text {
+            fill: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            pointer-events: none;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+        }
+        
+        .gate-text.small {
+            font-size: 11px;
+            font-weight: 500;
+            fill: #999;
+        }
+        
+        .gate-text.active {
+            fill: #00ff88;
+        }
+        
+        /* ピンのスタイル */
+        .pin {
+            fill: none;
+            stroke: #666;
+            stroke-width: 2;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .pin:hover {
+            stroke: #00ff88;
+            r: 8;
+        }
+        
+        .pin.connected {
+            fill: #666;
+            stroke: #666;
+        }
+        
+        .pin.active {
+            fill: #00ff88;
+            stroke: #00ff88;
+            filter: drop-shadow(0 0 6px rgba(0, 255, 136, 0.8));
+        }
+        
+        /* ピンの線 */
+        .pin-line {
+            stroke: #666;
+            stroke-width: 2;
+            transition: all 0.2s ease;
+        }
+        
+        .pin-line.active {
+            stroke: #00ff88;
+        }
+        
+        /* ピンのヒットエリア */
+        .pin-hit-area {
+            fill: transparent;
+            cursor: pointer;
+        }
+        
+        /* スイッチ（INPUT） */
+        .switch-track {
+            fill: #1a1a1a;
+            stroke: #444;
+            stroke-width: 2;
+            rx: 15;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .switch-track.active {
+            fill: rgba(0, 255, 136, 0.1);
+            stroke: #00ff88;
+        }
+        
+        .switch-thumb {
+            fill: #666;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        
+        .switch-thumb.active {
+            fill: #00ff88;
+            transform: translateX(20px);
+            filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.8));
+        }
+        
+        /* LED（OUTPUT） */
+        .led-outer {
+            fill: #1a1a1a;
+            stroke: #444;
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .led-outer.active {
+            stroke: #00ff88;
+            fill: rgba(0, 255, 136, 0.1);
+        }
+        
+        .led-inner {
+            fill: #333;
+            transition: all 0.3s ease;
+        }
+        
+        .led-inner.active {
+            fill: #00ff88;
+            filter: drop-shadow(0 0 15px rgba(0, 255, 136, 1));
+        }
+        
+        /* CLOCK特殊形状 */
+        .clock-shape {
+            fill: #1a1a1a;
+            stroke: #444;
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .clock-shape.active {
+            stroke: #00ff88;
+            fill: rgba(0, 255, 136, 0.05);
+        }
+        
+        /* 接続線 */
+        .wire {
+            fill: none;
+            stroke: #444;
+            stroke-width: 1;
+            stroke-linecap: round;
+            transition: stroke 0.3s ease;
+        }
+        
+        .wire.active {
+            stroke: #00ff88;
+            stroke-width: 1.5;
+            filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.6));
+        }
+        
+        /* 光の粒子 */
+        .signal-particle {
+            fill: #00ff88;
+            r: 6;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 1));
+        }
+        
+        /* ラベル */
+        .label {
+            fill: rgba(255, 255, 255, 0.6);
+            font-size: 11px;
+            text-anchor: middle;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        /* ツールチップ */
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #fff;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            max-width: 300px;
+            line-height: 1.5;
+        }
+        
+        .tooltip.show {
+            opacity: 1;
+        }
+        
+        /* 説明文 */
+        .description {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>論理ゲート最終デザイン - 完璧版</h1>
+        
+        <!-- 基本入出力 -->
+        <section class="section">
+            <h2 class="section-title">基本入出力</h2>
+            <div class="canvas-container">
+                <svg width="800" height="150">
+                    <!-- INPUT (スイッチ) -->
+                    <g transform="translate(150, 75)">
+                        <text x="0" y="-40" class="label">INPUT（スイッチ）</text>
+                        <rect class="switch-track active" x="-25" y="-15" width="50" height="30"/>
+                        <circle class="switch-thumb active" cx="5" cy="0" r="10"/>
+                        <circle cx="35" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="35" cy="0" r="6" class="pin connected active"/>
+                        <line x1="25" y1="0" x2="35" y2="0" class="pin-line active"/>
+                    </g>
+                    
+                    <!-- OUTPUT (LED) -->
+                    <g transform="translate(400, 75)">
+                        <text x="0" y="-40" class="label">OUTPUT（LED）</text>
+                        <circle class="led-outer active" cx="0" cy="0" r="20"/>
+                        <circle class="led-inner active" cx="0" cy="0" r="15"/>
+                        <text x="0" y="0" class="gate-text" style="font-size: 20px;">💡</text>
+                        <circle cx="-30" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="-30" cy="0" r="6" class="pin connected active"/>
+                        <line x1="-20" y1="0" x2="-30" y2="0" class="pin-line active"/>
+                    </g>
+                    
+                    <!-- 接続線 -->
+                    <path d="M 185 75 Q 250 75 370 75" class="wire active"/>
+                    <!-- 光の粒子 -->
+                    <circle class="signal-particle">
+                        <animateMotion dur="1s" repeatCount="indefinite">
+                            <mpath href="#path1"/>
+                        </animateMotion>
+                    </circle>
+                    <path id="path1" d="M 185 75 Q 250 75 370 75" style="display:none"/>
+                </svg>
+            </div>
+        </section>
+        
+        <!-- 基本論理ゲート -->
+        <section class="section">
+            <h2 class="section-title">基本論理ゲート（70×50）</h2>
+            <div class="canvas-container">
+                <svg width="1000" height="300">
+                    <!-- AND -->
+                    <g transform="translate(100, 75)">
+                        <rect class="gate active" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text">AND</text>
+                        <!-- 入力ピン -->
+                        <circle cx="-45" cy="-10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="-10" r="6" class="pin"/>
+                        <line x1="-35" y1="-10" x2="-45" y2="-10" class="pin-line"/>
+                        <circle cx="-45" cy="10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="10" r="6" class="pin"/>
+                        <line x1="-35" y1="10" x2="-45" y2="10" class="pin-line"/>
+                        <!-- 出力ピン -->
+                        <circle cx="45" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="45" cy="0" r="6" class="pin active"/>
+                        <line x1="35" y1="0" x2="45" y2="0" class="pin-line active"/>
+                    </g>
+                    
+                    <!-- OR -->
+                    <g transform="translate(250, 75)">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text">OR</text>
+                        <circle cx="-45" cy="-10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="-10" r="6" class="pin"/>
+                        <line x1="-35" y1="-10" x2="-45" y2="-10" class="pin-line"/>
+                        <circle cx="-45" cy="10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="10" r="6" class="pin"/>
+                        <line x1="-35" y1="10" x2="-45" y2="10" class="pin-line"/>
+                        <circle cx="45" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="45" cy="0" r="6" class="pin"/>
+                        <line x1="35" y1="0" x2="45" y2="0" class="pin-line"/>
+                    </g>
+                    
+                    <!-- NOT -->
+                    <g transform="translate(400, 75)">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text">NOT</text>
+                        <circle cx="-45" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="0" r="6" class="pin"/>
+                        <line x1="-35" y1="0" x2="-45" y2="0" class="pin-line"/>
+                        <circle cx="45" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="45" cy="0" r="6" class="pin"/>
+                        <line x1="35" y1="0" x2="45" y2="0" class="pin-line"/>
+                    </g>
+                    
+                    <!-- NAND -->
+                    <g transform="translate(100, 175)">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text">NAND</text>
+                        <circle cx="-45" cy="-10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="-10" r="6" class="pin"/>
+                        <line x1="-35" y1="-10" x2="-45" y2="-10" class="pin-line"/>
+                        <circle cx="-45" cy="10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="10" r="6" class="pin"/>
+                        <line x1="-35" y1="10" x2="-45" y2="10" class="pin-line"/>
+                        <circle cx="45" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="45" cy="0" r="6" class="pin"/>
+                        <line x1="35" y1="0" x2="45" y2="0" class="pin-line"/>
+                    </g>
+                    
+                    <!-- NOR -->
+                    <g transform="translate(250, 175)">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text">NOR</text>
+                        <circle cx="-45" cy="-10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="-10" r="6" class="pin"/>
+                        <line x1="-35" y1="-10" x2="-45" y2="-10" class="pin-line"/>
+                        <circle cx="-45" cy="10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="10" r="6" class="pin"/>
+                        <line x1="-35" y1="10" x2="-45" y2="10" class="pin-line"/>
+                        <circle cx="45" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="45" cy="0" r="6" class="pin"/>
+                        <line x1="35" y1="0" x2="45" y2="0" class="pin-line"/>
+                    </g>
+                    
+                    <!-- XOR -->
+                    <g transform="translate(400, 175)">
+                        <rect class="gate active" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text">XOR</text>
+                        <circle cx="-45" cy="-10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="-10" r="6" class="pin connected active"/>
+                        <line x1="-35" y1="-10" x2="-45" y2="-10" class="pin-line active"/>
+                        <circle cx="-45" cy="10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="10" r="6" class="pin"/>
+                        <line x1="-35" y1="10" x2="-45" y2="10" class="pin-line"/>
+                        <circle cx="45" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="45" cy="0" r="6" class="pin connected active"/>
+                        <line x1="35" y1="0" x2="45" y2="0" class="pin-line active"/>
+                    </g>
+                    
+                    <!-- XNOR -->
+                    <g transform="translate(550, 175)">
+                        <rect class="gate" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text">XNOR</text>
+                        <circle cx="-45" cy="-10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="-10" r="6" class="pin"/>
+                        <line x1="-35" y1="-10" x2="-45" y2="-10" class="pin-line"/>
+                        <circle cx="-45" cy="10" r="20" class="pin-hit-area"/>
+                        <circle cx="-45" cy="10" r="6" class="pin"/>
+                        <line x1="-35" y1="10" x2="-45" y2="10" class="pin-line"/>
+                        <circle cx="45" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="45" cy="0" r="6" class="pin"/>
+                        <line x1="35" y1="0" x2="45" y2="0" class="pin-line"/>
+                    </g>
+                </svg>
+            </div>
+        </section>
+        
+        <!-- 特殊ゲート -->
+        <section class="section">
+            <h2 class="section-title">特殊ゲート（100×80）+ CLOCK特殊形状</h2>
+            <div class="canvas-container">
+                <svg width="1000" height="250">
+                    <!-- CLOCK（特殊形状） -->
+                    <g transform="translate(100, 125)">
+                        <text x="0" y="-50" class="label">CLOCK</text>
+                        <!-- 円形 -->
+                        <circle class="clock-shape active" cx="0" cy="0" r="40"/>
+                        <text x="0" y="-5" class="gate-text" style="font-size: 24px;">⏰</text>
+                        <!-- パルス表示 -->
+                        <path d="M -20 20 h5 v-8 h5 v8 h5 v-8 h5 v8 h5" 
+                              stroke="#00ff88" stroke-width="1.5" fill="none" opacity="0.6"/>
+                        <!-- 出力ピン -->
+                        <circle cx="55" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="55" cy="0" r="6" class="pin active"/>
+                        <line x1="40" y1="0" x2="55" y2="0" class="pin-line active"/>
+                    </g>
+                    
+                    <!-- D-FF -->
+                    <g transform="translate(250, 125)">
+                        <text x="0" y="-60" class="label">D-FF</text>
+                        <rect class="gate" x="-50" y="-40" width="100" height="80"/>
+                        <text class="gate-text">D-FF</text>
+                        <!-- ピン名 -->
+                        <text x="-35" y="-20" class="gate-text small">D</text>
+                        <text x="-35" y="20" class="gate-text small">CLK</text>
+                        <text x="40" y="-20" class="gate-text small">Q</text>
+                        <text x="40" y="20" class="gate-text small">Q̄</text>
+                        <!-- D入力 -->
+                        <circle cx="-60" cy="-20" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="-20" r="6" class="pin"/>
+                        <line x1="-50" y1="-20" x2="-60" y2="-20" class="pin-line"/>
+                        <!-- CLK入力 -->
+                        <circle cx="-60" cy="20" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="20" r="6" class="pin"/>
+                        <line x1="-50" y1="20" x2="-60" y2="20" class="pin-line"/>
+                        <!-- Q出力 -->
+                        <circle cx="60" cy="-20" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="-20" r="6" class="pin"/>
+                        <line x1="50" y1="-20" x2="60" y2="-20" class="pin-line"/>
+                        <!-- Q̄出力 -->
+                        <circle cx="60" cy="20" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="20" r="6" class="pin"/>
+                        <line x1="50" y1="20" x2="60" y2="20" class="pin-line"/>
+                    </g>
+                    
+                    <!-- MUX -->
+                    <g transform="translate(450, 125)">
+                        <text x="0" y="-60" class="label">MUX 2-to-1</text>
+                        <rect class="gate" x="-50" y="-40" width="100" height="80"/>
+                        <text class="gate-text">MUX</text>
+                        <!-- ピン名 -->
+                        <text x="-35" y="-25" class="gate-text small">A</text>
+                        <text x="-35" y="0" class="gate-text small">B</text>
+                        <text x="-35" y="25" class="gate-text small">S</text>
+                        <text x="40" y="0" class="gate-text small">Y</text>
+                        <!-- 入力A -->
+                        <circle cx="-60" cy="-25" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="-25" r="6" class="pin"/>
+                        <line x1="-50" y1="-25" x2="-60" y2="-25" class="pin-line"/>
+                        <!-- 入力B -->
+                        <circle cx="-60" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="0" r="6" class="pin"/>
+                        <line x1="-50" y1="0" x2="-60" y2="0" class="pin-line"/>
+                        <!-- 選択S -->
+                        <circle cx="-60" cy="25" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="25" r="6" class="pin"/>
+                        <line x1="-50" y1="25" x2="-60" y2="25" class="pin-line"/>
+                        <!-- 出力Y -->
+                        <circle cx="60" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="0" r="6" class="pin"/>
+                        <line x1="50" y1="0" x2="60" y2="0" class="pin-line"/>
+                    </g>
+                    
+                    <!-- SR-LATCH -->
+                    <g transform="translate(650, 125)">
+                        <text x="0" y="-60" class="label">SR-LATCH</text>
+                        <rect class="gate" x="-50" y="-40" width="100" height="80"/>
+                        <text class="gate-text" y="-10">SR</text>
+                        <text class="gate-text small" y="10">LATCH</text>
+                        <!-- ピン名 -->
+                        <text x="-35" y="-20" class="gate-text small">S</text>
+                        <text x="-35" y="20" class="gate-text small">R</text>
+                        <text x="40" y="-20" class="gate-text small">Q</text>
+                        <text x="40" y="20" class="gate-text small">Q̄</text>
+                        <!-- S入力 -->
+                        <circle cx="-60" cy="-20" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="-20" r="6" class="pin"/>
+                        <line x1="-50" y1="-20" x2="-60" y2="-20" class="pin-line"/>
+                        <!-- R入力 -->
+                        <circle cx="-60" cy="20" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="20" r="6" class="pin"/>
+                        <line x1="-50" y1="20" x2="-60" y2="20" class="pin-line"/>
+                        <!-- Q出力 -->
+                        <circle cx="60" cy="-20" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="-20" r="6" class="pin"/>
+                        <line x1="50" y1="-20" x2="60" y2="-20" class="pin-line"/>
+                        <!-- Q̄出力 -->
+                        <circle cx="60" cy="20" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="20" r="6" class="pin"/>
+                        <line x1="50" y1="20" x2="60" y2="20" class="pin-line"/>
+                    </g>
+                    
+                    <!-- Register -->
+                    <g transform="translate(850, 125)">
+                        <text x="0" y="-60" class="label">4-bit Register</text>
+                        <rect class="gate" x="-50" y="-40" width="100" height="80"/>
+                        <text class="gate-text" y="-10">REG</text>
+                        <text class="gate-text small" y="10">[4-bit]</text>
+                        <!-- ピン名 -->
+                        <text x="-30" y="-20" class="gate-text small" style="font-size: 10px;">D[3:0]</text>
+                        <text x="-35" y="20" class="gate-text small">CLK</text>
+                        <text x="30" y="-20" class="gate-text small" style="font-size: 10px;">Q[3:0]</text>
+                        <!-- D入力 -->
+                        <circle cx="-60" cy="-20" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="-20" r="6" class="pin"/>
+                        <line x1="-50" y1="-20" x2="-60" y2="-20" class="pin-line"/>
+                        <!-- CLK入力 -->
+                        <circle cx="-60" cy="20" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="20" r="6" class="pin"/>
+                        <line x1="-50" y1="20" x2="-60" y2="20" class="pin-line"/>
+                        <!-- Q出力 -->
+                        <circle cx="60" cy="-20" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="-20" r="6" class="pin"/>
+                        <line x1="50" y1="-20" x2="60" y2="-20" class="pin-line"/>
+                    </g>
+                </svg>
+            </div>
+        </section>
+        
+        <!-- カスタムゲート -->
+        <section class="section">
+            <h2 class="section-title">カスタムゲート（100×可変高さ）</h2>
+            <div class="canvas-container">
+                <svg width="900" height="500">
+                    <!-- 標準サイズのカスタムゲート -->
+                    <g transform="translate(150, 100)">
+                        <text x="0" y="-50" class="custom-gate-name">MyGate</text>
+                        <rect class="custom-gate-border" x="-52" y="-42" width="104" height="84"/>
+                        <rect class="custom-gate" x="-50" y="-40" width="100" height="80"/>
+                        <!-- ゲート内アイコン -->
+                        <text x="0" y="0" class="gate-text" style="font-size: 24px;">🔧</text>
+                        <!-- ピン -->
+                        <text x="-35" y="-20" class="gate-text small">A</text>
+                        <circle cx="-60" cy="-20" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="-20" r="6" class="pin"/>
+                        <line x1="-50" y1="-20" x2="-60" y2="-20" class="pin-line"/>
+                        
+                        <text x="-35" y="20" class="gate-text small">B</text>
+                        <circle cx="-60" cy="20" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="20" r="6" class="pin"/>
+                        <line x1="-50" y1="20" x2="-60" y2="20" class="pin-line"/>
+                        
+                        <text x="40" y="0" class="gate-text small">Y</text>
+                        <circle cx="60" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="0" r="6" class="pin"/>
+                        <line x1="50" y1="0" x2="60" y2="0" class="pin-line"/>
+                    </g>
+                    
+                    <!-- 4入力カスタムゲート -->
+                    <g transform="translate(350, 120)">
+                        <text x="0" y="-70" class="custom-gate-name">4BitAdder</text>
+                        <rect class="custom-gate-border" x="-52" y="-62" width="104" height="124"/>
+                        <rect class="custom-gate" x="-50" y="-60" width="100" height="120"/>
+                        <text x="0" y="0" class="gate-text" style="font-size: 24px;">➕</text>
+                        
+                        <!-- 入力ピン -->
+                        <text x="-35" y="-40" class="gate-text small">A0</text>
+                        <circle cx="-60" cy="-40" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="-40" r="6" class="pin"/>
+                        <line x1="-50" y1="-40" x2="-60" y2="-40" class="pin-line"/>
+                        
+                        <text x="-35" y="-20" class="gate-text small">A1</text>
+                        <circle cx="-60" cy="-20" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="-20" r="6" class="pin"/>
+                        <line x1="-50" y1="-20" x2="-60" y2="-20" class="pin-line"/>
+                        
+                        <text x="-35" y="0" class="gate-text small">B0</text>
+                        <circle cx="-60" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="0" r="6" class="pin"/>
+                        <line x1="-50" y1="0" x2="-60" y2="0" class="pin-line"/>
+                        
+                        <text x="-35" y="20" class="gate-text small">B1</text>
+                        <circle cx="-60" cy="20" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="20" r="6" class="pin"/>
+                        <line x1="-50" y1="20" x2="-60" y2="20" class="pin-line"/>
+                        
+                        <text x="-35" y="40" class="gate-text small">Ci</text>
+                        <circle cx="-60" cy="40" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="40" r="6" class="pin"/>
+                        <line x1="-50" y1="40" x2="-60" y2="40" class="pin-line"/>
+                        
+                        <!-- 出力ピン -->
+                        <text x="40" y="-20" class="gate-text small">S0</text>
+                        <circle cx="60" cy="-20" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="-20" r="6" class="pin"/>
+                        <line x1="50" y1="-20" x2="60" y2="-20" class="pin-line"/>
+                        
+                        <text x="40" y="0" class="gate-text small">S1</text>
+                        <circle cx="60" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="0" r="6" class="pin"/>
+                        <line x1="50" y1="0" x2="60" y2="0" class="pin-line"/>
+                        
+                        <text x="40" y="20" class="gate-text small">Co</text>
+                        <circle cx="60" cy="20" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="20" r="6" class="pin"/>
+                        <line x1="50" y1="20" x2="60" y2="20" class="pin-line"/>
+                    </g>
+                    
+                    <!-- 大型カスタムゲート（8ピン） -->
+                    <g transform="translate(550, 180)">
+                        <text x="0" y="-110" class="custom-gate-name">MyComplex</text>
+                        <rect class="custom-gate-border" x="-52" y="-102" width="104" height="204"/>
+                        <rect class="custom-gate" x="-50" y="-100" width="100" height="200"/>
+                        <text x="0" y="0" class="gate-text" style="font-size: 24px;">⚙️</text>
+                        
+                        <!-- 8つの入力ピン -->
+                        <text x="-35" y="-80" class="gate-text small">A0</text>
+                        <circle cx="-60" cy="-80" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="-80" r="6" class="pin"/>
+                        <line x1="-50" y1="-80" x2="-60" y2="-80" class="pin-line"/>
+                        
+                        <text x="-35" y="-60" class="gate-text small">A1</text>
+                        <circle cx="-60" cy="-60" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="-60" r="6" class="pin"/>
+                        <line x1="-50" y1="-60" x2="-60" y2="-60" class="pin-line"/>
+                        
+                        <text x="-35" y="-40" class="gate-text small">A2</text>
+                        <circle cx="-60" cy="-40" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="-40" r="6" class="pin"/>
+                        <line x1="-50" y1="-40" x2="-60" y2="-40" class="pin-line"/>
+                        
+                        <text x="-35" y="-20" class="gate-text small">A3</text>
+                        <circle cx="-60" cy="-20" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="-20" r="6" class="pin"/>
+                        <line x1="-50" y1="-20" x2="-60" y2="-20" class="pin-line"/>
+                        
+                        <text x="-35" y="0" class="gate-text small">B0</text>
+                        <circle cx="-60" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="0" r="6" class="pin"/>
+                        <line x1="-50" y1="0" x2="-60" y2="0" class="pin-line"/>
+                        
+                        <text x="-35" y="20" class="gate-text small">B1</text>
+                        <circle cx="-60" cy="20" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="20" r="6" class="pin"/>
+                        <line x1="-50" y1="20" x2="-60" y2="20" class="pin-line"/>
+                        
+                        <text x="-35" y="40" class="gate-text small">B2</text>
+                        <circle cx="-60" cy="40" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="40" r="6" class="pin"/>
+                        <line x1="-50" y1="40" x2="-60" y2="40" class="pin-line"/>
+                        
+                        <text x="-35" y="60" class="gate-text small">B3</text>
+                        <circle cx="-60" cy="60" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="60" r="6" class="pin"/>
+                        <line x1="-50" y1="60" x2="-60" y2="60" class="pin-line"/>
+                        
+                        <text x="-35" y="80" class="gate-text small">Ci</text>
+                        <circle cx="-60" cy="80" r="20" class="pin-hit-area"/>
+                        <circle cx="-60" cy="80" r="6" class="pin"/>
+                        <line x1="-50" y1="80" x2="-60" y2="80" class="pin-line"/>
+                        
+                        <!-- 出力ピン -->
+                        <text x="40" y="-20" class="gate-text small">S0</text>
+                        <circle cx="60" cy="-20" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="-20" r="6" class="pin"/>
+                        <line x1="50" y1="-20" x2="60" y2="-20" class="pin-line"/>
+                        
+                        <text x="40" y="0" class="gate-text small">S1</text>
+                        <circle cx="60" cy="0" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="0" r="6" class="pin"/>
+                        <line x1="50" y1="0" x2="60" y2="0" class="pin-line"/>
+                        
+                        <text x="40" y="20" class="gate-text small">S2</text>
+                        <circle cx="60" cy="20" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="20" r="6" class="pin"/>
+                        <line x1="50" y1="20" x2="60" y2="20" class="pin-line"/>
+                        
+                        <text x="40" y="40" class="gate-text small">S3</text>
+                        <circle cx="60" cy="40" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="40" r="6" class="pin"/>
+                        <line x1="50" y1="40" x2="60" y2="40" class="pin-line"/>
+                        
+                        <text x="40" y="60" class="gate-text small">Co</text>
+                        <circle cx="60" cy="60" r="20" class="pin-hit-area"/>
+                        <circle cx="60" cy="60" r="6" class="pin"/>
+                        <line x1="50" y1="60" x2="60" y2="60" class="pin-line"/>
+                    </g>
+                </svg>
+            </div>
+        </section>
+        
+        <!-- 完全な回路例 -->
+        <section class="section">
+            <h2 class="section-title">完全な回路例（接続アニメーション付き）</h2>
+            <div class="canvas-container">
+                <svg width="800" height="250">
+                    <!-- INPUT 1 -->
+                    <g transform="translate(100, 80)">
+                        <rect class="switch-track active" x="-25" y="-15" width="50" height="30"/>
+                        <circle class="switch-thumb active" cx="5" cy="0" r="10"/>
+                        <circle cx="35" cy="0" r="6" class="pin connected active"/>
+                        <line x1="25" y1="0" x2="35" y2="0" class="pin-line active"/>
+                    </g>
+                    
+                    <!-- INPUT 2 -->
+                    <g transform="translate(100, 160)">
+                        <rect class="switch-track active" x="-25" y="-15" width="50" height="30"/>
+                        <circle class="switch-thumb active" cx="5" cy="0" r="10"/>
+                        <circle cx="35" cy="0" r="6" class="pin connected active"/>
+                        <line x1="25" y1="0" x2="35" y2="0" class="pin-line active"/>
+                    </g>
+                    
+                    <!-- AND -->
+                    <g transform="translate(300, 120)">
+                        <rect class="gate active" x="-35" y="-25" width="70" height="50"/>
+                        <text class="gate-text active">AND</text>
+                        <circle cx="-45" cy="-10" r="6" class="pin connected active"/>
+                        <line x1="-35" y1="-10" x2="-45" y2="-10" class="pin-line active"/>
+                        <circle cx="-45" cy="10" r="6" class="pin connected active"/>
+                        <line x1="-35" y1="10" x2="-45" y2="10" class="pin-line active"/>
+                        <circle cx="45" cy="0" r="6" class="pin connected active"/>
+                        <line x1="35" y1="0" x2="45" y2="0" class="pin-line active"/>
+                    </g>
+                    
+                    <!-- OUTPUT -->
+                    <g transform="translate(500, 120)">
+                        <circle class="led-outer active" cx="0" cy="0" r="20"/>
+                        <circle class="led-inner active" cx="0" cy="0" r="15"/>
+                        <text x="0" y="0" class="gate-text" style="font-size: 20px;">💡</text>
+                        <circle cx="-30" cy="0" r="6" class="pin connected active"/>
+                        <line x1="-20" y1="0" x2="-30" y2="0" class="pin-line active"/>
+                    </g>
+                    
+                    <!-- 接続線 -->
+                    <path d="M 135 80 Q 200 90 255 110" class="wire active"/>
+                    <path d="M 135 160 Q 200 150 255 130" class="wire active"/>
+                    <path d="M 345 120 Q 400 120 470 120" class="wire active"/>
+                    
+                    <!-- 光の粒子アニメーション -->
+                    <circle class="signal-particle">
+                        <animateMotion dur="1.5s" repeatCount="indefinite">
+                            <mpath href="#wire1"/>
+                        </animateMotion>
+                    </circle>
+                    <circle class="signal-particle">
+                        <animateMotion dur="1.5s" repeatCount="indefinite" begin="0.5s">
+                            <mpath href="#wire2"/>
+                        </animateMotion>
+                    </circle>
+                    <circle class="signal-particle">
+                        <animateMotion dur="1s" repeatCount="indefinite">
+                            <mpath href="#wire3"/>
+                        </animateMotion>
+                    </circle>
+                    
+                    <path id="wire1" d="M 135 80 Q 200 90 255 110" style="display:none"/>
+                    <path id="wire2" d="M 135 160 Q 200 150 255 130" style="display:none"/>
+                    <path id="wire3" d="M 345 120 Q 400 120 470 120" style="display:none"/>
+                </svg>
+            </div>
+        </section>
+    </div>
+    
+    <!-- ツールチップ -->
+    <div class="tooltip" id="tooltip"></div>
+    
+    <script>
+        // カスタムゲートのホバー時ツールチップ
+        const customGates = document.querySelectorAll('.custom-gate');
+        const tooltip = document.getElementById('tooltip');
+        
+        customGates.forEach(gate => {
+            const parent = gate.parentElement;
+            const name = parent.querySelector('.custom-gate-name')?.textContent || 'Custom Gate';
+            
+            gate.addEventListener('mouseenter', (e) => {
+                tooltip.innerHTML = `
+                    <strong>${name}</strong><br>
+                    カスタムゲート<br>
+                    クリックで内部回路をプレビュー
+                `;
+                tooltip.classList.add('show');
+            });
+            
+            gate.addEventListener('mousemove', (e) => {
+                tooltip.style.left = e.pageX + 10 + 'px';
+                tooltip.style.top = e.pageY - 40 + 'px';
+            });
+            
+            gate.addEventListener('mouseleave', () => {
+                tooltip.classList.remove('show');
+            });
+            
+            gate.addEventListener('click', () => {
+                alert(`${name}の内部回路プレビュー（実装予定）`);
+            });
+        });
+        
+        // スイッチのトグル
+        document.querySelectorAll('.switch-track, .switch-thumb').forEach(element => {
+            element.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const track = this.classList.contains('switch-track') ? this : this.previousElementSibling;
+                const thumb = this.classList.contains('switch-thumb') ? this : this.nextElementSibling;
+                
+                track.classList.toggle('active');
+                thumb.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>

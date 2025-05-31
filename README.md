@@ -1,108 +1,133 @@
-# Logic Circuit Playground
+# 🎯 Logic Circuit Playground
 
-論理回路の設計・シミュレーションを行うための教育用アプリケーション
+> 誰でも楽しく論理回路からCPUまで学べる、最高の教育プラットフォーム
 
-## 概要
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18.2-61dafb)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.0-646cff)](https://vitejs.dev/)
+
+## 🚀 概要
 
 Logic Circuit Playgroundは、論理回路の基礎から応用まで段階的に学習できるインタラクティブなWebアプリケーションです。ドラッグ&ドロップで回路を構築し、リアルタイムでシミュレーションを実行できます。
 
-## 改善TODO（2025年1月）
+### ✨ 特徴
+- 🎮 **3つのモード**: 学習・自由制作・パズルチャレンジ
+- 🎨 **直感的な操作**: ドラッグ&ドロップで簡単回路作成
+- ⚡ **リアルタイムシミュレーション**: 信号の流れをアニメーション表示
+- 📱 **マルチデバイス対応**: PC・タブレット・スマホで快適操作
+- 🎯 **段階的学習**: 基本ゲートからCPU設計まで
 
-### 🔴 最優先（すぐに着手すべき）
+## 🎯 始め方
 
-1. **接続操作の改善**
-   - [ ] ピンの当たり判定を3倍に拡大
-   - [ ] マグネット効果で吸い付く
-   - [ ] ホバー時にピンが光る/拡大
+### 必要環境
+- Node.js 18以上
+- npm または pnpm
 
-2. **入出力ピンの視覚的区別**
-   - [ ] 入力：▶（青）、出力：●（緑）
-   - [ ] またはIN/OUTの表記
-
-3. **ゲート配置の規則性**
-   - [ ] グリッドスナップ（32px/64px）
-   - [ ] 左から右へ順番に配置
-   - [ ] 配置プレビュー表示
-
-4. **ゲート数の整理**
-   - [ ] 初心者：基本5種類のみ（INPUT, OUTPUT, AND, OR, NOT）
-   - [ ] 中級者：+3種類（NAND, NOR, XOR）
-   - [ ] 上級者：全て解放
-
-5. **モード構成のシンプル化**
-   - [ ] チュートリアル（初回のみ）
-   - [ ] フリーモード（メイン）
-   - [ ] 学習モード（レベル1-10）
-
-### 🟡 高優先度（基本機能の改善）
-
-6. **レスポンシブ対応**
-   - [ ] モバイル：下部ツールバー
-   - [ ] タブレット：折りたたみサイドバー
-   - [ ] タッチ操作対応
-
-7. **ヘルプシステムの充実**
-   - [ ] 各ゲートの動作説明
-   - [ ] 真理値表
-   - [ ] ホバーで簡易説明
-
-8. **設定画面の実装**
-   - [ ] グリッド表示ON/OFF
-   - [ ] テーマ切り替え
-   - [ ] アニメーション速度
-
-### 🟢 中優先度（使いやすさ向上）
-
-9. **回路例ライブラリ**
-   - [ ] 基本回路のサンプル
-   - [ ] 「なぜこう動くか」の説明付き
-
-10. **「発見」システムの見直し**
-    - [ ] 「学習進捗」にシンプル化
-    - [ ] 不要なノート機能を削除
-
-### 🔵 低優先度（将来的な機能）
-
-11. **ショートカットキー**
-    - [ ] 上級者向けオプション
-
-12. **タイムチャート**
-    - [ ] CLOCK使用時のみ表示
-
-## セットアップ
-
-1. 環境変数の設定
+### インストール
 ```bash
-cp .env.example .env
+# リポジトリをクローン
+git clone https://github.com/yourusername/logic-circuit-playground.git
+cd logic-circuit-playground
+
+# 依存関係をインストール
+npm install
+
+# 開発サーバーを起動
+npm run dev
 ```
 
-2. 依存関係のインストール
+### ビルド
 ```bash
-pnpm install
+# プロダクションビルド
+npm run build
+
+# ビルドをプレビュー
+npm run preview
 ```
 
-3. 開発サーバーの起動
-```bash
-pnpm dev
+## 🎮 使い方
+
+### 学習モード
+1. 初回起動時は自動的にチュートリアルが開始
+2. 基本的な操作を学んだ後、段階的なレッスンへ
+3. 各レッスンをクリアするとバッジを獲得
+
+### 自由制作モード
+1. ツールパレットからゲートをドラッグ&ドロップ
+2. ピンをクリックして接続を作成
+3. 実行ボタンでシミュレーション開始
+4. 作品を保存・共有
+
+### パズルモード
+1. 与えられた条件を満たす回路を作成
+2. ヒントを使いながら問題を解決
+3. 最小ゲート数でクリアを目指す
+
+## 🛠️ アーキテクチャ
+
+Feature-Sliced Design + カスタムフックベースの設計を採用。詳細は[PROJECT_BLUEPRINT.md](./PROJECT_BLUEPRINT.md)を参照。
+
+```
+src/
+├── features/      # 機能単位のモジュール
+├── entities/      # ドメインモデル
+├── shared/        # 共有リソース
+└── app/          # アプリケーション層
 ```
 
-## デバッグモード
+## 🧪 開発
 
-デバッグモードを有効にすると、以下の機能が利用可能になります：
-- レベル2のチャレンジ（複合ゲート、マルチプレクサなど）
-- チャレンジセレクター（任意のチャレンジにジャンプ可能）
-- 追加のゲート（NAND、NOR、XNOR）
+### コマンド一覧
+```bash
+npm run dev        # 開発サーバー起動
+npm run build      # プロダクションビルド
+npm run test       # テスト実行
+npm run typecheck  # 型チェック
+npm run lint       # リント実行
+npm run format     # コード整形
+```
 
-### 有効化方法
+### 品質チェック（必須）
+```bash
+# コミット前に必ず実行
+npm run typecheck && npm run test && npm run build
+```
 
-1. **環境変数で設定**（推奨）
-   `.env`ファイルで設定：
-   ```
-   VITE_DEBUG_MODE=true
-   ```
+## 📚 ドキュメント
 
-2. **URLパラメータで設定**
-   ```
-   http://localhost:5173?debug=true
-   ```
+- [ドキュメント構成](./docs/README.md) - ドキュメントの全体像と関係
+- [プロジェクト設計書](./docs/PROJECT_BLUEPRINT.md) - 全体設計（What & Why）
+- [技術アーキテクチャ](./docs/development/ARCHITECTURE.md) - 実装詳細（How）
+- [開発ロードマップ](./docs/development/ROADMAP.md) - 開発計画（When）
+- [開発ガイドライン](./docs/development/GUIDELINES.md) - 品質基準と規約（Rules）
+- [UIデザイン](./docs/design/mockups/) - モックアップとデザイン仕様
 
+## 🤝 コントリビューション
+
+1. このリポジトリをフォーク
+2. フィーチャーブランチを作成 (`git checkout -b feature/amazing-feature`)
+3. 変更をコミット (`git commit -m 'feat: add amazing feature'`)
+4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
+5. プルリクエストを作成
+
+### コミット規約
+[Conventional Commits](https://www.conventionalcommits.org/)に従います：
+- `feat:` 新機能
+- `fix:` バグ修正
+- `docs:` ドキュメント
+- `style:` フォーマット
+- `refactor:` リファクタリング
+- `test:` テスト
+- `chore:` その他
+
+## 📄 ライセンス
+
+MIT License - 詳細は[LICENSE](./LICENSE)を参照
+
+## 🙏 謝辞
+
+このプロジェクトは教育目的で作成されました。論理回路の楽しさを多くの人に伝えられることを願っています。
+
+---
+
+**楽しく学んで、創造しよう！** 🚀
