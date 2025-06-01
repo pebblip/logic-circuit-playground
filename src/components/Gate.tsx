@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Gate } from '../types/circuit';
 import { useCircuitStore } from '../stores/circuitStore';
+import { useIsMobile } from '../hooks/useResponsive';
 
 interface GateComponentProps {
   gate: Gate;
@@ -11,6 +12,10 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
   const [isDragging, setIsDragging] = React.useState(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const hasDragged = useRef(false);
+  const isMobile = useIsMobile();
+  
+  // モバイルでは1.4倍、デスクトップでは通常サイズ
+  const scaleFactor = isMobile ? 1.4 : 1;
 
   React.useEffect(() => {
     const handleGlobalMouseMove = (event: MouseEvent) => {
@@ -42,7 +47,36 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       moveGate(gate.id, newPosition);
     };
 
-    const handleGlobalMouseUp = () => {
+    const handleGlobalTouchMove = (event: TouchEvent) => {
+      if (!isDragging || event.touches.length !== 1) return;
+
+      const touch = event.touches[0];
+      const svg = document.querySelector('.canvas') as SVGSVGElement;
+      if (!svg) return;
+
+      const point = svg.createSVGPoint();
+      point.x = touch.clientX;
+      point.y = touch.clientY;
+      const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
+
+      const newPosition = {
+        x: svgPoint.x - dragStart.current.x,
+        y: svgPoint.y - dragStart.current.y,
+      };
+      
+      // 実際に移動した場合はフラグを立てる
+      const distance = Math.sqrt(
+        Math.pow(newPosition.x - gate.position.x, 2) + 
+        Math.pow(newPosition.y - gate.position.y, 2)
+      );
+      if (distance > 5) {
+        hasDragged.current = true;
+      }
+      
+      moveGate(gate.id, newPosition);
+    };
+
+    const handleGlobalEnd = () => {
       setIsDragging(false);
       // ドラッグが終わったら少し待ってからフラグをリセット
       setTimeout(() => {
@@ -52,12 +86,16 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
 
     if (isDragging) {
       document.addEventListener('mousemove', handleGlobalMouseMove);
-      document.addEventListener('mouseup', handleGlobalMouseUp);
+      document.addEventListener('mouseup', handleGlobalEnd);
+      document.addEventListener('touchmove', handleGlobalTouchMove);
+      document.addEventListener('touchend', handleGlobalEnd);
     }
 
     return () => {
       document.removeEventListener('mousemove', handleGlobalMouseMove);
-      document.removeEventListener('mouseup', handleGlobalMouseUp);
+      document.removeEventListener('mouseup', handleGlobalEnd);
+      document.removeEventListener('touchmove', handleGlobalTouchMove);
+      document.removeEventListener('touchend', handleGlobalEnd);
     };
   }, [isDragging, gate.id, gate.position, moveGate]);
 
@@ -86,6 +124,37 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
     
     setIsDragging(true);
     selectGate(gate.id);
+  };
+
+  const handleTouchStart = (event: React.TouchEvent) => {
+    event.preventDefault();
+    
+    // ワイヤー描画中で、このゲートから描画している場合は移動を禁止
+    const state = useCircuitStore.getState();
+    if (state.isDrawingWire && state.wireStart && state.wireStart.gateId === gate.id) {
+      return;
+    }
+    
+    if (event.touches.length === 1) {
+      const touch = event.touches[0];
+      
+      // SVG座標系でのタッチ位置を取得
+      const svg = (event.currentTarget as SVGElement).ownerSVGElement;
+      if (!svg) return;
+
+      const point = svg.createSVGPoint();
+      point.x = touch.clientX;
+      point.y = touch.clientY;
+      const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
+
+      dragStart.current = {
+        x: svgPoint.x - gate.position.x,
+        y: svgPoint.y - gate.position.y,
+      };
+      
+      setIsDragging(true);
+      selectGate(gate.id);
+    }
   };
 
   const handlePinClick = (event: React.MouseEvent, pinIndex: number, isOutput: boolean) => {
@@ -117,7 +186,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       case 'INPUT':
         return (
           <g>
-            <g onClick={handleInputClick} onMouseDown={handleMouseDown} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onClick={handleInputClick} onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <rect 
                 className={`switch-track ${gate.output ? 'active' : ''}`}
                 x="-25" y="-15" width="50" height="30" rx="15"
@@ -152,7 +221,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       case 'OUTPUT':
         return (
           <g>
-            <g onMouseDown={handleMouseDown} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <circle cx="0" cy="0" r="20" fill="#1a1a1a" stroke="#444" strokeWidth="2"/>
               <circle cx="0" cy="0" r="15" fill={gate.inputs[0] === '1' ? '#00ff88' : '#333'}/>
               <text x="0" y="5" className="gate-text" style={{ fontSize: '20px' }}>💡</text>
@@ -178,7 +247,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       case 'CLOCK':
         return (
           <g>
-            <g onMouseDown={handleMouseDown} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               {/* 円形デザイン（モックアップに合わせて） */}
               <circle 
                 className={`gate ${isSelected ? 'selected' : ''}`}
@@ -218,7 +287,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       case 'D-FF':
         return (
           <g>
-            <g onMouseDown={handleMouseDown} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <rect 
                 className={`gate ${isSelected ? 'selected' : ''}`}
                 x="-50" y="-40" width="100" height="80" rx="8"
@@ -257,7 +326,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       case 'SR-LATCH':
         return (
           <g>
-            <g onMouseDown={handleMouseDown} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <rect 
                 className={`gate ${isSelected ? 'selected' : ''}`}
                 x="-50" y="-40" width="100" height="80" rx="8"
@@ -297,7 +366,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       case 'MUX':
         return (
           <g>
-            <g onMouseDown={handleMouseDown} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <rect 
                 className={`gate ${isSelected ? 'selected' : ''}`}
                 x="-50" y="-40" width="100" height="80" rx="8"
@@ -342,7 +411,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
         const inputCount = gate.type === 'NOT' ? 1 : 2;
         return (
           <g>
-            <g onMouseDown={handleMouseDown} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <rect 
                 className={`gate ${isSelected ? 'selected' : ''}`}
                 x="-35" y="-25" width="70" height="50" rx="8"
@@ -395,7 +464,9 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
 
   return (
     <g
-      transform={`translate(${gate.position.x}, ${gate.position.y})`}
+      className="gate-container"
+      data-gate-id={gate.id}
+      transform={`translate(${gate.position.x}, ${gate.position.y}) scale(${scaleFactor})`}
     >
       {renderGate()}
     </g>

@@ -1,0 +1,108 @@
+/* タブレットレイアウト */
+.tablet-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #0a0a0a;
+}
+
+.tablet-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ツールパレット（折りたたみ可能） */
+.tablet-tool-palette {
+  position: relative;
+  background: rgba(15, 15, 15, 0.98);
+  transition: width 0.3s ease;
+  overflow: hidden;
+}
+
+.tablet-tool-palette.open {
+  width: 240px;
+}
+
+.tablet-tool-palette.collapsed {
+  width: 48px;
+}
+
+.palette-toggle {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.tablet-tool-palette.open .tool-palette {
+  opacity: 1;
+  transition: opacity 0.3s ease 0.1s;
+}
+
+.tablet-tool-palette.collapsed .tool-palette {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* キャンバス */
+.tablet-canvas-container {
+  flex: 1;
+  background: #0a0a0a;
+  position: relative;
+  overflow: hidden;
+}
+
+/* プロパティパネル（折りたたみ可能） */
+.tablet-property-panel {
+  position: relative;
+  background: rgba(15, 15, 15, 0.98);
+  transition: width 0.3s ease;
+  overflow: hidden;
+}
+
+.tablet-property-panel.open {
+  width: 280px;
+}
+
+.tablet-property-panel.collapsed {
+  width: 48px;
+}
+
+.panel-toggle {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.tablet-property-panel.open .property-panel {
+  opacity: 1;
+  transition: opacity 0.3s ease 0.1s;
+}
+
+.tablet-property-panel.collapsed .property-panel {
+  opacity: 0;
+  pointer-events: none;
+}
