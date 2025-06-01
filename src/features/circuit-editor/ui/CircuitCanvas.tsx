@@ -19,7 +19,8 @@ export const CircuitCanvas: React.FC = () => {
     addGate, 
     selectGate, 
     moveGate, 
-    removeGate, 
+    removeGate,
+    toggleGate,
     startConnection,
     updateConnectionPosition,
     completeConnection,
@@ -178,7 +179,7 @@ export const CircuitCanvas: React.FC = () => {
           const handleToggleInput = () => {
             if (gate.type === 'INPUT') {
               // INPUTゲートの値をトグル
-              gate.toggle();
+              toggleGate(gate.id);
             }
           };
           const handlePinClick = (pinIndex: number, pinType: 'input' | 'output') => {

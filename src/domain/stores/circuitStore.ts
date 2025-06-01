@@ -51,6 +51,7 @@ export interface CircuitActions {
   moveGate: (gateId: string, position: Position) => void;
   selectGate: (gateId: string | null) => void;
   duplicateGate: (gateId: string) => BaseGate | null;
+  toggleGate: (gateId: string) => void;
   
   // 接続操作（高品質版）
   startConnection: (gateId: string, pinIndex: number, pinType: 'input' | 'output') => boolean;
@@ -199,6 +200,19 @@ export const useCircuitStore = create<CircuitStore>()(
         });
         
         return newGate;
+      },
+
+      toggleGate: (gateId: string) => {
+        set((draft) => {
+          const gate = draft.gates.find(g => g.id === gateId);
+          if (gate && gate.type === 'INPUT') {
+            gate.toggle();
+            // シミュレーション更新をトリガー
+            if (draft.isSimulating) {
+              setTimeout(() => get().updateSimulation(), 0);
+            }
+          }
+        });
       },
 
       // 接続操作（高品質版）
