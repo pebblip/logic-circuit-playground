@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Gate, Wire, CircuitState, GateType, Position } from '../types/circuit';
 import { evaluateCircuit } from '../utils/simulation';
+import { GateFactory } from '../models/gates/GateFactory';
 
 interface CircuitStore extends CircuitState {
   // ゲート操作
@@ -27,13 +28,8 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
   wireStart: null,
 
   addGate: (type, position) => {
-    const newGate: Gate = {
-      id: `gate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      type,
-      position,
-      inputs: type === 'NOT' || type === 'OUTPUT' ? [''] : ['', ''],
-      output: type === 'INPUT' ? false : false,
-    };
+    // GateFactoryを使用してゲートを作成（特殊ゲートにも対応）
+    const newGate = GateFactory.createGate(type, position);
     
     set((state) => {
       const newGates = [...state.gates, newGate];
@@ -66,6 +62,27 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
             x += 35;
           } else if (gate.type === 'OUTPUT') {
             x -= 30;
+          } else if (gate.type === 'CLOCK') {
+            x += 55;
+          } else if (gate.type === 'D-FF' || gate.type === 'SR-LATCH') {
+            const isOutput = pinIndex === -1;
+            if (isOutput) {
+              x += 60;
+              y -= 20; // Q output
+            } else {
+              x -= 60;
+              y += pinIndex === 0 ? -20 : 20;
+            }
+          } else if (gate.type === 'MUX') {
+            const isOutput = pinIndex === -1;
+            if (isOutput) {
+              x += 60;
+            } else {
+              x -= 60;
+              if (pinIndex === 0) y -= 25;
+              else if (pinIndex === 1) y += 0;
+              else if (pinIndex === 2) y += 25;
+            }
           } else {
             // 通常のゲート
             const isOutput = pinIndex === -1;
@@ -127,6 +144,27 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
       x += 35;
     } else if (gate.type === 'OUTPUT') {
       x -= 30;
+    } else if (gate.type === 'CLOCK') {
+      x += 55;
+    } else if (gate.type === 'D-FF' || gate.type === 'SR-LATCH') {
+      const isOutput = pinIndex === -1;
+      if (isOutput) {
+        x += 60;
+        y -= 20; // Q output
+      } else {
+        x -= 60;
+        y += pinIndex === 0 ? -20 : 20;
+      }
+    } else if (gate.type === 'MUX') {
+      const isOutput = pinIndex === -1;
+      if (isOutput) {
+        x += 60;
+      } else {
+        x -= 60;
+        if (pinIndex === 0) y -= 25;
+        else if (pinIndex === 1) y += 0;
+        else if (pinIndex === 2) y += 25;
+      }
     } else {
       // 通常のゲート
       const isOutput = pinIndex === -1; // -1は出力ピン

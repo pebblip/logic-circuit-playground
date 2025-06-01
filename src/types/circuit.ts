@@ -1,5 +1,5 @@
 // 基本的な型定義
-export type GateType = 'AND' | 'OR' | 'NOT' | 'XOR' | 'NAND' | 'NOR' | 'INPUT' | 'OUTPUT';
+export type GateType = 'AND' | 'OR' | 'NOT' | 'XOR' | 'NAND' | 'NOR' | 'INPUT' | 'OUTPUT' | 'CLOCK' | 'D-FF' | 'SR-LATCH' | 'MUX';
 
 export interface Position {
   x: number;
@@ -12,6 +12,7 @@ export interface Gate {
   position: Position;
   inputs: string[];  // 入力ピンの状態
   output: boolean;   // 出力ピンの状態
+  metadata?: any;    // 特殊ゲート用の追加データ（後方互換性のため）
 }
 
 export interface Wire {

@@ -18,6 +18,13 @@ export const WireComponent: React.FC<WireComponentProps> = ({ wire }) => {
   const getOutputPinPosition = (gate: typeof fromGate) => {
     if (gate.type === 'INPUT') {
       return { x: gate.position.x + 35, y: gate.position.y };
+    } else if (gate.type === 'CLOCK') {
+      return { x: gate.position.x + 55, y: gate.position.y };
+    } else if (gate.type === 'D-FF' || gate.type === 'SR-LATCH') {
+      // Q出力（上側）
+      return { x: gate.position.x + 60, y: gate.position.y - 20 };
+    } else if (gate.type === 'MUX') {
+      return { x: gate.position.x + 60, y: gate.position.y };
     }
     return { x: gate.position.x + 45, y: gate.position.y };
   };
@@ -25,6 +32,17 @@ export const WireComponent: React.FC<WireComponentProps> = ({ wire }) => {
   const getInputPinPosition = (gate: typeof toGate, pinIndex: number) => {
     if (gate.type === 'OUTPUT') {
       return { x: gate.position.x - 30, y: gate.position.y };
+    } else if (gate.type === 'D-FF' || gate.type === 'SR-LATCH') {
+      // D-FF/SR-LATCHの入力ピン
+      const y = pinIndex === 0 ? -20 : 20;
+      return { x: gate.position.x - 60, y: gate.position.y + y };
+    } else if (gate.type === 'MUX') {
+      // MUXの入力ピン
+      let y = 0;
+      if (pinIndex === 0) y = -25;      // A
+      else if (pinIndex === 1) y = 0;   // B
+      else if (pinIndex === 2) y = 25;  // S
+      return { x: gate.position.x - 60, y: gate.position.y + y };
     }
     const inputCount = gate.type === 'NOT' ? 1 : 2;
     const y = inputCount === 1 ? 0 : pinIndex === 0 ? -10 : 10;

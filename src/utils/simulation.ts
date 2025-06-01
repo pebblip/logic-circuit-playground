@@ -27,6 +27,74 @@ export function evaluateGate(gate: Gate, inputs: boolean[]): boolean {
     case 'NOR':
       return !inputs.some(input => input);
     
+    // 特殊ゲート（今後実装）
+    case 'CLOCK':
+      // CLOCKゲートは自己生成信号
+      if (gate.metadata?.isRunning) {
+        const frequency = gate.metadata.frequency || 1;
+        const period = 1000 / frequency;
+        const now = Date.now();
+        const startTime = gate.metadata.startTime || now;
+        const elapsed = now - startTime;
+        // 周期的な切り替え
+        return Math.floor(elapsed / period) % 2 === 1;
+      }
+      return false;
+    
+    case 'D-FF':
+      // D-FFの実装（立ち上がりエッジでDをキャプチャ）
+      if (gate.metadata && inputs.length >= 2) {
+        const d = inputs[0];
+        const clk = inputs[1];
+        const prevClk = gate.metadata.previousClockState || false;
+        
+        // 立ち上がりエッジ検出
+        if (!prevClk && clk) {
+          gate.metadata.qOutput = d;
+          gate.metadata.qBarOutput = !d;
+        }
+        
+        // 現在のクロック状態を保存
+        gate.metadata.previousClockState = clk;
+        
+        return gate.metadata.qOutput;
+      }
+      return false;
+    
+    case 'SR-LATCH':
+      // SR-Latchの実装
+      if (gate.metadata && inputs.length >= 2) {
+        const s = inputs[0]; // Set
+        const r = inputs[1]; // Reset
+        
+        // S=1, R=0 => Q=1
+        if (s && !r) {
+          gate.metadata.qOutput = true;
+          gate.metadata.qBarOutput = false;
+        }
+        // S=0, R=1 => Q=0
+        else if (!s && r) {
+          gate.metadata.qOutput = false;
+          gate.metadata.qBarOutput = true;
+        }
+        // S=0, R=0 => 状態保持
+        // S=1, R=1 => 不定状態（避けるべき）
+        
+        return gate.metadata.qOutput;
+      }
+      return false;
+    
+    case 'MUX':
+      // 2:1 MUXの実装
+      if (inputs.length >= 3) {
+        const i0 = inputs[0];    // Input 0
+        const i1 = inputs[1];    // Input 1
+        const select = inputs[2]; // Select
+        // S=0 => Y=I0, S=1 => Y=I1
+        return select ? i1 : i0;
+      }
+      return false;
+    
     default:
       return false;
   }
@@ -44,7 +112,16 @@ export function evaluateCircuit(gates: Gate[], wires: Wire[]): { gates: Gate[], 
   
   // 各ゲートの入力配列を初期化
   updatedGates.forEach(gate => {
-    const inputCount = gate.type === 'NOT' || gate.type === 'OUTPUT' ? 1 : 2;
+    let inputCount = 2; // デフォルト
+    if (gate.type === 'NOT' || gate.type === 'OUTPUT') {
+      inputCount = 1;
+    } else if (gate.type === 'D-FF' || gate.type === 'SR-LATCH') {
+      inputCount = 2;
+    } else if (gate.type === 'MUX') {
+      inputCount = 3;
+    } else if (gate.type === 'CLOCK' || gate.type === 'INPUT') {
+      inputCount = 0;
+    }
     gateInputs.set(gate.id, new Array(inputCount).fill(false));
     gateOutputConnections.set(gate.id, []);
   });
@@ -91,6 +168,11 @@ export function evaluateCircuit(gates: Gate[], wires: Wire[]): { gates: Gate[], 
   evaluationOrder.forEach(gateId => {
     const gate = updatedGates.find(g => g.id === gateId);
     if (!gate) return;
+    
+    // CLOCKゲートの場合、開始時刻を初期化
+    if (gate.type === 'CLOCK' && gate.metadata && !gate.metadata.startTime) {
+      gate.metadata.startTime = Date.now();
+    }
     
     // このゲートへの入力を収集
     const inputs = gateInputs.get(gateId) || [];

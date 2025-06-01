@@ -175,6 +175,169 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
           </g>
         );
 
+      case 'CLOCK':
+        return (
+          <g>
+            <g onMouseDown={handleMouseDown} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+              {/* 円形デザイン（モックアップに合わせて） */}
+              <circle 
+                className={`gate ${isSelected ? 'selected' : ''}`}
+                cx="0" cy="0" r="40"
+                fill="#1a1a1a"
+                stroke={isSelected ? '#00aaff' : '#444'}
+                strokeWidth={isSelected ? '3' : '2'}
+              />
+              {/* 時計アイコン */}
+              <text x="0" y="-5" className="gate-text" style={{ fontSize: '24px' }}>⏰</text>
+              {/* パルス表示 */}
+              <path d="M -20 20 h5 v-8 h5 v8 h5 v-8 h5 v8 h5" 
+                    stroke={gate.output ? '#00ff88' : '#0ff'} 
+                    strokeWidth="1.5" 
+                    fill="none" 
+                    opacity="0.8"/>
+            </g>
+            
+            {/* 出力ピン */}
+            <g>
+              <circle 
+                cx="55" cy="0" r="15" 
+                fill="transparent"
+                style={{ cursor: 'crosshair' }}
+                onClick={(e) => handlePinClick(e, 0, true)}
+              />
+              <circle 
+                cx="55" cy="0" r="6" 
+                className={`pin ${gate.output ? 'active' : ''}`}
+                pointerEvents="none"
+              />
+              <line x1="40" y1="0" x2="55" y2="0" className={`pin-line ${gate.output ? 'active' : ''}`} pointerEvents="none"/>
+            </g>
+          </g>
+        );
+
+      case 'D-FF':
+        return (
+          <g>
+            <g onMouseDown={handleMouseDown} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+              <rect 
+                className={`gate ${isSelected ? 'selected' : ''}`}
+                x="-50" y="-40" width="100" height="80" rx="8"
+              />
+              <text className="gate-text" x="0" y="0">D-FF</text>
+              {/* ピン名 */}
+              <text className="gate-text" x="-35" y="-20" style={{ fontSize: '11px', fill: '#999' }}>D</text>
+              <text className="gate-text" x="-35" y="20" style={{ fontSize: '11px', fill: '#999' }}>CLK</text>
+              <text className="gate-text" x="40" y="-20" style={{ fontSize: '11px', fill: '#999' }}>Q</text>
+              <text className="gate-text" x="40" y="20" style={{ fontSize: '11px', fill: '#999' }}>Q̄</text>
+            </g>
+            
+            {/* 入力ピン - D */}
+            <g>
+              <circle cx="-60" cy="-20" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 0, false)} />
+              <circle cx="-60" cy="-20" r="6" className={`pin ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="-20" x2="-60" y2="-20" className={`pin-line ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+            </g>
+            {/* 入力ピン - CLK */}
+            <g>
+              <circle cx="-60" cy="20" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 1, false)} />
+              <circle cx="-60" cy="20" r="6" className={`pin ${gate.inputs[1] === '1' ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="20" x2="-60" y2="20" className={`pin-line ${gate.inputs[1] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+            </g>
+            
+            {/* 出力ピン - Q */}
+            <g>
+              <circle cx="60" cy="-20" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 0, true)} />
+              <circle cx="60" cy="-20" r="6" className={`pin ${gate.output ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="50" y1="-20" x2="60" y2="-20" className={`pin-line ${gate.output ? 'active' : ''}`} pointerEvents="none"/>
+            </g>
+            {/* 出力ピン - Q̄ (今は単一出力として扱う) */}
+          </g>
+        );
+
+      case 'SR-LATCH':
+        return (
+          <g>
+            <g onMouseDown={handleMouseDown} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+              <rect 
+                className={`gate ${isSelected ? 'selected' : ''}`}
+                x="-50" y="-40" width="100" height="80" rx="8"
+              />
+              <text className="gate-text" x="0" y="-10">SR</text>
+              <text className="gate-text" x="0" y="10" style={{ fontSize: '11px', fill: '#999' }}>LATCH</text>
+              {/* ピン名 */}
+              <text className="gate-text" x="-35" y="-20" style={{ fontSize: '11px', fill: '#999' }}>S</text>
+              <text className="gate-text" x="-35" y="20" style={{ fontSize: '11px', fill: '#999' }}>R</text>
+              <text className="gate-text" x="40" y="-20" style={{ fontSize: '11px', fill: '#999' }}>Q</text>
+              <text className="gate-text" x="40" y="20" style={{ fontSize: '11px', fill: '#999' }}>Q̄</text>
+            </g>
+            
+            {/* 入力ピン - S */}
+            <g>
+              <circle cx="-60" cy="-20" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 0, false)} />
+              <circle cx="-60" cy="-20" r="6" className={`pin ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="-20" x2="-60" y2="-20" className={`pin-line ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+            </g>
+            {/* 入力ピン - R */}
+            <g>
+              <circle cx="-60" cy="20" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 1, false)} />
+              <circle cx="-60" cy="20" r="6" className={`pin ${gate.inputs[1] === '1' ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="20" x2="-60" y2="20" className={`pin-line ${gate.inputs[1] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+            </g>
+            
+            {/* 出力ピン - Q */}
+            <g>
+              <circle cx="60" cy="-20" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 0, true)} />
+              <circle cx="60" cy="-20" r="6" className={`pin ${gate.output ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="50" y1="-20" x2="60" y2="-20" className={`pin-line ${gate.output ? 'active' : ''}`} pointerEvents="none"/>
+            </g>
+            {/* 出力ピン - Q̄ (今は単一出力として扱う) */}
+          </g>
+        );
+
+      case 'MUX':
+        return (
+          <g>
+            <g onMouseDown={handleMouseDown} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+              <rect 
+                className={`gate ${isSelected ? 'selected' : ''}`}
+                x="-50" y="-40" width="100" height="80" rx="8"
+              />
+              <text className="gate-text" x="0" y="0">MUX</text>
+              {/* ピン名 */}
+              <text className="gate-text" x="-35" y="-25" style={{ fontSize: '11px', fill: '#999' }}>A</text>
+              <text className="gate-text" x="-35" y="0" style={{ fontSize: '11px', fill: '#999' }}>B</text>
+              <text className="gate-text" x="-35" y="25" style={{ fontSize: '11px', fill: '#999' }}>S</text>
+              <text className="gate-text" x="40" y="0" style={{ fontSize: '11px', fill: '#999' }}>Y</text>
+            </g>
+            
+            {/* 入力ピン - A (I0) */}
+            <g>
+              <circle cx="-60" cy="-25" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 0, false)} />
+              <circle cx="-60" cy="-25" r="6" className={`pin ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="-25" x2="-60" y2="-25" className={`pin-line ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+            </g>
+            {/* 入力ピン - B (I1) */}
+            <g>
+              <circle cx="-60" cy="0" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 1, false)} />
+              <circle cx="-60" cy="0" r="6" className={`pin ${gate.inputs[1] === '1' ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="0" x2="-60" y2="0" className={`pin-line ${gate.inputs[1] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+            </g>
+            {/* 入力ピン - S (Select) */}
+            <g>
+              <circle cx="-60" cy="25" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 2, false)} />
+              <circle cx="-60" cy="25" r="6" className={`pin ${gate.inputs[2] === '1' ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="25" x2="-60" y2="25" className={`pin-line ${gate.inputs[2] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+            </g>
+            
+            {/* 出力ピン - Y */}
+            <g>
+              <circle cx="60" cy="0" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 0, true)} />
+              <circle cx="60" cy="0" r="6" className={`pin ${gate.output ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="50" y1="0" x2="60" y2="0" className={`pin-line ${gate.output ? 'active' : ''}`} pointerEvents="none"/>
+            </g>
+          </g>
+        );
+
       default:
         const inputCount = gate.type === 'NOT' ? 1 : 2;
         return (

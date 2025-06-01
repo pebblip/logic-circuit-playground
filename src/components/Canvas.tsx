@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useCircuitStore } from '../stores/circuitStore';
 import { GateComponent } from './Gate';
 import { WireComponent } from './Wire';
+import { evaluateCircuit } from '../utils/simulation';
 
 export const Canvas: React.FC = () => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -22,6 +23,20 @@ export const Canvas: React.FC = () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isDrawingWire, cancelWireDrawing]);
+
+  // CLOCKゲートがある場合、定期的に回路を更新
+  React.useEffect(() => {
+    const hasClockGate = gates.some(gate => gate.type === 'CLOCK' && gate.metadata?.isRunning);
+    
+    if (hasClockGate) {
+      const interval = setInterval(() => {
+        const { gates: updatedGates, wires: updatedWires } = evaluateCircuit(gates, wires);
+        useCircuitStore.setState({ gates: updatedGates, wires: updatedWires });
+      }, 50); // 20Hz更新
+      
+      return () => clearInterval(interval);
+    }
+  }, [gates, wires]);
 
 
   const handleMouseMove = (event: React.MouseEvent) => {

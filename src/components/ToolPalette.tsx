@@ -16,6 +16,14 @@ const IO_GATES: { type: GateType; label: string }[] = [
   { type: 'OUTPUT', label: 'OUTPUT' },
 ];
 
+// 特殊ゲート（今後実装予定）
+const SPECIAL_GATES: { type: GateType; label: string }[] = [
+  { type: 'CLOCK', label: 'CLOCK' },
+  { type: 'D-FF', label: 'D-FF' },
+  { type: 'SR-LATCH', label: 'SR-LATCH' },
+  { type: 'MUX', label: 'MUX' },
+];
+
 export const ToolPalette: React.FC = () => {
   const { addGate, gates } = useCircuitStore();
 
@@ -64,6 +72,59 @@ export const ToolPalette: React.FC = () => {
         </svg>
       );
     }
+    
+    // 特殊ゲートのプレビュー
+    if (type === 'CLOCK') {
+      return (
+        <svg className="tool-preview" viewBox="-50 -40 100 80">
+          <rect className="gate" x="-40" y="-30" width="80" height="60" rx="8"/>
+          <path 
+            d="M -15 -10 L -15 0 L -5 0 M 5 0 L 15 0 L 15 -10" 
+            stroke="#0ff" 
+            strokeWidth="2" 
+            fill="none"
+          />
+          <text className="gate-text" x="0" y="20" style={{ fontSize: '12px' }}>CLK</text>
+        </svg>
+      );
+    }
+    if (type === 'D-FF') {
+      return (
+        <svg className="tool-preview" viewBox="-50 -40 100 80">
+          <rect className="gate" x="-40" y="-30" width="80" height="60" rx="8"/>
+          <text className="gate-text" x="-20" y="-10" style={{ fontSize: '10px' }}>D</text>
+          <text className="gate-text" x="-20" y="10" style={{ fontSize: '10px' }}>CLK</text>
+          <text className="gate-text" x="20" y="-10" style={{ fontSize: '10px' }}>Q</text>
+          <text className="gate-text" x="20" y="10" style={{ fontSize: '10px' }}>Q̄</text>
+        </svg>
+      );
+    }
+    if (type === 'SR-LATCH') {
+      return (
+        <svg className="tool-preview" viewBox="-50 -40 100 80">
+          <rect className="gate" x="-40" y="-30" width="80" height="60" rx="8"/>
+          <text className="gate-text" x="-20" y="-10" style={{ fontSize: '10px' }}>S</text>
+          <text className="gate-text" x="-20" y="10" style={{ fontSize: '10px' }}>R</text>
+          <text className="gate-text" x="20" y="-10" style={{ fontSize: '10px' }}>Q</text>
+          <text className="gate-text" x="20" y="10" style={{ fontSize: '10px' }}>Q̄</text>
+        </svg>
+      );
+    }
+    if (type === 'MUX') {
+      return (
+        <svg className="tool-preview" viewBox="-50 -40 100 80">
+          <polygon 
+            className="gate" 
+            points="-30,-25 30,-25 30,25 -30,25" 
+          />
+          <text className="gate-text" x="-20" y="-10" style={{ fontSize: '8px' }}>I0</text>
+          <text className="gate-text" x="-20" y="0" style={{ fontSize: '8px' }}>I1</text>
+          <text className="gate-text" x="-20" y="10" style={{ fontSize: '8px' }}>S</text>
+          <text className="gate-text" x="20" y="0" style={{ fontSize: '8px' }}>Y</text>
+        </svg>
+      );
+    }
+    
     return (
       <svg className="tool-preview" viewBox="-50 -30 100 60">
         <rect className="gate" x="-35" y="-25" width="70" height="50" rx="8"/>
@@ -97,6 +158,23 @@ export const ToolPalette: React.FC = () => {
       </div>
       <div className="tools-grid">
         {IO_GATES.map(({ type, label }) => (
+          <div
+            key={type}
+            className="tool-card"
+            onClick={() => handleToolClick(type)}
+          >
+            {renderGatePreview(type)}
+            <div className="tool-label">{label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="section-title">
+        <span>⚡</span>
+        <span>特殊ゲート</span>
+      </div>
+      <div className="tools-grid">
+        {SPECIAL_GATES.map(({ type, label }) => (
           <div
             key={type}
             className="tool-card"
