@@ -242,7 +242,7 @@ export const Gate: React.FC<GateProps> = ({
             <text
               x="-20"
               y="4"
-              className="fill-white text-sm font-mono"
+              className="fill-white text-sm font-mono pointer-events-none"
               textAnchor="middle"
             >
               {inputValue ? '1' : '0'}
@@ -266,6 +266,7 @@ export const Gate: React.FC<GateProps> = ({
               y="4"
               className={`text-2xl ${outputValue ? 'fill-yellow-400' : 'fill-gray-600'}`}
               textAnchor="middle"
+              style={{ pointerEvents: 'none' }}
             >
               💡
             </text>
