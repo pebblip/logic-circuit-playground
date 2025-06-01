@@ -17,9 +17,9 @@
   - 技術的な設計判断
 
 - **[development/GUIDELINES.md](./development/GUIDELINES.md)** - 開発ガイドライン
-  - 品質基準（100%ルール）
-  - コーディング規約
-  - コミット規約、テスト方針
+  - 実践的開発プロセス（検証・コミット必須）
+  - UI開発手順（スクリーンショット確認必須）
+  - 品質基準、コーディング規約、緊急時対応
 
 - **[development/ROADMAP.md](./development/ROADMAP.md)** - 開発ロードマップ
   - 5つのフェーズによる段階的開発

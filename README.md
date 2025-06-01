@@ -96,11 +96,12 @@ npm run lint       # リント実行
 npm run format     # コード整形
 ```
 
-### 品質チェック（必須）
+### 品質チェック
 ```bash
 # コミット前に必ず実行
 npm run typecheck && npm run test && npm run build
 ```
+詳細なプロセスは[開発ガイドライン](./docs/development/GUIDELINES.md)を参照。
 
 ## 📚 ドキュメント
 
@@ -108,7 +109,7 @@ npm run typecheck && npm run test && npm run build
 - [プロジェクト設計書](./docs/PROJECT_BLUEPRINT.md) - 全体設計（What & Why）
 - [技術アーキテクチャ](./docs/development/ARCHITECTURE.md) - 実装詳細（How）
 - [開発ロードマップ](./docs/development/ROADMAP.md) - 開発計画（When）
-- [開発ガイドライン](./docs/development/GUIDELINES.md) - 品質基準と規約（Rules）
+- [開発ガイドライン](./docs/development/GUIDELINES.md) - 実践的開発プロセスと品質基準
 - [UIデザイン](./docs/design/mockups/) - モックアップとデザイン仕様
 
 ## 🤝 コントリビューション
@@ -120,14 +121,8 @@ npm run typecheck && npm run test && npm run build
 5. プルリクエストを作成
 
 ### コミット規約
-[Conventional Commits](https://www.conventionalcommits.org/)に従います：
-- `feat:` 新機能
-- `fix:` バグ修正
-- `docs:` ドキュメント
-- `style:` フォーマット
-- `refactor:` リファクタリング
-- `test:` テスト
-- `chore:` その他
+[Conventional Commits](https://www.conventionalcommits.org/)形式を使用。  
+詳細は[開発ガイドライン](./docs/development/GUIDELINES.md)を参照。
 
 ## 📄 ライセンス
 

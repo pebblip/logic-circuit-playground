@@ -1,188 +1,278 @@
 # 📋 開発ガイドライン
 
-> 品質100%を達成するための開発規約とベストプラクティス
+> 今回の失敗を二度と繰り返さないための実践的開発プロセス
 
-## 🎯 品質基準
+## 🚨 最重要：日常プロセス
 
-### 必須達成項目
+### 修正する時の鉄則
 ```bash
-# コミット前に必ず全て成功させる
+# 1. 現状確認（必須）
+npx cypress run --spec cypress/e2e/ui-screenshot.cy.js
+
+# 2. 修正実装
+
+# 3. 即座の検証（必須）
+npm run build
+npx cypress run --spec cypress/e2e/関連テスト.cy.js
+
+# 4. 動作確認完了後のコミット（必須）
+git add .
+git commit -m "fix: 具体的な修正内容"
+```
+
+### ❌ 絶対禁止
+- **検証なき修正**: コード変更後の動作確認なし
+- **視覚的確認の省略**: UI問題でスクリーンショット未確認
+- **推測での修正**: 原因不明のまま修正
+- **コミットの先送り**: 動作確認済み修正の未コミット
+
+### ✅ 必須の確認
+- [ ] スクリーンショットで視覚的確認
+- [ ] 関連テストが全て通過
+- [ ] ビルドエラーなし
+- [ ] コンソールエラーなし
+
+---
+
+## 📱 UI開発プロセス
+
+### 問題発生時
+1. **現状把握**
+   ```bash
+   npx cypress run --spec cypress/e2e/ui-screenshot.cy.js
+   ```
+
+2. **問題特定**
+   ```bash
+   # デバッグログ追加
+   console.log('[Component] State:', state);
+   
+   # 再現テスト作成
+   describe('問題再現', () => {
+     it('具体的な問題', () => {
+       // 再現手順
+     });
+   });
+   ```
+
+3. **段階的修正**
+   ```bash
+   # 1つずつ修正 → 即座の検証
+   # 検証完了 → 即座のコミット
+   ```
+
+### デバッグ手法
+```typescript
+// UI状態の確認
+console.log('[Gate] Pins:', gate.inputPins.length, gate.outputPins.length);
+console.log('[Render] Position:', position);
+
+// イベントの確認
+const handleClick = (e) => {
+  console.log('[Event] Click:', e.target, e.clientX, e.clientY);
+};
+```
+
+---
+
+## 📋 品質基準
+
+### 必須チェック（コミット前）
+```bash
+# 3つとも必ず成功させる
 npm run typecheck  # 型エラー: 0個
-npm run test       # テスト失敗: 0個  
+npm run test       # テスト失敗: 0個
 npm run build      # ビルドエラー: 0個
 ```
 
-### 品質指標
-- **テストカバレッジ**: 新規コード80%以上
-- **型安全性**: strict mode、any禁止
-- **ビルド時間**: 30秒以内
-- **バンドルサイズ**: 500KB以下（gzip）
+### テスト戦略
+```bash
+# UI確認テスト（UI変更時は必須）
+npx cypress run --spec cypress/e2e/ui-screenshot.cy.js
+
+# 機能テスト（関連機能修正時）
+npx cypress run --spec cypress/e2e/simple-wire-test.cy.js
+
+# コア機能テスト（重要な変更時）
+npx cypress run --spec cypress/e2e/core-flow.cy.js
+```
+
+### パフォーマンス
+- バンドルサイズ: 500KB以下（gzip）
+- ビルド時間: 30秒以内
+- テスト実行時間: 60秒以内
 
 ---
 
-## 🔧 開発フロー
-
-### 1. 開発前チェック
-```bash
-# 現在の品質状態を確認
-npm run typecheck && npm run test && npm run build
-```
-
-### 2. 開発サイクル
-```
-1. テスト作成（Red）
-   ↓
-2. 実装（Green）
-   ↓
-3. リファクタリング（Refactor）
-   ↓
-4. 品質チェック
-```
-
-### 3. コミット前チェック
-```bash
-# 3つ全て成功が必須
-npm run typecheck
-npm run test
-npm run build
-```
-
----
-
-## 📝 コーディング規約
+## 💻 コーディング規約
 
 ### TypeScript
 ```typescript
 // ✅ 良い例
 interface GateProps {
-  id: string;
-  type: GateType;
-  position: Position;
+  gate: BaseGate;
+  isSelected: boolean;
+  onSelect: () => void;
 }
 
 // ❌ 悪い例
 interface GateProps {
-  id: any;  // any禁止
-  type: string;  // 型定義を使う
-  x: number;  // Positionオブジェクトを使う
-  y: number;
+  gate: any;  // any禁止
+  selected: boolean;  // 命名不統一
 }
 ```
 
 ### React
 ```typescript
-// ✅ 良い例: メモ化とカスタムフック
-export const GateComponent = React.memo(({ gate }: GateProps) => {
-  const { isActive, toggle } = useGateState(gate.id);
-  return <Gate {...} />;
+// ✅ 良い例: メモ化
+export const Gate = React.memo(({ gate }: GateProps) => {
+  const handleClick = useCallback(() => {
+    onSelect();
+  }, [onSelect]);
+  
+  return <g onClick={handleClick}>{/* ... */}</g>;
 });
 
-// ❌ 悪い例: 再レンダリング多発
-export const GateComponent = ({ gate }) => {
-  const [state, setState] = useState();  // 型なし
-  return <Gate {...} />;
-});
+// ❌ 悪い例: 毎回再作成
+export const Gate = ({ gate }) => {
+  return <g onClick={() => onSelect()}>{/* ... */}</g>;
+};
 ```
 
-### テスト
-```typescript
-// ✅ 良い例: 明確なテストケース
-describe('CollisionDetector', () => {
-  it('should detect pin hit within 20px radius', () => {
-    const result = detector.detectPinHit({ x: 10, y: 10 }, pin);
-    expect(result).toBe(true);
+---
+
+## 🔄 Git管理
+
+### コミット規約
+```bash
+# 機能
+feat: 新機能追加
+fix: バグ修正
+ui: UI改善
+
+# 品質
+test: テスト追加
+refactor: リファクタリング
+perf: パフォーマンス改善
+
+# その他
+docs: ドキュメント更新
+chore: ビルド・ツール
+```
+
+### 必須コミットタイミング
+1. **各修正完了後** - 動作確認完了時点
+2. **デバッグ情報追加後** - 調査用コード追加時
+3. **テスト追加後** - 新しいテスト作成時
+4. **問題解決後** - 最終的な修正完了時
+
+### コミットメッセージ例
+```bash
+git commit -m "fix: ピンクリック判定の修正
+
+- ヒットエリアの重複を解決
+- pointer-eventsで要素の重なり問題を修正
+- デバッグ用の赤い円を開発環境でのみ表示
+
+Closes #123"
+```
+
+---
+
+## 🧪 テスト戦略
+
+### テスト種別
+1. **UI確認テスト** - スクリーンショット比較
+2. **インタラクションテスト** - ユーザー操作の確認
+3. **機能テスト** - ビジネスロジックの確認
+4. **統合テスト** - システム全体の動作確認
+
+### テスト作成方針
+```javascript
+// ✅ 良い例: 具体的で再現性のあるテスト
+describe('Gate Pin Interaction', () => {
+  it('should render input pin at correct position', () => {
+    cy.visit('/');
+    cy.get('button').contains('INPUT').click();
+    cy.get('svg circle[r="6"]').should('exist');
+    cy.screenshot('input-gate-with-pins');
   });
 });
 
 // ❌ 悪い例: 曖昧なテスト
 it('works', () => {
-  expect(detector.detect()).toBeTruthy();
+  cy.visit('/');
+  cy.get('button').click();
+  // 何をテストしているか不明
 });
 ```
 
 ---
 
-## 🚀 コミット規約
+## 🚨 緊急時対応
 
-### Conventional Commits
+### 重大問題発生時
 ```bash
-feat: 新機能追加
-fix: バグ修正
-docs: ドキュメント更新
-style: フォーマット修正
-refactor: リファクタリング
-test: テスト追加・修正
-chore: ビルド・ツール関連
+# 1. 即座の現状把握
+npx cypress run --spec cypress/e2e/ui-screenshot.cy.js
 
-# 例
-git commit -m "feat: add magnetic connection effect"
-git commit -m "fix: pin hit detection on mobile devices"
+# 2. 影響範囲の確認
+git log --oneline -10  # 最近の変更を確認
+git diff HEAD~5 HEAD   # 差分を確認
+
+# 3. 最小限の修正から開始
+# 4. 各修正後に必ず検証
+# 5. 検証済み修正は即座にコミット
 ```
 
-### プルリクエスト
-1. **タイトル**: 明確で簡潔に
-2. **説明**: 何を・なぜ・どのように
-3. **チェックリスト**: 品質チェック完了を確認
-4. **スクリーンショット**: UI変更時は必須
+### 原因不明の問題
+```bash
+# デバッグ用テスト作成
+describe('Debug: Unknown Issue', () => {
+  it('should capture current state', () => {
+    cy.visit('/');
+    // 現在の状態をキャプチャ
+    cy.screenshot('debug-unknown-issue');
+    
+    // コンソールログを確認
+    cy.window().then((win) => {
+      cy.wrap(win.console).invoke('log', 'Debug test executed');
+    });
+  });
+});
+```
 
 ---
 
-## ⚡ パフォーマンス最適化
+## 📚 関連ドキュメント
 
-### React最適化
-- `React.memo`で不要な再レンダリング防止
-- `useMemo`で重い計算をメモ化
-- `useCallback`でコールバック関数を安定化
-
-### バンドル最適化
-- 動的インポートでコード分割
-- Tree shakingで未使用コード削除
-- 画像・アセットの最適化
+- [README.md](../../README.md) - プロジェクト概要・クイックスタート
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - 技術アーキテクチャ
+- [ROADMAP.md](./ROADMAP.md) - 開発ロードマップ
+- [デザインモックアップ](../design/mockups/) - UI仕様
 
 ---
 
-## 🔍 デバッグ指針
+## 🎯 成功の指標
 
-### エラー対応
-1. **エラーメッセージを正確に読む**
-2. **スタックトレースを追跡**
-3. **最小再現コードを作成**
-4. **単体テストで検証**
+### プロセス品質
+- [ ] 修正後100%の動作確認率
+- [ ] UI変更時100%のスクリーンショット確認率
+- [ ] 動作確認済み修正100%のコミット率
 
-### パフォーマンス問題
-1. **React DevToolsでプロファイリング**
-2. **不要な再レンダリングを特定**
-3. **メモ化で最適化**
+### コード品質
+- [ ] 型エラー: 0個
+- [ ] テスト失敗: 0個
+- [ ] ビルドエラー: 0個
+- [ ] コンソールエラー: 0個
 
----
-
-## 📚 参考資料
-
-### 必読ドキュメント
-- [PROJECT_BLUEPRINT.md](../PROJECT_BLUEPRINT.md) - プロジェクト全体像
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - 技術設計
-- [ROADMAP.md](./ROADMAP.md) - 開発計画
-
-### 外部リソース
-- [React公式ドキュメント](https://react.dev)
-- [TypeScript公式ドキュメント](https://www.typescriptlang.org)
-- [Conventional Commits](https://www.conventionalcommits.org)
+### チーム品質
+- [ ] ガイドライン遵守率: 100%
+- [ ] ドキュメント最新率: 100%
+- [ ] 問題再発率: 0%
 
 ---
 
-## 🚨 重要な教訓
+**このガイドラインは過去の失敗から学んだ教訓です。例外なく遵守してください。**
 
-### 過去の失敗から学ぶ
-- **92.2%の成功率は失敗**: 100%でなければ未完成
-- **型エラーの放置は技術的負債**: 即座に修正
-- **テスト失敗の放置は品質低下**: Red状態を許容しない
-
-### プロフェッショナルの心得
-- 品質に妥協しない
-- エラーは即座に修正
-- テストファーストを徹底
-- ドキュメントを最新に保つ
-
----
-
-*最終更新: 2024年1月*
+*最終更新: 2024年12月*
