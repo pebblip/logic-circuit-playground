@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic Function Test</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #000; color: #fff; font-family: monospace; }
+        #log { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.8); padding: 10px; max-height: 300px; overflow-y: auto; }
+        .log-entry { margin: 2px 0; font-size: 12px; }
+        .success { color: #0f8; }
+        .error { color: #f00; }
+        .info { color: #0af; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <div id="log"></div>
+    
+    <script type="module">
+        const log = (msg, type = 'info') => {
+            const logEl = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        };
+
+        // Wait for app to load
+        setTimeout(() => {
+            log('Testing basic functions...', 'info');
+            
+            // Test 1: Check if INPUT button exists and click it
+            const inputBtn = Array.from(document.querySelectorAll('button')).find(btn => 
+                btn.textContent?.includes('INPUT')
+            );
+            
+            if (inputBtn) {
+                log('Found INPUT button', 'success');
+                inputBtn.click();
+                
+                setTimeout(() => {
+                    // Check what was rendered
+                    const svg = document.querySelector('svg');
+                    if (svg) {
+                        const gates = svg.querySelectorAll('g[transform*="translate"]');
+                        log(`Found ${gates.length} gates`, 'info');
+                        
+                        if (gates.length > 0) {
+                            const firstGate = gates[0];
+                            const rects = firstGate.querySelectorAll('rect');
+                            const circles = firstGate.querySelectorAll('circle');
+                            
+                            log(`First gate has ${rects.length} rects and ${circles.length} circles`, 'info');
+                            
+                            // Log rect details
+                            rects.forEach((rect, i) => {
+                                log(`Rect ${i}: x=${rect.getAttribute('x')}, width=${rect.getAttribute('width')}, rx=${rect.getAttribute('rx')}`, 'info');
+                            });
+                            
+                            // Test drag
+                            setTimeout(() => {
+                                log('Testing drag...', 'info');
+                                const rect = firstGate.querySelector('rect');
+                                if (rect) {
+                                    const mousedown = new MouseEvent('mousedown', {
+                                        bubbles: true,
+                                        clientX: 400,
+                                        clientY: 250
+                                    });
+                                    rect.dispatchEvent(mousedown);
+                                    
+                                    // Simulate drag
+                                    setTimeout(() => {
+                                        const mousemove = new MouseEvent('mousemove', {
+                                            bubbles: true,
+                                            clientX: 500,
+                                            clientY: 300
+                                        });
+                                        document.dispatchEvent(mousemove);
+                                        
+                                        const mouseup = new MouseEvent('mouseup', {
+                                            bubbles: true
+                                        });
+                                        document.dispatchEvent(mouseup);
+                                        
+                                        log('Drag test completed', 'success');
+                                    }, 100);
+                                }
+                            }, 500);
+                        }
+                    }
+                }, 500);
+            } else {
+                log('INPUT button not found!', 'error');
+            }
+            
+            // Test 2: Add OUTPUT gate
+            setTimeout(() => {
+                const outputBtn = Array.from(document.querySelectorAll('button')).find(btn => 
+                    btn.textContent?.includes('OUTPUT')
+                );
+                
+                if (outputBtn) {
+                    log('Found OUTPUT button', 'success');
+                    outputBtn.click();
+                    
+                    // Test connection after a delay
+                    setTimeout(() => {
+                        log('Testing wire connection...', 'info');
+                        const pins = document.querySelectorAll('circle.pin-hit-area');
+                        log(`Found ${pins.length} pin hit areas`, 'info');
+                        
+                        if (pins.length >= 2) {
+                            // Click first pin (output of INPUT)
+                            pins[0].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                            
+                            // Check drawing state
+                            setTimeout(() => {
+                                // Move mouse
+                                const svg = document.querySelector('svg');
+                                const mousemove = new MouseEvent('mousemove', {
+                                    bubbles: true,
+                                    clientX: 500,
+                                    clientY: 300
+                                });
+                                svg.dispatchEvent(mousemove);
+                                
+                                // Check for drawing wire
+                                const paths = svg.querySelectorAll('path');
+                                log(`Paths during drawing: ${paths.length}`, 'info');
+                                
+                                paths.forEach((path, i) => {
+                                    const d = path.getAttribute('d');
+                                    const strokeDasharray = path.getAttribute('stroke-dasharray');
+                                    if (d) {
+                                        log(`Path ${i}: ${d.substring(0, 50)}... dasharray=${strokeDasharray}`, 'info');
+                                    }
+                                });
+                            }, 100);
+                        }
+                    }, 1000);
+                }
+            }, 2000);
+            
+        }, 1000);
+    </script>
+    
+    <!-- Load the app -->
+    <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>
