@@ -13,6 +13,14 @@ import { Position, GateType, GateData } from '../types';
 
 export class GateFactory {
   /**
+   * 簡単なゲート作成メソッド（IDを自動生成）
+   */
+  static create(type: GateType, position: Position, initialValue?: boolean): BaseGate {
+    const id = this.generateId(type);
+    return this.createGate(type, id, position, initialValue);
+  }
+
+  /**
    * ゲートタイプからゲートインスタンスを生成
    */
   static createGate(
@@ -21,20 +29,38 @@ export class GateFactory {
     position: Position,
     initialValue?: boolean
   ): BaseGate {
+    let gate: BaseGate;
+    
     switch (type) {
       case 'AND':
-        return new ANDGate(id, position);
+        gate = new ANDGate(id, position);
+        break;
       case 'OR':
-        return new ORGate(id, position);
+        gate = new ORGate(id, position);
+        break;
       case 'NOT':
-        return new NOTGate(id, position);
+        gate = new NOTGate(id, position);
+        break;
       case 'INPUT':
-        return new InputGate(id, position, initialValue);
+        gate = new InputGate(id, position, initialValue);
+        break;
       case 'OUTPUT':
-        return new OutputGate(id, position);
+        gate = new OutputGate(id, position);
+        break;
       default:
         throw new Error(`Unknown gate type: ${type}`);
     }
+    
+    console.log(`[GateFactory] Created ${type} gate:`, {
+      id: gate.id,
+      type: gate.type,
+      inputPins: gate.inputPins?.length || 0,
+      outputPins: gate.outputPins?.length || 0,
+      hasInputPins: !!gate.inputPins,
+      hasOutputPins: !!gate.outputPins
+    });
+    
+    return gate;
   }
 
   /**

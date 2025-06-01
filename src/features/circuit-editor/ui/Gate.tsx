@@ -1,389 +1,347 @@
-import React, { useState } from 'react';
-import { GateData } from '../../../entities/types';
+import React, { useState, useCallback, useEffect } from 'react';
+import { BaseGate } from '../../../entities/gates/BaseGate';
+import { CollisionDetector } from '../../../domain/services/CollisionDetector';
+import { Position } from '../../../domain/services/GatePlacement';
+import { useCircuitStore } from '../../../domain/stores/circuitStore';
 
 interface GateProps {
-  gate: GateData;
+  gate: BaseGate;
   isSelected: boolean;
   onSelect: () => void;
   onPositionChange: (position: { x: number; y: number }) => void;
   onToggleInput?: () => void;
-  onPinClick: (pinId: string, x: number, y: number) => void;
+  onPinClick: (pinIndex: number, pinType: 'input' | 'output') => void;
 }
 
-const GateComponent: React.FC<GateProps> = ({ gate, isSelected, onSelect, onPositionChange, onToggleInput, onPinClick }) => {
-  // ゲートのサイズ
-  const width = 70;
-  const height = 50;
+export const Gate: React.FC<GateProps> = ({ 
+  gate, 
+  isSelected, 
+  onSelect, 
+  onPositionChange, 
+  onToggleInput, 
+  onPinClick 
+}) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [dragContext, setDragContext] = useState<{
+    initialCanvas: Position;
+    initialSvg: Position;
+    dragHelper?: ReturnType<CollisionDetector['createDragHelper']>;
+  } | null>(null);
+  const collisionDetector = CollisionDetector.getInstance();
+  
+  // ストアから接続関連の状態を取得
+  const { 
+    drawingConnection, 
+    hoveredPinId,
+    isValidConnectionTarget,
+    getConnectablePins,
+    setHoveredPin
+  } = useCircuitStore();
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // ゲートのサイズ定数
+  const GATE_WIDTH = 70;
+  const GATE_HEIGHT = 50;
+
+  // 統一された座標変換を使用したドラッグ処理
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    const svg = e.currentTarget.closest('svg') as SVGSVGElement;
+    if (!svg) return;
+
+    // CollisionDetectorの統一された座標変換を使用
+    const svgPoint = collisionDetector.canvasToSvgCoordinates(
+      { x: e.clientX, y: e.clientY },
+      svg
+    );
+
+    // ピンクリック判定
+    const clickedPin = collisionDetector.findPinAtPosition(svgPoint, [gate]);
+    if (clickedPin) {
+      onPinClick(clickedPin.pinIndex, clickedPin.pinType);
+      return;
+    }
+
+    // ゲート本体のドラッグ開始
     onSelect();
     setIsDragging(true);
     
-    // SVG座標系でのマウス位置を取得
-    const svg = e.currentTarget.closest('svg');
-    if (!svg) return;
-    
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
-    
-    setDragOffset({
-      x: svgP.x - gate.position.x,
-      y: svgP.y - gate.position.y
+    setDragContext({
+      initialCanvas: { x: e.clientX, y: e.clientY },
+      initialSvg: { x: gate.position.x, y: gate.position.y }
     });
-  };
+  }, [gate, onSelect, onPinClick, collisionDetector]);
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return;
-    
-    const svg = document.querySelector('svg');
-    if (!svg) return;
-    
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
-    
-    onPositionChange({
-      x: svgP.x - dragOffset.x,
-      y: svgP.y - dragOffset.y
-    });
-  };
+  // シンプルなドラッグ処理
+  useEffect(() => {
+    if (!isDragging || !dragContext) return;
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
+    const handleMouseMove = (e: MouseEvent) => {
+      const svg = document.querySelector('svg') as SVGSVGElement;
+      if (!svg) return;
 
-  React.useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+      // 現在のマウス位置を取得
+      const rect = svg.getBoundingClientRect();
+      
+      // SVG座標変換
+      const viewBox = svg.viewBox.baseVal;
+      const scaleX = viewBox.width / rect.width;
+      const scaleY = viewBox.height / rect.height;
+      
+      // 移動量を計算
+      const deltaCanvasX = e.clientX - dragContext.initialCanvas.x;
+      const deltaCanvasY = e.clientY - dragContext.initialCanvas.y;
+      
+      // SVG座標での移動量
+      const deltaSvgX = deltaCanvasX * scaleX;
+      const deltaSvgY = deltaCanvasY * scaleY;
+      
+      // 新しい位置
+      const newPosition = {
+        x: dragContext.initialSvg.x + deltaSvgX,
+        y: dragContext.initialSvg.y + deltaSvgY
       };
+
+      onPositionChange(newPosition);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      setDragContext(null);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragContext, onPositionChange]);
+
+  // ダブルクリックでINPUTゲートをトグル
+  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (gate.type === 'INPUT' && onToggleInput) {
+      onToggleInput();
     }
-  }, [isDragging, dragOffset]);
+  }, [gate.type, onToggleInput]);
 
-  // OUTPUTゲート（LED）の特別な描画
-  if (gate.type === 'OUTPUT') {
+  // ピンレンダリング（モックアップ準拠）
+  const renderPin = (pinIndex: number, pinType: 'input' | 'output', pinValue: boolean) => {
+    const position = pinType === 'input' 
+      ? collisionDetector.calculateInputPinPosition(gate, pinIndex)
+      : collisionDetector.calculateOutputPinPosition(gate, pinIndex);
+
+    const localX = position.x - gate.position.x;
+    const localY = position.y - gate.position.y;
+    
+    // ピンの状態を判定
+    const pinId = `${gate.id}-${pinType}-${pinIndex}`;
+    const isHovered = hoveredPinId === pinId;
+    const connectablePins = drawingConnection ? getConnectablePins(gate.id) : [];
+    const isHighlighted = connectablePins.includes(pinIndex) && pinType === 'input';
+
+    const handlePinMouseDown = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onPinClick(pinIndex, pinType);
+    };
+
     return (
-      <g
-        transform={`translate(${gate.position.x}, ${gate.position.y})`}
-        onMouseDown={handleMouseDown}
-        className="cursor-move"
-      >
-        {/* LED外枠 */}
-        <circle
-          cx={0}
-          cy={0}
-          r={20}
-          fill="#1a1a1a"
-          stroke={isSelected ? '#00ff88' : '#444'}
-          strokeWidth={isSelected ? 3 : 2}
+      <g key={`${pinType}-${pinIndex}`} className="pin-group">
+        {/* ピンライン（モックアップ通り） */}
+        <line
+          x1={localX > 0 ? GATE_WIDTH / 2 - 10 : -GATE_WIDTH / 2 + 10}
+          y1={localY}
+          x2={localX}
+          y2={localY}
+          stroke={pinValue ? "#00ff88" : "#666"}
+          strokeWidth="2"
+          className={`pin-line ${pinValue ? 'active' : ''}`}
+          pointerEvents="none"
         />
         
-        {/* LED内部 */}
+        {/* メインのピン円（モックアップ準拠） */}
         <circle
-          cx={0}
-          cy={0}
-          r={15}
-          fill={gate.inputs[0]?.value ? '#00ff88' : '#333'}
-          className="transition-all duration-300"
+          cx={localX}
+          cy={localY}
+          r="6"
+          fill={pinValue ? "#00ff88" : "none"}
+          stroke={
+            isHighlighted ? "#00ff88" :
+            pinValue ? "#00ff88" : "#666"
+          }
+          strokeWidth="2"
+          className={`pin ${pinValue ? 'active' : ''} ${isHighlighted ? 'connected' : ''}`}
           style={{
-            filter: gate.inputs[0]?.value ? 'drop-shadow(0 0 15px rgba(0, 255, 136, 1))' : 'none'
+            transition: 'all 0.2s ease',
+            filter: pinValue ? 'drop-shadow(0 0 6px rgba(0, 255, 136, 0.8))' : 'none'
           }}
+          pointerEvents="none"
         />
         
-        {/* LEDアイコン */}
-        <text
-          x={0}
-          y={2}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fontSize="20"
-          className="pointer-events-none select-none"
-        >
-          💡
-        </text>
-        
-        {/* 入力ピン */}
-        {gate.inputs.length > 0 && (
-          <g
-            onClick={(e) => {
-              e.stopPropagation();
-              const x = gate.position.x - 30;
-              const y = gate.position.y;
-              onPinClick(gate.inputs[0].id, x, y);
-            }}
-            className="cursor-pointer"
-          >
-            {/* ヒットエリア（透明な大きな円） */}
-            <circle
-              cx={-30}
-              cy={0}
-              r={15}
-              fill="transparent"
-              className="hover:fill-gray-800 hover:fill-opacity-50"
-            />
-            <circle
-              cx={-30}
-              cy={0}
-              r={6}
-              fill={gate.inputs[0]?.value ? '#00ff88' : 'none'}
-              stroke={gate.inputs[0]?.value ? '#00ff88' : '#666'}
-              strokeWidth={2}
-            />
-            <line
-              x1={-20}
-              y1={0}
-              x2={-30}
-              y2={0}
-              stroke={gate.inputs[0]?.value ? '#00ff88' : '#666'}
-              strokeWidth={2}
-            />
-          </g>
+        {/* デバッグ用：ヒットエリアの可視化 */}
+        {process.env.NODE_ENV === 'development' && (
+          <circle
+            cx={localX}
+            cy={localY}
+            r="20"
+            fill="none"
+            stroke="red"
+            strokeWidth="1"
+            strokeDasharray="2,2"
+            opacity="0.5"
+            className="debug-hit-area"
+            pointerEvents="none"
+          />
         )}
         
-        {/* ラベル */}
-        <text
-          x={0}
-          y={-30}
-          textAnchor="middle"
-          fill="#9ca3af"
-          fontSize="12"
-          className="pointer-events-none select-none"
-        >
-          {gate.label || 'OUTPUT'}
-        </text>
-      </g>
-    );
-  }
-
-  // INPUTゲート（スイッチ）の特別な描画
-  if (gate.type === 'INPUT') {
-    return (
-      <g
-        transform={`translate(${gate.position.x}, ${gate.position.y})`}
-        onMouseDown={handleMouseDown}
-        className="cursor-move"
-      >
-        {/* スイッチトラック */}
-        <rect
-          x={-25}
-          y={-15}
-          width={50}
-          height={30}
-          rx={15}
-          fill={gate.value ? 'rgba(0, 255, 136, 0.1)' : '#1a1a1a'}
-          stroke={isSelected ? '#00ff88' : (gate.value ? '#00ff88' : '#444')}
-          strokeWidth={isSelected ? 3 : 2}
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleInput?.();
-          }}
-          className="cursor-pointer"
-        />
-        
-        {/* スイッチサム */}
+        {/* クリック可能なヒットエリア（最前面） */}
         <circle
-          cx={gate.value ? 5 : -5}
-          cy={0}
-          r={10}
-          fill={gate.value ? '#00ff88' : '#666'}
-          className="transition-all duration-300"
-          style={{ pointerEvents: 'none' }}
+          cx={localX}
+          cy={localY}
+          r="20"
+          fill="transparent"
+          className="pin-hit-area cursor-pointer"
+          onMouseDown={handlePinMouseDown}
+          onMouseEnter={() => setHoveredPin(pinId)}
+          onMouseLeave={() => setHoveredPin(null)}
+          style={{ pointerEvents: 'all' }}
         />
-        
-        {/* 出力ピン */}
-        {gate.outputs.length > 0 && (
-          <g
-            onClick={(e) => {
-              e.stopPropagation();
-              const x = gate.position.x + 35;
-              const y = gate.position.y;
-              onPinClick(gate.outputs[0].id, x, y);
-            }}
-            className="cursor-pointer"
-          >
-            {/* ヒットエリア（透明な大きな円） */}
-            <circle
-              cx={35}
-              cy={0}
-              r={15}
-              fill="transparent"
-              className="hover:fill-gray-800 hover:fill-opacity-50"
-            />
-            <circle
-              cx={35}
-              cy={0}
-              r={6}
-              fill={gate.outputs[0]?.value ? '#00ff88' : 'none'}
-              stroke={gate.outputs[0]?.value ? '#00ff88' : '#666'}
-              strokeWidth={2}
-            />
-            <line
-              x1={25}
-              y1={0}
-              x2={35}
-              y2={0}
-              stroke={gate.outputs[0]?.value ? '#00ff88' : '#666'}
-              strokeWidth={2}
-            />
-          </g>
-        )}
-        
-        {/* ラベル */}
-        <text
-          x={0}
-          y={-25}
-          textAnchor="middle"
-          fill="#9ca3af"
-          fontSize="12"
-          className="pointer-events-none select-none"
-        >
-          {gate.label || 'INPUT'}
-        </text>
       </g>
     );
-  }
+  };
 
-  // 通常のゲート描画
+  // ゲート形状のレンダリング
+  const renderGateShape = () => {
+    const baseClass = `cursor-pointer transition-all duration-200 ${
+      isSelected ? 'stroke-yellow-400 stroke-4' : 'stroke-gray-600 stroke-2'
+    }`;
+
+    switch (gate.type) {
+      case 'INPUT':
+        const inputValue = (gate as any)._outputs?.[0]?.value ?? false;
+        return (
+          <g>
+            <rect
+              x={-GATE_WIDTH / 2}
+              y={-GATE_HEIGHT / 2}
+              width={GATE_WIDTH}
+              height={GATE_HEIGHT}
+              rx="15"
+              fill="#1a1a1a"
+              className={baseClass}
+            />
+            <circle
+              cx="5"
+              cy="0"
+              r="10"
+              fill={inputValue ? "#00ff88" : "#444"}
+              className="transition-colors duration-200"
+            />
+            <text
+              x="-20"
+              y="4"
+              className="fill-white text-sm font-mono"
+              textAnchor="middle"
+            >
+              {inputValue ? '1' : '0'}
+            </text>
+          </g>
+        );
+
+      case 'OUTPUT':
+        const outputValue = (gate as any)._inputs?.[0]?.value ?? false;
+        return (
+          <g>
+            <circle
+              cx="0"
+              cy="0"
+              r="25"
+              fill="#1a1a1a"
+              className={baseClass}
+            />
+            <text
+              x="0"
+              y="4"
+              className={`text-2xl ${outputValue ? 'fill-yellow-400' : 'fill-gray-600'}`}
+              textAnchor="middle"
+            >
+              💡
+            </text>
+          </g>
+        );
+
+      default:
+        // 基本ゲート
+        return (
+          <g>
+            <rect
+              x={-GATE_WIDTH / 2}
+              y={-GATE_HEIGHT / 2}
+              width={GATE_WIDTH}
+              height={GATE_HEIGHT}
+              rx="8"
+              fill="#1a1a1a"
+              className={baseClass}
+            />
+            <text
+              x="0"
+              y="4"
+              className="fill-white text-sm font-bold"
+              textAnchor="middle"
+            >
+              {gate.type}
+            </text>
+          </g>
+        );
+    }
+  };
+
+
   return (
     <g
       transform={`translate(${gate.position.x}, ${gate.position.y})`}
-      onMouseDown={handleMouseDown}
-      className="cursor-move"
+      className={isDragging ? 'cursor-grabbing' : 'cursor-grab'}
     >
+      {/* 選択状態のハイライト（最背面） */}
+      {isSelected && (
+        <rect
+          x={-GATE_WIDTH / 2 - 5}
+          y={-GATE_HEIGHT / 2 - 5}
+          width={GATE_WIDTH + 10}
+          height={GATE_HEIGHT + 10}
+          rx="12"
+          fill="none"
+          stroke="#fbbf24"
+          strokeWidth="2"
+          strokeDasharray="5,5"
+          className="animate-pulse"
+        />
+      )}
+
       {/* ゲート本体 */}
-      <rect
-        x={-width / 2}
-        y={-height / 2}
-        width={width}
-        height={height}
-        rx={8}
-        fill="#1a1a1a"
-        stroke={isSelected ? '#00ff88' : '#444'}
-        strokeWidth={isSelected ? 3 : 2}
-        className="transition-all duration-200"
-      />
+      <g onMouseDown={handleMouseDown} onDoubleClick={handleDoubleClick}>
+        {renderGateShape()}
+      </g>
 
-      {/* ゲート名 */}
-      <text
-        x={0}
-        y={0}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fill="#fff"
-        fontSize="14"
-        fontWeight="600"
-        className="pointer-events-none select-none"
-      >
-        {gate.type}
-      </text>
+      {/* 入力ピン（ゲート本体より前面） */}
+      {(gate as any)._inputs && (gate as any)._inputs.length > 0 && 
+        (console.log(`[Gate] Rendering ${(gate as any)._inputs.length} input pins for ${gate.id}`),
+        (gate as any)._inputs.map((pin: any, index: number) => 
+          renderPin(index, 'input', pin.value)
+        ))
+      }
 
-      {/* 入力ピン */}
-      {gate.inputs.map((input, index) => {
-        const yOffset = (index - (gate.inputs.length - 1) / 2) * 20;
-        return (
-          <g 
-            key={input.id}
-            onClick={(e) => {
-              e.stopPropagation();
-              const x = gate.position.x - width / 2 - 10;
-              const y = gate.position.y + yOffset;
-              onPinClick(input.id, x, y);
-            }}
-            className="cursor-pointer"
-          >
-            {/* ヒットエリア（透明な大きな円） */}
-            <circle
-              cx={-width / 2 - 10}
-              cy={yOffset}
-              r={15}
-              fill="transparent"
-              className="hover:fill-gray-800 hover:fill-opacity-50"
-            />
-            <circle
-              cx={-width / 2 - 10}
-              cy={yOffset}
-              r={6}
-              fill={input.value ? '#00ff88' : 'none'}
-              stroke="#666"
-              strokeWidth={2}
-            />
-            <line
-              x1={-width / 2}
-              y1={yOffset}
-              x2={-width / 2 - 10}
-              y2={yOffset}
-              stroke="#666"
-              strokeWidth={2}
-            />
-          </g>
-        );
-      })}
+      {/* 出力ピン（ゲート本体より前面） */}
+      {(gate as any)._outputs && (gate as any)._outputs.length > 0 && 
+        (console.log(`[Gate] Rendering ${(gate as any)._outputs.length} output pins for ${gate.id}`),
+        (gate as any)._outputs.map((pin: any, index: number) => 
+          renderPin(index, 'output', pin.value)
+        ))
+      }
 
-      {/* 出力ピン */}
-      {gate.outputs.map((output, index) => {
-        const yOffset = (index - (gate.outputs.length - 1) / 2) * 20;
-        return (
-          <g
-            key={output.id}
-            onClick={(e) => {
-              e.stopPropagation();
-              const x = gate.position.x + width / 2 + 10;
-              const y = gate.position.y + yOffset;
-              onPinClick(output.id, x, y);
-            }}
-            className="cursor-pointer"
-          >
-            {/* ヒットエリア（透明な大きな円） */}
-            <circle
-              cx={width / 2 + 10}
-              cy={yOffset}
-              r={15}
-              fill="transparent"
-              className="hover:fill-gray-800 hover:fill-opacity-50"
-            />
-            <circle
-              cx={width / 2 + 10}
-              cy={yOffset}
-              r={6}
-              fill={output.value ? '#00ff88' : 'none'}
-              stroke={output.value ? '#00ff88' : '#666'}
-              strokeWidth={2}
-            />
-            <line
-              x1={width / 2}
-              y1={yOffset}
-              x2={width / 2 + 10}
-              y2={yOffset}
-              stroke={output.value ? '#00ff88' : '#666'}
-              strokeWidth={2}
-            />
-          </g>
-        );
-      })}
+
     </g>
   );
 };
-
-// パフォーマンス最適化のためのメモ化
-export const Gate = React.memo(GateComponent, (prevProps, nextProps) => {
-  return (
-    prevProps.gate.id === nextProps.gate.id &&
-    prevProps.gate.position.x === nextProps.gate.position.x &&
-    prevProps.gate.position.y === nextProps.gate.position.y &&
-    prevProps.gate.type === nextProps.gate.type &&
-    prevProps.gate.value === nextProps.gate.value &&
-    prevProps.isSelected === nextProps.isSelected &&
-    // 入力・出力の値も比較
-    JSON.stringify(prevProps.gate.inputs) === JSON.stringify(nextProps.gate.inputs) &&
-    JSON.stringify(prevProps.gate.outputs) === JSON.stringify(nextProps.gate.outputs)
-  );
-});

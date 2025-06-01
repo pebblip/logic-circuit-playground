@@ -1,6 +1,6 @@
 import React from 'react';
-import { GateType } from '../../../entities/types';
-import { useCircuitViewModel } from '../../../features/circuit-editor/model/useCircuitViewModel';
+import { GateType } from '../../../entities/gates/BaseGate';
+import { useCircuitStore } from '../../../domain/stores/circuitStore';
 
 interface ToolItem {
   type: GateType | 'INPUT' | 'OUTPUT' | 'CLOCK';
@@ -62,15 +62,12 @@ const ToolIcon: React.FC<{ type: string }> = ({ type }) => {
 };
 
 export const ToolPalette: React.FC = () => {
-  const { addGate } = useCircuitViewModel();
+  const { addGate } = useCircuitStore();
 
-  const handleDragStart = (e: React.DragEvent, type: ToolItem['type']) => {
-    e.dataTransfer.setData('gateType', type);
-  };
-
-  const handleDoubleClick = (type: ToolItem['type']) => {
-    // キャンバス中央に配置
-    addGate(type as GateType, { x: 600, y: 400 });
+  const handleGatePlace = (type: ToolItem['type']) => {
+    // ワンクリック配置：最適な位置に自動配置
+    const gateType = type as GateType;
+    addGate(gateType);
   };
 
   const renderCategory = (category: 'basic' | 'io' | 'special', title: string, categoryIcon: string) => {
@@ -84,16 +81,15 @@ export const ToolPalette: React.FC = () => {
         </div>
         <div className="tools-grid">
           {categoryTools.map(tool => (
-            <div
+            <button
               key={tool.type}
               className="tool-card"
-              draggable
-              onDragStart={(e) => handleDragStart(e, tool.type)}
-              onDoubleClick={() => handleDoubleClick(tool.type)}
+              onClick={() => handleGatePlace(tool.type)}
+              title={`${tool.label}を配置`}
             >
               <ToolIcon type={tool.type} />
               <div className="tool-label">{tool.label}</div>
-            </div>
+            </button>
           ))}
         </div>
       </>

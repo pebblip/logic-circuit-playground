@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { Gate } from './Gate';
 import { Wire } from './Wire';
-import { useCircuitViewModel } from '../model/useCircuitViewModel';
-import { getPinPosition } from '../lib/collision';
-import { GateType } from '../../../entities/types';
+import { useCircuitStore } from '../../../domain/stores/circuitStore';
+import { CollisionDetector } from '../../../domain/services/CollisionDetector';
+import { GateType } from '../../../entities/gates/BaseGate';
 import { useCircuitMode } from '../model/CircuitModeContext';
 import { LearningPanel } from '../../learning-mode/ui/LearningPanel';
 
@@ -15,27 +15,29 @@ export const CircuitCanvas: React.FC = () => {
     gates, 
     connections,
     drawingConnection,
+    selectedGateId,
     addGate, 
     selectGate, 
-    updateGate, 
-    deleteGate, 
-    selectedGateId,
+    moveGate, 
+    removeGate, 
     startConnection,
-    updateConnectionEnd,
-    finishConnection,
+    updateConnectionPosition,
+    completeConnection,
     cancelConnection,
-    toggleInputGate
-  } = useCircuitViewModel();
+    collisionDetector
+  } = useCircuitStore();
   const [isPanning, setIsPanning] = useState(false);
   const [viewBox, setViewBox] = useState({ x: 0, y: 0, width: 1200, height: 800 });
 
-  // ダブルクリックでゲート追加
+  // ダブルクリックでゲート追加（高精度座標変換）
   const handleCanvasDoubleClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
-    const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
+    if (!canvasRef.current) return;
 
-    const x = (e.clientX - rect.left) * (viewBox.width / rect.width) + viewBox.x;
-    const y = (e.clientY - rect.top) * (viewBox.height / rect.height) + viewBox.y;
+    // 高精度座標変換を使用
+    const svgPoint = collisionDetector.canvasToSvgCoordinates(
+      { x: e.clientX, y: e.clientY },
+      canvasRef.current
+    );
 
     // キーの組み合わせでゲートタイプを決定
     let gateType: GateType = 'AND';
@@ -59,21 +61,19 @@ export const CircuitCanvas: React.FC = () => {
       }
     }
     
-    addGate(gateType, { x, y });
-  }, [viewBox, features.availableGates, addGate]);
+    addGate(gateType, svgPoint);
+  }, [features.availableGates, addGate, collisionDetector]);
 
   // マウス移動でワイヤー描画更新
   const handleCanvasMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
-    if (drawingConnection) {
-      const rect = canvasRef.current?.getBoundingClientRect();
-      if (!rect) return;
-
-      const x = (e.clientX - rect.left) * (viewBox.width / rect.width) + viewBox.x;
-      const y = (e.clientY - rect.top) * (viewBox.height / rect.height) + viewBox.y;
-      
-      updateConnectionEnd(x, y);
+    if (drawingConnection && canvasRef.current) {
+      const svgPoint = collisionDetector.canvasToSvgCoordinates(
+        { x: e.clientX, y: e.clientY },
+        canvasRef.current
+      );
+      updateConnectionPosition(svgPoint);
     }
-  }, [drawingConnection, viewBox, updateConnectionEnd]);
+  }, [drawingConnection, updateConnectionPosition, collisionDetector]);
 
   // キーボードショートカット
   useEffect(() => {
@@ -81,7 +81,7 @@ export const CircuitCanvas: React.FC = () => {
       // DeleteキーまたはBackspaceキー（Mac対応）
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedGateId) {
         e.preventDefault();
-        deleteGate(selectedGateId);
+        removeGate(selectedGateId);
       }
       // Escキーで接続をキャンセル
       if (e.key === 'Escape' && drawingConnection) {
@@ -92,41 +92,61 @@ export const CircuitCanvas: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedGateId, deleteGate, drawingConnection, cancelConnection]);
+  }, [selectedGateId, removeGate, drawingConnection, cancelConnection]);
 
-  // 接続線のレンダリングをメモ化
+  // 接続線のレンダリングをメモ化（高品質版）
   const connectionLines = useMemo(() => {
     return connections.map(conn => {
-      const fromGate = gates.find(g => g.id === conn.from.gateId);
-      const toGate = gates.find(g => g.id === conn.to.gateId);
+      const fromGate = gates.find(g => g.id === conn.fromGateId);
+      const toGate = gates.find(g => g.id === conn.toGateId);
       if (!fromGate || !toGate) return null;
 
-      const fromPos = getPinPosition(fromGate, conn.from.pinId);
-      const toPos = getPinPosition(toGate, conn.to.pinId);
-      if (!fromPos || !toPos) return null;
+      const fromPos = collisionDetector.calculateOutputPinPosition(fromGate, conn.fromPinIndex);
+      const toPos = collisionDetector.calculateInputPinPosition(toGate, conn.toPinIndex);
+      
+      // 出力ピンの信号値を取得（immerプロキシ対応）
+      const signalValue = ((fromGate as any)._outputs || fromGate.outputPins)?.[conn.fromPinIndex]?.value ?? false;
 
-      return <Wire key={conn.id} x1={fromPos.x} y1={fromPos.y} x2={toPos.x} y2={toPos.y} />;
+      return (
+        <Wire 
+          key={conn.id} 
+          x1={fromPos.x} 
+          y1={fromPos.y} 
+          x2={toPos.x} 
+          y2={toPos.y}
+          value={signalValue}
+          onClick={() => {
+            // 接続線のクリックで選択（将来的に削除機能など）
+            console.log(`Connection clicked: ${conn.id}`);
+          }}
+        />
+      );
     }).filter(Boolean);
-  }, [connections, gates]);
+  }, [connections, gates, collisionDetector]);
 
   // 描画中の接続線をメモ化
   const drawingLine = useMemo(() => {
-    if (!drawingConnection) return null;
+    if (!drawingConnection || !drawingConnection.currentPosition) return null;
     
-    const fromGate = gates.find(g => g.id === drawingConnection.from.gateId);
+    const fromGate = gates.find(g => g.id === drawingConnection.fromGateId);
     if (!fromGate) return null;
     
-    const fromPos = getPinPosition(fromGate, drawingConnection.from.pinId);
-    if (!fromPos) return null;
+    const fromPos = collisionDetector.calculateOutputPinPosition(fromGate, drawingConnection.fromPinIndex);
     
-    return <Wire x1={fromPos.x} y1={fromPos.y} x2={drawingConnection.tempEnd.x} y2={drawingConnection.tempEnd.y} isDrawing />;
-  }, [drawingConnection, gates]);
+    return <Wire 
+      x1={fromPos.x} 
+      y1={fromPos.y} 
+      x2={drawingConnection.currentPosition.x} 
+      y2={drawingConnection.currentPosition.y} 
+      isDrawing 
+    />;
+  }, [drawingConnection, gates, collisionDetector]);
 
   return (
     <>
       {/* 学習モードパネル */}
       {mode === 'learning' && (
-        <LearningPanel gates={gates} connections={connections} />
+        <LearningPanel gates={[]} connections={[]} />
       )}
       
       <svg
@@ -154,19 +174,24 @@ export const CircuitCanvas: React.FC = () => {
         {/* ゲート描画 */}
         {gates.map(gate => {
           const handleSelect = () => selectGate(gate.id);
-          const handlePositionChange = (position: { x: number; y: number }) => updateGate(gate.id, { position });
+          const handlePositionChange = (position: { x: number; y: number }) => moveGate(gate.id, position);
           const handleToggleInput = () => {
             if (gate.type === 'INPUT') {
-              toggleInputGate(gate.id);
+              // INPUTゲートの値をトグル
+              gate.toggle();
             }
           };
-          const handlePinClick = (pinId: string, x: number, y: number) => {
+          const handlePinClick = (pinIndex: number, pinType: 'input' | 'output') => {
             if (!drawingConnection) {
-              // 接続開始
-              startConnection(gate.id, pinId, x, y);
+              // 接続開始（出力ピンからのみ開始可能）
+              if (pinType === 'output') {
+                startConnection(gate.id, pinIndex, pinType);
+              }
             } else {
-              // 接続完了
-              finishConnection(gate.id, pinId);
+              // 接続完了（入力ピンに完了）
+              if (pinType === 'input') {
+                completeConnection(gate.id, pinIndex);
+              }
             }
           };
           

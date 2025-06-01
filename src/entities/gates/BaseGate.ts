@@ -6,6 +6,9 @@
 import { Position, GateType, GateData } from '../types';
 import { Pin } from '../circuit/Pin';
 
+// GateTypeをre-export
+export type { GateType };
+
 export abstract class BaseGate {
   protected _id: string;
   protected _type: GateType;
@@ -20,7 +23,9 @@ export abstract class BaseGate {
     this._type = type;
     this._position = position;
     this._label = type;
+    console.log(`[BaseGate] Constructor called for ${type} gate ${id}`);
     this.initializePins();
+    console.log(`[BaseGate] After initializePins: inputs=${this._inputs.length}, outputs=${this._outputs.length}`);
   }
 
   // Abstract methods
@@ -33,12 +38,18 @@ export abstract class BaseGate {
   get position(): Position { return { ...this._position }; }
   get inputs(): Pin[] { return this._inputs; }
   get outputs(): Pin[] { return this._outputs; }
+  get inputPins(): Pin[] { return this._inputs; } // 互換性のためのエイリアス
+  get outputPins(): Pin[] { return this._outputs; } // 互換性のためのエイリアス
   get label(): string { return this._label; }
   get value(): boolean | undefined { return this._value; }
 
   // Setters
   set value(val: boolean | undefined) {
     this._value = val;
+  }
+
+  set position(pos: Position) {
+    this.move(pos);
   }
 
   // Methods
@@ -86,5 +97,21 @@ export abstract class BaseGate {
       return this._outputs[pinIndex].value;
     }
     return false;
+  }
+
+  // INPUTゲート用のトグルメソッド
+  toggle(): void {
+    if (this._type === 'INPUT') {
+      this._value = !this._value;
+      // 出力ピンの値を更新
+      if (this._outputs.length > 0) {
+        this._outputs[0].value = this._value ?? false;
+      }
+    }
+  }
+
+  // シミュレーション更新
+  update(): void {
+    this.compute();
   }
 }

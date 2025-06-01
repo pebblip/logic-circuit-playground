@@ -14,9 +14,11 @@ export class InputGate extends BaseGate {
 
   protected initializePins(): void {
     // 入力なし、1出力
+    console.log(`[InputGate ${this.id}] Initializing pins...`);
     this._outputs.push(
       new Pin(`${this.id}-out-0`, 'output', { x: 35, y: 0 })
     );
+    console.log(`[InputGate ${this.id}] Outputs after init:`, this._outputs.length);
   }
 
   public compute(): void {
