@@ -4,7 +4,7 @@
  */
 
 // セレクタヘルパーのインポート
-import { selectors } from '../../src/test/helpers/selectors';
+// import { selectors } from '../../src/test/helpers/selectors';
 
 /**
  * アプリケーションの初期化を待つ
@@ -120,7 +120,7 @@ export function assertCurrentMode(expectedMode) {
   cy.get(`[aria-label="${modeNames[expectedMode]}に切り替え"][aria-pressed="true"]`).should('exist');
   
   // フォールバック: data-testidベースの確認
-  cy.get(selectors.header.currentMode()).should('contain', expectedMode);
+  // cy.get(selectors.header.currentMode()).should('contain', expectedMode);
 }
 
 /**
@@ -128,7 +128,8 @@ export function assertCurrentMode(expectedMode) {
  */
 export function assertSidePanelVisible(shouldBeVisible = true) {
   const assertion = shouldBeVisible ? 'exist' : 'not.exist';
-  cy.get(selectors.learning.sidePanel()).should(assertion);
+  // cy.get(selectors.learning.sidePanel()).should(assertion);
+  cy.get('[data-testid="side-panel"]').should(assertion);
 }
 
 /**

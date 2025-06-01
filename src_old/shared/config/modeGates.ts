@@ -1,0 +1,71 @@
+import { CircuitMode } from '../../entities/types/mode';
+import { GateType } from '../../entities/types/gate';
+
+export const MODE_GATE_SETS: Record<CircuitMode, (GateType | string)[]> = {
+  learning: [
+    'INPUT',
+    'OUTPUT', 
+    'AND',
+    'OR',
+    'NOT',
+    // 学習進度によってアンロックされるゲートは動的に追加
+  ],
+  
+  free: [
+    // すべてのゲートが利用可能
+    'INPUT',
+    'OUTPUT',
+    'AND',
+    'OR', 
+    'NOT',
+    'NAND',
+    'NOR',
+    'XOR',
+    'XNOR',
+    'CLOCK',
+    'D_FLIP_FLOP',
+    'SR_LATCH',
+    'REGISTER_4BIT',
+    'MUX_2TO1',
+    'HALF_ADDER',
+    'FULL_ADDER',
+    'ADDER_4BIT',
+    'NUMBER_4BIT_INPUT',
+    'NUMBER_4BIT_DISPLAY',
+    'CUSTOM'
+  ],
+  
+  puzzle: [
+    // パズルごとに異なるゲートセット
+    'INPUT',
+    'OUTPUT',
+    'AND',
+    'OR',
+    'NOT',
+    'NAND', 
+    'NOR',
+    'XOR',
+    'XNOR',
+  ]
+};
+
+export function getGatesForMode(mode: CircuitMode, unlockedGates?: string[]): (GateType | string)[] {
+  const baseGates = MODE_GATE_SETS[mode] || MODE_GATE_SETS.learning;
+  
+  // learningモードの場合、アンロックされたゲートを追加
+  if (mode === 'learning' && unlockedGates) {
+    const allGates = [...baseGates];
+    unlockedGates.forEach(gate => {
+      if (!allGates.includes(gate)) {
+        allGates.push(gate);
+      }
+    });
+    return allGates;
+  }
+  
+  return baseGates;
+}
+
+export function isGateAvailableInMode(gateType: GateType | string, mode: CircuitMode): boolean {
+  return MODE_GATE_SETS[mode].includes(gateType);
+}

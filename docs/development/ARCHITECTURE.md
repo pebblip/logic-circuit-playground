@@ -1,107 +1,121 @@
-# 🚀 論理回路プレイグラウンド - React最適化アーキテクチャ
+# 🏗️ 論理回路プレイグラウンド - Hybrid Feature-Domain Architecture
 
 ## 🎯 アーキテクチャ選定理由
 
-### なぜクリーンアーキテクチャではないのか？
-1. **オーバーエンジニアリング**: Reactアプリには過度に複雑
-2. **Reactのパラダイムと不一致**: カスタムフックとの相性が悪い
-3. **開発速度の低下**: 抽象化レイヤーが多すぎる
-4. **実際の採用例が少ない**: React界隈では主流ではない
+### なぜHybrid Feature-Domain Architectureか？
 
-### 推奨アーキテクチャの特徴
-- **Feature-Sliced Design**: 機能単位で整理（ロシア発の実践的手法）
-- **カスタムフック中心**: Reactの強みを最大活用
-- **既存ViewModelパターンの活用**: 現在の良い設計を継承
-- **段階的移行可能**: 動作するコードを壊さない
+このプロジェクトの特性を考慮した結果、Pure Feature-Sliced DesignでもシンプルなMVCでもない、**ハイブリッドアーキテクチャ**を採用します。
 
-## 📁 推奨ディレクトリ構造
+#### プロジェクトの特性
+- **規模**: 中規模（大規模アーキテクチャは過剰）
+- **ドメイン**: 明確（回路シミュレーション）
+- **UI複雑度**: 高い（インタラクティブなキャンバス操作）
+- **拡張性**: 必要（学習モード、パズルモード、カスタムゲート）
+
+#### このアーキテクチャの特徴
+1. **Feature層**: UIとその直接的なロジックを機能単位で管理
+2. **Domain層**: UIに依存しないビジネスロジックを集約
+3. **適切な粒度**: 機能の複雑さに応じて柔軟に構造化
+
+## 📁 ディレクトリ構造
 
 ```
 src/
-├── 🎯 features/                 # 機能単位で整理
+├── 🎨 features/                 # 機能単位のUI層
 │   ├── circuit-editor/          # 回路エディタ機能
-│   │   ├── ui/                 # UIコンポーネント
-│   │   │   ├── Canvas/         # キャンバス関連
-│   │   │   ├── Gates/          # ゲートコンポーネント
-│   │   │   └── Toolbar/        # ツールバー
-│   │   ├── model/              # ビジネスロジック・状態
-│   │   │   ├── stores/         # Zustand stores
-│   │   │   ├── hooks/          # カスタムフック
-│   │   │   └── services/       # ビジネスロジック
-│   │   └── lib/                # ユーティリティ
-│   │       ├── collision.ts    # 当たり判定（一元化）
-│   │       └── geometry.ts     # 幾何計算
+│   │   ├── CircuitCanvas.tsx    # メインキャンバス
+│   │   ├── components/          # この機能専用のコンポーネント
+│   │   │   ├── Gate.tsx         # ゲート表示
+│   │   │   ├── Wire.tsx         # ワイヤー表示
+│   │   │   └── Pin.tsx          # ピン表示
+│   │   └── hooks/               # この機能専用のフック
+│   │       ├── useCircuitEditor.ts
+│   │       └── useWireDrawing.ts
 │   │
 │   ├── learning-mode/           # 学習モード
-│   │   ├── ui/
-│   │   │   ├── TutorialOverlay/
-│   │   │   └── ProgressBar/
-│   │   ├── model/
-│   │   │   └── useLearningProgress.ts
-│   │   └── data/
-│   │       └── tutorials.ts
+│   │   ├── LearningPanel.tsx
+│   │   ├── TutorialOverlay.tsx
+│   │   └── useLearningProgress.ts
 │   │
-│   ├── puzzle-mode/             # パズルモード
-│   │   ├── ui/
-│   │   ├── model/
-│   │   └── data/
+│   ├── tool-palette/            # ツールパレット
+│   │   ├── ToolPalette.tsx
+│   │   └── useToolSelection.ts
 │   │
-│   └── simulation/              # シミュレーション機能
-│       ├── model/
-│       │   └── simulation.worker.ts
-│       └── lib/
-│           └── signalPropagation.ts
+│   └── property-panel/          # プロパティパネル
+│       ├── PropertyPanel.tsx
+│       └── TruthTable.tsx
 │
-├── 🔧 entities/                 # ドメインモデル（既存を活用）
-│   ├── gates/                   # 既存のmodels/gates
-│   ├── circuit/                 # Circuit, Connection, Pin
-│   └── types/                   # 型定義
+├── 🔧 domain/                   # ビジネスロジック層
+│   ├── entities/                # 【既存を活用】ドメインモデル
+│   │   ├── gates/               # ゲートクラス群
+│   │   │   ├── BaseGate.ts     # 抽象基底クラス
+│   │   │   ├── ANDGate.ts
+│   │   │   ├── ORGate.ts
+│   │   │   ├── GateFactory.ts
+│   │   │   └── index.ts
+│   │   ├── circuit/             # 回路関連
+│   │   │   ├── Circuit.ts
+│   │   │   ├── Connection.ts
+│   │   │   └── Pin.ts
+│   │   └── types/               # ドメイン型定義
+│   │
+│   ├── services/                # ビジネスロジックサービス
+│   │   ├── CircuitSimulator.ts # シミュレーションエンジン
+│   │   ├── GatePlacement.ts    # ゲート配置ロジック
+│   │   ├── CollisionDetector.ts # 当たり判定
+│   │   └── CircuitSerializer.ts # 保存/読み込み
+│   │
+│   └── stores/                  # グローバル状態管理
+│       └── circuitStore.ts      # Zustand store
 │
-├── 🎨 shared/                   # 共有リソース
-│   ├── ui/                      # 共通コンポーネント
+├── 🎯 shared/                   # 共有リソース
+│   ├── components/              # 汎用UIコンポーネント
 │   │   ├── Button/
 │   │   ├── Modal/
 │   │   └── Icons/
-│   ├── lib/                     # 共通ユーティリティ
-│   │   ├── hooks/               # 汎用カスタムフック
-│   │   └── utils/               # ユーティリティ関数
-│   └── config/                  # 設定・定数
-│       ├── theme.ts             # テーマ設定
-│       └── constants.ts         # 定数
+│   ├── hooks/                   # 汎用カスタムフック
+│   │   ├── useResponsive.ts
+│   │   └── useKeyboardShortcuts.ts
+│   └── utils/                   # ユーティリティ
+│       ├── geometry.ts          # 幾何計算
+│       └── constants.ts         # 定数定義
 │
-├── 📱 app/                      # アプリケーションシェル
-│   ├── providers/               # プロバイダー
-│   │   ├── ThemeProvider.tsx
-│   │   └── StoreProvider.tsx
-│   ├── layouts/                 # レイアウト
-│   │   ├── MobileLayout.tsx
-│   │   └── DesktopLayout.tsx
-│   └── App.tsx                  # ルートコンポーネント
-│
-└── 🧪 __tests__/               # テスト（機能と並列）
+└── 📱 app/                      # アプリケーション設定
+    ├── App.tsx                  # ルートコンポーネント
+    ├── providers/               # プロバイダー
+    │   └── StoreProvider.tsx
+    └── layouts/                 # レイアウト
+        ├── DesktopLayout.tsx
+        ├── MobileLayout.tsx
+        └── components/          # レイアウト用コンポーネント
 ```
 
 ## 🎮 状態管理戦略
 
-### 1. グローバル状態: Zustand
+### グローバル状態: Zustand（シンプルに）
+
 ```typescript
-// features/circuit-editor/model/stores/circuitStore.ts
+// domain/stores/circuitStore.ts
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { BaseGate } from '../entities/gates/BaseGate';
+import { Connection } from '../entities/circuit/Connection';
 
 interface CircuitState {
   // 状態
-  gates: Gate[];
+  gates: BaseGate[];
   connections: Connection[];
   selectedGateId: string | null;
   
-  // ViewModelインスタンス（既存を活用）
-  viewModel: UltraModernCircuitViewModel;
-  
   // アクション
-  addGate: (gate: Gate) => void;
-  connectPins: (sourcePin: string, targetPin: string) => void;
-  deleteSelection: () => void;
+  addGate: (gate: BaseGate) => void;
+  moveGate: (gateId: string, position: Position) => void;
+  deleteGate: (gateId: string) => void;
+  connectPins: (fromPinId: string, toPinId: string) => void;
+  setSelectedGate: (gateId: string | null) => void;
+  
+  // 派生状態
+  getSelectedGate: () => BaseGate | null;
 }
 
 export const useCircuitStore = create<CircuitState>()(
@@ -109,257 +123,248 @@ export const useCircuitStore = create<CircuitState>()(
     gates: [],
     connections: [],
     selectedGateId: null,
-    viewModel: new UltraModernCircuitViewModel(),
     
-    addGate: (gate) => set(state => {
-      state.viewModel.addGate(gate);
-      state.gates = state.viewModel.getAllGates();
+    addGate: (gate) => set((state) => {
+      state.gates.push(gate);
     }),
     
-    connectPins: (sourcePin, targetPin) => set(state => {
-      const success = state.viewModel.connectPins(sourcePin, targetPin);
-      if (success) {
-        state.connections = state.viewModel.getAllConnections();
+    moveGate: (gateId, position) => set((state) => {
+      const gate = state.gates.find(g => g.id === gateId);
+      if (gate) {
+        gate.position = position;
       }
     }),
     
-    deleteSelection: () => set(state => {
-      if (state.selectedGateId) {
-        state.viewModel.removeGate(state.selectedGateId);
-        state.gates = state.viewModel.getAllGates();
-        state.selectedGateId = null;
-      }
-    })
+    deleteGate: (gateId) => set((state) => {
+      state.gates = state.gates.filter(g => g.id !== gateId);
+      state.connections = state.connections.filter(
+        c => c.from.gateId !== gateId && c.to.gateId !== gateId
+      );
+    }),
+    
+    connectPins: (fromPinId, toPinId) => set((state) => {
+      const connection = new Connection(fromPinId, toPinId);
+      state.connections.push(connection);
+    }),
+    
+    setSelectedGate: (gateId) => set((state) => {
+      state.selectedGateId = gateId;
+    }),
+    
+    getSelectedGate: () => {
+      const state = get();
+      return state.gates.find(g => g.id === state.selectedGateId) || null;
+    }
   }))
 );
 ```
 
-### 2. UI状態: Jotai（原子的状態管理）
+### ローカル状態: useState + カスタムフック
+
 ```typescript
-// features/circuit-editor/model/atoms.ts
-import { atom } from 'jotai';
-
-// UI専用の状態
-export const hoveredPinAtom = atom<string | null>(null);
-export const isDraggingAtom = atom(false);
-export const drawingWireAtom = atom<{
-  from: Position;
-  to: Position;
-} | null>(null);
-export const zoomLevelAtom = atom(1.0);
-export const panOffsetAtom = atom({ x: 0, y: 0 });
-
-// デバイス対応
-export const isMobileAtom = atom(false);
-export const touchModeAtom = atom<'select' | 'pan' | 'connect'>('select');
-```
-
-## 🎨 コンポーネント設計
-
-### 1. ゲート描画の統一（○─ピン形式）
-```typescript
-// features/circuit-editor/ui/Gates/GateRenderer.tsx
-interface GateRendererProps {
-  gate: Gate;
-  isSelected: boolean;
-  isHovered: boolean;
-}
-
-export const GateRenderer: React.FC<GateRendererProps> = React.memo(({ 
-  gate, 
-  isSelected, 
-  isHovered 
-}) => {
-  // ピン位置の計算をメモ化
-  const pins = useMemo(() => 
-    calculatePinPositions(gate), 
-    [gate.type, gate.position]
-  );
+// features/circuit-editor/hooks/useCircuitEditor.ts
+export const useCircuitEditor = () => {
+  // UI状態はローカルで管理
+  const [isDragging, setIsDragging] = useState(false);
+  const [drawingWire, setDrawingWire] = useState<DrawingWire | null>(null);
+  const [hoveredPinId, setHoveredPinId] = useState<string | null>(null);
   
-  return (
-    <g transform={`translate(${gate.x}, ${gate.y})`}>
-      {/* ゲート本体 */}
-      <GateShape type={gate.type} isActive={gate.isActive} />
-      
-      {/* ピン（○─形式） */}
-      {pins.map(pin => (
-        <PinRenderer key={pin.id} pin={pin} />
-      ))}
-      
-      {/* 選択枠 */}
-      {isSelected && <SelectionFrame />}
-    </g>
-  );
-}, arePropsEqual);
-
-// ピン描画コンポーネント（再利用可能）
-export const PinRenderer: React.FC<{ pin: Pin }> = ({ pin }) => {
-  const [isHovered] = useAtom(hoveredPinAtom);
-  
-  return (
-    <g transform={`translate(${pin.x}, ${pin.y})`}>
-      <circle r={6} className={`pin ${pin.isActive ? 'active' : ''}`} />
-      <line x1={-10} y1={0} x2={0} y2={0} className="pin-line" />
-      {/* タッチ用の大きなヒットエリア */}
-      <circle r={20} className="pin-hit-area" />
-    </g>
-  );
-};
-```
-
-### 2. 当たり判定の一元化
-```typescript
-// features/circuit-editor/lib/collision.ts
-export class CollisionDetector {
-  private static instance: CollisionDetector;
-  
-  static getInstance() {
-    if (!this.instance) {
-      this.instance = new CollisionDetector();
-    }
-    return this.instance;
-  }
-  
-  // ピンのヒット判定（モバイル対応）
-  detectPinHit(point: Position, pins: Pin[], isMobile: boolean): Pin | null {
-    const hitRadius = isMobile ? 30 : 20;
-    
-    for (const pin of pins) {
-      const distance = Math.hypot(
-        point.x - pin.worldX, 
-        point.y - pin.worldY
-      );
-      if (distance <= hitRadius) {
-        return pin;
-      }
-    }
-    return null;
-  }
-  
-  // ゲートのヒット判定
-  detectGateHit(point: Position, gates: Gate[]): Gate | null {
-    // 効率的な空間インデックスを使用
-    return this.spatialIndex.query(point);
-  }
-}
-```
-
-### 3. カスタムフックによるロジック分離
-```typescript
-// features/circuit-editor/model/hooks/useCanvasInteraction.ts
-export const useCanvasInteraction = () => {
-  const { viewModel, selectedGateId } = useCircuitStore();
-  const [hoveredPin, setHoveredPin] = useAtom(hoveredPinAtom);
-  const [drawingWire, setDrawingWire] = useAtom(drawingWireAtom);
-  const { isMobile } = useResponsive();
-  
+  // ドメインロジックはservicesから
+  const placement = useMemo(() => new GatePlacement(), []);
   const collision = useMemo(() => CollisionDetector.getInstance(), []);
   
-  const handlePointerDown = useCallback((e: PointerEvent) => {
-    const point = getCanvasPoint(e);
-    
-    // ピンのヒット判定
-    const pin = collision.detectPinHit(
-      point, 
-      viewModel.getAllPins(), 
-      isMobile
-    );
-    
-    if (pin) {
-      setDrawingWire({ from: pin.position, to: point });
-      return;
-    }
-    
-    // ゲートのヒット判定
-    const gate = collision.detectGateHit(point, viewModel.getAllGates());
-    if (gate) {
-      viewModel.selectGate(gate.id);
-    }
-  }, [viewModel, collision, isMobile]);
+  // グローバル状態はstoreから
+  const { gates, addGate, selectedGateId } = useCircuitStore();
+  
+  const handleGatePlace = useCallback((type: GateType) => {
+    const position = placement.calculateOptimalPosition(gates);
+    const gate = GateFactory.create(type, position);
+    addGate(gate);
+  }, [gates, addGate, placement]);
   
   return {
-    handlePointerDown,
-    handlePointerMove,
-    handlePointerUp,
-    hoveredPin,
-    drawingWire
+    // 状態
+    isDragging,
+    drawingWire,
+    hoveredPinId,
+    
+    // アクション
+    handleGatePlace,
+    setDrawingWire,
+    setHoveredPinId
   };
 };
 ```
 
-## 🚀 移行計画
+## 🏛️ アーキテクチャの原則
 
-### Phase 1: 基盤整備（1週間）
-1. **ディレクトリ構造の段階的移行**
-   ```bash
-   # 既存ファイルを新構造に移動
-   mv src/components/Circuit/* src/features/circuit-editor/ui/
-   mv src/models/* src/entities/
-   mv src/hooks/* src/shared/lib/hooks/
-   ```
+### 1. 依存関係の方向
 
-2. **Zustand導入**
-   - ViewModelをZustandでラップ
-   - 既存の動作を維持
+```
+features → domain → shared
+    ↓        ↓        ↓
+   UI層   ビジネス層  共通層
+```
 
-3. **当たり判定の統一**
-   - CollisionDetectorクラス作成
-   - 既存のバラバラな判定ロジックを統合
+- features層はdomain層に依存OK
+- domain層はfeatures層に依存NG
+- shared層はどこからでも利用可能
 
-### Phase 2: UI最適化（1週間）
-1. **ゲート描画の統一**
-   - GateRenderer作成
-   - ○─ピン形式への移行
+### 2. 責任の分離
 
-2. **メモ化とパフォーマンス**
-   - React.memoの適用
-   - useMemoによる計算最適化
+#### Features層の責任
+- UIの表示とインタラクション
+- ユーザー操作の処理
+- ローカルなUI状態の管理
 
-3. **レスポンシブ対応**
-   - useResponsiveフック
-   - モバイル/デスクトップレイアウト
+#### Domain層の責任
+- ビジネスロジックの実装
+- データモデルの定義
+- グローバル状態の管理
 
-### Phase 3: 機能実装（2週間）
-1. **3モードシステム**
-   - 各モードをfeatureとして実装
-   - 既存UIの再利用
+#### Shared層の責任
+- 汎用的な機能の提供
+- 複数の機能で使われるコンポーネント
+- アプリ全体の設定や定数
 
-2. **シミュレーション最適化**
-   - Web Worker導入
-   - 非同期実行
+### 3. コードの配置基準
 
-### Phase 4: テストとリファクタリング（継続的）
-1. **テスト追加**
-   - 各featureごとのテスト
-   - 統合テスト
+```typescript
+// 🤔 このコードはどこに置く？
 
-2. **継続的改善**
-   - パフォーマンス計測
-   - UX改善
+// 1. 特定の機能でのみ使う → features/
+features/circuit-editor/components/GateContextMenu.tsx
 
-## 📊 メリット
+// 2. UIに依存しないロジック → domain/services/
+domain/services/CircuitValidator.ts
 
-### 開発効率
-- **既存コードの活用**: ViewModelパターンをそのまま使える
-- **段階的移行**: 動作を維持しながら改善
-- **Reactらしい設計**: カスタムフックでロジック分離
+// 3. 複数の機能で使う → shared/
+shared/components/Tooltip.tsx
+shared/hooks/useDebounce.ts
+```
 
-### パフォーマンス
-- **最適化しやすい**: React.memo、useMemoが自然に使える
-- **Web Worker対応**: 重い計算を別スレッドで
-- **効率的な再レンダリング**: 原子的状態管理
+## 🚀 実装例
 
-### 保守性
-- **機能単位の整理**: Feature-Sliced Design
-- **関心の分離**: UI、ロジック、データの明確な分離
-- **テストしやすい**: 各レイヤーを独立してテスト可能
+### ワンクリックゲート配置の実装
 
-## 🎯 結論
+```typescript
+// features/tool-palette/ToolPalette.tsx
+import { useCircuitEditor } from '../circuit-editor/hooks/useCircuitEditor';
 
-このアーキテクチャは：
-1. **Reactのベストプラクティスに準拠**
-2. **既存の良い設計（ViewModel）を活かす**
-3. **段階的に移行可能**
-4. **教育アプリの要件（インタラクティブ性、リアルタイム性）に最適**
+export const ToolPalette: React.FC = () => {
+  const { handleGatePlace } = useCircuitEditor();
+  
+  return (
+    <div className="tool-palette">
+      {GATE_TYPES.map(type => (
+        <button
+          key={type}
+          onClick={() => handleGatePlace(type)}
+          className="tool-button"
+        >
+          <GateIcon type={type} />
+          <span>{type}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
 
-クリーンアーキテクチャの厳格さより、**実用的で保守しやすい**設計を選択しました。
+// domain/services/GatePlacement.ts
+export class GatePlacement {
+  private static readonly GRID_SIZE = 20;
+  private static readonly INITIAL_OFFSET = { x: 100, y: 100 };
+  private static readonly SPACING = 120;
+  
+  calculateOptimalPosition(existingGates: BaseGate[]): Position {
+    if (existingGates.length === 0) {
+      return this.snapToGrid(this.INITIAL_OFFSET);
+    }
+    
+    // 既存ゲートの右側に配置
+    const rightmostGate = this.findRightmostGate(existingGates);
+    const newPosition = {
+      x: rightmostGate.position.x + this.SPACING,
+      y: rightmostGate.position.y
+    };
+    
+    // 衝突チェックして調整
+    return this.avoidCollision(newPosition, existingGates);
+  }
+  
+  private snapToGrid(position: Position): Position {
+    return {
+      x: Math.round(position.x / this.GRID_SIZE) * this.GRID_SIZE,
+      y: Math.round(position.y / this.GRID_SIZE) * this.GRID_SIZE
+    };
+  }
+}
+```
+
+## 📋 移行計画
+
+### Phase 0: 構造の整理（現在）
+```bash
+# 1. domainディレクトリの作成
+mkdir -p src/domain/{services,stores}
+
+# 2. 既存entitiesの移動
+mv src/entities src/domain/entities
+
+# 3. servicesの実装
+# - CollisionDetector
+# - GatePlacement
+# - CircuitSimulator
+```
+
+### Phase 1: 基本機能の修正（1週間）
+- [ ] ワンクリック配置の実装
+- [ ] 座標変換の修正
+- [ ] 接続線描画の修正
+- [ ] モバイルスタイルの適用
+
+### Phase 2: アーキテクチャ適用（1週間）
+- [ ] features層への再構成
+- [ ] カスタムフックの整理
+- [ ] Zustandストアの実装
+
+### Phase 3: 機能追加（以降）
+- [ ] 学習モードの実装
+- [ ] 保存/読み込み機能
+- [ ] カスタムゲート機能
+
+## 📊 この設計の利点
+
+### 1. 段階的な複雑性
+- シンプルな機能 = シンプルな実装
+- 複雑な機能 = 適切に構造化
+
+### 2. 保守性
+- ロジックの重複なし
+- 責任の所在が明確
+- テストが書きやすい
+
+### 3. 拡張性
+- 新機能の追加が容易
+- 既存機能への影響を最小化
+- チーム開発にも対応
+
+### 4. 実装の容易さ
+- 既存コードを活かせる
+- 学習コストが低い
+- すぐに開発を開始できる
+
+## 🎯 まとめ
+
+このHybrid Feature-Domain Architectureは：
+
+1. **適切な複雑さ** - 過不足のない構造
+2. **実践的** - 理論よりも実装のしやすさを重視
+3. **柔軟** - プロジェクトの成長に合わせて進化可能
+4. **明確** - どこに何を書くべきかが明確
+
+Pure Feature-Sliced Designの厳格さより、**このプロジェクトに最適化された実用的な設計**を選択しました。
+
+---
+
+*最終更新: 2024年1月*

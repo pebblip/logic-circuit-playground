@@ -1,22 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
-import ErrorBoundary from './components/ErrorBoundary';
-import './utils/forceSkipModeSelection';
 import './index.css';
+import './app/styles/mockup-desktop.css';
+import App from './App';
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error('Failed to find the root element');
-}
-
-ReactDOM.createRoot(rootElement).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
-    </BrowserRouter>
+    <App />
   </React.StrictMode>,
 );

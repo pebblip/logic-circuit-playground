@@ -1,113 +1,68 @@
 # 📚 ドキュメント構成
 
-このディレクトリには、Logic Circuit Playgroundプロジェクトの全てのドキュメントが含まれています。
+このディレクトリには、論理回路プレイグラウンドの設計・開発に関するドキュメントが含まれています。
 
-## 📋 ドキュメントの関係と役割
+## 📋 ドキュメント一覧
 
-### 🎯 プロジェクト全体像
-```
-PROJECT_BLUEPRINT.md（設計書）
-    ├── ビジョン・コンセプト
-    ├── 機能仕様
-    ├── UI/UXデザイン
-    └── 品質基準
-           ↓
-REACT_ARCHITECTURE_ROADMAP.md（技術設計）
-    ├── アーキテクチャ詳細
-    ├── ディレクトリ構造
-    ├── 状態管理戦略
-    └── 実装パターン
-           ↓
-REVISED_ROADMAP.md（開発計画）
-    ├── スプリント計画
-    ├── マイルストーン
-    ├── リリース戦略
-    └── タイムライン
-```
+### 🎯 設計ドキュメント
+- **[PROJECT_BLUEPRINT.md](./PROJECT_BLUEPRINT.md)** - プロジェクト全体の設計書
+  - ビジョン、コアバリュー、機能仕様
+  - UI/UXデザイン、技術スタック
+  - 開発ロードマップ、品質基準
 
-### 📁 ディレクトリ構成
+### 🏗️ 開発ドキュメント
+- **[development/ARCHITECTURE.md](./development/ARCHITECTURE.md)** - 技術アーキテクチャ
+  - Feature-Sliced Design採用の理由
+  - ディレクトリ構造、状態管理
+  - 技術的な設計判断
 
-```
-docs/
-├── README.md                        # このファイル（ドキュメント構成説明）
-├── PROJECT_BLUEPRINT.md             # プロジェクト設計書（What & Why）
-├── design/                          # デザイン関連
-│   └── mockups/                     # UIモックアップ
-│       ├── final-gate-design.html   # ゲートデザイン仕様
-│       ├── mobile-ui.html           # モバイル版UI
-│       └── desktop-ui.html          # デスクトップ版UI
-└── development/                     # 開発関連
-    ├── ARCHITECTURE.md              # 技術アーキテクチャ（How）
-    ├── ROADMAP.md                   # 開発ロードマップ（When）
-    └── GUIDELINES.md                # 開発ガイドライン（Rules）
-```
+- **[development/GUIDELINES.md](./development/GUIDELINES.md)** - 開発ガイドライン
+  - 品質基準（100%ルール）
+  - コーディング規約
+  - コミット規約、テスト方針
 
-## 📖 各ドキュメントの詳細
+- **[development/ROADMAP.md](./development/ROADMAP.md)** - 開発ロードマップ
+  - 5つのフェーズによる段階的開発
+  - 各フェーズの具体的なタスク
+  - スケジュール
 
-### PROJECT_BLUEPRINT.md
-**目的**: プロジェクトの全体像を理解する
-- プロジェクトのビジョンとゴール
-- 3つのモード（学習・自由制作・パズル）の詳細仕様
-- UI/UXデザインの方針
-- 技術スタックの概要
-- 品質基準と成功指標
+### 🎨 デザインリソース
+- **[design/mockups/](./design/mockups/)** - UIモックアップ
+  - `desktop-ui.html` - デスクトップ版UI
+  - `mobile-ui.html` - モバイル版UI
+  - `final-gate-design.html` - ゲートデザイン仕様
 
-**読者**: 全員（開発者、デザイナー、ステークホルダー）
+## 🔄 ドキュメントの読み方
 
-### development/ARCHITECTURE.md
-**目的**: 技術的な実装方法を理解する
-- Feature-Sliced Design + カスタムフックアーキテクチャ
-- 詳細なディレクトリ構造
-- 状態管理（Zustand + Jotai）の実装方法
-- 統一された設計パターン（CollisionDetector等）
-- コード例とベストプラクティス
+### 初めての方
+1. まず[PROJECT_BLUEPRINT.md](./PROJECT_BLUEPRINT.md)でプロジェクト全体像を把握
+2. 次に[ARCHITECTURE.md](./development/ARCHITECTURE.md)で技術的な構成を理解
+3. 開発に参加する場合は[GUIDELINES.md](./development/GUIDELINES.md)を必読
 
-**読者**: 開発者
-
-### development/ROADMAP.md
-**目的**: いつ何を作るかを理解する（具体的な開発スケジュール）
-- 7つのスプリント計画（Sprint 0-6）
-- 3つのマイルストーン（3週間、6週間、10週間）
-- リリース戦略（v0.1.0 → v1.0.0）
-- 各スプリントの具体的なタスク
-- ハイブリッドアプローチ（基本モード + 最小限の学習要素を優先）
-
-**読者**: 開発者、プロジェクトマネージャー
-
-**位置付け**: PROJECT_BLUEPRINTの「何を作るか」とARCHITECTUREの「どう作るか」を受けて、「いつ作るか」を定義。開発の実行計画書。
-
-### development/GUIDELINES.md（旧CLAUDE.md）
-**目的**: 開発時の規約とルールを理解する
-- 品質基準（100%達成必須）
-- テスト駆動開発の手順
-- コミット規約
-- コードレビュー基準
-
-**読者**: 開発者
-
-## 🚀 ドキュメントの使い方
-
-### 新規参加者の場合
-1. **PROJECT_BLUEPRINT.md** を読んでプロジェクトを理解
-2. **ROADMAP.md** で現在の進捗を確認
-3. **ARCHITECTURE.md** で技術的な詳細を学習
-4. **GUIDELINES.md** で開発ルールを確認
-
-### 開発作業時
-1. **ROADMAP.md** で現在のスプリントのタスクを確認
-2. **ARCHITECTURE.md** で実装パターンを参照
-3. **GUIDELINES.md** に従って品質チェック
-
-### デザイン作業時
-1. **PROJECT_BLUEPRINT.md** でUI/UX方針を確認
-2. **design/mockups/** で既存のデザインを参照
+### 開発者の方
+1. [GUIDELINES.md](./development/GUIDELINES.md)で品質基準を確認
+2. [ROADMAP.md](./development/ROADMAP.md)で現在のフェーズを確認
+3. モックアップで最終的なUIイメージを確認
 
 ## 📝 ドキュメント更新ルール
 
-- ドキュメントは常に最新の状態を保つ
-- 大きな変更時は関連する全てのドキュメントを更新
-- 図や例を積極的に使用して理解しやすくする
-- バージョン履歴を記録する
+### 更新タイミング
+- 機能追加・変更時は関連ドキュメントも更新
+- アーキテクチャ変更時は必ずARCHITECTURE.mdを更新
+- フェーズ完了時はROADMAP.mdのステータスを更新
+
+### 品質チェック
+- ドキュメント間の整合性を確認
+- コードとドキュメントの一致を確認
+- リンク切れがないか確認
+
+## 🚀 今後追加予定のドキュメント
+
+- **CHANGELOG.md** - バージョン履歴と変更内容
+- **API_REFERENCE.md** - コンポーネント・フックのAPI仕様
+- **TESTING.md** - テスト戦略とガイド
+- **DEPLOYMENT.md** - デプロイ手順
+- **TROUBLESHOOTING.md** - よくある問題と解決方法
 
 ---
 
