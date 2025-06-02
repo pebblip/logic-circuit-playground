@@ -4,15 +4,21 @@ describe('学習モードテスト', () => {
     cy.wait(1000);
   });
 
-  it('学習モードボタンをクリックするとパネルが開く', () => {
-    // 学習モードボタンを探す
-    cy.get('button[title="学習モード"]').should('exist');
+  it('学習モードタブをクリックするとパネルが開く', () => {
+    // ヘッダーのモードタブを探す
+    cy.get('.mode-tabs').should('exist');
+    
+    // 最初は自由制作モードがアクティブ
+    cy.get('.mode-tab.active').should('contain', '自由制作');
     
     // 最初はパネルが表示されていない
     cy.get('.learning-panel').should('not.exist');
     
-    // 学習モードボタンをクリック
-    cy.get('button[title="学習モード"]').click();
+    // 学習モードタブをクリック
+    cy.get('.mode-tab').contains('学習モード').click();
+    
+    // 学習モードがアクティブになる
+    cy.get('.mode-tab.active').should('contain', '学習モード');
     
     // パネルが表示される
     cy.get('.learning-panel').should('be.visible');
@@ -32,7 +38,7 @@ describe('学習モードテスト', () => {
 
   it('レッスンを選択して開始できる', () => {
     // 学習モードを開く
-    cy.get('button[title="学習モード"]').click();
+    cy.get('.mode-tab').contains('学習モード').click();
     
     // NOTゲートレッスンをクリック
     cy.contains('はじめてのNOTゲート').click();
@@ -48,7 +54,7 @@ describe('学習モードテスト', () => {
 
   it('閉じるボタンでパネルを閉じることができる', () => {
     // 学習モードを開く
-    cy.get('button[title="学習モード"]').click();
+    cy.get('.mode-tab').contains('学習モード').click();
     
     // パネルが表示される
     cy.get('.learning-panel').should('be.visible');
@@ -58,5 +64,8 @@ describe('学習モードテスト', () => {
     
     // パネルが非表示になる
     cy.get('.learning-panel').should('not.exist');
+    
+    // 自由制作モードに戻る
+    cy.get('.mode-tab.active').should('contain', '自由制作');
   });
 });
