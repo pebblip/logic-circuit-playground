@@ -11,21 +11,16 @@ interface DesktopLayoutProps {
 }
 
 export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
-  const { gates, wires, undo, redo, clearAll, canUndo, canRedo } = useCircuitStore();
-  const [activeMode, setActiveMode] = useState('自由制作');
+  const { gates, wires, undo, redo, clearAll, canUndo, canRedo, appMode, setAppMode } = useCircuitStore();
   
-  const handleModeChange = (mode: string) => {
-    setActiveMode(mode);
-    // 学習モードの場合はパネルを開く
-    if (mode === '学習モード') {
-      // 学習モードパネルは常に表示
-    }
+  const handleModeChange = (mode: '学習モード' | '自由制作' | 'パズル・チャレンジ') => {
+    setAppMode(mode);
   };
   
   return (
     <div className="app-container">
       {/* ヘッダー（グリッド全幅） */}
-      <Header activeMode={activeMode} onModeChange={handleModeChange} />
+      <Header activeMode={appMode} onModeChange={handleModeChange} />
       
       {/* 左サイドバー - ツールパレット */}
       <aside className="sidebar-left">
@@ -98,8 +93,8 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
       
       {/* 学習モードパネル */}
       <LearningPanel 
-        isOpen={activeMode === '学習モード'}
-        onClose={() => setActiveMode('自由制作')}
+        isOpen={appMode === '学習モード'}
+        onClose={() => setAppMode('自由制作')}
       />
     </div>
   );

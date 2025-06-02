@@ -14,6 +14,12 @@ interface CircuitStore extends CircuitState {
   history: HistoryState[];
   historyIndex: number;
   
+  // アプリケーションモード
+  appMode: '学習モード' | '自由制作' | 'パズル・チャレンジ';
+  setAppMode: (mode: '学習モード' | '自由制作' | 'パズル・チャレンジ') => void;
+  allowedGates: GateType[] | null; // null = 全て許可
+  setAllowedGates: (gates: GateType[] | null) => void;
+  
   // カスタムゲート管理
   addCustomGate: (definition: CustomGateDefinition) => void;
   removeCustomGate: (id: string) => void;
@@ -55,6 +61,8 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
   customGates: [],
   history: [{ gates: [], wires: [] }], // 初期状態を履歴に追加
   historyIndex: 0,
+  appMode: '自由制作',
+  allowedGates: null,
 
   addCustomGate: (definition) => {
     set((state) => ({
@@ -568,5 +576,14 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
   },
   
   canUndo: () => get().historyIndex > 0,
-  canRedo: () => get().historyIndex < get().history.length - 1
+  canRedo: () => get().historyIndex < get().history.length - 1,
+  
+  // アプリケーションモード管理
+  setAppMode: (mode) => {
+    set({ appMode: mode });
+  },
+  
+  setAllowedGates: (gates) => {
+    set({ allowedGates: gates });
+  }
 }));

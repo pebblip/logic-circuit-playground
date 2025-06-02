@@ -84,7 +84,7 @@ const DEMO_CUSTOM_GATES: CustomGateDefinition[] = [
 ];
 
 export const ToolPalette: React.FC = () => {
-  const { addGate, gates, customGates, addCustomGate, createCustomGateFromCurrentCircuit } = useCircuitStore();
+  const { addGate, gates, customGates, addCustomGate, createCustomGateFromCurrentCircuit, allowedGates, appMode } = useCircuitStore();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isTruthTableOpen, setIsTruthTableOpen] = useState(false);
   const [currentTruthTable, setCurrentTruthTable] = useState<{
@@ -414,17 +414,21 @@ export const ToolPalette: React.FC = () => {
         <span>基本ゲート</span>
       </div>
       <div className="tools-grid">
-        {BASIC_GATES.map(({ type, label }) => (
-          <div
-            key={type}
-            className="tool-card"
-            data-gate-type={type}
-            onClick={() => handleToolClick(type)}
-          >
-            {renderGatePreview(type)}
-            <div className="tool-label">{label}</div>
-          </div>
-        ))}
+        {BASIC_GATES.map(({ type, label }) => {
+          const isDisabled = allowedGates !== null && !allowedGates.includes(type);
+          return (
+            <div
+              key={type}
+              className={`tool-card ${isDisabled ? 'disabled' : ''}`}
+              data-gate-type={type}
+              onClick={() => !isDisabled && handleToolClick(type)}
+              title={isDisabled ? '学習モードではこのゲートは使用できません' : ''}
+            >
+              {renderGatePreview(type)}
+              <div className="tool-label">{label}</div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="section-title">
@@ -432,17 +436,21 @@ export const ToolPalette: React.FC = () => {
         <span>入出力</span>
       </div>
       <div className="tools-grid">
-        {IO_GATES.map(({ type, label }) => (
-          <div
-            key={type}
-            className="tool-card"
-            data-gate-type={type}
-            onClick={() => handleToolClick(type)}
-          >
-            {renderGatePreview(type)}
-            <div className="tool-label">{label}</div>
-          </div>
-        ))}
+        {IO_GATES.map(({ type, label }) => {
+          const isDisabled = allowedGates !== null && !allowedGates.includes(type);
+          return (
+            <div
+              key={type}
+              className={`tool-card ${isDisabled ? 'disabled' : ''}`}
+              data-gate-type={type}
+              onClick={() => !isDisabled && handleToolClick(type)}
+              title={isDisabled ? '学習モードではこのゲートは使用できません' : ''}
+            >
+              {renderGatePreview(type)}
+              <div className="tool-label">{label}</div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="section-title">
@@ -450,17 +458,21 @@ export const ToolPalette: React.FC = () => {
         <span>特殊ゲート</span>
       </div>
       <div className="tools-grid">
-        {SPECIAL_GATES.map(({ type, label }) => (
-          <div
-            key={type}
-            className="tool-card"
-            data-gate-type={type}
-            onClick={() => handleToolClick(type)}
-          >
-            {renderGatePreview(type)}
-            <div className="tool-label">{label}</div>
-          </div>
-        ))}
+        {SPECIAL_GATES.map(({ type, label }) => {
+          const isDisabled = allowedGates !== null && !allowedGates.includes(type);
+          return (
+            <div
+              key={type}
+              className={`tool-card ${isDisabled ? 'disabled' : ''}`}
+              data-gate-type={type}
+              onClick={() => !isDisabled && handleToolClick(type)}
+              title={isDisabled ? '学習モードではこのゲートは使用できません' : ''}
+            >
+              {renderGatePreview(type)}
+              <div className="tool-label">{label}</div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="section-title">

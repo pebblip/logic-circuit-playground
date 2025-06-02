@@ -326,3 +326,53 @@
   background: rgba(0, 255, 136, 0.2);
   border-color: rgba(0, 255, 136, 0.5);
 }
+
+/* 成功フィードバック */
+.success-feedback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 255, 136, 0.9);
+  border-radius: 16px;
+  padding: 24px 48px;
+  text-align: center;
+  animation: successPulse 1s ease-out;
+  z-index: 100;
+}
+
+.success-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+  animation: successBounce 0.6s ease-out;
+}
+
+.success-message {
+  font-size: 20px;
+  font-weight: 600;
+  color: #000;
+}
+
+@keyframes successPulse {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  100% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes successBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
