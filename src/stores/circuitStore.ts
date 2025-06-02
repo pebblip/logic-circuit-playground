@@ -21,7 +21,7 @@ interface CircuitStore extends CircuitState {
   
   // ゲート操作
   addGate: (type: GateType, position: Position) => Gate;
-  moveGate: (gateId: string, position: Position) => void;
+  moveGate: (gateId: string, position: Position, saveToHistory?: boolean) => void;
   selectGate: (gateId: string | null) => void;
   deleteGate: (gateId: string) => void;
   
@@ -90,7 +90,7 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
     return newGate;
   },
 
-  moveGate: (gateId, position) => {
+  moveGate: (gateId, position, saveToHistory = false) => {
     set((state) => {
       // ワイヤー描画中で、移動するゲートから出ている場合は起点も更新
       let newWireStart = state.wireStart;
@@ -177,6 +177,11 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
         wireStart: newWireStart,
       };
     });
+    
+    // ドラッグ終了時のみ履歴に追加
+    if (saveToHistory) {
+      get().pushHistory();
+    }
   },
 
   selectGate: (gateId) => {

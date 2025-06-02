@@ -13,6 +13,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
   const { moveGate, selectGate, selectedGateId, startWireDrawing, endWireDrawing, updateGateOutput, updateClockFrequency } = useCircuitStore();
   const [isDragging, setIsDragging] = React.useState(false);
   const dragStart = useRef({ x: 0, y: 0 });
+  const originalPosition = useRef({ x: 0, y: 0 });
   const hasDragged = useRef(false);
   const isMobile = useIsMobile();
   
@@ -79,6 +80,20 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
     };
 
     const handleGlobalEnd = () => {
+      // ドラッグ終了時、位置が変わっていたら履歴に保存
+      if (hasDragged.current) {
+        const currentPosition = gate.position;
+        const distanceMoved = Math.sqrt(
+          Math.pow(currentPosition.x - originalPosition.current.x, 2) + 
+          Math.pow(currentPosition.y - originalPosition.current.y, 2)
+        );
+        
+        if (distanceMoved > 5) {
+          // 位置が実際に変わった場合のみ履歴に保存
+          moveGate(gate.id, currentPosition, true);
+        }
+      }
+      
       setIsDragging(false);
       // ドラッグが終わったら少し待ってからフラグをリセット
       setTimeout(() => {
@@ -124,6 +139,9 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       y: svgPoint.y - gate.position.y,
     };
     
+    // ドラッグ開始時の位置を記録
+    originalPosition.current = { ...gate.position };
+    
     setIsDragging(true);
   };
 
@@ -160,6 +178,9 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
         x: svgPoint.x - gate.position.x,
         y: svgPoint.y - gate.position.y,
       };
+      
+      // ドラッグ開始時の位置を記録
+      originalPosition.current = { ...gate.position };
       
       setIsDragging(true);
     }
