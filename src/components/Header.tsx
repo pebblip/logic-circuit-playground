@@ -58,6 +58,14 @@ export const Header: React.FC = () => {
         <div className="header-actions">
           <button 
             className="button"
+            onClick={() => setLoadDialogOpen(true)}
+            title="回路を読み込み"
+          >
+            <span>📂</span>
+            <span>開く</span>
+          </button>
+          <button 
+            className="button"
             onClick={() => setSaveDialogOpen(true)}
             title="回路を保存"
           >
