@@ -1,9 +1,19 @@
 import { create } from 'zustand';
-import { Gate, Wire, CircuitState, GateType, Position, CustomGateDefinition } from '../types/circuit';
+import { Gate, Wire, CircuitState, GateType, Position, CustomGateDefinition, CustomGatePin } from '../types/circuit';
 import { evaluateCircuit } from '../utils/simulation';
 import { GateFactory } from '../models/gates/GateFactory';
 
+// 履歴管理用の型
+interface HistoryState {
+  gates: Gate[];
+  wires: Wire[];
+}
+
 interface CircuitStore extends CircuitState {
+  // 履歴管理
+  history: HistoryState[];
+  historyIndex: number;
+  
   // カスタムゲート管理
   addCustomGate: (definition: CustomGateDefinition) => void;
   removeCustomGate: (id: string) => void;
@@ -24,15 +34,27 @@ interface CircuitStore extends CircuitState {
   // ゲートの状態更新
   updateGateOutput: (gateId: string, output: boolean) => void;
   updateClockFrequency: (gateId: string, frequency: number) => void;
+  
+  // Undo/Redo/Clear
+  undo: () => void;
+  redo: () => void;
+  clearAll: () => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
+  
+  // 履歴管理（内部用）
+  pushHistory: () => void;
 }
 
-export const useCircuitStore = create<CircuitStore>((set) => ({
+export const useCircuitStore = create<CircuitStore>((set, get) => ({
   gates: [],
   wires: [],
   selectedGateId: null,
   isDrawingWire: false,
   wireStart: null,
   customGates: [],
+  history: [{ gates: [], wires: [] }], // 初期状態を履歴に追加
+  historyIndex: 0,
 
   addCustomGate: (definition) => {
     set((state) => ({
@@ -61,6 +83,9 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
         wires: evaluatedWires,
       };
     });
+    
+    // 履歴に追加
+    get().pushHistory();
     
     return newGate;
   },
@@ -176,6 +201,9 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
         selectedGateId: state.selectedGateId === gateId ? null : state.selectedGateId,
       };
     });
+    
+    // 履歴に追加
+    get().pushHistory();
   },
 
   startWireDrawing: (gateId, pinIndex) => {
@@ -357,6 +385,9 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
         wireStart: null,
       };
     });
+    
+    // 履歴に追加
+    get().pushHistory();
   },
 
   cancelWireDrawing: () => {
@@ -375,6 +406,9 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
         wires: evaluatedWires,
       };
     });
+    
+    // 履歴に追加
+    get().pushHistory();
   },
 
   updateGateOutput: (gateId, output) => {
@@ -458,4 +492,76 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
     });
     window.dispatchEvent(event);
   },
+  
+  // 履歴管理（内部用）
+  pushHistory: () => {
+    const state = get();
+    const currentState = { gates: state.gates, wires: state.wires };
+    
+    // 現在の位置より後の履歴を削除（新しい分岐を作成）
+    const newHistory = state.history.slice(0, state.historyIndex + 1);
+    newHistory.push(currentState);
+    
+    // 履歴の最大サイズを制限（メモリ節約）
+    const MAX_HISTORY_SIZE = 50;
+    if (newHistory.length > MAX_HISTORY_SIZE) {
+      newHistory.shift();
+    }
+    
+    set({
+      history: newHistory,
+      historyIndex: newHistory.length - 1
+    });
+  },
+  
+  // Undo/Redo/Clear
+  undo: () => {
+    const state = get();
+    if (state.historyIndex > 0) {
+      const newIndex = state.historyIndex - 1;
+      const historicalState = state.history[newIndex];
+      
+      set({
+        gates: historicalState.gates,
+        wires: historicalState.wires,
+        historyIndex: newIndex,
+        selectedGateId: null,
+        isDrawingWire: false,
+        wireStart: null
+      });
+    }
+  },
+  
+  redo: () => {
+    const state = get();
+    if (state.historyIndex < state.history.length - 1) {
+      const newIndex = state.historyIndex + 1;
+      const historicalState = state.history[newIndex];
+      
+      set({
+        gates: historicalState.gates,
+        wires: historicalState.wires,
+        historyIndex: newIndex,
+        selectedGateId: null,
+        isDrawingWire: false,
+        wireStart: null
+      });
+    }
+  },
+  
+  clearAll: () => {
+    set({
+      gates: [],
+      wires: [],
+      selectedGateId: null,
+      isDrawingWire: false,
+      wireStart: null
+    });
+    
+    // clearAllも履歴に追加
+    get().pushHistory();
+  },
+  
+  canUndo: () => get().historyIndex > 0,
+  canRedo: () => get().historyIndex < get().history.length - 1
 }));

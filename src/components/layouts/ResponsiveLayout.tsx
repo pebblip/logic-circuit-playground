@@ -1,5 +1,6 @@
 import React from 'react';
 import { useResponsive } from '../../hooks/useResponsive';
+import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { DesktopLayout } from './DesktopLayout';
 import { MobileLayout } from './MobileLayout';
 import { TabletLayout } from './TabletLayout';
@@ -10,6 +11,7 @@ interface ResponsiveLayoutProps {
 
 export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({ children }) => {
   const { breakpoint } = useResponsive();
+  useKeyboardShortcuts();
 
   switch (breakpoint) {
     case 'mobile':

@@ -3,12 +3,14 @@ import { Header } from '../Header';
 import { ToolPalette } from '../ToolPalette';
 import { Canvas } from '../Canvas';
 import { PropertyPanel } from '../PropertyPanel';
+import { useCircuitStore } from '../../stores/circuitStore';
 
 interface DesktopLayoutProps {
   children?: React.ReactNode;
 }
 
 export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
+  const { gates, wires, undo, redo, clearAll, canUndo, canRedo } = useCircuitStore();
   return (
     <div className="app-container">
       {/* ヘッダー（グリッド全幅） */}
@@ -23,14 +25,36 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
       <main className="main-canvas">
         {/* キャンバスツールバー */}
         <div className="canvas-toolbar">
-          <button className="tool-button active" title="選択">🖱️</button>
-          <button className="tool-button" title="パン">✋</button>
-          <button className="tool-button" title="接続">🔗</button>
-          <button className="tool-button" title="切断">✂️</button>
+          <button 
+            className="tool-button" 
+            title="元に戻す" 
+            onClick={undo}
+            disabled={!canUndo()}
+            style={{ opacity: canUndo() ? 1 : 0.3 }}
+          >
+            ↩️
+          </button>
+          <button 
+            className="tool-button" 
+            title="やり直し" 
+            onClick={redo}
+            disabled={!canRedo()}
+            style={{ opacity: canRedo() ? 1 : 0.3 }}
+          >
+            ↪️
+          </button>
           <div style={{ width: '1px', height: '24px', background: 'rgba(255, 255, 255, 0.1)', margin: '0 4px' }}></div>
-          <button className="tool-button" title="元に戻す">↩️</button>
-          <button className="tool-button" title="やり直し">↪️</button>
-          <button className="tool-button" title="削除">🗑️</button>
+          <button 
+            className="tool-button" 
+            title="すべてクリア" 
+            onClick={() => {
+              if (window.confirm('すべての回路を削除しますか？')) {
+                clearAll();
+              }
+            }}
+          >
+            🗑️
+          </button>
         </div>
         
         {/* キャンバス */}
@@ -45,10 +69,10 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
             <span>シミュレーション実行中</span>
           </div>
           <div className="status-item">
-            <span>ゲート: 0</span>
+            <span>ゲート: {gates.length}</span>
           </div>
           <div className="status-item">
-            <span>接続: 0</span>
+            <span>接続: {wires.length}</span>
           </div>
           <div className="status-item">
             <span>100% ズーム</span>
