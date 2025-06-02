@@ -10,6 +10,7 @@ export interface Position {
 export interface CustomGatePin {
   name: string;
   index: number;
+  gateId?: string; // 元のゲートIDを保持（フル回路から作成時）
 }
 
 export interface CustomGateDefinition {
@@ -70,15 +71,7 @@ export interface CircuitState {
   gates: Gate[];
   wires: Wire[];
   selectedGateId: string | null;
-  selectedGateIds: Set<string>; // 複数選択用
   isDrawingWire: boolean;
   wireStart: { gateId: string; pinIndex: number; position: Position } | null;
   customGates: CustomGateDefinition[];
-  // 選択モード
-  selectionMode: 'single' | 'multiple' | 'area';
-  isAreaSelecting: boolean;
-  selectionArea: {
-    start: Position;
-    end: Position;
-  } | null;
 }

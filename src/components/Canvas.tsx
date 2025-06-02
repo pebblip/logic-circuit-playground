@@ -26,33 +26,14 @@ export const Canvas: React.FC = () => {
     wires, 
     isDrawingWire, 
     wireStart, 
-    cancelWireDrawing,
-    selectedGateIds,
-    isAreaSelecting,
-    selectionArea,
-    selectionMode,
-    startAreaSelection,
-    updateAreaSelection,
-    endAreaSelection,
-    clearSelection
+    cancelWireDrawing
   } = useCircuitStore();
 
-  // Escapeキーでワイヤー描画/エリア選択をキャンセル
+  // Escapeキーでワイヤー描画をキャンセル
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        if (isDrawingWire) {
-          cancelWireDrawing();
-        }
-        if (isAreaSelecting) {
-          endAreaSelection();
-        }
-      }
-      // Ctrl+Aで全選択
-      if (event.key === 'a' && (event.ctrlKey || event.metaKey)) {
-        event.preventDefault();
-        const allGateIds = new Set(gates.map(g => g.id));
-        useCircuitStore.setState({ selectedGateIds: allGateIds });
+      if (event.key === 'Escape' && isDrawingWire) {
+        cancelWireDrawing();
       }
     };
 
@@ -60,7 +41,7 @@ export const Canvas: React.FC = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isDrawingWire, isAreaSelecting, cancelWireDrawing, endAreaSelection, gates]);
+  }, [isDrawingWire, cancelWireDrawing]);
 
   // CLOCKゲートがある場合、定期的に回路を更新
   React.useEffect(() => {
@@ -94,24 +75,13 @@ export const Canvas: React.FC = () => {
       x: svgPoint.x,
       y: svgPoint.y,
     });
-    
-    // エリア選択中の場合
-    if (isAreaSelecting) {
-      updateAreaSelection({ x: svgPoint.x, y: svgPoint.y });
-    }
   };
 
   const handleClick = (event: React.MouseEvent) => {
-    // 背景（grid）またはSVG自体をクリックした場合
+    // 背景（grid）またはSVG自体をクリックした場合のみワイヤー描画をキャンセル
     const target = event.target as SVGElement;
-    if (target === svgRef.current || target.id === 'canvas-background') {
-      if (isDrawingWire) {
-        cancelWireDrawing();
-      }
-      // Shiftキーを押していない場合は選択をクリア
-      if (!event.shiftKey) {
-        clearSelection();
-      }
+    if (isDrawingWire && (target === svgRef.current || target.id === 'canvas-background')) {
+      cancelWireDrawing();
     }
   };
 
@@ -221,33 +191,13 @@ export const Canvas: React.FC = () => {
 
   // マウスイベント（デスクトップでのパン）
   const handleMouseDown = (event: React.MouseEvent) => {
-    const target = event.target as SVGElement;
-    const isBackground = target === svgRef.current || target.id === 'canvas-background';
-    
-    // 中クリックまたはCtrl+左クリックでパン
     if (event.button === 1 || (event.button === 0 && event.ctrlKey)) {
       handlePanStart(event.clientX, event.clientY);
-    } 
-    // 背景で左クリックでエリア選択開始
-    else if (event.button === 0 && isBackground && !event.ctrlKey && selectionMode === 'area') {
-      if (!svgRef.current) return;
-      
-      const point = svgRef.current.createSVGPoint();
-      point.x = event.clientX;
-      point.y = event.clientY;
-      const svgPoint = point.matrixTransform(svgRef.current.getScreenCTM()!.inverse());
-      
-      startAreaSelection({ x: svgPoint.x, y: svgPoint.y });
     }
   };
 
   const handleMouseUp = () => {
-    if (isPanning) {
-      handlePanEnd();
-    }
-    if (isAreaSelecting) {
-      endAreaSelection();
-    }
+    handlePanEnd();
   };
 
   // グローバルイベントリスナー
@@ -328,21 +278,6 @@ export const Canvas: React.FC = () => {
         {gates.map((gate) => (
           <GateComponent key={gate.id} gate={gate} />
         ))}
-        
-        {/* エリア選択の矩形 */}
-        {isAreaSelecting && selectionArea && (
-          <rect
-            x={Math.min(selectionArea.start.x, selectionArea.end.x)}
-            y={Math.min(selectionArea.start.y, selectionArea.end.y)}
-            width={Math.abs(selectionArea.end.x - selectionArea.start.x)}
-            height={Math.abs(selectionArea.end.y - selectionArea.start.y)}
-            fill="rgba(0, 255, 136, 0.1)"
-            stroke="#00ff88"
-            strokeWidth="2"
-            strokeDasharray="5,5"
-            pointerEvents="none"
-          />
-        )}
       </svg>
     </div>
   );

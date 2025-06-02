@@ -82,18 +82,19 @@ const DEMO_CUSTOM_GATES: CustomGateDefinition[] = [
 ];
 
 export const ToolPalette: React.FC = () => {
-  const { addGate, gates, customGates, addCustomGate, pendingCustomGateData } = useCircuitStore();
+  const { addGate, gates, customGates, addCustomGate, createCustomGateFromCurrentCircuit } = useCircuitStore();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [dialogInitialData, setDialogInitialData] = useState<{
     initialInputs?: CustomGatePin[];
     initialOutputs?: CustomGatePin[];
+    isFullCircuit?: boolean;
   }>({});
   
   // カスタムゲート作成ダイアログを開くイベントリスナー
   React.useEffect(() => {
     const handleOpenDialog = (event: CustomEvent) => {
-      const { initialInputs, initialOutputs } = event.detail;
-      setDialogInitialData({ initialInputs, initialOutputs });
+      const { initialInputs, initialOutputs, isFullCircuit } = event.detail;
+      setDialogInitialData({ initialInputs, initialOutputs, isFullCircuit });
       setIsCreateDialogOpen(true);
     };
     
@@ -163,15 +164,19 @@ export const ToolPalette: React.FC = () => {
   };
 
   const handleCreateCustomGate = (definition: CustomGateDefinition) => {
-    // pendingCustomGateDataがある場合は内部回路情報を追加
-    if (pendingCustomGateData) {
-      const { internalGates, internalWires, inputWires, outputWires } = pendingCustomGateData;
+    const state = useCircuitStore.getState();
+    const { gates, wires } = state;
+    
+    // isFullCircuitフラグがある場合は全回路から作成
+    if (dialogInitialData.isFullCircuit) {
+      const inputGates = gates.filter(g => g.type === 'INPUT');
+      const outputGates = gates.filter(g => g.type === 'OUTPUT');
       
       // 内部回路の座標を正規化（左上を0,0に）
-      const minX = Math.min(...internalGates.map(g => g.position.x));
-      const minY = Math.min(...internalGates.map(g => g.position.y));
+      const minX = Math.min(...gates.map(g => g.position.x));
+      const minY = Math.min(...gates.map(g => g.position.y));
       
-      const normalizedGates = internalGates.map(g => ({
+      const normalizedGates = gates.map(g => ({
         ...g,
         position: {
           x: g.position.x - minX,
@@ -181,31 +186,28 @@ export const ToolPalette: React.FC = () => {
       
       // 入出力マッピングを作成
       const inputMappings: Record<number, { gateId: string; pinIndex: number }> = {};
-      inputWires.forEach((wire, index) => {
+      inputGates.forEach((gate, index) => {
         inputMappings[index] = {
-          gateId: wire.to.gateId,
-          pinIndex: wire.to.pinIndex,
+          gateId: gate.id,
+          pinIndex: -1, // INPUTゲートの出力ピン
         };
       });
       
       const outputMappings: Record<number, { gateId: string; pinIndex: number }> = {};
-      outputWires.forEach((wire, index) => {
+      outputGates.forEach((gate, index) => {
         outputMappings[index] = {
-          gateId: wire.from.gateId,
-          pinIndex: wire.from.pinIndex,
+          gateId: gate.id,
+          pinIndex: 0, // OUTPUTゲートの入力ピン
         };
       });
       
       // 内部回路情報を定義に追加
       definition.internalCircuit = {
         gates: normalizedGates,
-        wires: internalWires,
+        wires: wires,
         inputMappings,
         outputMappings,
       };
-      
-      // pendingデータをクリア
-      useCircuitStore.setState({ pendingCustomGateData: undefined });
     }
     
     // 新しいカスタムゲート定義をストアに追加
@@ -436,7 +438,30 @@ export const ToolPalette: React.FC = () => {
           </div>
         ))}
         
-        {/* 新規カスタムゲート作成ボタン */}
+        {/* 現在の回路から作成ボタン */}
+        <div
+          className="tool-card create-custom-gate"
+          onClick={createCustomGateFromCurrentCircuit}
+          style={{ gridColumn: 'span 2' }} // 2カラム分の幅
+        >
+          <svg className="tool-preview" viewBox="-60 -30 120 60">
+            <rect 
+              x="-55" y="-25" width="110" height="50" 
+              rx="8" fill="none" stroke="#6633cc" strokeWidth="2" strokeDasharray="5,5"
+            />
+            <text x="0" y="0" style={{ 
+              fontSize: '16px', 
+              textAnchor: 'middle', 
+              dominantBaseline: 'middle',
+              fill: '#6633cc'
+            }}>
+              ➕ 現在の回路から
+            </text>
+          </svg>
+          <div className="tool-label">作成</div>
+        </div>
+        
+        {/* 手動作成ボタン */}
         <div
           className="tool-card create-custom-gate"
           onClick={() => setIsCreateDialogOpen(true)}
@@ -452,10 +477,10 @@ export const ToolPalette: React.FC = () => {
               dominantBaseline: 'middle',
               fill: '#6633cc'
             }}>
-              ➕
+              ✏️
             </text>
           </svg>
-          <div className="tool-label">作成</div>
+          <div className="tool-label">手動</div>
         </div>
       </div>
       
@@ -469,6 +494,7 @@ export const ToolPalette: React.FC = () => {
         onSave={handleCreateCustomGate}
         initialInputs={dialogInitialData.initialInputs}
         initialOutputs={dialogInitialData.initialOutputs}
+        isReadOnly={dialogInitialData.isFullCircuit}
       />
     </aside>
   );

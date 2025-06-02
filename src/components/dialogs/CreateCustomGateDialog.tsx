@@ -7,6 +7,7 @@ interface CreateCustomGateDialogProps {
   onSave: (definition: CustomGateDefinition) => void;
   initialInputs?: CustomGatePin[];
   initialOutputs?: CustomGatePin[];
+  isReadOnly?: boolean; // ピンの追加削除を無効化
 }
 
 const ICON_OPTIONS = ['🔧', '➕', '✖️', '⚙️', '🔀', '🔄', '⚡', '🎯', '📊', '🎲'];
@@ -24,7 +25,8 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
   onClose,
   onSave,
   initialInputs = [{ name: 'A', index: 0 }, { name: 'B', index: 1 }],
-  initialOutputs = [{ name: 'Y', index: 0 }]
+  initialOutputs = [{ name: 'Y', index: 0 }],
+  isReadOnly = false
 }) => {
   const [gateName, setGateName] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -409,20 +411,22 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
               }}>
                 入力ピン ({inputs.length})
               </h3>
-              <button
-                onClick={handleAddInput}
-                style={{
-                  padding: '4px 8px',
-                  backgroundColor: 'rgba(0, 255, 136, 0.2)',
-                  border: '1px solid #00ff88',
-                  borderRadius: '4px',
-                  color: '#00ff88',
-                  fontSize: '12px',
-                  cursor: 'pointer'
-                }}
-              >
-                + 追加
-              </button>
+              {!isReadOnly && (
+                <button
+                  onClick={handleAddInput}
+                  style={{
+                    padding: '4px 8px',
+                    backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                    border: '1px solid #00ff88',
+                    borderRadius: '4px',
+                    color: '#00ff88',
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  + 追加
+                </button>
+              )}
             </div>
             
             <div style={{ display: 'grid', gap: '8px' }}>
@@ -456,7 +460,7 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
                       fontSize: '14px'
                     }}
                   />
-                  {inputs.length > 1 && (
+                  {inputs.length > 1 && !isReadOnly && (
                     <button
                       onClick={() => handleRemoveInput(index)}
                       style={{
@@ -492,20 +496,22 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
               }}>
                 出力ピン ({outputs.length})
               </h3>
-              <button
-                onClick={handleAddOutput}
-                style={{
-                  padding: '4px 8px',
-                  backgroundColor: 'rgba(0, 255, 136, 0.2)',
-                  border: '1px solid #00ff88',
-                  borderRadius: '4px',
-                  color: '#00ff88',
-                  fontSize: '12px',
-                  cursor: 'pointer'
-                }}
-              >
-                + 追加
-              </button>
+              {!isReadOnly && (
+                <button
+                  onClick={handleAddOutput}
+                  style={{
+                    padding: '4px 8px',
+                    backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                    border: '1px solid #00ff88',
+                    borderRadius: '4px',
+                    color: '#00ff88',
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  + 追加
+                </button>
+              )}
             </div>
             
             <div style={{ display: 'grid', gap: '8px' }}>
@@ -539,7 +545,7 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
                       fontSize: '14px'
                     }}
                   />
-                  {outputs.length > 1 && (
+                  {outputs.length > 1 && !isReadOnly && (
                     <button
                       onClick={() => handleRemoveOutput(index)}
                       style={{

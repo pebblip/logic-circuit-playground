@@ -10,7 +10,7 @@ interface GateComponentProps {
 }
 
 export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
-  const { moveGate, selectGate, selectedGateId, selectedGateIds, toggleGateSelection, startWireDrawing, endWireDrawing, updateGateOutput, updateClockFrequency } = useCircuitStore();
+  const { moveGate, selectGate, selectedGateId, startWireDrawing, endWireDrawing, updateGateOutput, updateClockFrequency } = useCircuitStore();
   const [isDragging, setIsDragging] = React.useState(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const hasDragged = useRef(false);
@@ -125,15 +125,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
     };
     
     setIsDragging(true);
-    
-    // Shiftキーを押している場合は複数選択モード
-    if (event.shiftKey) {
-      toggleGateSelection(gate.id);
-    } else {
-      selectGate(gate.id);
-      // 単一選択の場合は他の選択をクリア
-      useCircuitStore.setState({ selectedGateIds: new Set([gate.id]) });
-    }
+    selectGate(gate.id);
   };
 
   const handleTouchStart = (event: React.TouchEvent) => {
@@ -233,7 +225,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
   };
 
   const renderGate = () => {
-    const isSelected = selectedGateId === gate.id || selectedGateIds.has(gate.id);
+    const isSelected = selectedGateId === gate.id;
 
     switch (gate.type) {
       case 'INPUT':
@@ -728,7 +720,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
     }
   };
 
-  const isSelected = selectedGateId === gate.id || selectedGateIds.has(gate.id);
+  const isSelected = selectedGateId === gate.id;
   
   return (
     <g
