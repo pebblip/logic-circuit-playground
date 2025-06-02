@@ -3,6 +3,8 @@ import { GateType, CustomGateDefinition } from '../types/circuit';
 import { useCircuitStore } from '../stores/circuitStore';
 import { GateFactory } from '../models/gates/GateFactory';
 import { CreateCustomGateDialog } from './dialogs/CreateCustomGateDialog';
+import { TruthTableDisplay } from './TruthTableDisplay';
+import { generateTruthTable, TruthTableResult } from '../utils/truthTableGenerator';
 
 const BASIC_GATES: { type: GateType; label: string }[] = [
   { type: 'AND', label: 'AND' },
@@ -84,6 +86,13 @@ const DEMO_CUSTOM_GATES: CustomGateDefinition[] = [
 export const ToolPalette: React.FC = () => {
   const { addGate, gates, customGates, addCustomGate, createCustomGateFromCurrentCircuit } = useCircuitStore();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isTruthTableOpen, setIsTruthTableOpen] = useState(false);
+  const [currentTruthTable, setCurrentTruthTable] = useState<{
+    result: TruthTableResult;
+    inputNames: string[];
+    outputNames: string[];
+    gateName: string;
+  } | null>(null);
   const [dialogInitialData, setDialogInitialData] = useState<{
     initialInputs?: CustomGatePin[];
     initialOutputs?: CustomGatePin[];
@@ -99,6 +108,7 @@ export const ToolPalette: React.FC = () => {
     };
     
     window.addEventListener('open-custom-gate-dialog', handleOpenDialog as any);
+    
     return () => {
       window.removeEventListener('open-custom-gate-dialog', handleOpenDialog as any);
     };
@@ -208,6 +218,41 @@ export const ToolPalette: React.FC = () => {
         inputMappings,
         outputMappings,
       };
+      
+      // 真理値表を自動生成
+      try {
+        const truthTableResult = generateTruthTable(
+          normalizedGates,
+          wires,
+          inputGates,
+          outputGates
+        );
+        
+        // 真理値表をRecord形式に変換
+        const truthTable: Record<string, string> = {};
+        truthTableResult.table.forEach(row => {
+          truthTable[row.inputs] = row.outputs;
+        });
+        
+        definition.truthTable = truthTable;
+        
+        // 作成後に真理値表を表示
+        const inputNames = definition.inputs.map(input => input.name);
+        const outputNames = definition.outputs.map(output => output.name);
+        
+        setCurrentTruthTable({
+          result: truthTableResult,
+          inputNames,
+          outputNames,
+          gateName: definition.displayName
+        });
+        setIsTruthTableOpen(true);
+        
+        console.log('🎉 真理値表を生成しました:', { truthTableResult, definition });
+        
+      } catch (error) {
+        console.warn('真理値表の生成に失敗しました:', error);
+      }
     }
     
     // 新しいカスタムゲート定義をストアに追加
@@ -237,51 +282,62 @@ export const ToolPalette: React.FC = () => {
     // 特殊ゲートのプレビュー
     if (type === 'CLOCK') {
       return (
-        <svg className="tool-preview" viewBox="-50 -40 100 80">
-          <rect className="gate" x="-40" y="-30" width="80" height="60" rx="8"/>
-          <path 
-            d="M -15 -10 L -15 0 L -5 0 M 5 0 L 15 0 L 15 -10" 
-            stroke="#0ff" 
-            strokeWidth="2" 
-            fill="none"
+        <svg className="tool-preview" viewBox="-50 -50 100 100">
+          {/* 円形デザイン（Gate.tsxと統一） */}
+          <circle 
+            className="gate"
+            cx="0" cy="0" r="30"
+            fill="#1a1a1a"
+            stroke="#444"
+            strokeWidth="2"
           />
-          <text className="gate-text" x="0" y="20" style={{ fontSize: '12px' }}>CLK</text>
+          {/* 時計アイコン */}
+          <text x="0" y="-3" className="gate-text" style={{ fontSize: '16px' }}>⏰</text>
+          {/* パルス波形表示（簡略版） */}
+          <path 
+            d="M -15 15 h4 v-6 h4 v6 h4 v-6 h4 v6 h3" 
+            stroke="#0ff" 
+            strokeWidth="1" 
+            fill="none"
+            opacity="0.8"
+          />
         </svg>
       );
     }
     if (type === 'D-FF') {
       return (
-        <svg className="tool-preview" viewBox="-50 -40 100 80">
+        <svg className="tool-preview" viewBox="-60 -50 120 100">
           <rect className="gate" x="-40" y="-30" width="80" height="60" rx="8"/>
-          <text className="gate-text" x="-20" y="-10" style={{ fontSize: '10px' }}>D</text>
-          <text className="gate-text" x="-20" y="10" style={{ fontSize: '10px' }}>CLK</text>
-          <text className="gate-text" x="20" y="-10" style={{ fontSize: '10px' }}>Q</text>
-          <text className="gate-text" x="20" y="10" style={{ fontSize: '10px' }}>Q̄</text>
+          <text className="gate-text" x="0" y="0" style={{ fontSize: '8px' }}>D-FF</text>
+          <text className="gate-text" x="-30" y="-15" style={{ fontSize: '8px', fill: '#999' }}>D</text>
+          <text className="gate-text" x="-30" y="15" style={{ fontSize: '8px', fill: '#999' }}>CLK</text>
+          <text className="gate-text" x="30" y="-15" style={{ fontSize: '8px', fill: '#999' }}>Q</text>
+          <text className="gate-text" x="30" y="15" style={{ fontSize: '8px', fill: '#999' }}>Q̄</text>
         </svg>
       );
     }
     if (type === 'SR-LATCH') {
       return (
-        <svg className="tool-preview" viewBox="-50 -40 100 80">
+        <svg className="tool-preview" viewBox="-60 -50 120 100">
           <rect className="gate" x="-40" y="-30" width="80" height="60" rx="8"/>
-          <text className="gate-text" x="-20" y="-10" style={{ fontSize: '10px' }}>S</text>
-          <text className="gate-text" x="-20" y="10" style={{ fontSize: '10px' }}>R</text>
-          <text className="gate-text" x="20" y="-10" style={{ fontSize: '10px' }}>Q</text>
-          <text className="gate-text" x="20" y="10" style={{ fontSize: '10px' }}>Q̄</text>
+          <text className="gate-text" x="0" y="-5" style={{ fontSize: '8px' }}>SR</text>
+          <text className="gate-text" x="0" y="8" style={{ fontSize: '7px', fill: '#999' }}>LATCH</text>
+          <text className="gate-text" x="-30" y="-15" style={{ fontSize: '8px', fill: '#999' }}>S</text>
+          <text className="gate-text" x="-30" y="15" style={{ fontSize: '8px', fill: '#999' }}>R</text>
+          <text className="gate-text" x="30" y="-15" style={{ fontSize: '8px', fill: '#999' }}>Q</text>
+          <text className="gate-text" x="30" y="15" style={{ fontSize: '8px', fill: '#999' }}>Q̄</text>
         </svg>
       );
     }
     if (type === 'MUX') {
       return (
-        <svg className="tool-preview" viewBox="-50 -40 100 80">
-          <polygon 
-            className="gate" 
-            points="-30,-25 30,-25 30,25 -30,25" 
-          />
-          <text className="gate-text" x="-20" y="-10" style={{ fontSize: '8px' }}>I0</text>
-          <text className="gate-text" x="-20" y="0" style={{ fontSize: '8px' }}>I1</text>
-          <text className="gate-text" x="-20" y="10" style={{ fontSize: '8px' }}>S</text>
-          <text className="gate-text" x="20" y="0" style={{ fontSize: '8px' }}>Y</text>
+        <svg className="tool-preview" viewBox="-60 -50 120 100">
+          <rect className="gate" x="-40" y="-30" width="80" height="60" rx="8"/>
+          <text className="gate-text" x="0" y="0" style={{ fontSize: '8px' }}>MUX</text>
+          <text className="gate-text" x="-30" y="-18" style={{ fontSize: '7px', fill: '#999' }}>A</text>
+          <text className="gate-text" x="-30" y="0" style={{ fontSize: '7px', fill: '#999' }}>B</text>
+          <text className="gate-text" x="-30" y="18" style={{ fontSize: '7px', fill: '#999' }}>S</text>
+          <text className="gate-text" x="30" y="0" style={{ fontSize: '7px', fill: '#999' }}>Y</text>
         </svg>
       );
     }
@@ -432,6 +488,39 @@ export const ToolPalette: React.FC = () => {
             className="tool-card custom-gate-card"
             data-gate-type="CUSTOM"
             onClick={() => handleCustomGateClick(definition)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              // 右クリックで真理値表を表示
+              if (definition.internalCircuit && definition.truthTable) {
+                const inputNames = definition.inputs.map(input => input.name);
+                const outputNames = definition.outputs.map(output => output.name);
+                
+                // 真理値表をTruthTableResult形式に変換
+                const table = Object.entries(definition.truthTable).map(([inputs, outputs]) => ({
+                  inputs,
+                  outputs,
+                  inputValues: inputs.split('').map(bit => bit === '1'),
+                  outputValues: outputs.split('').map(bit => bit === '1')
+                }));
+                
+                const result = {
+                  table,
+                  inputCount: definition.inputs.length,
+                  outputCount: definition.outputs.length,
+                  isSequential: false,
+                  recognizedPattern: undefined // 再計算してもいいが、一旦undefined
+                };
+                
+                setCurrentTruthTable({
+                  result,
+                  inputNames,
+                  outputNames,
+                  gateName: definition.displayName
+                });
+                setIsTruthTableOpen(true);
+              }
+            }}
+            title="左クリック: 配置 | 右クリック: 真理値表表示"
           >
             {renderCustomGatePreview(definition)}
             <div className="tool-label">{definition.displayName}</div>
@@ -473,6 +562,20 @@ export const ToolPalette: React.FC = () => {
         initialOutputs={dialogInitialData.initialOutputs}
         isReadOnly={dialogInitialData.isFullCircuit}
       />
+      
+      {/* 真理値表表示ダイアログ */}
+      {isTruthTableOpen && currentTruthTable && (
+        <TruthTableDisplay
+          result={currentTruthTable.result}
+          inputNames={currentTruthTable.inputNames}
+          outputNames={currentTruthTable.outputNames}
+          gateName={currentTruthTable.gateName}
+          onClose={() => {
+            setIsTruthTableOpen(false);
+            setCurrentTruthTable(null);
+          }}
+        />
+      )}
     </aside>
   );
 };

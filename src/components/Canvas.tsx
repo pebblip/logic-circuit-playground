@@ -26,7 +26,8 @@ export const Canvas: React.FC = () => {
     wires, 
     isDrawingWire, 
     wireStart, 
-    cancelWireDrawing
+    cancelWireDrawing,
+    selectGate
   } = useCircuitStore();
 
   // Escapeキーでワイヤー描画をキャンセル
@@ -78,10 +79,24 @@ export const Canvas: React.FC = () => {
   };
 
   const handleClick = (event: React.MouseEvent) => {
-    // 背景（grid）またはSVG自体をクリックした場合のみワイヤー描画をキャンセル
     const target = event.target as SVGElement;
-    if (isDrawingWire && (target === svgRef.current || target.id === 'canvas-background')) {
-      cancelWireDrawing();
+    
+    // ゲート要素かどうかをチェック
+    const isGate = isGateElement(target);
+    
+    // ゲート要素の場合は何もしない（ゲート自体のクリックハンドラーに任せる）
+    if (isGate) {
+      return;
+    }
+    
+    // 背景（grid）またはSVG自体をクリックした場合のみ選択解除
+    if (target === svgRef.current || target.id === 'canvas-background') {
+      // ワイヤー描画をキャンセル
+      if (isDrawingWire) {
+        cancelWireDrawing();
+      }
+      // ゲートの選択を解除
+      selectGate(null);
     }
   };
 
@@ -153,11 +168,17 @@ export const Canvas: React.FC = () => {
     if (!element) return false;
     
     // 要素自体または親要素を辿ってゲート関連の要素を探す
-    let current = element as HTMLElement | null;
-    while (current && current !== (svgRef.current as any)) {
-      if (current.classList.contains('gate-container') || 
-          current.hasAttribute('data-gate-id') ||
-          current.closest('.gate-container')) {
+    let current = element;
+    while (current && current !== svgRef.current) {
+      // SVG要素とHTML要素の両方に対応
+      if (current.classList && current.classList.contains('gate-container')) {
+        return true;
+      }
+      if (current.hasAttribute && current.hasAttribute('data-gate-id')) {
+        return true;
+      }
+      // SVG要素でclassName属性をチェック
+      if (current.getAttribute && current.getAttribute('class')?.includes('gate-container')) {
         return true;
       }
       current = current.parentElement;

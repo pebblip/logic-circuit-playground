@@ -155,7 +155,9 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
   },
 
   selectGate: (gateId) => {
+    console.log('Store selectGate called with:', gateId);
     set({ selectedGateId: gateId });
+    console.log('Store state after selection:', useCircuitStore.getState().selectedGateId);
   },
 
   deleteGate: (gateId) => {

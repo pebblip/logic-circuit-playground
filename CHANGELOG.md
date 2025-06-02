@@ -5,9 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Unreleased] - 2025-01-26
 
-### 🎯 Current Phase: Phase 0 - 基本機能の修正
+### 🎯 Current Phase: Phase 1 - アーキテクチャ整理 & Phase 2 - UI/UX改善
 
 ### Architecture Decision
 - 🏗️ Adopted **Hybrid Feature-Domain Architecture**
@@ -27,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ Responsive layout implementation with mockup CSS
 - ✅ Performance optimization with React.memo
 - ✅ Right sidebar (PropertyPanel) visibility fix
+- ✅ Truth table automatic generation for combinational circuits
+- ✅ Structured gate descriptions with rich JSX rendering (replaced Markdown)
+- ✅ Advanced gates (XOR, NAND, NOR, CLOCK, D-FF, SR-LATCH, MUX)
+- ✅ Gate description modal with detailed explanations and analogies
+- ✅ CLOCK gate animation and frequency control
 
 ### Changed
 - 🔄 Architecture: from Feature-Sliced Design to Hybrid Feature-Domain
@@ -37,12 +42,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - 🐛 Right sidebar not visible due to grid overflow
 - 🐛 Build errors related to TypeScript strict mode
+- 🐛 CLOCK gate modal close button not working due to state update conflicts
+- 🐛 Special gates preview shapes mismatch with actual rendering
+- 🐛 Gate selection issues with SVG event handling
+- 🐛 Custom gate creation dialog validation and UI issues
 
 ### Known Issues - Priority High 🔴
-- ⚠️ Tool palette click does not place gates (one-click placement)
-- ⚠️ Gate dragging has coordinate offset issues
-- ⚠️ Cannot draw connection wires
-- ⚠️ Mobile design does not match mockups
+- ⚠️ None currently (基本機能は全て動作)
 
 ### Technical Debt
 - 🏚️ src_old directory needs to be cleaned up

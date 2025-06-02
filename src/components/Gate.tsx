@@ -125,6 +125,13 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
     };
     
     setIsDragging(true);
+  };
+
+  // ゲート選択用のクリックハンドラー（ドラッグと分離）
+  const handleGateClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    console.log('Gate clicked:', gate.id, 'hasDragged:', hasDragged.current);
+    // 常に選択を実行（デバッグ用に一時的に変更）
     selectGate(gate.id);
   };
 
@@ -155,7 +162,6 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       };
       
       setIsDragging(true);
-      selectGate(gate.id);
     }
   };
 
@@ -188,41 +194,21 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
 
   const handleInputClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    // ドラッグが発生した場合はトグルしない
+    // シングルクリックでは選択のみ
+    if (gate.type === 'INPUT' && !hasDragged.current) {
+      selectGate(gate.id);
+    }
+  };
+
+  const handleInputDoubleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    // ダブルクリックでスイッチ切り替え
     if (gate.type === 'INPUT' && !hasDragged.current) {
       updateGateOutput(gate.id, !gate.output);
     }
   };
 
-  const [showFrequencyMenu, setShowFrequencyMenu] = React.useState(false);
   const [isHovering, setIsHovering] = React.useState(false);
-
-  // メニューを外部クリックで閉じる
-  React.useEffect(() => {
-    const handleClickOutside = () => {
-      if (showFrequencyMenu) {
-        setShowFrequencyMenu(false);
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [showFrequencyMenu]);
-
-  const handleClockRightClick = (event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    if (gate.type === 'CLOCK' && !hasDragged.current) {
-      setShowFrequencyMenu(!showFrequencyMenu);
-    }
-  };
-
-  const handleFrequencySelect = (frequency: number) => {
-    updateClockFrequency(gate.id, frequency);
-    setShowFrequencyMenu(false);
-  };
 
   const renderGate = () => {
     const isSelected = selectedGateId === gate.id;
@@ -231,13 +217,13 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       case 'INPUT':
         return (
           <g>
-            <g onClick={handleInputClick} onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onClick={handleInputClick} onDoubleClick={handleInputDoubleClick} onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <rect 
                 className={`switch-track ${gate.output ? 'active' : ''}`}
                 x="-25" y="-15" width="50" height="30" rx="15"
                 fill={gate.output ? 'rgba(0, 255, 136, 0.1)' : '#1a1a1a'}
-                stroke={gate.output ? '#00ff88' : '#444'}
-                strokeWidth="2"
+                stroke={isSelected ? '#00aaff' : (gate.output ? '#00ff88' : '#444')}
+                strokeWidth={isSelected ? '3' : '2'}
               />
               <circle 
                 className={`switch-thumb ${gate.output ? 'active' : ''}`}
@@ -266,8 +252,8 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       case 'OUTPUT':
         return (
           <g>
-            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
-              <circle cx="0" cy="0" r="20" fill="#1a1a1a" stroke="#444" strokeWidth="2"/>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} onClick={handleGateClick} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+              <circle cx="0" cy="0" r="20" fill="#1a1a1a" stroke={isSelected ? '#00aaff' : '#444'} strokeWidth={isSelected ? '3' : '2'}/>
               <circle cx="0" cy="0" r="15" fill={gate.inputs[0] === '1' ? '#00ff88' : '#333'}/>
               <text x="0" y="5" className="gate-text" style={{ fontSize: '20px' }}>💡</text>
             </g>
@@ -294,110 +280,53 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
         const animDuration = `${1 / frequency}s`; // 周波数に応じたアニメーション速度
         return (
           <g>
-            <g 
-              onMouseDown={handleMouseDown} 
-              onTouchStart={handleTouchStart} 
-              onContextMenu={handleClockRightClick}
-              onMouseEnter={() => setIsHovering(true)}
-              onMouseLeave={() => setIsHovering(false)}
-              style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-            >
+            {/* メインコンテンツ（視覚的要素のみ、pointer-events無効） */}
+            <g pointerEvents="none">
               {/* 円形デザイン */}
               <circle 
                 className={`gate ${isSelected ? 'selected' : ''}`}
                 cx="0" cy="0" r="40"
                 fill="#1a1a1a"
-                stroke={isSelected ? '#00aaff' : '#00ff88'}
+                stroke={isSelected ? '#00aaff' : '#444'}
                 strokeWidth={isSelected ? '3' : '2'}
               />
-              {/* パルス表示 */}
+              
+              {/* 時計アイコン */}
+              <text x="0" y="-5" className="gate-text" style={{ fontSize: '24px' }}>⏰</text>
+              
+              {/* パルス波形表示 */}
+              <path d="M -20 20 h5 v-8 h5 v8 h5 v-8 h5 v8 h5" 
+                    stroke={gate.output ? '#00ff88' : '#0ff'} 
+                    strokeWidth="1.5" 
+                    fill="none" 
+                    opacity="0.8"/>
+              
+              {/* パルス表示（アニメーション） */}
               <circle cx="0" cy="0" r="37" fill="none" stroke="#00ff88" strokeWidth="1" opacity="0.3">
                 <animate attributeName="r" from="37" to="45" dur={animDuration} repeatCount="indefinite" />
                 <animate attributeName="opacity" from="0.3" to="0" dur={animDuration} repeatCount="indefinite" />
               </circle>
               
-              {/* 時計アイコン */}
-              <text x="0" y="5" className="gate-text" style={{ fontSize: '24px' }}>⏰</text>
-              
-              {/* 波線アニメーション */}
-              <g>
-                <path 
-                  d="M -25 20 h5 v-8 h5 v8 h5 v-8 h5 v8 h5 v-8 h5 v8 h5" 
-                  stroke={gate.output ? '#00ff88' : '#0ff'} 
-                  strokeWidth="2" 
-                  fill="none"
-                  opacity="0.8"
-                >
-                  <animateTransform
-                    attributeName="transform"
-                    type="translate"
-                    from="0 0"
-                    to="10 0"
-                    dur={animDuration}
-                    repeatCount="indefinite"
-                  />
-                </path>
-                {/* 複製して流れる効果を強化 */}
-                <path 
-                  d="M -35 20 h5 v-8 h5 v8 h5 v-8 h5 v8 h5 v-8 h5 v8 h5" 
-                  stroke={gate.output ? '#00ff88' : '#0ff'} 
-                  strokeWidth="2" 
-                  fill="none"
-                  opacity="0.4"
-                >
-                  <animateTransform
-                    attributeName="transform"
-                    type="translate"
-                    from="0 0"
-                    to="10 0"
-                    dur={animDuration}
-                    repeatCount="indefinite"
-                  />
-                </path>
-              </g>
-              
               {/* ホバー時のみ周波数表示 */}
               {isHovering && (
                 <text x="0" y="35" className="gate-text" style={{ fontSize: '10px', fill: '#00ff88' }}>
-                  {frequency}Hz (右クリックで変更)
+                  {frequency}Hz
                 </text>
               )}
             </g>
             
-            {/* 右クリックメニュー */}
-            {showFrequencyMenu && (
-              <g transform="translate(50, -30)">
-                <rect 
-                  x="-25" y="-15" width="50" height="50" rx="5"
-                  fill="#2a2a2a" 
-                  stroke="#00ff88" 
-                  strokeWidth="1"
-                />
-                {[1, 2, 10].map((freq, index) => (
-                  <g key={freq}>
-                    <rect 
-                      x="-20" y={-10 + index * 15} width="40" height="12" rx="2"
-                      fill={frequency === freq ? '#00ff88' : 'transparent'}
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => handleFrequencySelect(freq)}
-                    />
-                    <text 
-                      x="0" y={-2 + index * 15} 
-                      className="gate-text" 
-                      style={{ 
-                        fontSize: '10px', 
-                        fill: frequency === freq ? '#1a1a1a' : '#00ff88',
-                        textAnchor: 'middle',
-                        cursor: 'pointer'
-                      }}
-                      onClick={() => handleFrequencySelect(freq)}
-                    >
-                      {freq}Hz
-                    </text>
-                  </g>
-                ))}
-              </g>
-            )}
+            {/* クリック専用の透明エリア（最上位） */}
+            <circle 
+              cx="0" cy="0" r="45"
+              fill="transparent"
+              style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+              onMouseDown={handleMouseDown} 
+              onTouchStart={handleTouchStart} 
+              onClick={handleGateClick}
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+            />
+            
             
             {/* 出力ピン */}
             <g>
@@ -420,10 +349,12 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       case 'D-FF':
         return (
           <g>
-            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} onClick={handleGateClick} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <rect 
                 className={`gate ${isSelected ? 'selected' : ''}`}
                 x="-50" y="-40" width="100" height="80" rx="8"
+                stroke={isSelected ? '#00aaff' : undefined}
+                strokeWidth={isSelected ? '3' : undefined}
               />
               <text className="gate-text" x="0" y="0">D-FF</text>
               {/* ピン名 */}
@@ -459,10 +390,12 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       case 'SR-LATCH':
         return (
           <g>
-            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} onClick={handleGateClick} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <rect 
                 className={`gate ${isSelected ? 'selected' : ''}`}
                 x="-50" y="-40" width="100" height="80" rx="8"
+                stroke={isSelected ? '#00aaff' : undefined}
+                strokeWidth={isSelected ? '3' : undefined}
               />
               <text className="gate-text" x="0" y="-10">SR</text>
               <text className="gate-text" x="0" y="10" style={{ fontSize: '11px', fill: '#999' }}>LATCH</text>
@@ -499,10 +432,12 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       case 'MUX':
         return (
           <g>
-            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} onClick={handleGateClick} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <rect 
                 className={`gate ${isSelected ? 'selected' : ''}`}
                 x="-50" y="-40" width="100" height="80" rx="8"
+                stroke={isSelected ? '#00aaff' : undefined}
+                strokeWidth={isSelected ? '3' : undefined}
               />
               <text className="gate-text" x="0" y="0">MUX</text>
               {/* ピン名 */}
@@ -552,7 +487,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
         
         return (
           <g>
-            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} onClick={handleGateClick} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               {/* カスタムゲートの外側境界（モックアップの二重境界線） */}
               <rect 
                 className="custom-gate-border"
@@ -572,8 +507,8 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
                 width={size.width} height={size.height} 
                 rx="8"
                 fill="rgba(102, 51, 153, 0.1)"
-                stroke="#6633cc"
-                strokeWidth="2"
+                stroke={isSelected ? '#00aaff' : '#6633cc'}
+                strokeWidth={isSelected ? '3' : '2'}
               />
               
               {/* 表示名（外側上部） */}
@@ -588,6 +523,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
                 </text>
               )}
             </g>
+            
             
             {/* 入力ピン */}
             {definition.inputs.map((inputPin, index) => {
@@ -669,10 +605,12 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
         const inputCount = gate.type === 'NOT' ? 1 : 2;
         return (
           <g>
-            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} onClick={handleGateClick} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <rect 
                 className={`gate ${isSelected ? 'selected' : ''}`}
                 x="-35" y="-25" width="70" height="50" rx="8"
+                stroke={isSelected ? '#00aaff' : undefined}
+                strokeWidth={isSelected ? '3' : undefined}
               />
               <text className="gate-text" x="0" y="0">{gate.type}</text>
             </g>
@@ -728,20 +666,6 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       data-gate-id={gate.id}
       transform={`translate(${gate.position.x}, ${gate.position.y}) scale(${scaleFactor})`}
     >
-      {/* 選択枠 */}
-      {isSelected && (
-        <rect
-          x={gate.type === 'CUSTOM' && gate.customGateDefinition ? -gate.customGateDefinition.width/2 - 10 : -55}
-          y={gate.type === 'CUSTOM' && gate.customGateDefinition ? -gate.customGateDefinition.height/2 - 10 : -35}
-          width={gate.type === 'CUSTOM' && gate.customGateDefinition ? gate.customGateDefinition.width + 20 : 110}
-          height={gate.type === 'CUSTOM' && gate.customGateDefinition ? gate.customGateDefinition.height + 20 : 70}
-          fill="none"
-          stroke="#00aaff"
-          strokeWidth="2"
-          strokeDasharray="5,5"
-          pointerEvents="none"
-        />
-      )}
       {renderGate()}
     </g>
   );
