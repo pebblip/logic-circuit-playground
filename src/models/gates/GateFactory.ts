@@ -1,5 +1,5 @@
-import { Gate, GateType, Position } from '../../types/circuit';
-import { GATE_SIZES, PIN_CONFIGS } from '../../types/gates';
+import { Gate, GateType, Position, CustomGateDefinition } from '../../types/circuit';
+import { GATE_SIZES, PIN_CONFIGS, isCustomGate } from '../../types/gates';
 
 export class GateFactory {
   /**
@@ -26,7 +26,7 @@ export class GateFactory {
           ...baseGate,
           metadata: {
             frequency: 1, // 1Hz default
-            isRunning: true,
+            isRunning: true, // デフォルトでON（楽しい！）
             startTime: Date.now(),
           }
         };
@@ -64,9 +64,29 @@ export class GateFactory {
           }
         };
       
+      case 'CUSTOM':
+        // カスタムゲートは後で設定される
+        return baseGate;
+      
       default:
         return baseGate;
     }
+  }
+
+  /**
+   * カスタムゲートを作成する
+   */
+  static createCustomGate(definition: CustomGateDefinition, position: Position): Gate {
+    const id = `gate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    return {
+      id,
+      type: 'CUSTOM',
+      position,
+      inputs: new Array(definition.inputs.length).fill(''),
+      output: false,
+      customGateDefinition: definition,
+    };
   }
 
   /**
@@ -94,14 +114,36 @@ export class GateFactory {
   /**
    * ゲートのサイズを取得
    */
-  static getGateSize(type: GateType): { width: number; height: number } {
-    return GATE_SIZES[type] || { width: 70, height: 50 };
+  static getGateSize(gate: Gate | GateType): { width: number; height: number } {
+    if (typeof gate === 'string') {
+      return GATE_SIZES[gate] || { width: 70, height: 50 };
+    }
+    
+    if (isCustomGate(gate) && gate.customGateDefinition) {
+      return {
+        width: gate.customGateDefinition.width,
+        height: gate.customGateDefinition.height,
+      };
+    }
+    
+    return GATE_SIZES[gate.type] || { width: 70, height: 50 };
   }
 
   /**
    * ゲートのピン数を取得
    */
-  static getPinCount(type: GateType): { inputs: number; outputs: number } {
-    return PIN_CONFIGS[type] || { inputs: 2, outputs: 1 };
+  static getPinCount(gate: Gate | GateType): { inputs: number; outputs: number } {
+    if (typeof gate === 'string') {
+      return PIN_CONFIGS[gate] || { inputs: 2, outputs: 1 };
+    }
+    
+    if (isCustomGate(gate) && gate.customGateDefinition) {
+      return {
+        inputs: gate.customGateDefinition.inputs.length,
+        outputs: gate.customGateDefinition.outputs.length,
+      };
+    }
+    
+    return PIN_CONFIGS[gate.type] || { inputs: 2, outputs: 1 };
   }
 }

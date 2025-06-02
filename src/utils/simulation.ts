@@ -1,4 +1,5 @@
 import { Gate, Wire, GateType } from '../types/circuit';
+import { isCustomGate } from '../types/gates';
 
 // ゲートのロジックを評価
 export function evaluateGate(gate: Gate, inputs: boolean[]): boolean {
@@ -95,6 +96,24 @@ export function evaluateGate(gate: Gate, inputs: boolean[]): boolean {
       }
       return false;
     
+    case 'CUSTOM':
+      // カスタムゲートの真理値表ベース評価
+      if (isCustomGate(gate) && gate.customGateDefinition) {
+        const definition = gate.customGateDefinition;
+        
+        // 入力パターンを文字列に変換
+        const inputPattern = inputs.map(input => input ? '1' : '0').join('');
+        
+        // 真理値表から出力パターンを取得
+        const outputPattern = definition.truthTable[inputPattern];
+        
+        if (outputPattern && outputPattern.length > 0) {
+          // 最初の出力を返す（複数出力は今後対応）
+          return outputPattern[0] === '1';
+        }
+      }
+      return false;
+    
     default:
       return false;
   }
@@ -121,6 +140,8 @@ export function evaluateCircuit(gates: Gate[], wires: Wire[]): { gates: Gate[], 
       inputCount = 3;
     } else if (gate.type === 'CLOCK' || gate.type === 'INPUT') {
       inputCount = 0;
+    } else if (gate.type === 'CUSTOM' && isCustomGate(gate) && gate.customGateDefinition) {
+      inputCount = gate.customGateDefinition.inputs.length;
     }
     gateInputs.set(gate.id, new Array(inputCount).fill(false));
     gateOutputConnections.set(gate.id, []);

@@ -2,13 +2,15 @@ import React, { useRef } from 'react';
 import { Gate } from '../types/circuit';
 import { useCircuitStore } from '../stores/circuitStore';
 import { useIsMobile } from '../hooks/useResponsive';
+import { isCustomGate } from '../types/gates';
+import { GateFactory } from '../models/gates/GateFactory';
 
 interface GateComponentProps {
   gate: Gate;
 }
 
 export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
-  const { moveGate, selectGate, selectedGateId, startWireDrawing, endWireDrawing, updateGateOutput } = useCircuitStore();
+  const { moveGate, selectGate, selectedGateId, startWireDrawing, endWireDrawing, updateGateOutput, updateClockFrequency } = useCircuitStore();
   const [isDragging, setIsDragging] = React.useState(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const hasDragged = useRef(false);
@@ -161,8 +163,21 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
     event.stopPropagation();
     event.preventDefault();
     
-    // 出力ピンの場合は -1 を使用
-    const actualPinIndex = isOutput ? -1 : pinIndex;
+    console.log('Pin clicked:', { gateId: gate.id, gateType: gate.type, pinIndex, isOutput });
+    
+    // カスタムゲートの場合、pinIndexは既に正しい値（出力:負、入力:正）
+    // 通常ゲートの場合、出力ピンは-1、入力ピンはインデックスをそのまま使用
+    let actualPinIndex: number;
+    
+    if (gate.type === 'CUSTOM') {
+      // カスタムゲートは既に正しいインデックスが渡されている
+      actualPinIndex = pinIndex;
+    } else {
+      // 通常ゲートは出力ピンの場合のみ-1を使用
+      actualPinIndex = isOutput ? -1 : pinIndex;
+    }
+    
+    console.log('Actual pin index used:', actualPinIndex);
     
     if (useCircuitStore.getState().isDrawingWire) {
       endWireDrawing(gate.id, actualPinIndex);
@@ -177,6 +192,36 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
     if (gate.type === 'INPUT' && !hasDragged.current) {
       updateGateOutput(gate.id, !gate.output);
     }
+  };
+
+  const [showFrequencyMenu, setShowFrequencyMenu] = React.useState(false);
+  const [isHovering, setIsHovering] = React.useState(false);
+
+  // メニューを外部クリックで閉じる
+  React.useEffect(() => {
+    const handleClickOutside = () => {
+      if (showFrequencyMenu) {
+        setShowFrequencyMenu(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showFrequencyMenu]);
+
+  const handleClockRightClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (gate.type === 'CLOCK' && !hasDragged.current) {
+      setShowFrequencyMenu(!showFrequencyMenu);
+    }
+  };
+
+  const handleFrequencySelect = (frequency: number) => {
+    updateClockFrequency(gate.id, frequency);
+    setShowFrequencyMenu(false);
   };
 
   const renderGate = () => {
@@ -245,26 +290,114 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
         );
 
       case 'CLOCK':
+        const frequency = gate.metadata?.frequency || 1;
+        const animDuration = `${1 / frequency}s`; // 周波数に応じたアニメーション速度
         return (
           <g>
-            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
-              {/* 円形デザイン（モックアップに合わせて） */}
+            <g 
+              onMouseDown={handleMouseDown} 
+              onTouchStart={handleTouchStart} 
+              onContextMenu={handleClockRightClick}
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+              style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+            >
+              {/* 円形デザイン */}
               <circle 
                 className={`gate ${isSelected ? 'selected' : ''}`}
                 cx="0" cy="0" r="40"
                 fill="#1a1a1a"
-                stroke={isSelected ? '#00aaff' : '#444'}
+                stroke={isSelected ? '#00aaff' : '#00ff88'}
                 strokeWidth={isSelected ? '3' : '2'}
               />
-              {/* 時計アイコン */}
-              <text x="0" y="-5" className="gate-text" style={{ fontSize: '24px' }}>⏰</text>
               {/* パルス表示 */}
-              <path d="M -20 20 h5 v-8 h5 v8 h5 v-8 h5 v8 h5" 
-                    stroke={gate.output ? '#00ff88' : '#0ff'} 
-                    strokeWidth="1.5" 
-                    fill="none" 
-                    opacity="0.8"/>
+              <circle cx="0" cy="0" r="37" fill="none" stroke="#00ff88" strokeWidth="1" opacity="0.3">
+                <animate attributeName="r" from="37" to="45" dur={animDuration} repeatCount="indefinite" />
+                <animate attributeName="opacity" from="0.3" to="0" dur={animDuration} repeatCount="indefinite" />
+              </circle>
+              
+              {/* 時計アイコン */}
+              <text x="0" y="5" className="gate-text" style={{ fontSize: '24px' }}>⏰</text>
+              
+              {/* 波線アニメーション */}
+              <g>
+                <path 
+                  d="M -25 20 h5 v-8 h5 v8 h5 v-8 h5 v8 h5 v-8 h5 v8 h5" 
+                  stroke={gate.output ? '#00ff88' : '#0ff'} 
+                  strokeWidth="2" 
+                  fill="none"
+                  opacity="0.8"
+                >
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    from="0 0"
+                    to="10 0"
+                    dur={animDuration}
+                    repeatCount="indefinite"
+                  />
+                </path>
+                {/* 複製して流れる効果を強化 */}
+                <path 
+                  d="M -35 20 h5 v-8 h5 v8 h5 v-8 h5 v8 h5 v-8 h5 v8 h5" 
+                  stroke={gate.output ? '#00ff88' : '#0ff'} 
+                  strokeWidth="2" 
+                  fill="none"
+                  opacity="0.4"
+                >
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    from="0 0"
+                    to="10 0"
+                    dur={animDuration}
+                    repeatCount="indefinite"
+                  />
+                </path>
+              </g>
+              
+              {/* ホバー時のみ周波数表示 */}
+              {isHovering && (
+                <text x="0" y="35" className="gate-text" style={{ fontSize: '10px', fill: '#00ff88' }}>
+                  {frequency}Hz (右クリックで変更)
+                </text>
+              )}
             </g>
+            
+            {/* 右クリックメニュー */}
+            {showFrequencyMenu && (
+              <g transform="translate(50, -30)">
+                <rect 
+                  x="-25" y="-15" width="50" height="50" rx="5"
+                  fill="#2a2a2a" 
+                  stroke="#00ff88" 
+                  strokeWidth="1"
+                />
+                {[1, 2, 10].map((freq, index) => (
+                  <g key={freq}>
+                    <rect 
+                      x="-20" y={-10 + index * 15} width="40" height="12" rx="2"
+                      fill={frequency === freq ? '#00ff88' : 'transparent'}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleFrequencySelect(freq)}
+                    />
+                    <text 
+                      x="0" y={-2 + index * 15} 
+                      className="gate-text" 
+                      style={{ 
+                        fontSize: '10px', 
+                        fill: frequency === freq ? '#1a1a1a' : '#00ff88',
+                        textAnchor: 'middle',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => handleFrequencySelect(freq)}
+                    >
+                      {freq}Hz
+                    </text>
+                  </g>
+                ))}
+              </g>
+            )}
             
             {/* 出力ピン */}
             <g>
@@ -404,6 +537,131 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
               <circle cx="60" cy="0" r="6" className={`pin ${gate.output ? 'active' : ''}`} pointerEvents="none" />
               <line x1="50" y1="0" x2="60" y2="0" className={`pin-line ${gate.output ? 'active' : ''}`} pointerEvents="none"/>
             </g>
+          </g>
+        );
+
+      case 'CUSTOM':
+        if (!isCustomGate(gate) || !gate.customGateDefinition) {
+          return null;
+        }
+        
+        const definition = gate.customGateDefinition;
+        const size = GateFactory.getGateSize(gate);
+        const halfWidth = size.width / 2;
+        const halfHeight = size.height / 2;
+        
+        return (
+          <g>
+            <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+              {/* カスタムゲートの外側境界（モックアップの二重境界線） */}
+              <rect 
+                className="custom-gate-border"
+                x={-halfWidth - 2} y={-halfHeight - 2} 
+                width={size.width + 4} height={size.height + 4} 
+                rx="10"
+                fill="none"
+                stroke="#6633cc"
+                strokeWidth="4"
+                opacity="0.3"
+              />
+              
+              {/* カスタムゲートの本体 */}
+              <rect 
+                className={`custom-gate ${isSelected ? 'selected' : ''}`}
+                x={-halfWidth} y={-halfHeight} 
+                width={size.width} height={size.height} 
+                rx="8"
+                fill="rgba(102, 51, 153, 0.1)"
+                stroke="#6633cc"
+                strokeWidth="2"
+              />
+              
+              {/* 表示名（外側上部） */}
+              <text className="gate-text" x="0" y={-halfHeight - 8} fill="#00ff88" fontSize="12px" fontWeight="600">
+                {definition.displayName.length > 12 ? definition.displayName.substring(0, 12) + '...' : definition.displayName}
+              </text>
+              
+              {/* アイコン */}
+              {definition.icon && (
+                <text x="0" y="0" className="gate-text" style={{ fontSize: '18px' }}>
+                  {definition.icon}
+                </text>
+              )}
+            </g>
+            
+            {/* 入力ピン */}
+            {definition.inputs.map((inputPin, index) => {
+              const pinCount = definition.inputs.length;
+              const availableHeight = Math.max(40, size.height - 80); // ストアと統一
+              const spacing = pinCount === 1 ? 0 : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
+              const y = pinCount === 1 ? 0 : (-((pinCount - 1) * spacing) / 2) + (index * spacing);
+              
+              return (
+                <g key={`input-${index}`}>
+                  <circle 
+                    cx={-halfWidth - 10} cy={y} r="15" 
+                    fill="transparent"
+                    style={{ cursor: 'crosshair' }}
+                    onClick={(e) => handlePinClick(e, index, false)}
+                  />
+                  <circle 
+                    cx={-halfWidth - 10} cy={y} r="6" 
+                    className={`pin ${gate.inputs[index] === '1' ? 'active' : ''}`}
+                    pointerEvents="none"
+                  />
+                  <line 
+                    x1={-halfWidth} y1={y} x2={-halfWidth - 10} y2={y} 
+                    className={`pin-line ${gate.inputs[index] === '1' ? 'active' : ''}`} 
+                    pointerEvents="none"
+                  />
+                  {/* ピン名 */}
+                  <text 
+                    x={-halfWidth + 10} y={y + 3} 
+                    className="gate-text" 
+                    style={{ fontSize: '10px', fill: '#999' }}
+                  >
+                    {inputPin.name}
+                  </text>
+                </g>
+              );
+            })}
+            
+            {/* 出力ピン */}
+            {definition.outputs.map((outputPin, index) => {
+              const pinCount = definition.outputs.length;
+              const availableHeight = Math.max(40, size.height - 80); // ストアと統一
+              const spacing = pinCount === 1 ? 0 : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
+              const y = pinCount === 1 ? 0 : (-((pinCount - 1) * spacing) / 2) + (index * spacing);
+              
+              return (
+                <g key={`output-${index}`}>
+                  <circle 
+                    cx={halfWidth + 10} cy={y} r="15" 
+                    fill="transparent"
+                    style={{ cursor: 'crosshair' }}
+                    onClick={(e) => handlePinClick(e, -(index + 1), true)}
+                  />
+                  <circle 
+                    cx={halfWidth + 10} cy={y} r="6" 
+                    className={`pin ${gate.output ? 'active' : ''}`}
+                    pointerEvents="none"
+                  />
+                  <line 
+                    x1={halfWidth} y1={y} x2={halfWidth + 10} y2={y} 
+                    className={`pin-line ${gate.output ? 'active' : ''}`} 
+                    pointerEvents="none"
+                  />
+                  {/* ピン名 */}
+                  <text 
+                    x={halfWidth - 10} y={y + 3} 
+                    className="gate-text" 
+                    style={{ fontSize: '10px', fill: '#999', textAnchor: 'end' }}
+                  >
+                    {outputPin.name}
+                  </text>
+                </g>
+              );
+            })}
           </g>
         );
 

@@ -1,9 +1,13 @@
 import { create } from 'zustand';
-import { Gate, Wire, CircuitState, GateType, Position } from '../types/circuit';
+import { Gate, Wire, CircuitState, GateType, Position, CustomGateDefinition } from '../types/circuit';
 import { evaluateCircuit } from '../utils/simulation';
 import { GateFactory } from '../models/gates/GateFactory';
 
 interface CircuitStore extends CircuitState {
+  // カスタムゲート管理
+  addCustomGate: (definition: CustomGateDefinition) => void;
+  removeCustomGate: (id: string) => void;
+  
   // ゲート操作
   addGate: (type: GateType, position: Position) => Gate;
   moveGate: (gateId: string, position: Position) => void;
@@ -18,6 +22,7 @@ interface CircuitStore extends CircuitState {
   
   // ゲートの状態更新
   updateGateOutput: (gateId: string, output: boolean) => void;
+  updateClockFrequency: (gateId: string, frequency: number) => void;
 }
 
 export const useCircuitStore = create<CircuitStore>((set) => ({
@@ -26,6 +31,19 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
   selectedGateId: null,
   isDrawingWire: false,
   wireStart: null,
+  customGates: [],
+
+  addCustomGate: (definition) => {
+    set((state) => ({
+      customGates: [...state.customGates, definition]
+    }));
+  },
+
+  removeCustomGate: (id) => {
+    set((state) => ({
+      customGates: state.customGates.filter(gate => gate.id !== id)
+    }));
+  },
 
   addGate: (type, position) => {
     // GateFactoryを使用してゲートを作成（特殊ゲートにも対応）
@@ -82,6 +100,31 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
               if (pinIndex === 0) y -= 25;
               else if (pinIndex === 1) y += 0;
               else if (pinIndex === 2) y += 25;
+            }
+          } else if (gate.type === 'CUSTOM' && gate.customGateDefinition) {
+            // カスタムゲート
+            const definition = gate.customGateDefinition;
+            const size = { width: definition.width, height: definition.height };
+            const halfWidth = size.width / 2;
+            const isOutput = pinIndex < 0; // 負の値は出力ピン
+            
+            if (isOutput) {
+              const outputIndex = (-pinIndex) - 1; // -1 -> 0, -2 -> 1, -3 -> 2...
+              const pinCount = definition.outputs.length;
+              const availableHeight = Math.max(40, size.height - 80); // 統一された計算
+              const spacing = pinCount === 1 ? 0 : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
+              const pinY = pinCount === 1 ? 0 : (-((pinCount - 1) * spacing) / 2) + (outputIndex * spacing);
+              
+              x += halfWidth + 10;
+              y += pinY;
+            } else {
+              const pinCount = definition.inputs.length;
+              const availableHeight = Math.max(40, size.height - 80); // 統一された計算
+              const spacing = pinCount === 1 ? 0 : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
+              const pinY = pinCount === 1 ? 0 : (-((pinCount - 1) * spacing) / 2) + (pinIndex * spacing);
+              
+              x -= halfWidth + 10;
+              y += pinY;
             }
           } else {
             // 通常のゲート
@@ -165,6 +208,33 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
         else if (pinIndex === 1) y += 0;
         else if (pinIndex === 2) y += 25;
       }
+    } else if (gate.type === 'CUSTOM' && gate.customGateDefinition) {
+      // カスタムゲート
+      const definition = gate.customGateDefinition;
+      const size = { width: definition.width, height: definition.height };
+      const halfWidth = size.width / 2;
+      const isOutput = pinIndex < 0; // 負の値は出力ピン
+      
+      if (isOutput) {
+        // 出力ピンの場合
+        const outputIndex = (-pinIndex) - 1; // -1 -> 0, -2 -> 1, -3 -> 2...
+        const pinCount = definition.outputs.length;
+        const availableHeight = Math.max(40, size.height - 80); // 統一された計算
+        const spacing = pinCount === 1 ? 0 : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
+        const pinY = pinCount === 1 ? 0 : (-((pinCount - 1) * spacing) / 2) + (outputIndex * spacing);
+        
+        x += halfWidth + 10;
+        y += pinY;
+      } else {
+        // 入力ピンの場合
+        const pinCount = definition.inputs.length;
+        const availableHeight = Math.max(40, size.height - 80); // 統一された計算
+        const spacing = pinCount === 1 ? 0 : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
+        const pinY = pinCount === 1 ? 0 : (-((pinCount - 1) * spacing) / 2) + (pinIndex * spacing);
+        
+        x -= halfWidth + 10;
+        y += pinY;
+      }
     } else {
       // 通常のゲート
       const isOutput = pinIndex === -1; // -1は出力ピン
@@ -212,6 +282,31 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
           else if (pinIndex === 1) toY += 0;
           else if (pinIndex === 2) toY += 25;
         }
+      } else if (toGate.type === 'CUSTOM' && toGate.customGateDefinition) {
+        // カスタムゲートの位置計算
+        const definition = toGate.customGateDefinition;
+        const size = { width: definition.width, height: definition.height };
+        const halfWidth = size.width / 2;
+        const isOutput = pinIndex < 0; // 負の値は出力ピン
+        
+        if (isOutput) {
+          const outputIndex = (-pinIndex) - 1; // -1 -> 0, -2 -> 1, -3 -> 2...
+          const pinCount = definition.outputs.length;
+          const availableHeight = Math.max(40, size.height - 80); // 統一された計算
+          const spacing = pinCount === 1 ? 0 : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
+          const pinY = pinCount === 1 ? 0 : (-((pinCount - 1) * spacing) / 2) + (outputIndex * spacing);
+          
+          toX += halfWidth + 10;
+          toY += pinY;
+        } else {
+          const pinCount = definition.inputs.length;
+          const availableHeight = Math.max(40, size.height - 80); // 統一された計算
+          const spacing = pinCount === 1 ? 0 : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
+          const pinY = pinCount === 1 ? 0 : (-((pinCount - 1) * spacing) / 2) + (pinIndex * spacing);
+          
+          toX -= halfWidth + 10;
+          toY += pinY;
+        }
       } else {
         // 通常のゲートの位置計算
         const isOutput = pinIndex === -1;
@@ -230,12 +325,12 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
       let from = state.wireStart;
       let to = { gateId, pinIndex, position: { x: toX, y: toY } };
       
-      // fromが入力ピン（pinIndex >= 0）で、toが出力ピン（pinIndex === -1）の場合、入れ替える
-      if (from.pinIndex >= 0 && to.pinIndex === -1) {
+      // fromが入力ピン（pinIndex >= 0）で、toが出力ピン（pinIndex < 0）の場合、入れ替える
+      if (from.pinIndex >= 0 && to.pinIndex < 0) {
         [from, to] = [to, from];
       }
       // 両方が入力ピンまたは両方が出力ピンの場合は接続しない
-      else if ((from.pinIndex >= 0 && to.pinIndex >= 0) || (from.pinIndex === -1 && to.pinIndex === -1)) {
+      else if ((from.pinIndex >= 0 && to.pinIndex >= 0) || (from.pinIndex < 0 && to.pinIndex < 0)) {
         return { isDrawingWire: false, wireStart: null };
       }
 
@@ -285,6 +380,33 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
       const updatedGates = state.gates.map((gate) =>
         gate.id === gateId ? { ...gate, output } : gate
       );
+      
+      // 回路全体を評価
+      const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(updatedGates, state.wires);
+      
+      return {
+        gates: evaluatedGates,
+        wires: evaluatedWires,
+      };
+    });
+  },
+
+  updateClockFrequency: (gateId, frequency) => {
+    set((state) => {
+      const updatedGates = state.gates.map((gate) => {
+        if (gate.id === gateId && gate.type === 'CLOCK' && gate.metadata) {
+          return {
+            ...gate,
+            metadata: {
+              ...gate.metadata,
+              frequency: frequency,
+              // 周波数変更時は開始時刻をリセット
+              startTime: Date.now(),
+            }
+          };
+        }
+        return gate;
+      });
       
       // 回路全体を評価
       const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(updatedGates, state.wires);

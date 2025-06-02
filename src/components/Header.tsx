@@ -21,10 +21,6 @@ export const Header: React.FC = () => {
     console.log('✅ 回路がエクスポートされました');
   };
 
-  const handleSimulate = () => {
-    console.log('🎮 シミュレーション実行');
-  };
-
   const handleShare = () => {
     console.log('🔗 回路を共有');
   };
@@ -79,14 +75,6 @@ export const Header: React.FC = () => {
           >
             <span>📤</span>
             <span>共有</span>
-          </button>
-          <button 
-            className="button primary"
-            onClick={handleSimulate}
-            title="シミュレーション実行"
-          >
-            <span>▶️</span>
-            <span>実行</span>
           </button>
         </div>
       </header>

@@ -39,17 +39,22 @@ export const Canvas: React.FC = () => {
 
   // CLOCKゲートがある場合、定期的に回路を更新
   React.useEffect(() => {
-    const hasClockGate = gates.some(gate => gate.type === 'CLOCK' && gate.metadata?.isRunning);
+    // 実行中のCLOCKゲートがあるか確認
+    const hasRunningClockGate = gates.some(gate => gate.type === 'CLOCK' && gate.metadata?.isRunning);
     
-    if (hasClockGate) {
+    if (hasRunningClockGate) {
       const interval = setInterval(() => {
-        const { gates: updatedGates, wires: updatedWires } = evaluateCircuit(gates, wires);
+        // 現在の状態を直接取得
+        const currentState = useCircuitStore.getState();
+        const { gates: updatedGates, wires: updatedWires } = evaluateCircuit(currentState.gates, currentState.wires);
         useCircuitStore.setState({ gates: updatedGates, wires: updatedWires });
       }, 50); // 20Hz更新
       
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(interval);
+      };
     }
-  }, [gates, wires]);
+  }, [gates.filter(g => g.type === 'CLOCK').map(g => g.metadata?.isRunning).join(',')]);
 
 
   const handleMouseMove = (event: React.MouseEvent) => {

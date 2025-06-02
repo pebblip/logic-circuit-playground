@@ -1,6 +1,8 @@
-import React from 'react';
-import { GateType } from '../types/circuit';
+import React, { useState } from 'react';
+import { GateType, CustomGateDefinition } from '../types/circuit';
 import { useCircuitStore } from '../stores/circuitStore';
+import { GateFactory } from '../models/gates/GateFactory';
+import { CreateCustomGateDialog } from './dialogs/CreateCustomGateDialog';
 
 const BASIC_GATES: { type: GateType; label: string }[] = [
   { type: 'AND', label: 'AND' },
@@ -24,8 +26,64 @@ const SPECIAL_GATES: { type: GateType; label: string }[] = [
   { type: 'MUX', label: 'MUX' },
 ];
 
+// デモ用カスタムゲート定義
+const DEMO_CUSTOM_GATES: CustomGateDefinition[] = [
+  {
+    id: 'demo-half-adder',
+    name: 'HalfAdder',
+    displayName: '半加算器',
+    description: 'A + B = Sum + Carry',
+    inputs: [
+      { name: 'A', index: 0 },
+      { name: 'B', index: 1 }
+    ],
+    outputs: [
+      { name: 'S', index: 0 },
+      { name: 'C', index: 1 }
+    ],
+    truthTable: {
+      '00': '00',
+      '01': '10',
+      '10': '10',
+      '11': '01'
+    },
+    icon: '➕',
+    category: 'arithmetic',
+    width: 100,
+    height: 80,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  },
+  {
+    id: 'demo-my-gate',
+    name: 'MyGate',
+    displayName: 'MyGate',
+    description: 'カスタムゲートのサンプル',
+    inputs: [
+      { name: 'A', index: 0 },
+      { name: 'B', index: 1 }
+    ],
+    outputs: [
+      { name: 'Y', index: 0 }
+    ],
+    truthTable: {
+      '00': '0',
+      '01': '1',
+      '10': '1',
+      '11': '0'
+    },
+    icon: '🔧',
+    category: 'custom',
+    width: 100,
+    height: 80,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  }
+];
+
 export const ToolPalette: React.FC = () => {
-  const { addGate, gates } = useCircuitStore();
+  const { addGate, gates, customGates, addCustomGate } = useCircuitStore();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const handleToolClick = (type: GateType) => {
     // 既存のゲートの位置を確認して、重ならない位置を計算
@@ -53,6 +111,43 @@ export const ToolPalette: React.FC = () => {
     }
     
     addGate(type, { x, y });
+  };
+
+  const handleCustomGateClick = (definition: CustomGateDefinition) => {
+    // カスタムゲートの配置
+    const baseX = 100;
+    const baseY = 100;
+    const spacing = 120;
+    
+    let x = baseX;
+    let y = baseY;
+    let row = 0;
+    let col = 0;
+    
+    while (gates.some(g => 
+      Math.abs(g.position.x - x) < definition.width && 
+      Math.abs(g.position.y - y) < definition.height
+    )) {
+      col++;
+      if (col > 4) {
+        col = 0;
+        row++;
+      }
+      x = baseX + (col * spacing);
+      y = baseY + (row * spacing);
+    }
+    
+    const customGate = GateFactory.createCustomGate(definition, { x, y });
+    // カスタムゲートを直接ストアに追加
+    useCircuitStore.setState(state => ({
+      gates: [...state.gates, customGate]
+    }));
+  };
+
+  const handleCreateCustomGate = (definition: CustomGateDefinition) => {
+    // 新しいカスタムゲート定義をストアに追加
+    addCustomGate(definition);
+    setIsCreateDialogOpen(false);
   };
 
   const renderGatePreview = (type: GateType) => {
@@ -133,6 +228,63 @@ export const ToolPalette: React.FC = () => {
     );
   };
 
+  const renderCustomGatePreview = (definition: CustomGateDefinition) => {
+    const scale = 0.8; // ツールパレット用にスケールダウン
+    const width = definition.width * scale;
+    const height = definition.height * scale;
+    
+    return (
+      <svg className="tool-preview" viewBox={`-${width/2 + 10} -${height/2 + 10} ${width + 20} ${height + 20}`}>
+        {/* カスタムゲートの外側境界 */}
+        <rect 
+          x={-width/2 - 2} y={-height/2 - 2} 
+          width={width + 4} height={height + 4} 
+          rx="6" fill="none" stroke="#6633cc" strokeWidth="2" opacity="0.3"
+        />
+        
+        {/* カスタムゲートの本体 */}
+        <rect 
+          x={-width/2} y={-height/2} 
+          width={width} height={height} 
+          rx="4" fill="rgba(102, 51, 153, 0.1)" stroke="#6633cc" strokeWidth="1"
+        />
+        
+        {/* アイコン */}
+        {definition.icon && (
+          <text x="0" y="0" style={{ 
+            fontSize: '16px', 
+            textAnchor: 'middle', 
+            dominantBaseline: 'middle',
+            fill: '#ccc'
+          }}>
+            {definition.icon}
+          </text>
+        )}
+        
+        {/* 簡略化されたピン表示 */}
+        {definition.inputs.map((_, index) => (
+          <circle 
+            key={`in-${index}`}
+            cx={-width/2 - 4} 
+            cy={-((definition.inputs.length - 1) * 8) / 2 + index * 8}
+            r="2" 
+            fill="#6633cc" 
+          />
+        ))}
+        
+        {definition.outputs.map((_, index) => (
+          <circle 
+            key={`out-${index}`}
+            cx={width/2 + 4} 
+            cy={-((definition.outputs.length - 1) * 8) / 2 + index * 8}
+            r="2" 
+            fill="#6633cc" 
+          />
+        ))}
+      </svg>
+    );
+  };
+
   return (
     <aside className="tool-palette">
       <div className="section-title">
@@ -144,6 +296,7 @@ export const ToolPalette: React.FC = () => {
           <div
             key={type}
             className="tool-card"
+            data-gate-type={type}
             onClick={() => handleToolClick(type)}
           >
             {renderGatePreview(type)}
@@ -161,6 +314,7 @@ export const ToolPalette: React.FC = () => {
           <div
             key={type}
             className="tool-card"
+            data-gate-type={type}
             onClick={() => handleToolClick(type)}
           >
             {renderGatePreview(type)}
@@ -178,6 +332,7 @@ export const ToolPalette: React.FC = () => {
           <div
             key={type}
             className="tool-card"
+            data-gate-type={type}
             onClick={() => handleToolClick(type)}
           >
             {renderGatePreview(type)}
@@ -185,6 +340,67 @@ export const ToolPalette: React.FC = () => {
           </div>
         ))}
       </div>
+
+      <div className="section-title">
+        <span>🔧</span>
+        <span>カスタムゲート</span>
+      </div>
+      <div className="tools-grid">
+        {/* デモカスタムゲート（初期表示用） */}
+        {DEMO_CUSTOM_GATES.map((definition) => (
+          <div
+            key={definition.id}
+            className="tool-card custom-gate-card"
+            data-gate-type="CUSTOM"
+            onClick={() => handleCustomGateClick(definition)}
+          >
+            {renderCustomGatePreview(definition)}
+            <div className="tool-label">{definition.displayName}</div>
+          </div>
+        ))}
+        
+        {/* ユーザー作成のカスタムゲート */}
+        {(customGates || []).map((definition) => (
+          <div
+            key={definition.id}
+            className="tool-card custom-gate-card"
+            data-gate-type="CUSTOM"
+            onClick={() => handleCustomGateClick(definition)}
+          >
+            {renderCustomGatePreview(definition)}
+            <div className="tool-label">{definition.displayName}</div>
+          </div>
+        ))}
+        
+        {/* 新規カスタムゲート作成ボタン */}
+        <div
+          className="tool-card create-custom-gate"
+          onClick={() => setIsCreateDialogOpen(true)}
+        >
+          <svg className="tool-preview" viewBox="-30 -30 60 60">
+            <rect 
+              x="-25" y="-25" width="50" height="50" 
+              rx="8" fill="none" stroke="#6633cc" strokeWidth="2" strokeDasharray="5,5"
+            />
+            <text x="0" y="0" style={{ 
+              fontSize: '20px', 
+              textAnchor: 'middle', 
+              dominantBaseline: 'middle',
+              fill: '#6633cc'
+            }}>
+              ➕
+            </text>
+          </svg>
+          <div className="tool-label">作成</div>
+        </div>
+      </div>
+      
+      {/* カスタムゲート作成ダイアログ */}
+      <CreateCustomGateDialog
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onSave={handleCreateCustomGate}
+      />
     </aside>
   );
 };
