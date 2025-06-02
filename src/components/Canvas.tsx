@@ -142,8 +142,8 @@ export const Canvas: React.FC = () => {
     if (!element) return false;
     
     // 要素自体または親要素を辿ってゲート関連の要素を探す
-    let current = element;
-    while (current && current !== svgRef.current) {
+    let current = element as HTMLElement | null;
+    while (current && current !== (svgRef.current as any)) {
       if (current.classList.contains('gate-container') || 
           current.hasAttribute('data-gate-id') ||
           current.closest('.gate-container')) {
@@ -237,10 +237,10 @@ export const Canvas: React.FC = () => {
         </defs>
         <rect 
           id="canvas-background" 
-          x={viewBox.x - 1000}
-          y={viewBox.y - 1000}
-          width={viewBox.width + 2000}
-          height={viewBox.height + 2000}
+          x={viewBox.x - 5000}
+          y={viewBox.y - 5000}
+          width={viewBox.width + 10000}
+          height={viewBox.height + 10000}
           fill="url(#grid)"
         />
 

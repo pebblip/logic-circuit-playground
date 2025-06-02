@@ -14,8 +14,8 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
   const hasDragged = useRef(false);
   const isMobile = useIsMobile();
   
-  // モバイルでは1.4倍、デスクトップでは通常サイズ
-  const scaleFactor = isMobile ? 1.4 : 1;
+  // モバイルでは2倍、デスクトップでは通常サイズ
+  const scaleFactor = isMobile ? 2 : 1;
 
   React.useEffect(() => {
     const handleGlobalMouseMove = (event: MouseEvent) => {

@@ -1,0 +1,498 @@
+/* 読み込みダイアログのスタイル */
+
+.load-dialog {
+  background: rgba(20, 20, 20, 0.98);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  max-width: 900px;
+  width: 95vw;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* フィルター・検索バー */
+.filter-bar {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.search-box {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 8px 12px 8px 36px;
+  color: #fff;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: rgba(0, 255, 136, 0.5);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* 表示切り替えボタン */
+.view-controls {
+  display: flex;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.view-button {
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.view-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.view-button.active {
+  background: rgba(0, 255, 136, 0.15);
+  color: #00ff88;
+}
+
+/* ソート */
+.sort-select {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+}
+
+.sort-select option {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+/* タグフィルター */
+.tag-filter-section {
+  padding: 12px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+
+.tag-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag-filter {
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tag-filter:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.tag-filter.active {
+  background: rgba(0, 170, 255, 0.2);
+  border-color: rgba(0, 170, 255, 0.4);
+  color: #00aaff;
+}
+
+/* メインコンテンツエリア */
+.dialog-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 24px;
+}
+
+/* 状態表示 */
+.loading-state, .error-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+.loading-spinner.large {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid #00ff88;
+  margin-bottom: 16px;
+}
+
+.error-state .error-icon, .empty-state .empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.retry-button {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: rgba(0, 255, 136, 0.15);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 6px;
+  color: #00ff88;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retry-button:hover {
+  background: rgba(0, 255, 136, 0.25);
+}
+
+/* 回路コンテナ */
+.circuits-container {
+  display: grid;
+  gap: 16px;
+}
+
+.circuits-container.grid {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.circuits-container.list {
+  grid-template-columns: 1fr;
+}
+
+/* 回路カード */
+.circuit-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.circuit-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.circuit-card.selected {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: rgba(0, 255, 136, 0.3);
+  box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+}
+
+/* グリッド表示の場合 */
+.circuits-container.grid .circuit-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* リスト表示の場合 */
+.circuits-container.list .circuit-card {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+/* サムネイル */
+.circuit-thumbnail {
+  flex-shrink: 0;
+  width: 80px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.circuits-container.grid .circuit-thumbnail {
+  width: 100%;
+  height: 120px;
+}
+
+.circuit-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.thumbnail-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* 回路情報 */
+.circuit-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.circuit-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 6px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.circuits-container.list .circuit-name {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.circuit-description {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.circuits-container.list .circuit-description {
+  -webkit-line-clamp: 1;
+  margin-bottom: 4px;
+}
+
+.circuit-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.circuits-container.list .circuit-meta {
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+/* タグ */
+.circuit-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.circuit-tag {
+  padding: 2px 6px;
+  background: rgba(0, 170, 255, 0.15);
+  border: 1px solid rgba(0, 170, 255, 0.3);
+  border-radius: 8px;
+  font-size: 10px;
+  color: #00aaff;
+}
+
+/* アクション */
+.circuit-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.circuit-card:hover .circuit-actions {
+  opacity: 1;
+}
+
+.circuits-container.list .circuit-actions {
+  position: static;
+  opacity: 1;
+}
+
+.action-button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+}
+
+.action-button.delete:hover {
+  background: rgba(255, 107, 107, 0.8);
+}
+
+/* フッター */
+.dialog-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-info {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.footer-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.circuit-count {
+  font-weight: 500;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .load-dialog {
+    width: 98vw;
+    max-height: 95vh;
+  }
+  
+  .filter-bar {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  
+  .search-box {
+    order: 1;
+  }
+  
+  .view-controls, .sort-controls {
+    order: 2;
+    flex: none;
+  }
+  
+  .circuits-container.grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .circuits-container.list .circuit-card {
+    grid-template-columns: 60px 1fr auto;
+    gap: 12px;
+  }
+  
+  .circuit-thumbnail {
+    width: 60px !important;
+    height: 45px !important;
+  }
+  
+  .tag-filter-section {
+    padding: 8px 16px;
+  }
+  
+  .dialog-content {
+    padding: 12px 16px;
+  }
+  
+  .dialog-footer {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  
+  .footer-actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .circuit-meta {
+    font-size: 10px;
+    gap: 8px;
+  }
+  
+  .meta-item {
+    gap: 2px;
+  }
+  
+  .filter-bar {
+    padding: 12px 16px;
+  }
+}

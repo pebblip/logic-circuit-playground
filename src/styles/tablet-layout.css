@@ -6,6 +6,31 @@
   background: #0a0a0a;
 }
 
+/* ヘッダーのスタイルを継承 */
+.tablet-layout .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 56px;
+}
+
+.tablet-layout .mode-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.tablet-layout .header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.tablet-layout .action-button {
+  display: inline-flex !important;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
 .tablet-main {
   display: flex;
   flex: 1;

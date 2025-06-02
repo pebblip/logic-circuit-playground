@@ -14,11 +14,11 @@ const BASIC_GATES: { type: GateType; label: string }[] = [
 const IO_GATES: { type: GateType; label: string }[] = [
   { type: 'INPUT', label: 'INPUT' },
   { type: 'OUTPUT', label: 'OUTPUT' },
+  { type: 'CLOCK', label: 'CLOCK' },
 ];
 
-// 特殊ゲート（今後実装予定）
+// 特殊ゲート
 const SPECIAL_GATES: { type: GateType; label: string }[] = [
-  { type: 'CLOCK', label: 'CLOCK' },
   { type: 'D-FF', label: 'D-FF' },
   { type: 'SR-LATCH', label: 'SR-LATCH' },
   { type: 'MUX', label: 'MUX' },
@@ -170,7 +170,7 @@ export const ToolPalette: React.FC = () => {
       </div>
 
       <div className="section-title">
-        <span>⚡</span>
+        <span>⚙️</span>
         <span>特殊ゲート</span>
       </div>
       <div className="tools-grid">

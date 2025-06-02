@@ -70,6 +70,31 @@ export const PropertyPanel: React.FC = () => {
 
   const truthTable = getTruthTable();
 
+  const getGateDescription = () => {
+    switch (selectedGate.type) {
+      case 'AND':
+        return 'ANDゲートは全ての入力がONの時のみ出力がONになります。';
+      case 'OR':
+        return 'ORゲートは少なくとも1つの入力がONの時に出力がONになります。';
+      case 'XOR':
+        return 'XORゲートは「どちらか片方だけ」がONの時に出力がONになります。両方ONまたは両方OFFの時は出力がOFFになります。';
+      case 'NOT':
+        return 'NOTゲートは入力を反転します。入力がONなら出力はOFF、入力がOFFなら出力はONになります。';
+      case 'NAND':
+        return 'NANDゲートはANDの出力を反転したものです。全ての入力がONの時のみ出力がOFFになります。';
+      case 'NOR':
+        return 'NORゲートはORの出力を反転したものです。全ての入力がOFFの時のみ出力がONになります。';
+      case 'INPUT':
+        return 'INPUTゲートはクリックすることでON/OFFを切り替えることができます。';
+      case 'OUTPUT':
+        return 'OUTPUTゲートは接続された入力の状態を視覚的に表示します。';
+      case 'CLOCK':
+        return 'CLOCKゲートは一定間隔でON/OFFを繰り返す信号を生成します。';
+      default:
+        return '詳細な説明はまだ実装されていません。';
+    }
+  };
+
   return (
     <aside className="property-panel">
       <div className="property-group">
@@ -119,6 +144,24 @@ export const PropertyPanel: React.FC = () => {
           </table>
         </div>
       )}
+
+      <div className="property-group">
+        <div className="section-title">
+          <span>💡</span>
+          <span>ヒント</span>
+        </div>
+        <div style={{
+          padding: '12px',
+          background: 'rgba(0, 255, 136, 0.05)',
+          border: '1px solid rgba(0, 255, 136, 0.1)',
+          borderRadius: '8px',
+          fontSize: '13px',
+          lineHeight: '1.6',
+          color: 'rgba(255, 255, 255, 0.8)'
+        }}>
+          {getGateDescription()}
+        </div>
+      </div>
     </aside>
   );
 };

@@ -191,9 +191,44 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
         return { isDrawingWire: false, wireStart: null };
       }
 
+      // 接続先のゲートを見つけてposition計算
+      const toGate = state.gates.find(g => g.id === gateId);
+      if (!toGate) {
+        return { isDrawingWire: false, wireStart: null };
+      }
+
+      // 接続先ピンの位置を計算
+      let toX = toGate.position.x;
+      let toY = toGate.position.y;
+      
+      if (toGate.type === 'INPUT' || toGate.type === 'OUTPUT') {
+        // INPUT/OUTPUTゲートの位置計算
+        const isOutput = pinIndex === -1;
+        if (isOutput) {
+          toX += 60;
+        } else {
+          toX -= 60;
+          if (pinIndex === 0) toY -= 25;
+          else if (pinIndex === 1) toY += 0;
+          else if (pinIndex === 2) toY += 25;
+        }
+      } else {
+        // 通常のゲートの位置計算
+        const isOutput = pinIndex === -1;
+        if (isOutput) {
+          toX += 45;
+        } else {
+          toX -= 45;
+          const inputCount = toGate.type === 'NOT' ? 1 : 2;
+          if (inputCount === 2) {
+            toY += pinIndex === 0 ? -10 : 10;
+          }
+        }
+      }
+
       // 接続の方向を正規化（常に出力→入力になるようにする）
       let from = state.wireStart;
-      let to = { gateId, pinIndex };
+      let to = { gateId, pinIndex, position: { x: toX, y: toY } };
       
       // fromが入力ピン（pinIndex >= 0）で、toが出力ピン（pinIndex === -1）の場合、入れ替える
       if (from.pinIndex >= 0 && to.pinIndex === -1) {

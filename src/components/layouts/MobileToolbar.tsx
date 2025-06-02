@@ -13,28 +13,28 @@ const TOOL_CATEGORIES = {
   basic: {
     label: '基本',
     gates: [
-      { type: 'AND' as GateType, label: 'AND', icon: '🔲' },
-      { type: 'OR' as GateType, label: 'OR', icon: '🔳' },
-      { type: 'NOT' as GateType, label: 'NOT', icon: '⭕' },
-      { type: 'XOR' as GateType, label: 'XOR', icon: '⬜' },
-      { type: 'NAND' as GateType, label: 'NAND', icon: '🔲' },
-      { type: 'NOR' as GateType, label: 'NOR', icon: '🔳' },
+      { type: 'AND' as GateType, label: 'AND', icon: 'AND' },
+      { type: 'OR' as GateType, label: 'OR', icon: 'OR' },
+      { type: 'NOT' as GateType, label: 'NOT', icon: 'NOT' },
+      { type: 'XOR' as GateType, label: 'XOR', icon: 'XOR' },
+      { type: 'NAND' as GateType, label: 'NAND', icon: 'NAND' },
+      { type: 'NOR' as GateType, label: 'NOR', icon: 'NOR' },
     ],
   },
   special: {
     label: '特殊',
     gates: [
-      { type: 'CLOCK' as GateType, label: 'CLOCK', icon: '⏰' },
-      { type: 'D-FF' as GateType, label: 'D-FF', icon: '📦' },
-      { type: 'SR-LATCH' as GateType, label: 'SR-LATCH', icon: '🔒' },
-      { type: 'MUX' as GateType, label: 'MUX', icon: '🔀' },
+      { type: 'CLOCK' as GateType, label: 'CLK', icon: 'CLK' },
+      { type: 'D-FF' as GateType, label: 'D-FF', icon: 'DFF' },
+      { type: 'SR-LATCH' as GateType, label: 'SR', icon: 'SR' },
+      { type: 'MUX' as GateType, label: 'MUX', icon: 'MUX' },
     ],
   },
   io: {
     label: '入出力',
     gates: [
-      { type: 'INPUT' as GateType, label: 'INPUT', icon: '🔘' },
-      { type: 'OUTPUT' as GateType, label: 'OUTPUT', icon: '💡' },
+      { type: 'INPUT' as GateType, label: 'IN', icon: 'IN' },
+      { type: 'OUTPUT' as GateType, label: 'OUT', icon: 'OUT' },
     ],
   },
   custom: {
