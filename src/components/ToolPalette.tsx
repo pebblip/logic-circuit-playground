@@ -82,8 +82,26 @@ const DEMO_CUSTOM_GATES: CustomGateDefinition[] = [
 ];
 
 export const ToolPalette: React.FC = () => {
-  const { addGate, gates, customGates, addCustomGate } = useCircuitStore();
+  const { addGate, gates, customGates, addCustomGate, pendingCustomGateData } = useCircuitStore();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [dialogInitialData, setDialogInitialData] = useState<{
+    initialInputs?: CustomGatePin[];
+    initialOutputs?: CustomGatePin[];
+  }>({});
+  
+  // カスタムゲート作成ダイアログを開くイベントリスナー
+  React.useEffect(() => {
+    const handleOpenDialog = (event: CustomEvent) => {
+      const { initialInputs, initialOutputs } = event.detail;
+      setDialogInitialData({ initialInputs, initialOutputs });
+      setIsCreateDialogOpen(true);
+    };
+    
+    window.addEventListener('open-custom-gate-dialog', handleOpenDialog as any);
+    return () => {
+      window.removeEventListener('open-custom-gate-dialog', handleOpenDialog as any);
+    };
+  }, []);
 
   const handleToolClick = (type: GateType) => {
     // 既存のゲートの位置を確認して、重ならない位置を計算
@@ -145,9 +163,55 @@ export const ToolPalette: React.FC = () => {
   };
 
   const handleCreateCustomGate = (definition: CustomGateDefinition) => {
+    // pendingCustomGateDataがある場合は内部回路情報を追加
+    if (pendingCustomGateData) {
+      const { internalGates, internalWires, inputWires, outputWires } = pendingCustomGateData;
+      
+      // 内部回路の座標を正規化（左上を0,0に）
+      const minX = Math.min(...internalGates.map(g => g.position.x));
+      const minY = Math.min(...internalGates.map(g => g.position.y));
+      
+      const normalizedGates = internalGates.map(g => ({
+        ...g,
+        position: {
+          x: g.position.x - minX,
+          y: g.position.y - minY,
+        },
+      }));
+      
+      // 入出力マッピングを作成
+      const inputMappings: Record<number, { gateId: string; pinIndex: number }> = {};
+      inputWires.forEach((wire, index) => {
+        inputMappings[index] = {
+          gateId: wire.to.gateId,
+          pinIndex: wire.to.pinIndex,
+        };
+      });
+      
+      const outputMappings: Record<number, { gateId: string; pinIndex: number }> = {};
+      outputWires.forEach((wire, index) => {
+        outputMappings[index] = {
+          gateId: wire.from.gateId,
+          pinIndex: wire.from.pinIndex,
+        };
+      });
+      
+      // 内部回路情報を定義に追加
+      definition.internalCircuit = {
+        gates: normalizedGates,
+        wires: internalWires,
+        inputMappings,
+        outputMappings,
+      };
+      
+      // pendingデータをクリア
+      useCircuitStore.setState({ pendingCustomGateData: undefined });
+    }
+    
     // 新しいカスタムゲート定義をストアに追加
     addCustomGate(definition);
     setIsCreateDialogOpen(false);
+    setDialogInitialData({});
   };
 
   const renderGatePreview = (type: GateType) => {
@@ -398,8 +462,13 @@ export const ToolPalette: React.FC = () => {
       {/* カスタムゲート作成ダイアログ */}
       <CreateCustomGateDialog
         isOpen={isCreateDialogOpen}
-        onClose={() => setIsCreateDialogOpen(false)}
+        onClose={() => {
+          setIsCreateDialogOpen(false);
+          setDialogInitialData({});
+        }}
         onSave={handleCreateCustomGate}
+        initialInputs={dialogInitialData.initialInputs}
+        initialOutputs={dialogInitialData.initialOutputs}
       />
     </aside>
   );

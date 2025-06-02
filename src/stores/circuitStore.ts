@@ -7,12 +7,29 @@ interface CircuitStore extends CircuitState {
   // カスタムゲート管理
   addCustomGate: (definition: CustomGateDefinition) => void;
   removeCustomGate: (id: string) => void;
+  createCustomGateFromSelection: () => void;
+  // 回路分析用の一時データ
+  pendingCustomGateData?: {
+    internalGates: Gate[];
+    internalWires: Wire[];
+    inputWires: Wire[];
+    outputWires: Wire[];
+  };
   
   // ゲート操作
   addGate: (type: GateType, position: Position) => Gate;
   moveGate: (gateId: string, position: Position) => void;
   selectGate: (gateId: string | null) => void;
   deleteGate: (gateId: string) => void;
+  
+  // 複数選択操作
+  toggleGateSelection: (gateId: string) => void;
+  selectGatesInArea: (area: { start: Position; end: Position }) => void;
+  clearSelection: () => void;
+  setSelectionMode: (mode: 'single' | 'multiple' | 'area') => void;
+  startAreaSelection: (position: Position) => void;
+  updateAreaSelection: (position: Position) => void;
+  endAreaSelection: () => void;
   
   // ワイヤー操作
   startWireDrawing: (gateId: string, pinIndex: number) => void;
@@ -29,9 +46,13 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
   gates: [],
   wires: [],
   selectedGateId: null,
+  selectedGateIds: new Set<string>(),
   isDrawingWire: false,
   wireStart: null,
   customGates: [],
+  selectionMode: 'single',
+  isAreaSelecting: false,
+  selectionArea: null,
 
   addCustomGate: (definition) => {
     set((state) => ({
@@ -416,5 +437,141 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
         wires: evaluatedWires,
       };
     });
+  },
+
+  // 複数選択関連の機能
+  toggleGateSelection: (gateId) => {
+    set((state) => {
+      const newSelectedIds = new Set(state.selectedGateIds);
+      if (newSelectedIds.has(gateId)) {
+        newSelectedIds.delete(gateId);
+      } else {
+        newSelectedIds.add(gateId);
+      }
+      return { selectedGateIds: newSelectedIds };
+    });
+  },
+
+  selectGatesInArea: (area) => {
+    set((state) => {
+      const minX = Math.min(area.start.x, area.end.x);
+      const maxX = Math.max(area.start.x, area.end.x);
+      const minY = Math.min(area.start.y, area.end.y);
+      const maxY = Math.max(area.start.y, area.end.y);
+
+      const selectedIds = new Set<string>();
+      state.gates.forEach((gate) => {
+        if (
+          gate.position.x >= minX &&
+          gate.position.x <= maxX &&
+          gate.position.y >= minY &&
+          gate.position.y <= maxY
+        ) {
+          selectedIds.add(gate.id);
+        }
+      });
+
+      return { selectedGateIds: selectedIds };
+    });
+  },
+
+  clearSelection: () => {
+    set({ selectedGateIds: new Set(), selectedGateId: null });
+  },
+
+  setSelectionMode: (mode) => {
+    set({ selectionMode: mode });
+  },
+
+  startAreaSelection: (position) => {
+    set({
+      isAreaSelecting: true,
+      selectionArea: { start: position, end: position },
+    });
+  },
+
+  updateAreaSelection: (position) => {
+    set((state) => {
+      if (state.selectionArea) {
+        return {
+          selectionArea: { ...state.selectionArea, end: position },
+        };
+      }
+      return state;
+    });
+  },
+
+  endAreaSelection: () => {
+    const state = useCircuitStore.getState();
+    if (state.selectionArea) {
+      // エリア内のゲートを選択
+      state.selectGatesInArea(state.selectionArea);
+    }
+    set({
+      isAreaSelecting: false,
+      selectionArea: null,
+    });
+  },
+
+  createCustomGateFromSelection: () => {
+    const state = useCircuitStore.getState();
+    const selectedGates = state.gates.filter((g) => state.selectedGateIds.has(g.id));
+    
+    if (selectedGates.length === 0) {
+      console.warn('No gates selected for custom gate creation');
+      return;
+    }
+
+    // 選択されたゲートに関連するワイヤーを収集
+    const selectedGateIdSet = new Set(selectedGates.map(g => g.id));
+    const internalWires = state.wires.filter(
+      (w) => selectedGateIdSet.has(w.from.gateId) && selectedGateIdSet.has(w.to.gateId)
+    );
+
+    // 境界を跨ぐワイヤーから入出力ピンを検出
+    const inputWires = state.wires.filter(
+      (w) => !selectedGateIdSet.has(w.from.gateId) && selectedGateIdSet.has(w.to.gateId)
+    );
+    const outputWires = state.wires.filter(
+      (w) => selectedGateIdSet.has(w.from.gateId) && !selectedGateIdSet.has(w.to.gateId)
+    );
+
+    console.log('Creating custom gate from selection:', {
+      selectedGates,
+      internalWires,
+      inputWires,
+      outputWires,
+    });
+
+    // ピン情報を抽出
+    const inputPins: CustomGatePin[] = inputWires.map((wire, index) => ({
+      name: String.fromCharCode(65 + index), // A, B, C...
+      index,
+    }));
+    
+    const outputPins: CustomGatePin[] = outputWires.map((wire, index) => ({
+      name: index === 0 ? 'Y' : `O${index}`, // Y, O1, O2...
+      index,
+    }));
+
+    // 一時データを保存
+    set({
+      pendingCustomGateData: {
+        internalGates: selectedGates,
+        internalWires,
+        inputWires,
+        outputWires,
+      },
+    });
+
+    // ダイアログを表示するためのイベントを発生させる
+    // TODO: ToolPaletteコンポーネントに統合
+    const event = new CustomEvent('open-custom-gate-dialog', {
+      detail: { 
+        initialInputs: inputPins, 
+        initialOutputs: outputPins 
+      },
+    });
+    window.dispatchEvent(event);
   },
 }));

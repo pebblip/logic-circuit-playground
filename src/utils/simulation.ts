@@ -97,19 +97,51 @@ export function evaluateGate(gate: Gate, inputs: boolean[]): boolean {
       return false;
     
     case 'CUSTOM':
-      // カスタムゲートの真理値表ベース評価
+      // カスタムゲートの評価
       if (isCustomGate(gate) && gate.customGateDefinition) {
         const definition = gate.customGateDefinition;
         
-        // 入力パターンを文字列に変換
-        const inputPattern = inputs.map(input => input ? '1' : '0').join('');
-        
-        // 真理値表から出力パターンを取得
-        const outputPattern = definition.truthTable[inputPattern];
-        
-        if (outputPattern && outputPattern.length > 0) {
-          // 最初の出力を返す（複数出力は今後対応）
-          return outputPattern[0] === '1';
+        // 内部回路がある場合は回路評価
+        if (definition.internalCircuit) {
+          // 入力値を内部ゲートにマッピング
+          const internalGates = definition.internalCircuit.gates.map(g => ({ ...g }));
+          
+          // 入力マッピングを適用
+          Object.entries(definition.internalCircuit.inputMappings).forEach(([pinIndex, mapping]) => {
+            const inputValue = inputs[Number(pinIndex)] || false;
+            const targetGate = internalGates.find(g => g.id === mapping.gateId);
+            if (targetGate && mapping.pinIndex < targetGate.inputs.length) {
+              targetGate.inputs[mapping.pinIndex] = inputValue ? '1' : '';
+            }
+          });
+          
+          // 内部回路を評価
+          const { gates: evaluatedGates } = evaluateCircuit(
+            internalGates, 
+            definition.internalCircuit.wires
+          );
+          
+          // 出力マッピングから結果を取得（最初の出力のみ）
+          const outputMapping = definition.internalCircuit.outputMappings[0];
+          if (outputMapping) {
+            const outputGate = evaluatedGates.find(g => g.id === outputMapping.gateId);
+            if (outputGate) {
+              // 出力ピンの場合は出力を、通常ピンの場合は対応する値を返す
+              if (outputMapping.pinIndex === -1) {
+                return outputGate.output;
+              }
+              return false;
+            }
+          }
+        }
+        // 真理値表がある場合はフォールバック
+        else if (definition.truthTable) {
+          const inputPattern = inputs.map(input => input ? '1' : '0').join('');
+          const outputPattern = definition.truthTable[inputPattern];
+          
+          if (outputPattern && outputPattern.length > 0) {
+            return outputPattern[0] === '1';
+          }
         }
       }
       return false;

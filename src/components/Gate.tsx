@@ -10,7 +10,7 @@ interface GateComponentProps {
 }
 
 export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
-  const { moveGate, selectGate, selectedGateId, startWireDrawing, endWireDrawing, updateGateOutput, updateClockFrequency } = useCircuitStore();
+  const { moveGate, selectGate, selectedGateId, selectedGateIds, toggleGateSelection, startWireDrawing, endWireDrawing, updateGateOutput, updateClockFrequency } = useCircuitStore();
   const [isDragging, setIsDragging] = React.useState(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const hasDragged = useRef(false);
@@ -125,7 +125,15 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
     };
     
     setIsDragging(true);
-    selectGate(gate.id);
+    
+    // Shiftキーを押している場合は複数選択モード
+    if (event.shiftKey) {
+      toggleGateSelection(gate.id);
+    } else {
+      selectGate(gate.id);
+      // 単一選択の場合は他の選択をクリア
+      useCircuitStore.setState({ selectedGateIds: new Set([gate.id]) });
+    }
   };
 
   const handleTouchStart = (event: React.TouchEvent) => {
@@ -225,7 +233,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
   };
 
   const renderGate = () => {
-    const isSelected = selectedGateId === gate.id;
+    const isSelected = selectedGateId === gate.id || selectedGateIds.has(gate.id);
 
     switch (gate.type) {
       case 'INPUT':
@@ -720,12 +728,28 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
     }
   };
 
+  const isSelected = selectedGateId === gate.id || selectedGateIds.has(gate.id);
+  
   return (
     <g
       className="gate-container"
       data-gate-id={gate.id}
       transform={`translate(${gate.position.x}, ${gate.position.y}) scale(${scaleFactor})`}
     >
+      {/* 選択枠 */}
+      {isSelected && (
+        <rect
+          x={gate.type === 'CUSTOM' && gate.customGateDefinition ? -gate.customGateDefinition.width/2 - 10 : -55}
+          y={gate.type === 'CUSTOM' && gate.customGateDefinition ? -gate.customGateDefinition.height/2 - 10 : -35}
+          width={gate.type === 'CUSTOM' && gate.customGateDefinition ? gate.customGateDefinition.width + 20 : 110}
+          height={gate.type === 'CUSTOM' && gate.customGateDefinition ? gate.customGateDefinition.height + 20 : 70}
+          fill="none"
+          stroke="#00aaff"
+          strokeWidth="2"
+          strokeDasharray="5,5"
+          pointerEvents="none"
+        />
+      )}
       {renderGate()}
     </g>
   );
