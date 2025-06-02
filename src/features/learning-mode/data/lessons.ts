@@ -343,14 +343,6 @@ export const lessonCategories = {
   },
   combinations: {
     title: '組み合わせ回路',
-    lessons: ['first-circuit', 'half-adder', 'multiplexer']
-  },
-  sequential: {
-    title: '順序回路',
-    lessons: ['intro-clock', 'first-flipflop', 'counter']
-  },
-  projects: {
-    title: 'プロジェクト',
-    lessons: ['traffic-light', 'calculator', 'simple-cpu']
+    lessons: ['first-circuit']
   }
 };

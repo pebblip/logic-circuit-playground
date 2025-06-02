@@ -3,8 +3,12 @@ import { SaveCircuitDialog } from './dialogs/SaveCircuitDialog';
 import { LoadCircuitDialog } from './dialogs/LoadCircuitDialog';
 import { ExportImportDialog } from './dialogs/ExportImportDialog';
 
-export const Header: React.FC = () => {
-  const [activeMode, setActiveMode] = useState('学習モード');
+interface HeaderProps {
+  activeMode: string;
+  onModeChange: (mode: string) => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -33,19 +37,19 @@ export const Header: React.FC = () => {
         <div className="mode-tabs">
           <button 
             className={`mode-tab ${activeMode === '学習モード' ? 'active' : ''}`}
-            onClick={() => setActiveMode('学習モード')}
+            onClick={() => onModeChange('学習モード')}
           >
             学習モード
           </button>
           <button 
             className={`mode-tab ${activeMode === '自由制作' ? 'active' : ''}`}
-            onClick={() => setActiveMode('自由制作')}
+            onClick={() => onModeChange('自由制作')}
           >
             自由制作
           </button>
           <button 
             className={`mode-tab ${activeMode === 'パズル・チャレンジ' ? 'active' : ''}`}
-            onClick={() => setActiveMode('パズル・チャレンジ')}
+            onClick={() => onModeChange('パズル・チャレンジ')}
           >
             パズル・チャレンジ
           </button>

@@ -12,11 +12,20 @@ interface DesktopLayoutProps {
 
 export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   const { gates, wires, undo, redo, clearAll, canUndo, canRedo } = useCircuitStore();
-  const [isLearningPanelOpen, setIsLearningPanelOpen] = useState(false);
+  const [activeMode, setActiveMode] = useState('自由制作');
+  
+  const handleModeChange = (mode: string) => {
+    setActiveMode(mode);
+    // 学習モードの場合はパネルを開く
+    if (mode === '学習モード') {
+      // 学習モードパネルは常に表示
+    }
+  };
+  
   return (
     <div className="app-container">
       {/* ヘッダー（グリッド全幅） */}
-      <Header />
+      <Header activeMode={activeMode} onModeChange={handleModeChange} />
       
       {/* 左サイドバー - ツールパレット */}
       <aside className="sidebar-left">
@@ -57,14 +66,6 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
           >
             🗑️
           </button>
-          <div style={{ width: '1px', height: '24px', background: 'rgba(255, 255, 255, 0.1)', margin: '0 4px' }}></div>
-          <button 
-            className={`tool-button ${isLearningPanelOpen ? 'active' : ''}`}
-            title="学習モード" 
-            onClick={() => setIsLearningPanelOpen(!isLearningPanelOpen)}
-          >
-            🎓
-          </button>
         </div>
         
         {/* キャンバス */}
@@ -97,8 +98,8 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
       
       {/* 学習モードパネル */}
       <LearningPanel 
-        isOpen={isLearningPanelOpen}
-        onClose={() => setIsLearningPanelOpen(false)}
+        isOpen={activeMode === '学習モード'}
+        onClose={() => setActiveMode('自由制作')}
       />
     </div>
   );
