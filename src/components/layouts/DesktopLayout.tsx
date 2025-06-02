@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Header } from '../Header';
 import { ToolPalette } from '../ToolPalette';
 import { Canvas } from '../Canvas';
 import { PropertyPanel } from '../PropertyPanel';
+import { LearningPanel } from '../../features/learning-mode/ui/LearningPanel';
 import { useCircuitStore } from '../../stores/circuitStore';
 
 interface DesktopLayoutProps {
@@ -11,6 +12,7 @@ interface DesktopLayoutProps {
 
 export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   const { gates, wires, undo, redo, clearAll, canUndo, canRedo } = useCircuitStore();
+  const [isLearningPanelOpen, setIsLearningPanelOpen] = useState(false);
   return (
     <div className="app-container">
       {/* ヘッダー（グリッド全幅） */}
@@ -55,6 +57,14 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
           >
             🗑️
           </button>
+          <div style={{ width: '1px', height: '24px', background: 'rgba(255, 255, 255, 0.1)', margin: '0 4px' }}></div>
+          <button 
+            className={`tool-button ${isLearningPanelOpen ? 'active' : ''}`}
+            title="学習モード" 
+            onClick={() => setIsLearningPanelOpen(!isLearningPanelOpen)}
+          >
+            🎓
+          </button>
         </div>
         
         {/* キャンバス */}
@@ -84,6 +94,12 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
       <aside className="sidebar-right">
         <PropertyPanel />
       </aside>
+      
+      {/* 学習モードパネル */}
+      <LearningPanel 
+        isOpen={isLearningPanelOpen}
+        onClose={() => setIsLearningPanelOpen(false)}
+      />
     </div>
   );
 };
