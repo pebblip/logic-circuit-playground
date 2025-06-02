@@ -442,29 +442,6 @@ export const ToolPalette: React.FC = () => {
         <div
           className="tool-card create-custom-gate"
           onClick={createCustomGateFromCurrentCircuit}
-          style={{ gridColumn: 'span 2' }} // 2カラム分の幅
-        >
-          <svg className="tool-preview" viewBox="-60 -30 120 60">
-            <rect 
-              x="-55" y="-25" width="110" height="50" 
-              rx="8" fill="none" stroke="#6633cc" strokeWidth="2" strokeDasharray="5,5"
-            />
-            <text x="0" y="0" style={{ 
-              fontSize: '16px', 
-              textAnchor: 'middle', 
-              dominantBaseline: 'middle',
-              fill: '#6633cc'
-            }}>
-              ➕ 現在の回路から
-            </text>
-          </svg>
-          <div className="tool-label">作成</div>
-        </div>
-        
-        {/* 手動作成ボタン */}
-        <div
-          className="tool-card create-custom-gate"
-          onClick={() => setIsCreateDialogOpen(true)}
         >
           <svg className="tool-preview" viewBox="-30 -30 60 60">
             <rect 
@@ -477,10 +454,10 @@ export const ToolPalette: React.FC = () => {
               dominantBaseline: 'middle',
               fill: '#6633cc'
             }}>
-              ✏️
+              📦
             </text>
           </svg>
-          <div className="tool-label">手動</div>
+          <div className="tool-label">回路→IC</div>
         </div>
       </div>
       
