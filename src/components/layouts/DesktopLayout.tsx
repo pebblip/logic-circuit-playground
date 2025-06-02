@@ -13,7 +13,7 @@ interface DesktopLayoutProps {
 export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   const { gates, wires, undo, redo, clearAll, canUndo, canRedo, appMode, setAppMode } = useCircuitStore();
   
-  const handleModeChange = (mode: '学習モード' | '自由制作' | 'パズル・チャレンジ') => {
+  const handleModeChange = (mode: '学習モード' | '自由制作') => {
     setAppMode(mode);
   };
   
@@ -86,16 +86,19 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
         </div>
       </main>
       
-      {/* 右サイドバー - プロパティパネル */}
-      <aside className="sidebar-right">
-        <PropertyPanel />
-      </aside>
+      {/* 右サイドバー - プロパティパネル（特殊モード時は非表示） */}
+      {appMode === '自由制作' && (
+        <aside className="sidebar-right">
+          <PropertyPanel />
+        </aside>
+      )}
       
       {/* 学習モードパネル */}
       <LearningPanel 
         isOpen={appMode === '学習モード'}
         onClose={() => setAppMode('自由制作')}
       />
+      
     </div>
   );
 };

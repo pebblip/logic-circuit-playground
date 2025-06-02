@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { Gate, Wire, CircuitState, GateType, Position, CustomGateDefinition, CustomGatePin } from '../types/circuit';
 import { evaluateCircuit } from '../utils/simulation';
 import { GateFactory } from '../models/gates/GateFactory';
+import { saveCustomGates, loadCustomGates } from '../utils/customGateStorage';
 
 // 履歴管理用の型
 interface HistoryState {
@@ -19,6 +20,7 @@ interface CircuitStore extends CircuitState {
   setAppMode: (mode: '学習モード' | '自由制作' | 'パズル・チャレンジ') => void;
   allowedGates: GateType[] | null; // null = 全て許可
   setAllowedGates: (gates: GateType[] | null) => void;
+  
   
   // カスタムゲート管理
   addCustomGate: (definition: CustomGateDefinition) => void;
@@ -52,28 +54,42 @@ interface CircuitStore extends CircuitState {
   pushHistory: () => void;
 }
 
+// アプリ起動時にlocalStorageからカスタムゲートを読み込む
+const initialCustomGates = loadCustomGates();
+console.log('✨ カスタムゲートを初期化:', initialCustomGates.length, '個');
+
 export const useCircuitStore = create<CircuitStore>((set, get) => ({
   gates: [],
   wires: [],
   selectedGateId: null,
   isDrawingWire: false,
   wireStart: null,
-  customGates: [],
+  customGates: initialCustomGates, // localStorageから読み込んだ値で初期化
   history: [{ gates: [], wires: [] }], // 初期状態を履歴に追加
   historyIndex: 0,
   appMode: '自由制作',
   allowedGates: null,
 
   addCustomGate: (definition) => {
-    set((state) => ({
-      customGates: [...state.customGates, definition]
-    }));
+    set((state) => {
+      const newCustomGates = [...state.customGates, definition];
+      // LocalStorageに保存
+      saveCustomGates(newCustomGates);
+      return {
+        customGates: newCustomGates
+      };
+    });
   },
 
   removeCustomGate: (id) => {
-    set((state) => ({
-      customGates: state.customGates.filter(gate => gate.id !== id)
-    }));
+    set((state) => {
+      const newCustomGates = state.customGates.filter(gate => gate.id !== id);
+      // LocalStorageに保存
+      saveCustomGates(newCustomGates);
+      return {
+        customGates: newCustomGates
+      };
+    });
   },
 
   addGate: (type, position) => {

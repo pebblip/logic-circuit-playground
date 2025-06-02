@@ -327,52 +327,119 @@
   border-color: rgba(0, 255, 136, 0.5);
 }
 
-/* 成功フィードバック */
-.success-feedback {
+/* 成功インジケーター（控えめ） */
+.success-indicator {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 255, 136, 0.9);
-  border-radius: 16px;
-  padding: 24px 48px;
-  text-align: center;
-  animation: successPulse 1s ease-out;
-  z-index: 100;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 255, 136, 0.15);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  color: #00ff88;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: fadeInOut 0.5s ease-out;
 }
 
-.success-icon {
-  font-size: 48px;
-  margin-bottom: 8px;
-  animation: successBounce 0.6s ease-out;
-}
-
-.success-message {
-  font-size: 20px;
-  font-weight: 600;
-  color: #000;
-}
-
-@keyframes successPulse {
+@keyframes fadeInOut {
   0% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.8);
+    transform: translateY(-10px);
   }
   50% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1.1);
+    transform: translateY(0);
   }
   100% {
-    opacity: 0.9;
-    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@keyframes successBounce {
+/* ステップ進捗表示 */
+.step-progress {
+  margin: 20px 0;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff88, #00cc6a);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.step-indicators {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.step-indicators::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-50%);
+  z-index: 0;
+}
+
+.step-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.step-dot.completed {
+  background: #00ff88;
+  border-color: #00ff88;
+}
+
+.step-dot.current {
+  background: rgba(0, 255, 136, 0.3);
+  border-color: #00ff88;
+  box-shadow: 0 0 0 4px rgba(0, 255, 136, 0.2);
+}
+
+.step-dot.validated {
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.3);
+}
+
+/* お祝いアニメーション */
+@keyframes celebrationPulse {
   0%, 100% {
-    transform: translateY(0);
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
   }
   50% {
-    transform: translateY(-10px);
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.9;
   }
+}
+
+.celebration-text {
+  animation: celebrationPulse 2s ease-in-out infinite;
 }

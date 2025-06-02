@@ -266,6 +266,24 @@ export const Canvas: React.FC = () => {
             patternTransform={`scale(${1})`}>
             <circle cx="10" cy="10" r="0.5" fill="rgba(255, 255, 255, 0.1)"/>
           </pattern>
+          
+          {/* パーティクルのグロー効果 */}
+          <filter id="particleGlow">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          
+          {/* ゲートのグロー効果 */}
+          <filter id="gateGlow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
         <rect 
           id="canvas-background" 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { SaveCircuitDialog } from './dialogs/SaveCircuitDialog';
 import { LoadCircuitDialog } from './dialogs/LoadCircuitDialog';
 import { ExportImportDialog } from './dialogs/ExportImportDialog';
+import { useCircuitStore } from '../stores/circuitStore';
 
 interface HeaderProps {
   activeMode: string;
@@ -12,6 +13,8 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  
+  const { gates } = useCircuitStore();
 
   const handleSaveSuccess = () => {
     console.log('✅ 回路が保存されました');
@@ -27,6 +30,16 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
 
   const handleShare = () => {
     console.log('🔗 回路を共有');
+  };
+
+  const handleFormatCircuit = async () => {
+    if (gates.length === 0) {
+      console.log('⚠️ 整形する回路がありません');
+      return;
+    }
+    
+    // TODO: 回路整形機能は後で実装
+    console.log('✨ 回路整形機能は準備中です');
   };
 
   return (
@@ -47,15 +60,18 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
           >
             自由制作
           </button>
-          <button 
-            className={`mode-tab ${activeMode === 'パズル・チャレンジ' ? 'active' : ''}`}
-            onClick={() => onModeChange('パズル・チャレンジ')}
-          >
-            パズル・チャレンジ
-          </button>
         </div>
         
         <div className="header-actions">
+          <button 
+            className="button"
+            onClick={handleFormatCircuit}
+            disabled={gates.length === 0}
+            title="回路を美しく整形"
+          >
+            <span>✨</span>
+            <span>整形</span>
+          </button>
           <button 
             className="button"
             onClick={() => setLoadDialogOpen(true)}

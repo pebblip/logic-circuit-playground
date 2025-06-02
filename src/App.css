@@ -544,3 +544,15 @@ button.button.primary:hover,
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+/* ギャラリー全画面表示 */
+.sidebar-right.gallery-fullwidth {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 100%;
+  z-index: 100;
+}

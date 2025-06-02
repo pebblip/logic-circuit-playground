@@ -1,0 +1,251 @@
+/* ultrathink SimpleGallery: 驚きと楽しさだけ */
+
+.simple-gallery {
+  width: 100%;
+  height: 100%;
+  background: #0a0e27;
+  overflow-y: auto;
+  padding: 40px 20px;
+}
+
+/* イントロ */
+.gallery-intro {
+  text-align: center;
+  margin-bottom: 60px;
+  color: white;
+}
+
+.gallery-intro h1 {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  background: linear-gradient(135deg, #667eea 0%, #f56565 50%, #48bb78 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 8s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.gallery-intro p {
+  font-size: 20px;
+  opacity: 0.8;
+  font-weight: 300;
+}
+
+/* 回路ショーケース */
+.circuit-showcase {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ショーケースカード */
+.showcase-card {
+  background: linear-gradient(135deg, #1a1f3a 0%, #0f1629 100%);
+  border-radius: 24px;
+  padding: 30px;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.showcase-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, #667eea, #f56565, #48bb78, #667eea);
+  border-radius: 24px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: -1;
+  background-size: 200% 200%;
+  animation: gradient-rotate 4s linear infinite;
+}
+
+@keyframes gradient-rotate {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 200%; }
+}
+
+.showcase-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 24px 48px rgba(102, 126, 234, 0.3);
+}
+
+.showcase-card:hover::before {
+  opacity: 1;
+}
+
+/* プレビューエリア */
+.circuit-preview {
+  height: 160px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  overflow: hidden;
+  position: relative;
+}
+
+.preview-animation {
+  font-size: 36px;
+  letter-spacing: 8px;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    filter: brightness(1);
+    transform: scale(1);
+  }
+  50% { 
+    filter: brightness(1.3) drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+    transform: scale(1.05);
+  }
+}
+
+/* 💃 ダンシングライト専用アニメーション */
+.showcase-card:nth-child(1) .preview-animation {
+  animation: dance 3s ease-in-out infinite;
+}
+
+@keyframes dance {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px) rotate(-5deg); }
+  75% { transform: translateX(10px) rotate(5deg); }
+}
+
+/* 🧠 メモリ専用アニメーション */
+.showcase-card:nth-child(2) .preview-animation {
+  animation: memory-blink 4s ease-in-out infinite;
+}
+
+@keyframes memory-blink {
+  0%, 40%, 100% { opacity: 0.5; }
+  50%, 90% { opacity: 1; }
+}
+
+/* 🚦 信号機専用アニメーション */
+.showcase-card:nth-child(3) .preview-animation {
+  animation: traffic-cycle 6s linear infinite;
+}
+
+@keyframes traffic-cycle {
+  0%, 30% { filter: hue-rotate(0deg); }
+  33%, 63% { filter: hue-rotate(60deg); }
+  66%, 96% { filter: hue-rotate(120deg); }
+}
+
+/* キャプション */
+.circuit-caption {
+  margin-bottom: 20px;
+}
+
+.circuit-caption h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 8px 0;
+}
+
+.circuit-caption p {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.circuit-instruction {
+  margin-top: 12px !important;
+  padding: 8px 12px;
+  background: rgba(0, 255, 136, 0.1);
+  border-radius: 8px;
+  font-size: 14px !important;
+  color: #00ff88 !important;
+  font-weight: 500;
+  border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+/* 試してみるボタン */
+.try-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  opacity: 0.9;
+  transition: all 0.3s ease;
+}
+
+.showcase-card:hover .try-button {
+  opacity: 1;
+  background: linear-gradient(135deg, #764ba2 0%, #f093fb 100%);
+  transform: translateX(4px);
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .simple-gallery {
+    padding: 20px 16px;
+  }
+  
+  .gallery-intro h1 {
+    font-size: 32px;
+  }
+  
+  .circuit-showcase {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .showcase-card {
+    padding: 20px;
+  }
+  
+  .circuit-preview {
+    height: 120px;
+  }
+  
+  .preview-animation {
+    font-size: 24px;
+  }
+}
+
+/* ダークモード最適化 */
+@media (prefers-color-scheme: light) {
+  .simple-gallery {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  }
+  
+  .showcase-card {
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .circuit-preview {
+    background: #f7fafc;
+  }
+  
+  .circuit-caption h3 {
+    color: #1a202c;
+  }
+  
+  .circuit-caption p {
+    color: #4a5568;
+  }
+}

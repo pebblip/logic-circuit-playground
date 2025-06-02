@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCircuitStore } from '../../../stores/circuitStore';
 import { lessons, lessonCategories, Lesson, LessonStep } from '../data/lessons';
 import { GateType } from '../../../types/circuit';
+import { CelebrationEffect } from '../../../components/CelebrationEffect';
 import './LearningPanel.css';
 
 interface LearningPanelProps {
@@ -16,7 +17,10 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ isOpen, onClose })
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(
     new Set(JSON.parse(localStorage.getItem('completedLessons') || '[]'))
   );
-  const [showSuccess, setShowSuccess] = useState(false);
+  // ステップごとの検証状態
+  const [stepValidation, setStepValidation] = useState<{ [stepId: string]: boolean }>({});
+  // お祝いエフェクト
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const { gates, wires, selectedGateId, clearAll, setAllowedGates } = useCircuitStore();
 
@@ -53,61 +57,35 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ isOpen, onClose })
     setAllowedGates(requiredGates.size > 0 ? Array.from(requiredGates) : null);
   }, [selectedLesson, currentStepIndex, setAllowedGates]);
 
-  // 自動進行システム - ステップの検証
+  // 現在のステップの検証（手動進行のヒントとして）
   useEffect(() => {
-    if (!currentStep || !currentStep.validation) return;
+    if (!currentStep || !currentStep.validation || !selectedLesson) return;
     
     const validation = currentStep.validation;
+    let isValid = false;
     
     switch (validation.type) {
       case 'gate-placed':
-        // 特定のゲートタイプが配置されたかチェック
         if (currentStep.action.type === 'place-gate') {
           const requiredGateType = currentStep.action.gateType;
-          const hasGate = gates.some(g => g.type === requiredGateType);
-          
-          if (hasGate && !completedSteps.has(currentStep.id)) {
-            // 成功！次のステップへ
-            console.log(`✅ ${requiredGateType}ゲートが配置されました！`);
-            setShowSuccess(true);
-            setTimeout(() => {
-              handleNextStep();
-              setShowSuccess(false);
-            }, 1000); // フィードバックを見せる
-          }
+          isValid = gates.some(g => g.type === requiredGateType);
         }
         break;
         
       case 'wire-connected':
-        // ワイヤー接続の検証（簡易版）
-        if (wires.length > 0 && !completedSteps.has(currentStep.id)) {
-          console.log('✅ ワイヤーが接続されました！');
-          setShowSuccess(true);
-          setTimeout(() => {
-            handleNextStep();
-            setShowSuccess(false);
-          }, 1000);
-        }
+        isValid = wires.length > 0;
         break;
         
       case 'output-matches':
-        // 出力値の検証
         if (validation.expected) {
           const outputGate = gates.find(g => g.type === 'OUTPUT');
-          if (outputGate && outputGate.output === validation.expected.OUTPUT) {
-            if (!completedSteps.has(currentStep.id)) {
-              console.log('✅ 正しい出力が得られました！');
-              setShowSuccess(true);
-              setTimeout(() => {
-                handleNextStep();
-                setShowSuccess(false);
-              }, 1000);
-            }
-          }
+          isValid = outputGate ? outputGate.output === validation.expected.OUTPUT : false;
         }
         break;
     }
-  }, [gates, wires, currentStep, completedSteps]);
+    
+    setStepValidation(prev => ({ ...prev, [currentStep.id]: isValid }));
+  }, [gates, wires, currentStep, selectedLesson]);
 
   // レッスン完了時の処理
   useEffect(() => {
@@ -117,11 +95,15 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ isOpen, onClose })
       setCompletedLessons(newCompleted);
       localStorage.setItem('completedLessons', JSON.stringify([...newCompleted]));
       
+      // お祝いエフェクトを表示
+      setShowCelebration(true);
+      
       // 完了画面を表示
       setTimeout(() => {
         setSelectedLesson(null);
         setCurrentStepIndex(0);
         setCompletedSteps(new Set());
+        setShowCelebration(false);
       }, 3000);
     }
   }, [currentStepIndex, selectedLesson, completedLessons]);
@@ -155,6 +137,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ isOpen, onClose })
       setSelectedLesson(lesson);
       setCurrentStepIndex(0);
       setCompletedSteps(new Set());
+      setStepValidation({});
     }
   };
 
@@ -239,13 +222,27 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ isOpen, onClose })
                   )}
                 </div>
 
-                {/* 成功フィードバック */}
-                {showSuccess && (
-                  <div className="success-feedback">
-                    <div className="success-icon">✨</div>
-                    <div className="success-message">素晴らしい！</div>
+                {/* ステップの進捗表示 */}
+                <div className="step-progress">
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill" 
+                      style={{ width: `${(currentStepIndex / selectedLesson.steps.length) * 100}%` }}
+                    />
                   </div>
-                )}
+                  <div className="step-indicators">
+                    {selectedLesson.steps.map((step, index) => (
+                      <div 
+                        key={step.id} 
+                        className={`step-dot ${
+                          index < currentStepIndex ? 'completed' : 
+                          index === currentStepIndex ? 'current' : ''
+                        } ${stepValidation[step.id] ? 'validated' : ''}`}
+                        title={`ステップ ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
 
                 {currentStep?.action.type === 'quiz' && (
                   <div className="quiz">
@@ -283,7 +280,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ isOpen, onClose })
                     className="next-button"
                   >
                     {currentStep?.action.type === 'observe' ? '次へ' : 
-                     currentStep?.action.type === 'quiz' ? 'わからない' : '手動で進む'}
+                     currentStep?.action.type === 'quiz' ? 'わからない' : '進む'}
                   </button>
                 </div>
               </>
@@ -302,6 +299,12 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ isOpen, onClose })
           </div>
         </div>
       )}
+      
+      {/* お祝いエフェクト */}
+      <CelebrationEffect 
+        isActive={showCelebration}
+        onComplete={() => setShowCelebration(false)}
+      />
     </div>
   );
 };
