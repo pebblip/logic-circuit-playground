@@ -1,9 +1,17 @@
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { WireComponent } from './Wire';
 import { useCircuitStore } from '../stores/circuitStore';
 import { Gate, Wire } from '../types/circuit';
-import * as pinCalc from '../domain/analysis/pinPositionCalculator';
+import { getInputPinPosition, getOutputPinPosition } from '@domain/analysis/pinPositionCalculator';
+
+// モックを定義
+vi.mock('../stores/circuitStore');
+vi.mock('@domain/analysis/pinPositionCalculator', () => ({
+  getInputPinPosition: vi.fn(),
+  getOutputPinPosition: vi.fn()
+}));
 
 // モックストア
 const mockGates: Gate[] = [
@@ -70,31 +78,6 @@ const mockWires: Wire[] = [
 
 const mockDeleteWire = vi.fn();
 
-// Zustandストアのモック
-vi.mock('../stores/circuitStore', () => ({
-  useCircuitStore: vi.fn()
-}));
-
-// pinPositionCalculatorのモック
-vi.mock('../utils/pinPositionCalculator', () => ({
-  getInputPinPosition: vi.fn((gate, pinIndex) => {
-    // 簡略化されたピン位置計算
-    if (gate.type === 'CUSTOM') {
-      return { x: gate.position.x - 60, y: gate.position.y + (pinIndex * 20) };
-    }
-    return { x: gate.position.x - 45, y: gate.position.y + (pinIndex === 0 ? -10 : 10) };
-  }),
-  getOutputPinPosition: vi.fn((gate, pinIndex = 0) => {
-    if (gate.type === 'INPUT') {
-      return { x: gate.position.x + 35, y: gate.position.y };
-    }
-    if (gate.type === 'CUSTOM') {
-      return { x: gate.position.x + 60, y: gate.position.y + (pinIndex * 20) };
-    }
-    return { x: gate.position.x + 45, y: gate.position.y };
-  })
-}));
-
 describe('WireComponent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -106,6 +89,25 @@ describe('WireComponent', () => {
         deleteWire: mockDeleteWire
       };
       return selector(state);
+    });
+    
+    // pinPositionCalculatorモック実装
+    vi.mocked(getInputPinPosition).mockImplementation((gate, pinIndex) => {
+      // 簡略化されたピン位置計算
+      if (gate.type === 'CUSTOM') {
+        return { x: gate.position.x - 60, y: gate.position.y + (pinIndex * 20) };
+      }
+      return { x: gate.position.x - 45, y: gate.position.y + (pinIndex === 0 ? -10 : 10) };
+    });
+    
+    vi.mocked(getOutputPinPosition).mockImplementation((gate, pinIndex = 0) => {
+      if (gate.type === 'INPUT') {
+        return { x: gate.position.x + 35, y: gate.position.y };
+      }
+      if (gate.type === 'CUSTOM') {
+        return { x: gate.position.x + 60, y: gate.position.y + (pinIndex * 20) };
+      }
+      return { x: gate.position.x + 45, y: gate.position.y };
     });
   });
 
@@ -178,11 +180,11 @@ describe('WireComponent', () => {
       );
 
       // pinPositionCalculatorが正しく呼ばれることを確認
-      expect(pinCalc.getOutputPinPosition).toHaveBeenCalledWith(
+      expect(getOutputPinPosition).toHaveBeenCalledWith(
         expect.objectContaining({ id: 'gate1', type: 'AND' }),
         0
       );
-      expect(pinCalc.getInputPinPosition).toHaveBeenCalledWith(
+      expect(getInputPinPosition).toHaveBeenCalledWith(
         expect.objectContaining({ id: 'gate2', type: 'OR' }),
         0
       );
@@ -202,7 +204,7 @@ describe('WireComponent', () => {
         </svg>
       );
 
-      expect(pinCalc.getOutputPinPosition).toHaveBeenCalledWith(
+      expect(getOutputPinPosition).toHaveBeenCalledWith(
         expect.objectContaining({ 
           id: 'custom1', 
           type: 'CUSTOM',
