@@ -2,9 +2,9 @@
 // データ永続化機能の確実な品質保証
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CircuitStorageService } from './CircuitStorageService';
-import { Gate, Wire } from '../types/circuit';
-import { SavedCircuit, CIRCUIT_STORAGE_VERSION } from '../types/circuit-storage';
+import { CircuitStorageService } from '@/services/CircuitStorageService';
+import { Gate, Wire } from '@/types/circuit';
+import { SavedCircuit, CIRCUIT_STORAGE_VERSION } from '@/types/circuit-storage';
 
 // LocalStorageのモック
 const localStorageMock = {

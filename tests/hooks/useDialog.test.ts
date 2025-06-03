@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useDialog, useMultipleDialogs, useModalDialog, useDataDialog } from './useDialog';
+import { useDialog, useMultipleDialogs, useModalDialog, useDataDialog } from '@/hooks/useDialog';
 
 // タイマーのモック
 vi.useFakeTimers();

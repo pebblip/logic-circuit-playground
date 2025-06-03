@@ -2,9 +2,9 @@
 // エッジケースと統合動作の完全保証
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useCircuitStore } from '../stores/circuitStore';
-import { Gate, Wire } from '../types/circuit';
-import { getInputPinPosition, getOutputPinPosition } from './pinPositionCalculator';
+import { useCircuitStore } from '@/stores/circuitStore';
+import { Gate, Wire } from '@/types/circuit';
+import { getInputPinPosition, getOutputPinPosition } from '@domain/analysis/pinPositionCalculator';
 
 describe('Wire Connection Integration Tests', () => {
   beforeEach(() => {

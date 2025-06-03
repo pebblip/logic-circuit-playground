@@ -2,17 +2,17 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Canvas } from './Canvas';
-import { useCircuitStore } from '../stores/circuitStore';
-import type { Gate, Wire, Position, GateType } from '../types/circuit';
+import { Canvas } from '@components/Canvas';
+import { useCircuitStore } from '@/stores/circuitStore';
+import type { Gate, Wire, Position, GateType } from '@/types/circuit';
 
 // Mock the utils
-vi.mock('../utils/simulation', () => ({
+vi.mock('@domain/simulation', () => ({
   evaluateCircuit: vi.fn((gates, wires) => ({ gates, wires })),
 }));
 
 // Mock the components
-vi.mock('./Gate', () => ({
+vi.mock('@components/Gate', () => ({
   GateComponent: ({ gate, isHighlighted }: any) => (
     <g className="gate-container" data-gate-id={gate.id} data-testid={`gate-${gate.id}`}>
       <rect x={gate.position.x - 25} y={gate.position.y - 25} width="50" height="50" />
@@ -20,7 +20,7 @@ vi.mock('./Gate', () => ({
   ),
 }));
 
-vi.mock('./Wire', () => ({
+vi.mock('@components/Wire', () => ({
   WireComponent: ({ wire }: any) => (
     <line 
       data-testid={`wire-${wire.id}`}
@@ -31,17 +31,17 @@ vi.mock('./Wire', () => ({
 }));
 
 // Import the hooks for mocking
-import { useCanvasSelection } from '../hooks/useCanvasSelection';
-import { useCanvasPan } from '../hooks/useCanvasPan';
-import { useCanvasZoom } from '../hooks/useCanvasZoom';
-import { useIsMobile } from '../hooks/useResponsive';
+import { useCanvasSelection } from '@/hooks/useCanvasSelection';
+import { useCanvasPan } from '@/hooks/useCanvasPan';
+import { useCanvasZoom } from '@/hooks/useCanvasZoom';
+import { useIsMobile } from '@/hooks/useResponsive';
 
 // Mock the hooks
-vi.mock('../hooks/useResponsive', () => ({
+vi.mock('@/hooks/useResponsive', () => ({
   useIsMobile: vi.fn(() => false),
 }));
 
-vi.mock('../hooks/useCanvasPan', () => ({
+vi.mock('@/hooks/useCanvasPan', () => ({
   useCanvasPan: vi.fn(() => ({
     isPanning: false,
     handlePanStart: vi.fn(),
@@ -50,7 +50,7 @@ vi.mock('../hooks/useCanvasPan', () => ({
   })),
 }));
 
-vi.mock('../hooks/useCanvasSelection', () => ({
+vi.mock('@/hooks/useCanvasSelection', () => ({
   useCanvasSelection: vi.fn(() => ({
     isSelecting: false,
     selectionRect: null,
@@ -62,7 +62,7 @@ vi.mock('../hooks/useCanvasSelection', () => ({
   })),
 }));
 
-vi.mock('../hooks/useCanvasZoom', () => ({
+vi.mock('@/hooks/useCanvasZoom', () => ({
   useCanvasZoom: vi.fn(() => ({
     scale: 1,
     handleZoom: vi.fn(),
@@ -117,7 +117,7 @@ const mockSVGElement = {
 };
 
 // Override useCircuitStore to return our mock
-vi.mock('../stores/circuitStore', () => ({
+vi.mock('@/stores/circuitStore', () => ({
   useCircuitStore: vi.fn(),
 }));
 
@@ -153,7 +153,7 @@ describe('Canvas Component - Drag and Drop Tests', () => {
     vi.clearAllMocks();
     
     // Setup useCircuitStore mock
-    (useCircuitStore as any).mockImplementation((selector: any) => {
+    vi.mocked(useCircuitStore).mockImplementation((selector: any) => {
       if (typeof selector === 'function') {
         return selector(mockStore);
       }

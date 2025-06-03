@@ -2,16 +2,16 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { GateComponent } from './Gate';
-import { useCircuitStore } from '../stores/circuitStore';
-import { GateFactory } from '../models/gates/GateFactory';
-import type { Gate, GateType, Position, CustomGateDefinition } from '../types/circuit';
+import { GateComponent } from '@components/Gate';
+import { useCircuitStore } from '@/stores/circuitStore';
+import { GateFactory } from '@/models/gates/GateFactory';
+import type { Gate, GateType, Position, CustomGateDefinition } from '@/types/circuit';
 
 // Mock the store
-vi.mock('../stores/circuitStore');
+vi.mock('@/stores/circuitStore');
 
 // Mock the responsive hook
-vi.mock('../hooks/useResponsive', () => ({
+vi.mock('@/hooks/useResponsive', () => ({
   useIsMobile: vi.fn(() => false),
 }));
 
@@ -662,7 +662,7 @@ describe('GateComponent', () => {
   describe('Mobile responsiveness', () => {
     it('should scale 2x on mobile', async () => {
       // Import fresh module with mobile mock
-      const { useIsMobile } = await import('../hooks/useResponsive');
+      const { useIsMobile } = await import('@hooks/useResponsive');
       (useIsMobile as any).mockReturnValue(true);
       
       const gate = createTestGate('AND');

@@ -1,15 +1,15 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
-import { ToolPalette } from './ToolPalette';
-import { useCircuitStore } from '../stores/circuitStore';
-import { GateType, CustomGateDefinition } from '../types/circuit';
+import { ToolPalette } from '@components/ToolPalette';
+import { useCircuitStore } from '@/stores/circuitStore';
+import { GateType, CustomGateDefinition } from '@/types/circuit';
 
 // CircuitStoreのモック
-vi.mock('../stores/circuitStore');
+vi.mock('@/stores/circuitStore');
 
 // TruthTableDisplayのモック
-vi.mock('./TruthTableDisplay', () => ({
+vi.mock('@components/TruthTableDisplay', () => ({
   TruthTableDisplay: ({ onClose, gateName }: any) => (
     <div data-testid="truth-table-display">
       Truth Table for {gateName}
@@ -19,7 +19,7 @@ vi.mock('./TruthTableDisplay', () => ({
 }));
 
 // CreateCustomGateDialogのモック
-vi.mock('./dialogs/CreateCustomGateDialog', () => ({
+vi.mock('@components/dialogs/CreateCustomGateDialog', () => ({
   CreateCustomGateDialog: ({ isOpen, onClose, onSave }: any) => 
     isOpen ? (
       <div data-testid="create-custom-gate-dialog">

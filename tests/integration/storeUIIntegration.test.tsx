@@ -2,19 +2,19 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { App } from '../App';
-import { Canvas } from '../components/Canvas';
-import { Gate } from '../components/Gate';
-import { Wire } from '../components/Wire';
-import { useCircuitStore } from '../stores/circuitStore';
-import { GateType, Position } from '../types/circuit';
-import { ResponsiveLayout } from '../components/layouts/ResponsiveLayout';
-import { ToolPalette } from '../components/ToolPalette';
-import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import { App } from '@/App';
+import { Canvas } from '@components/Canvas';
+import { Gate } from '@components/Gate';
+import { Wire } from '@components/Wire';
+import { useCircuitStore } from '@/stores/circuitStore';
+import { GateType, Position } from '@/types/circuit';
+import { ResponsiveLayout } from '@components/layouts/ResponsiveLayout';
+import { ToolPalette } from '@components/ToolPalette';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 // モックの設定
-vi.mock('../hooks/useResponsive', async () => {
-  const actual = await vi.importActual<typeof import('../hooks/useResponsive')>('../hooks/useResponsive');
+vi.mock('@/hooks/useResponsive', async () => {
+  const actual = await vi.importActual<typeof import('@/hooks/useResponsive')>('@/hooks/useResponsive');
   return {
     ...actual,
     useIsMobile: () => false,

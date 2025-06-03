@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CircuitPatternRecognizer, CircuitPattern, CounterPattern } from './CircuitPatternRecognizer';
-import { Gate, Wire, GateType, Position } from '../types/circuit';
+import { CircuitPatternRecognizer, CircuitPattern, CounterPattern } from '@/services/CircuitPatternRecognizer';
+import { Gate, Wire, GateType, Position } from '@/types/circuit';
 
 // Helper functions to create test data
 const createGate = (

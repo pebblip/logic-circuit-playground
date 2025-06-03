@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { evaluateGate, evaluateCircuit } from './simulation';
-import { Gate, Wire, GateType } from '../types/circuit';
+import { evaluateGate, evaluateCircuit } from '@domain/simulation/circuitSimulation';
+import { Gate, Wire, GateType } from '@/types/circuit';
 
 describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
   beforeEach(() => {

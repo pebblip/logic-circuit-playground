@@ -2,8 +2,8 @@
 // アプリケーションの中核となる状態管理の完全品質保証
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useCircuitStore } from './circuitStore';
-import { GateType } from '../types/circuit';
+import { useCircuitStore } from '@/stores/circuitStore';
+import { GateType } from '@/types/circuit';
 
 // LocalStorageのモック
 const mockLocalStorage = {

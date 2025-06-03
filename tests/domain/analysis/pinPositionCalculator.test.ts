@@ -7,8 +7,8 @@ import {
   getOutputPinPosition, 
   getPinPosition,
   getAllPinPositions
-} from './pinPositionCalculator';
-import { Gate } from '../types/circuit';
+} from '@domain/analysis/pinPositionCalculator';
+import { Gate } from '@/types/circuit';
 
 describe('Pin Position Calculator - Critical Bug Fix', () => {
   // 標準的なANDゲートのサンプル

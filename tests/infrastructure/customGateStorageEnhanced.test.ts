@@ -8,7 +8,7 @@ import {
   importCustomGates,
   migrateOldFormat,
 } from '@infrastructure/storage/customGateStorageEnhanced';
-import { CustomGateDefinition } from '../types/circuit';
+import { CustomGateDefinition } from '@/types/circuit';
 
 // localStorage のモック
 const localStorageMock = (() => {

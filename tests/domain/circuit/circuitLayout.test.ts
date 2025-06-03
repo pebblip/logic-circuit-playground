@@ -4,8 +4,8 @@ import {
   formatCircuitWithAnimation,
   type LayoutPosition,
   type CircuitLayout 
-} from '../../../src/domain/circuit/layout';
-import type { Gate, Wire, GateType } from '../../../src/types/circuit';
+} from '@domain/circuit/layout';
+import type { Gate, Wire, GateType } from '@/types/circuit';
 
 // モックのrequestAnimationFrame
 let rafCallbacks: FrameRequestCallback[] = [];

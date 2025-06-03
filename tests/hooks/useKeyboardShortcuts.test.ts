@@ -19,11 +19,11 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useKeyboardShortcuts } from './useKeyboardShortcuts';
-import { useCircuitStore } from '../stores/circuitStore';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useCircuitStore } from '@/stores/circuitStore';
 
 // Mock the circuit store
-vi.mock('../stores/circuitStore');
+vi.mock('@/stores/circuitStore');
 
 describe('useKeyboardShortcuts', () => {
   let mockStore: any;

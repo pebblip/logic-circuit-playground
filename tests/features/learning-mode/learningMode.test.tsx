@@ -13,7 +13,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { lessons, lessonCategories } from './data/lessons';
+import { lessons, lessonCategories } from '@features/learning-mode/data/lessons';
 
 describe('Learning Mode Core Data Tests', () => {
   beforeEach(() => {

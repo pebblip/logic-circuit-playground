@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Header } from './Header';
-import { useCircuitStore } from '../stores/circuitStore';
-import { AppMode } from '../types/AppMode';
+import { Header } from '@components/Header';
+import { useCircuitStore } from '@/stores/circuitStore';
+import { AppMode } from '@/types/AppMode';
 
 // モック
-vi.mock('../stores/circuitStore');
-vi.mock('./dialogs/SaveCircuitDialog', () => ({
+vi.mock('@/stores/circuitStore');
+vi.mock('@components/dialogs/SaveCircuitDialog', () => ({
   SaveCircuitDialog: ({ isOpen, onClose, onSuccess }: any) => 
     isOpen ? (
       <div data-testid="save-dialog">
@@ -17,7 +17,7 @@ vi.mock('./dialogs/SaveCircuitDialog', () => ({
     ) : null
 }));
 
-vi.mock('./dialogs/LoadCircuitDialog', () => ({
+vi.mock('@components/dialogs/LoadCircuitDialog', () => ({
   LoadCircuitDialog: ({ isOpen, onClose, onLoad }: any) => 
     isOpen ? (
       <div data-testid="load-dialog">
@@ -27,7 +27,7 @@ vi.mock('./dialogs/LoadCircuitDialog', () => ({
     ) : null
 }));
 
-vi.mock('./dialogs/ExportImportDialog', () => ({
+vi.mock('@components/dialogs/ExportImportDialog', () => ({
   ExportImportDialog: ({ isOpen, onClose, onSuccess }: any) => 
     isOpen ? (
       <div data-testid="export-dialog">
@@ -37,7 +37,7 @@ vi.mock('./dialogs/ExportImportDialog', () => ({
     ) : null
 }));
 
-vi.mock('./HelpPanel', () => ({
+vi.mock('@components/HelpPanel', () => ({
   HelpPanel: ({ isOpen, onClose }: any) => 
     isOpen ? (
       <div data-testid="help-panel">

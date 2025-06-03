@@ -1,13 +1,13 @@
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import { WireComponent } from './Wire';
-import { useCircuitStore } from '../stores/circuitStore';
-import { Gate, Wire } from '../types/circuit';
+import { WireComponent } from '@components/Wire';
+import { useCircuitStore } from '@/stores/circuitStore';
+import { Gate, Wire } from '@/types/circuit';
 import { getInputPinPosition, getOutputPinPosition } from '@domain/analysis/pinPositionCalculator';
 
 // モックを定義
-vi.mock('../stores/circuitStore');
+vi.mock('@/stores/circuitStore');
 vi.mock('@domain/analysis/pinPositionCalculator', () => ({
   getInputPinPosition: vi.fn(),
   getOutputPinPosition: vi.fn()

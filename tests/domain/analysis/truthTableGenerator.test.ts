@@ -7,8 +7,8 @@ import {
   exportTruthTableAsCSV, 
   calculateTruthTableStats,
   TruthTableResult 
-} from './truthTableGenerator';
-import { Gate, Wire } from '../types/circuit';
+} from '@domain/analysis/truthTableGenerator';
+import { Gate, Wire } from '@/types/circuit';
 
 describe('Truth Table Generation', () => {
   describe('Basic Logic Circuits', () => {
