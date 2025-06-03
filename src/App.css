@@ -617,3 +617,15 @@ button.button.primary:hover,
   max-width: 100%;
   z-index: 100;
 }
+
+/* ヘルプボタン専用スタイル */
+.help-button {
+  background: rgba(0, 123, 255, 0.1) !important;
+  border-color: rgba(0, 123, 255, 0.3) !important;
+}
+
+.help-button:hover {
+  background: rgba(0, 123, 255, 0.2) !important;
+  border-color: rgba(0, 123, 255, 0.5) !important;
+  color: #4da6ff !important;
+}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { SaveCircuitDialog } from './dialogs/SaveCircuitDialog';
 import { LoadCircuitDialog } from './dialogs/LoadCircuitDialog';
 import { ExportImportDialog } from './dialogs/ExportImportDialog';
+import { HelpPanel } from './HelpPanel';
 import { useCircuitStore } from '../stores/circuitStore';
 
 interface HeaderProps {
@@ -13,6 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [helpPanelOpen, setHelpPanelOpen] = useState(false);
   
   const { gates } = useCircuitStore();
 
@@ -65,15 +67,6 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
         <div className="header-actions">
           <button 
             className="button"
-            onClick={handleFormatCircuit}
-            disabled={gates.length === 0}
-            title="回路を美しく整形"
-          >
-            <span>✨</span>
-            <span>整形</span>
-          </button>
-          <button 
-            className="button"
             onClick={() => setLoadDialogOpen(true)}
             title="回路を読み込み"
           >
@@ -89,12 +82,12 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
             <span>保存</span>
           </button>
           <button 
-            className="button"
-            onClick={handleShare}
-            title="回路を共有"
+            className="button help-button"
+            onClick={() => setHelpPanelOpen(true)}
+            title="ヘルプ"
           >
-            <span>📤</span>
-            <span>共有</span>
+            <span>❓</span>
+            <span>ヘルプ</span>
           </button>
         </div>
       </header>
@@ -117,6 +110,11 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
         onClose={() => setExportDialogOpen(false)}
         mode="export"
         onSuccess={handleExportSuccess}
+      />
+      
+      <HelpPanel
+        isOpen={helpPanelOpen}
+        onClose={() => setHelpPanelOpen(false)}
       />
     </>
   );
