@@ -359,6 +359,25 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
+/* フルスクリーンモード対応 */
+.fullscreen .led-counter-visualizer {
+  transform: scale(1.2);
+  transform-origin: center top;
+}
+
+.fullscreen .led-row {
+  gap: 24px;
+}
+
+.fullscreen .led {
+  width: 48px;
+  height: 48px;
+}
+
+.fullscreen .decimal-number {
+  font-size: 96px;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
   .led-counter-visualizer {
@@ -380,5 +399,9 @@
   
   .calculation-steps {
     font-size: 12px;
+  }
+  
+  .fullscreen .led-counter-visualizer {
+    transform: scale(1);
   }
 }

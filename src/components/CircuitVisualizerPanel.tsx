@@ -20,16 +20,18 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
   const { gates, wires } = useCircuitStore();
   const [recognizedPattern, setRecognizedPattern] = useState<CircuitPattern | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // 回路パターン認識
+  // 回路パターン認識（依存配列を最適化）
   const currentPattern = useMemo(() => {
     if (gates.length === 0) return null;
     
-    setIsAnalyzing(true);
-    setTimeout(() => setIsAnalyzing(false), 300); // UI feedback
-
+    // ゲートとワイヤーの実質的な変更のみを検出
+    const gateSignature = gates.map(g => `${g.id}-${g.type}-${g.output}`).join('|');
+    const wireSignature = wires.map(w => `${w.from.gateId}-${w.to.gateId}`).join('|');
+    
     return circuitPatternRecognizer.recognizePattern(gates, wires);
-  }, [gates, wires]);
+  }, [gates.length, gates.map(g => g.output).join(','), wires.length]);
 
   useEffect(() => {
     if (currentPattern && currentPattern.confidence > 70) {
@@ -82,17 +84,11 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
   if (!isVisible) return null;
 
   return (
-    <div className="circuit-visualizer-panel">
+    <div className={`circuit-visualizer-panel ${isFullscreen ? 'fullscreen' : ''}`}>
       <div className="panel-header">
         <div className="panel-title">
           <span className="title-icon">🎯</span>
           <h2>回路ビジュアライザー</h2>
-          {isAnalyzing && (
-            <div className="analyzing-indicator">
-              <div className="spinner" />
-              <span>解析中...</span>
-            </div>
-          )}
         </div>
         
         <div className="panel-controls">
@@ -106,6 +102,14 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
               </div>
             </div>
           )}
+          
+          <button 
+            className="fullscreen-button"
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            title={isFullscreen ? "通常表示" : "全画面表示"}
+          >
+            {isFullscreen ? '◱' : '◰'}
+          </button>
           
           <button 
             className="close-button"
