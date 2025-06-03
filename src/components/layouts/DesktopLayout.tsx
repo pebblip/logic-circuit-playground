@@ -4,6 +4,7 @@ import { ToolPalette } from '../ToolPalette';
 import { Canvas } from '../Canvas';
 import { PropertyPanel } from '../PropertyPanel';
 import { LearningPanel } from '../../features/learning-mode/ui/LearningPanel';
+import { CircuitVisualizerPanel } from '../CircuitVisualizerPanel';
 import { useCircuitStore } from '../../stores/circuitStore';
 
 interface DesktopLayoutProps {
@@ -12,10 +13,32 @@ interface DesktopLayoutProps {
 
 export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   const { gates, wires, undo, redo, clearAll, canUndo, canRedo, appMode, setAppMode } = useCircuitStore();
+  const [isVisualizerOpen, setIsVisualizerOpen] = useState(false);
+  const [highlightedGateId, setHighlightedGateId] = useState<string | null>(null);
   
   const handleModeChange = (mode: '学習モード' | '自由制作') => {
     setAppMode(mode);
   };
+  
+  const handleGateHighlight = (gateId: string) => {
+    setHighlightedGateId(gateId);
+  };
+  
+  const handleGateUnhighlight = () => {
+    setHighlightedGateId(null);
+  };
+  
+  // 回路がある時に自動でビジュアライザーを表示
+  React.useEffect(() => {
+    if (gates.length >= 3 && !isVisualizerOpen) {
+      // 基本的な回路がある時に自動表示
+      const hasClockAndOutputs = gates.some(g => g.type === 'CLOCK') && 
+                                gates.filter(g => g.type === 'OUTPUT').length >= 2;
+      if (hasClockAndOutputs) {
+        setIsVisualizerOpen(true);
+      }
+    }
+  }, [gates, isVisualizerOpen]);
   
   return (
     <div className="app-container">
@@ -61,11 +84,19 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
           >
             🗑️
           </button>
+          <div style={{ width: '1px', height: '24px', background: 'rgba(255, 255, 255, 0.1)', margin: '0 4px' }}></div>
+          <button 
+            className={`tool-button ${isVisualizerOpen ? 'active' : ''}`}
+            title="ビジュアライザーを開く" 
+            onClick={() => setIsVisualizerOpen(!isVisualizerOpen)}
+          >
+            🎯
+          </button>
         </div>
         
         {/* キャンバス */}
         <div className="canvas-container">
-          <Canvas />
+          <Canvas highlightedGateId={highlightedGateId} />
         </div>
         
         {/* ステータスバー */}
@@ -86,10 +117,19 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
         </div>
       </main>
       
-      {/* 右サイドバー - プロパティパネル（特殊モード時は非表示） */}
+      {/* 右サイドバー */}
       {appMode === '自由制作' && (
         <aside className="sidebar-right">
-          <PropertyPanel />
+          {isVisualizerOpen ? (
+            <CircuitVisualizerPanel
+              isVisible={isVisualizerOpen}
+              onClose={() => setIsVisualizerOpen(false)}
+              onGateHighlight={handleGateHighlight}
+              onGateUnhighlight={handleGateUnhighlight}
+            />
+          ) : (
+            <PropertyPanel />
+          )}
         </aside>
       )}
       

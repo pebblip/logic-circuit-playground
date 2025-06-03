@@ -20,7 +20,11 @@ interface SelectionRect {
   endY: number;
 }
 
-export const Canvas: React.FC = () => {
+interface CanvasProps {
+  highlightedGateId?: string | null;
+}
+
+export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 400, y: 300 });
   const [viewBox, setViewBox] = useState<ViewBox>({ x: 0, y: 0, width: 1200, height: 800 });
@@ -542,7 +546,11 @@ export const Canvas: React.FC = () => {
 
         {/* ゲート */}
         {gates.map((gate) => (
-          <GateComponent key={gate.id} gate={gate} />
+          <GateComponent 
+            key={gate.id} 
+            gate={gate} 
+            isHighlighted={highlightedGateId === gate.id}
+          />
         ))}
         
         {/* 選択矩形 */}

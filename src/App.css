@@ -629,3 +629,25 @@ button.button.primary:hover,
   border-color: rgba(0, 123, 255, 0.5) !important;
   color: #4da6ff !important;
 }
+
+/* ビジュアライザーボタン */
+.tool-button.active {
+  background: rgba(0, 255, 136, 0.2) !important;
+  border-color: rgba(0, 255, 136, 0.4) !important;
+  color: #00ff88 !important;
+}
+
+/* ゲートハイライト */
+.gate-container.highlighted {
+  filter: drop-shadow(0 0 12px rgba(255, 123, 0, 0.8));
+  animation: pulse-highlight 2s ease-in-out infinite;
+}
+
+@keyframes pulse-highlight {
+  0%, 100% {
+    filter: drop-shadow(0 0 12px rgba(255, 123, 0, 0.8));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(255, 123, 0, 1));
+  }
+}

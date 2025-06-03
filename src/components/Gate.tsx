@@ -7,9 +7,10 @@ import { GateFactory } from '../models/gates/GateFactory';
 
 interface GateComponentProps {
   gate: Gate;
+  isHighlighted?: boolean;
 }
 
-export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
+export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighted = false }) => {
   const { moveGate, selectGate, selectedGateId, selectedGateIds, addToSelection, removeFromSelection, startWireDrawing, endWireDrawing, updateGateOutput, updateClockFrequency } = useCircuitStore();
   const [isDragging, setIsDragging] = React.useState(false);
   const dragStart = useRef({ x: 0, y: 0 });
@@ -725,7 +726,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
   
   return (
     <g
-      className="gate-container"
+      className={`gate-container ${isHighlighted ? 'highlighted' : ''}`}
       data-gate-id={gate.id}
       data-gate-type={gate.type}
       transform={`translate(${gate.position.x}, ${gate.position.y}) scale(${scaleFactor})`}
