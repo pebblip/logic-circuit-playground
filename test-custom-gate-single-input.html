@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Gate Single Input Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        h1 {
+            color: #00ff88;
+        }
+        .test-case {
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #3a3a3a;
+            border-radius: 4px;
+        }
+        .expected {
+            color: #66ff66;
+            margin-top: 10px;
+        }
+        .tip {
+            background-color: #1a3a1a;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border: 1px solid #00ff88;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 カスタムゲート 1入力1出力テスト</h1>
+    
+    <div class="tip">
+        💡 <strong>ヒント:</strong> ワイヤー（接続線）を削除するには、ワイヤーを右クリックしてください！
+    </div>
+    
+    <div class="test-case">
+        <h2>📋 テストケース: 1入力1出力のバッファーゲート作成</h2>
+        
+        <h3>手順</h3>
+        <div class="step">
+            <strong>1. キャンバスをクリア</strong><br>
+            全てのゲートとワイヤーを削除
+        </div>
+        
+        <div class="step">
+            <strong>2. シンプルな回路を作成</strong><br>
+            - INPUTゲートを1つ配置<br>
+            - OUTPUTゲートを1つ配置<br>
+            - INPUTからOUTPUTへワイヤーで接続
+        </div>
+        
+        <div class="step">
+            <strong>3. カスタムゲートに変換</strong><br>
+            「回路→IC」ボタンをクリック
+        </div>
+        
+        <div class="step">
+            <strong>4. ダイアログを確認</strong><br>
+            <div class="expected">
+                期待結果:<br>
+                - 入力ピン: 1個（A）<br>
+                - 出力ピン: 1個（Y）<br>
+                ✅ 既に修正済み！initialInputs/initialOutputsが正しく反映されるようになった
+            </div>
+        </div>
+        
+        <div class="step">
+            <strong>5. カスタムゲートを作成</strong><br>
+            名前を入力して「作成」ボタンをクリック
+        </div>
+        
+        <div class="step">
+            <strong>6. 作成されたカスタムゲートを配置</strong><br>
+            ツールパレットから作成したカスタムゲートをクリック
+        </div>
+        
+        <div class="step">
+            <strong>7. 表示を確認</strong><br>
+            <div class="expected">
+                期待結果:<br>
+                - カスタムゲートの入力ピン: 1個<br>
+                - カスタムゲートの出力ピン: 1個
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-case">
+        <h2>🔍 カスタムゲート出力テスト</h2>
+        
+        <h3>手順</h3>
+        <div class="step">
+            <strong>1. カスタムゲートに入力を接続</strong><br>
+            - INPUTゲートを配置<br>
+            - INPUTをON（緑）にする（ダブルクリック）<br>
+            - INPUTとカスタムゲートをワイヤーで接続
+        </div>
+        
+        <div class="step">
+            <strong>2. カスタムゲートの出力を確認</strong><br>
+            <div class="expected">
+                期待結果:<br>
+                - カスタムゲートの出力ピンが緑色になる<br>
+                - 接続されたワイヤーも緑色になる
+            </div>
+        </div>
+        
+        <div class="step">
+            <strong>3. OUTPUTゲートを接続</strong><br>
+            - OUTPUTゲートを配置<br>
+            - カスタムゲートとOUTPUTをワイヤーで接続<br>
+            <div class="expected">
+                期待結果:<br>
+                - OUTPUTゲートが光る（💡が明るくなる）
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-case">
+        <h2>🎯 複数入出力テスト</h2>
+        
+        <h3>手順</h3>
+        <div class="step">
+            <strong>1. 3入力2出力の回路を作成</strong><br>
+            - INPUTゲートを3つ配置（A, B, C）<br>
+            - ANDゲートとORゲートを配置<br>
+            - A,BをANDゲートに接続<br>
+            - B,CをORゲートに接続<br>
+            - OUTPUTゲートを2つ配置<br>
+            - ANDの出力を1つ目のOUTPUTに接続<br>
+            - ORの出力を2つ目のOUTPUTに接続
+        </div>
+        
+        <div class="step">
+            <strong>2. カスタムゲートに変換</strong><br>
+            「回路→IC」ボタンをクリック<br>
+            <div class="expected">
+                期待結果:<br>
+                - 入力ピン: 3個（A, B, C）<br>
+                - 出力ピン: 2個（Y, O1）
+            </div>
+        </div>
+    </div>
+    
+    <div class="tip">
+        🚀 <strong>デバッグのヒント:</strong><br>
+        - ブラウザのコンソールを開いてログを確認<br>
+        - 右クリックでワイヤーを削除できる<br>
+        - キーボードショートカット: Ctrl+Z（元に戻す）、Ctrl+Y（やり直し）
+    </div>
+</body>
+</html>

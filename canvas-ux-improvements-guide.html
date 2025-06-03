@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>キャンバスUX改善ガイド - Ultrathink Edition</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f1441 0%, #1a1a5a 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #00ff88;
+            text-align: center;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.7);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #66ffcc;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        .improvement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        .improvement-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 136, 0.4);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .improvement-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+        }
+        .improvement-card::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.1) 0%, transparent 70%);
+            transition: all 0.5s ease;
+        }
+        .improvement-card:hover::before {
+            top: -150%;
+            left: -150%;
+        }
+        .new-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-left: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .feature-list {
+            margin: 20px 0;
+            padding-left: 0;
+            list-style: none;
+        }
+        .feature-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            padding-left: 30px;
+        }
+        .feature-list li::before {
+            content: '✨';
+            position: absolute;
+            left: 0;
+            top: 12px;
+        }
+        .keyboard-shortcut {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 0 3px;
+        }
+        .demo-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        .demo-section h3 {
+            color: #00ff88;
+            margin-top: 0;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .comparison-table th {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+        .before {
+            color: #ff6666;
+        }
+        .after {
+            color: #00ff88;
+        }
+        .ultrathink-banner {
+            background: linear-gradient(135deg, rgba(102, 51, 204, 0.3), rgba(0, 255, 136, 0.3));
+            border: 2px solid #00ff88;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px 0;
+            text-align: center;
+        }
+        .tip-box {
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 4px solid #00ff88;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 キャンバスUX大幅改善！</h1>
+    <p class="subtitle">Google Maps級の操作性を実現 - Simple, Perfect, Beautiful</p>
+
+    <div class="ultrathink-banner">
+        <h2>✨ 3つの革新的改善 ✨</h2>
+        <p>最高のUX/UIを追求し、直感的で美しい操作体験を実現しました</p>
+    </div>
+
+    <div class="improvement-grid">
+        <!-- 無限キャンバス移動 -->
+        <div class="improvement-card">
+            <h2>🗺️ 無限キャンバス移動 <span class="new-badge">NEW</span></h2>
+            <p>Google Mapsのような自由なキャンバス操作を実現！</p>
+            
+            <h3>操作方法（PC）</h3>
+            <ul class="feature-list">
+                <li><keyboard-shortcut>Space</keyboard-shortcut> + ドラッグ（推奨）</li>
+                <li><keyboard-shortcut>中クリック</keyboard-shortcut> + ドラッグ</li>
+                <li><keyboard-shortcut>Ctrl</keyboard-shortcut> + <keyboard-shortcut>左クリック</keyboard-shortcut> + ドラッグ</li>
+            </ul>
+
+            <table class="comparison-table">
+                <tr>
+                    <th>Before</th>
+                    <th>After</th>
+                </tr>
+                <tr>
+                    <td class="before">モバイルのみパン可能</td>
+                    <td class="after">PC/モバイル両対応</td>
+                </tr>
+                <tr>
+                    <td class="before">固定ビュー</td>
+                    <td class="after">無限スクロール</td>
+                </tr>
+            </table>
+
+            <div class="tip-box">
+                💡 <strong>ヒント:</strong> カーソルが手のひら（grab）になったらパンモードです
+            </div>
+        </div>
+
+        <!-- 複数選択機能 -->
+        <div class="improvement-card">
+            <h2>🎯 複数選択＆一括操作 <span class="new-badge">NEW</span></h2>
+            <p>複数のゲートを選択して、まとめて移動・削除できます！</p>
+            
+            <h3>選択方法</h3>
+            <ul class="feature-list">
+                <li>空白エリアでドラッグ → 範囲選択</li>
+                <li><keyboard-shortcut>Shift</keyboard-shortcut> + クリック → 選択に追加</li>
+                <li><keyboard-shortcut>Ctrl/Cmd</keyboard-shortcut> + クリック → 選択の切り替え</li>
+            </ul>
+
+            <h3>一括操作</h3>
+            <ul class="feature-list">
+                <li>選択したゲートをドラッグ → 一括移動</li>
+                <li><keyboard-shortcut>Delete</keyboard-shortcut> / <keyboard-shortcut>Backspace</keyboard-shortcut> → 一括削除</li>
+            </ul>
+
+            <div class="demo-section">
+                <h3>デモシナリオ</h3>
+                <ol>
+                    <li>複数のゲートを配置</li>
+                    <li>ドラッグで範囲選択（青い枠で囲まれる）</li>
+                    <li>選択したゲートをまとめて移動</li>
+                    <li>不要なゲートを一括削除</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- ドラッグ＆ドロップ配置 -->
+        <div class="improvement-card">
+            <h2>🎨 ドラッグ＆ドロップ配置 <span class="new-badge">NEW</span></h2>
+            <p>ツールパレットからゲートをドラッグして、好きな場所に配置！</p>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>Before（自動配置）</th>
+                    <th>After（ドラッグ配置）</th>
+                </tr>
+                <tr>
+                    <td class="before">固定グリッドに配置</td>
+                    <td class="after">任意の位置に配置</td>
+                </tr>
+                <tr>
+                    <td class="before">配置位置の調整が必要</td>
+                    <td class="after">最初から理想の位置に</td>
+                </tr>
+                <tr>
+                    <td class="before">100,100から順番に</td>
+                    <td class="after">視覚的に配置</td>
+                </tr>
+            </table>
+
+            <h3>使い方</h3>
+            <ul class="feature-list">
+                <li>ツールパレットのゲートをドラッグ開始</li>
+                <li>半透明のプレビューが表示される</li>
+                <li>好きな位置でドロップ</li>
+                <li>従来のクリック配置も引き続き利用可能</li>
+            </ul>
+
+            <div class="tip-box">
+                💡 <strong>ヒント:</strong> カスタムゲートもドラッグ＆ドロップ対応！
+            </div>
+        </div>
+    </div>
+
+    <!-- 操作まとめ -->
+    <div class="ultrathink-banner">
+        <h2>🎮 新しい操作体系まとめ</h2>
+        <div class="demo-section" style="background: transparent;">
+            <h3>基本操作フロー</h3>
+            <ol style="text-align: left; max-width: 600px; margin: 0 auto;">
+                <li><strong>ゲート配置:</strong> ツールパレットからドラッグ＆ドロップ</li>
+                <li><strong>キャンバス移動:</strong> Spaceキー + ドラッグ</li>
+                <li><strong>複数選択:</strong> ドラッグで範囲選択</li>
+                <li><strong>一括移動:</strong> 選択したゲートをドラッグ</li>
+                <li><strong>接続:</strong> ピンクリック → ピンクリック</li>
+                <li><strong>削除:</strong> 選択 + Deleteキー（ワイヤーは右クリック）</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- キーボードショートカット一覧 -->
+    <div class="demo-section">
+        <h2>⌨️ キーボードショートカット完全ガイド</h2>
+        <table class="comparison-table">
+            <tr>
+                <th>操作</th>
+                <th>Windows/Linux</th>
+                <th>Mac</th>
+            </tr>
+            <tr>
+                <td>キャンバス移動</td>
+                <td><keyboard-shortcut>Space</keyboard-shortcut> + ドラッグ</td>
+                <td><keyboard-shortcut>Space</keyboard-shortcut> + ドラッグ</td>
+            </tr>
+            <tr>
+                <td>複数選択追加</td>
+                <td><keyboard-shortcut>Shift</keyboard-shortcut> + クリック</td>
+                <td><keyboard-shortcut>Shift</keyboard-shortcut> + クリック</td>
+            </tr>
+            <tr>
+                <td>選択切り替え</td>
+                <td><keyboard-shortcut>Ctrl</keyboard-shortcut> + クリック</td>
+                <td><keyboard-shortcut>Cmd</keyboard-shortcut> + クリック</td>
+            </tr>
+            <tr>
+                <td>削除</td>
+                <td><keyboard-shortcut>Delete</keyboard-shortcut></td>
+                <td><keyboard-shortcut>Delete</keyboard-shortcut></td>
+            </tr>
+            <tr>
+                <td>元に戻す</td>
+                <td><keyboard-shortcut>Ctrl</keyboard-shortcut> + <keyboard-shortcut>Z</keyboard-shortcut></td>
+                <td><keyboard-shortcut>Cmd</keyboard-shortcut> + <keyboard-shortcut>Z</keyboard-shortcut></td>
+            </tr>
+            <tr>
+                <td>やり直し</td>
+                <td><keyboard-shortcut>Ctrl</keyboard-shortcut> + <keyboard-shortcut>Y</keyboard-shortcut></td>
+                <td><keyboard-shortcut>Cmd</keyboard-shortcut> + <keyboard-shortcut>Y</keyboard-shortcut></td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="text-align: center; margin-top: 60px; padding-bottom: 40px;">
+        <h3 style="color: #00ff88;">🎯 Ultrathink Philosophy Achieved!</h3>
+        <p style="color: #999;">Simple as Google Maps • Perfect User Experience • Beautiful Interactions</p>
+    </div>
+</body>
+</html>

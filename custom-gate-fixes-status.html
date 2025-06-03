@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カスタムゲート修正状況</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: white;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00ff88;
+            text-align: center;
+        }
+        .status-box {
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .fixed {
+            background-color: #1a3a1a;
+            border: 2px solid #00ff88;
+        }
+        .testing {
+            background-color: #3a3a1a;
+            border: 2px solid #ffff00;
+        }
+        .issue {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #3a3a3a;
+            border-radius: 8px;
+        }
+        .fixed-tag {
+            background-color: #00ff88;
+            color: #000;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .testing-tag {
+            background-color: #ffff00;
+            color: #000;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .solution {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: rgba(0, 255, 136, 0.1);
+            border-left: 3px solid #00ff88;
+        }
+        code {
+            background-color: #444;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 カスタムゲート修正状況</h1>
+    
+    <div class="status-box fixed">
+        <h2>✅ 修正済みの問題</h2>
+        
+        <div class="issue">
+            <h3><span class="fixed-tag">FIXED</span> 1. 複数出力が常にOFFになる問題</h3>
+            <p><strong>問題:</strong> カスタムゲートの出力が全て同じ値（常にOFF）を表示していた</p>
+            <div class="solution">
+                <strong>解決方法:</strong>
+                <ul>
+                    <li>Gate型に <code>outputs?: boolean[]</code> フィールドを追加</li>
+                    <li>評価ロジックで全ての出力マッピングを処理</li>
+                    <li>UIで各出力ピンが独立した値を表示するように修正</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="issue">
+            <h3><span class="fixed-tag">FIXED</span> 2. ダイアログの無限ループ問題</h3>
+            <p><strong>問題:</strong> CreateCustomGateDialogのuseEffectが無限ループを起こしていた</p>
+            <div class="solution">
+                <strong>解決方法:</strong>
+                <ul>
+                    <li>useEffectの依存配列から <code>initialInputs</code>, <code>initialOutputs</code> を削除</li>
+                    <li>初期状態を空配列にして、useEffectで適切に初期化</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="issue">
+            <h3><span class="fixed-tag">FIXED</span> 3. ワイヤー削除方法が不明瞭</h3>
+            <p><strong>問題:</strong> ユーザーがワイヤーの削除方法を知らない</p>
+            <div class="solution">
+                <strong>解決方法:</strong>
+                <ul>
+                    <li>右クリックでワイヤー削除機能は既に実装済み</li>
+                    <li>ワイヤー削除ガイド（wire-deletion-guide.html）を作成</li>
+                    <li>テストHTMLファイルにヒントを追加</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="status-box testing">
+        <h2>🧪 テストが必要な項目</h2>
+        
+        <div class="issue">
+            <h3><span class="testing-tag">TEST</span> 1. ダイアログのピン数初期化</h3>
+            <p><strong>テスト手順:</strong></p>
+            <ol>
+                <li>1入力1出力の回路を作成（INPUT → OUTPUT）</li>
+                <li>「回路→IC」ボタンをクリック</li>
+                <li>ダイアログが1入力1出力で表示されることを確認</li>
+                <li>3入力2出力の回路を作成して再度テスト</li>
+            </ol>
+        </div>
+        
+        <div class="issue">
+            <h3><span class="testing-tag">TEST</span> 2. カスタムゲートの複数出力動作</h3>
+            <p><strong>テスト手順:</strong></p>
+            <ol>
+                <li>半加算器を作成（2入力、2出力）</li>
+                <li>カスタムゲートとして保存</li>
+                <li>各入力パターンで両方の出力が正しく動作することを確認</li>
+                <li>00 → 00, 01 → 10, 10 → 10, 11 → 01</li>
+            </ol>
+        </div>
+        
+        <div class="issue">
+            <h3><span class="testing-tag">TEST</span> 3. ピン数の正しい表示</h3>
+            <p><strong>テスト手順:</strong></p>
+            <ol>
+                <li>様々なピン数のカスタムゲートを作成</li>
+                <li>ツールパレットから配置</li>
+                <li>表示されるピン数が定義と一致することを確認</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="status-box">
+        <h2>📝 テストファイル一覧</h2>
+        <ul>
+            <li><code>test-custom-gate-single-input.html</code> - 1入力カスタムゲートのテスト</li>
+            <li><code>wire-deletion-guide.html</code> - ワイヤー削除方法のガイド</li>
+            <li><code>custom-gate-fixes-status.html</code> - このファイル（修正状況）</li>
+        </ul>
+    </div>
+</body>
+</html>

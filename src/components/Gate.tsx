@@ -10,7 +10,7 @@ interface GateComponentProps {
 }
 
 export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
-  const { moveGate, selectGate, selectedGateId, startWireDrawing, endWireDrawing, updateGateOutput, updateClockFrequency } = useCircuitStore();
+  const { moveGate, selectGate, selectedGateId, selectedGateIds, addToSelection, removeFromSelection, startWireDrawing, endWireDrawing, updateGateOutput, updateClockFrequency } = useCircuitStore();
   const [isDragging, setIsDragging] = React.useState(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const originalPosition = useRef({ x: 0, y: 0 });
@@ -33,18 +33,33 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       point.y = event.clientY;
       const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
 
+      const deltaX = svgPoint.x - dragStart.current.x - gate.position.x;
+      const deltaY = svgPoint.y - dragStart.current.y - gate.position.y;
+      
       const newPosition = {
         x: svgPoint.x - dragStart.current.x,
         y: svgPoint.y - dragStart.current.y,
       };
       
       // 実際に移動した場合はフラグを立てる
-      const distance = Math.sqrt(
-        Math.pow(newPosition.x - gate.position.x, 2) + 
-        Math.pow(newPosition.y - gate.position.y, 2)
-      );
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       if (distance > 5) {
         hasDragged.current = true;
+      }
+      
+      // 複数選択されている場合、全てのゲートを移動
+      if (selectedGateIds.includes(gate.id) && selectedGateIds.length > 1) {
+        selectedGateIds.forEach(gateId => {
+          if (gateId !== gate.id) {
+            const otherGate = useCircuitStore.getState().gates.find(g => g.id === gateId);
+            if (otherGate) {
+              moveGate(gateId, {
+                x: otherGate.position.x + deltaX,
+                y: otherGate.position.y + deltaY
+              });
+            }
+          }
+        });
       }
       
       moveGate(gate.id, newPosition);
@@ -62,18 +77,33 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
       point.y = touch.clientY;
       const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
 
+      const deltaX = svgPoint.x - dragStart.current.x - gate.position.x;
+      const deltaY = svgPoint.y - dragStart.current.y - gate.position.y;
+      
       const newPosition = {
         x: svgPoint.x - dragStart.current.x,
         y: svgPoint.y - dragStart.current.y,
       };
       
       // 実際に移動した場合はフラグを立てる
-      const distance = Math.sqrt(
-        Math.pow(newPosition.x - gate.position.x, 2) + 
-        Math.pow(newPosition.y - gate.position.y, 2)
-      );
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       if (distance > 5) {
         hasDragged.current = true;
+      }
+      
+      // 複数選択されている場合、全てのゲートを移動
+      if (selectedGateIds.includes(gate.id) && selectedGateIds.length > 1) {
+        selectedGateIds.forEach(gateId => {
+          if (gateId !== gate.id) {
+            const otherGate = useCircuitStore.getState().gates.find(g => g.id === gateId);
+            if (otherGate) {
+              moveGate(gateId, {
+                x: otherGate.position.x + deltaX,
+                y: otherGate.position.y + deltaY
+              });
+            }
+          }
+        });
       }
       
       moveGate(gate.id, newPosition);
@@ -149,8 +179,18 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
   const handleGateClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     console.log('Gate clicked:', gate.id, 'hasDragged:', hasDragged.current);
-    // 常に選択を実行（デバッグ用に一時的に変更）
-    selectGate(gate.id);
+    
+    // Shift/Ctrl/Cmdキーが押されている場合の複数選択
+    if (event.shiftKey || event.ctrlKey || event.metaKey) {
+      if (selectedGateIds.includes(gate.id)) {
+        removeFromSelection(gate.id);
+      } else {
+        addToSelection(gate.id);
+      }
+    } else {
+      // 通常のクリックは単一選択
+      selectGate(gate.id);
+    }
   };
 
   const handleTouchStart = (event: React.TouchEvent) => {
@@ -232,7 +272,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
   const [isHovering, setIsHovering] = React.useState(false);
 
   const renderGate = () => {
-    const isSelected = selectedGateId === gate.id;
+    const isSelected = selectedGateId === gate.id || selectedGateIds.includes(gate.id);
 
     switch (gate.type) {
       case 'INPUT':
@@ -262,7 +302,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
               />
               <circle 
                 cx="35" cy="0" r="6" 
-                className={`pin ${gate.output ? 'active' : ''}`}
+                className={`pin output-pin ${gate.output ? 'active' : ''}`}
                 pointerEvents="none"
               />
               <line x1="25" y1="0" x2="35" y2="0" className={`pin-line ${gate.output ? 'active' : ''}`} pointerEvents="none"/>
@@ -288,7 +328,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
               />
               <circle 
                 cx="-30" cy="0" r="6" 
-                className={`pin ${gate.inputs[0] === '1' ? 'active' : ''}`}
+                className={`pin input-pin ${gate.inputs[0] === '1' ? 'active' : ''}`}
                 pointerEvents="none"
               />
               <line x1="-20" y1="0" x2="-30" y2="0" className={`pin-line ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none"/>
@@ -506,6 +546,8 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
         const halfWidth = size.width / 2;
         const halfHeight = size.height / 2;
         
+        // デバッグログ削除（無限ループ防止）
+        
         return (
           <g>
             <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} onClick={handleGateClick} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
@@ -563,7 +605,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
                   />
                   <circle 
                     cx={-halfWidth - 10} cy={y} r="6" 
-                    className={`pin ${gate.inputs[index] === '1' ? 'active' : ''}`}
+                    className={`pin input-pin ${gate.inputs[index] === '1' ? 'active' : ''}`}
                     pointerEvents="none"
                   />
                   <line 
@@ -574,7 +616,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
                   {/* ピン名 */}
                   <text 
                     x={-halfWidth + 10} y={y + 3} 
-                    className="gate-text" 
+                    className="gate-text pin-label" 
                     style={{ fontSize: '10px', fill: '#999' }}
                   >
                     {inputPin.name}
@@ -600,18 +642,18 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
                   />
                   <circle 
                     cx={halfWidth + 10} cy={y} r="6" 
-                    className={`pin ${gate.output ? 'active' : ''}`}
+                    className={`pin output-pin ${(gate.outputs && gate.outputs[index]) || (index === 0 && gate.output) ? 'active' : ''}`}
                     pointerEvents="none"
                   />
                   <line 
                     x1={halfWidth} y1={y} x2={halfWidth + 10} y2={y} 
-                    className={`pin-line ${gate.output ? 'active' : ''}`} 
+                    className={`pin-line ${(gate.outputs && gate.outputs[index]) || (index === 0 && gate.output) ? 'active' : ''}`} 
                     pointerEvents="none"
                   />
                   {/* ピン名 */}
                   <text 
                     x={halfWidth - 10} y={y + 3} 
-                    className="gate-text" 
+                    className="gate-text pin-label" 
                     style={{ fontSize: '10px', fill: '#999', textAnchor: 'end' }}
                   >
                     {outputPin.name}
@@ -679,12 +721,13 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate }) => {
     }
   };
 
-  const isSelected = selectedGateId === gate.id;
+  const isSelected = selectedGateId === gate.id || selectedGateIds.includes(gate.id);
   
   return (
     <g
       className="gate-container"
       data-gate-id={gate.id}
+      data-gate-type={gate.type}
       transform={`translate(${gate.position.x}, ${gate.position.y}) scale(${scaleFactor})`}
     >
       {renderGate()}

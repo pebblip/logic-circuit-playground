@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GateType, CustomGateDefinition } from '../types/circuit';
+import { GateType, CustomGateDefinition, CustomGatePin } from '../types/circuit';
 import { useCircuitStore } from '../stores/circuitStore';
 import { GateFactory } from '../models/gates/GateFactory';
 import { CreateCustomGateDialog } from './dialogs/CreateCustomGateDialog';
@@ -84,7 +84,7 @@ const DEMO_CUSTOM_GATES: CustomGateDefinition[] = [
 ];
 
 export const ToolPalette: React.FC = () => {
-  const { addGate, gates, customGates, addCustomGate, createCustomGateFromCurrentCircuit, allowedGates, appMode } = useCircuitStore();
+  const { gates, customGates, addCustomGate, createCustomGateFromCurrentCircuit, allowedGates, appMode } = useCircuitStore();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isTruthTableOpen, setIsTruthTableOpen] = useState(false);
   const [currentTruthTable, setCurrentTruthTable] = useState<{
@@ -98,6 +98,12 @@ export const ToolPalette: React.FC = () => {
     initialOutputs?: CustomGatePin[];
     isFullCircuit?: boolean;
   }>({});
+  const [draggedGate, setDraggedGate] = useState<{ type: GateType | 'CUSTOM', customDefinition?: CustomGateDefinition } | null>(null);
+  
+  // ドラッグ中のゲート情報を共有するため、windowオブジェクトに設定
+  React.useEffect(() => {
+    (window as any)._draggedGate = draggedGate;
+  }, [draggedGate]);
   
   // カスタムゲート作成ダイアログを開くイベントリスナー
   React.useEffect(() => {
@@ -114,66 +120,19 @@ export const ToolPalette: React.FC = () => {
     };
   }, []);
 
-  const handleToolClick = (type: GateType) => {
-    // 既存のゲートの位置を確認して、重ならない位置を計算
-    const baseX = 100;
-    const baseY = 100;
-    const spacing = 100;
-    
-    let x = baseX;
-    let y = baseY;
-    let row = 0;
-    let col = 0;
-    
-    // 空いている位置を探す
-    while (gates.some(g => 
-      Math.abs(g.position.x - x) < 70 && 
-      Math.abs(g.position.y - y) < 50
-    )) {
-      col++;
-      if (col > 5) {
-        col = 0;
-        row++;
-      }
-      x = baseX + (col * spacing);
-      y = baseY + (row * spacing);
-    }
-    
-    addGate(type, { x, y });
-  };
+  // 自動配置は削除 - ドラッグ&ドロップのみ使用
 
-  const handleCustomGateClick = (definition: CustomGateDefinition) => {
-    // カスタムゲートの配置
-    const baseX = 100;
-    const baseY = 100;
-    const spacing = 120;
-    
-    let x = baseX;
-    let y = baseY;
-    let row = 0;
-    let col = 0;
-    
-    while (gates.some(g => 
-      Math.abs(g.position.x - x) < definition.width && 
-      Math.abs(g.position.y - y) < definition.height
-    )) {
-      col++;
-      if (col > 4) {
-        col = 0;
-        row++;
-      }
-      x = baseX + (col * spacing);
-      y = baseY + (row * spacing);
-    }
-    
-    const customGate = GateFactory.createCustomGate(definition, { x, y });
-    // カスタムゲートを直接ストアに追加
-    useCircuitStore.setState(state => ({
-      gates: [...state.gates, customGate]
-    }));
-  };
+  // カスタムゲートの自動配置も削除 - ドラッグ&ドロップのみ使用
 
   const handleCreateCustomGate = (definition: CustomGateDefinition) => {
+    console.log('🚀 カスタムゲート作成開始:', {
+      definition,
+      definitionInputs: definition.inputs,
+      definitionOutputs: definition.outputs,
+      inputsLength: definition.inputs.length,
+      outputsLength: definition.outputs.length
+    });
+    
     const state = useCircuitStore.getState();
     const { gates, wires } = state;
     
@@ -421,8 +380,21 @@ export const ToolPalette: React.FC = () => {
               key={type}
               className={`tool-card ${isDisabled ? 'disabled' : ''}`}
               data-gate-type={type}
-              onClick={() => !isDisabled && handleToolClick(type)}
-              title={isDisabled ? '学習モードではこのゲートは使用できません' : ''}
+              title={isDisabled ? '学習モードではこのゲートは使用できません' : 'ドラッグしてキャンバスに配置'}
+              draggable={!isDisabled}
+              onDragStart={(e) => {
+                if (!isDisabled && e.dataTransfer) {
+                  setDraggedGate({ type });
+                  e.dataTransfer.effectAllowed = 'copy';
+                  
+                  // プレビュー画像を設定
+                  const dragImage = new Image();
+                  dragImage.src = 'data:image/svg+xml,<svg></svg>'; // 透明な画像
+                  e.dataTransfer.setDragImage(dragImage, 0, 0);
+                }
+              }}
+              onDragEnd={() => setDraggedGate(null)}
+              style={{ cursor: isDisabled ? 'not-allowed' : 'grab' }}
             >
               {renderGatePreview(type)}
               <div className="tool-label">{label}</div>
@@ -443,8 +415,21 @@ export const ToolPalette: React.FC = () => {
               key={type}
               className={`tool-card ${isDisabled ? 'disabled' : ''}`}
               data-gate-type={type}
-              onClick={() => !isDisabled && handleToolClick(type)}
-              title={isDisabled ? '学習モードではこのゲートは使用できません' : ''}
+              title={isDisabled ? '学習モードではこのゲートは使用できません' : 'ドラッグしてキャンバスに配置'}
+              draggable={!isDisabled}
+              onDragStart={(e) => {
+                if (!isDisabled && e.dataTransfer) {
+                  setDraggedGate({ type });
+                  e.dataTransfer.effectAllowed = 'copy';
+                  
+                  // プレビュー画像を設定
+                  const dragImage = new Image();
+                  dragImage.src = 'data:image/svg+xml,<svg></svg>'; // 透明な画像
+                  e.dataTransfer.setDragImage(dragImage, 0, 0);
+                }
+              }}
+              onDragEnd={() => setDraggedGate(null)}
+              style={{ cursor: isDisabled ? 'not-allowed' : 'grab' }}
             >
               {renderGatePreview(type)}
               <div className="tool-label">{label}</div>
@@ -465,8 +450,21 @@ export const ToolPalette: React.FC = () => {
               key={type}
               className={`tool-card ${isDisabled ? 'disabled' : ''}`}
               data-gate-type={type}
-              onClick={() => !isDisabled && handleToolClick(type)}
-              title={isDisabled ? '学習モードではこのゲートは使用できません' : ''}
+              title={isDisabled ? '学習モードではこのゲートは使用できません' : 'ドラッグしてキャンバスに配置'}
+              draggable={!isDisabled}
+              onDragStart={(e) => {
+                if (!isDisabled && e.dataTransfer) {
+                  setDraggedGate({ type });
+                  e.dataTransfer.effectAllowed = 'copy';
+                  
+                  // プレビュー画像を設定
+                  const dragImage = new Image();
+                  dragImage.src = 'data:image/svg+xml,<svg></svg>'; // 透明な画像
+                  e.dataTransfer.setDragImage(dragImage, 0, 0);
+                }
+              }}
+              onDragEnd={() => setDraggedGate(null)}
+              style={{ cursor: isDisabled ? 'not-allowed' : 'grab' }}
             >
               {renderGatePreview(type)}
               <div className="tool-label">{label}</div>
@@ -486,7 +484,21 @@ export const ToolPalette: React.FC = () => {
             key={definition.id}
             className="tool-card custom-gate-card"
             data-gate-type="CUSTOM"
-            onClick={() => handleCustomGateClick(definition)}
+            // クリックでの配置は削除
+            draggable
+            onDragStart={(e) => {
+              if (e.dataTransfer) {
+                setDraggedGate({ type: 'CUSTOM', customDefinition: definition });
+                e.dataTransfer.effectAllowed = 'copy';
+                
+                // プレビュー画像を設定
+                const dragImage = new Image();
+                dragImage.src = 'data:image/svg+xml,<svg></svg>'; // 透明な画像
+                e.dataTransfer.setDragImage(dragImage, 0, 0);
+              }
+            }}
+            onDragEnd={() => setDraggedGate(null)}
+            style={{ cursor: 'grab' }}
           >
             {renderCustomGatePreview(definition)}
             <div className="tool-label">{definition.displayName}</div>
@@ -499,7 +511,20 @@ export const ToolPalette: React.FC = () => {
             key={definition.id}
             className="tool-card custom-gate-card"
             data-gate-type="CUSTOM"
-            onClick={() => handleCustomGateClick(definition)}
+            // クリックでの配置は削除
+            draggable
+            onDragStart={(e) => {
+              if (e.dataTransfer) {
+                setDraggedGate({ type: 'CUSTOM', customDefinition: definition });
+                e.dataTransfer.effectAllowed = 'copy';
+                
+                // プレビュー画像を設定
+                const dragImage = new Image();
+                dragImage.src = 'data:image/svg+xml,<svg></svg>'; // 透明な画像
+                e.dataTransfer.setDragImage(dragImage, 0, 0);
+              }
+            }}
+            onDragEnd={() => setDraggedGate(null)}
             onContextMenu={(e) => {
               e.preventDefault();
               // 右クリックで真理値表を表示
@@ -533,6 +558,7 @@ export const ToolPalette: React.FC = () => {
               }
             }}
             title="左クリック: 配置 | 右クリック: 真理値表表示"
+            style={{ cursor: 'grab' }}
           >
             {renderCustomGatePreview(definition)}
             <div className="tool-label">{definition.displayName}</div>

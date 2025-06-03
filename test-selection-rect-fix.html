@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>矩形選択修正テスト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #0f1441;
+            color: white;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00ff88;
+            text-align: center;
+        }
+        .test-card {
+            background: #1a1a5a;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid #333;
+        }
+        .test-card h2 {
+            color: #00ff88;
+            margin-top: 0;
+        }
+        .step {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #00ff88;
+        }
+        .expected {
+            color: #00ff88;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .key {
+            display: inline-block;
+            background: #333;
+            border: 1px solid #555;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            box-shadow: 0 2px 0 #222;
+        }
+        .fixed-banner {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.1));
+            border: 2px solid #00ff88;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        .debug-info {
+            background: #222;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 矩形選択修正テスト</h1>
+
+    <div class="fixed-banner">
+        <h2>✨ シンプルな修正を実装！</h2>
+        <p>選択矩形は <code>selectionRect</code> が存在する限り表示されます</p>
+    </div>
+
+    <div class="test-card">
+        <h2>📋 修正内容</h2>
+        <div class="debug-info">
+            <strong>修正前の条件:</strong><br>
+            <code>(isSelecting || (selectedGateIds.length > 0 && selectionRect)) && selectionRect</code><br><br>
+            <strong>修正後の条件:</strong><br>
+            <code>selectionRect</code> のみ！<br><br>
+            <strong>結果:</strong> 超シンプル！selectionRectがあれば常に表示
+        </div>
+    </div>
+
+    <div class="test-card">
+        <h2>🧪 テスト手順</h2>
+        
+        <div class="step">
+            <strong>1. 複数のゲートを配置</strong><br>
+            ツールパレットからドラッグで5〜6個のゲートを配置
+        </div>
+        
+        <div class="step">
+            <strong>2. 矩形選択を実行</strong><br>
+            空白エリアでドラッグして複数ゲートを囲む<br>
+            <span class="expected">期待結果: 緑色の点線矩形が表示される</span>
+        </div>
+        
+        <div class="step">
+            <strong>3. マウスを離す</strong><br>
+            マウスボタンを離して選択を確定<br>
+            <span class="expected">期待結果: 矩形が消えずに残る！</span>
+        </div>
+        
+        <div class="step">
+            <strong>4. 選択解除の確認</strong><br>
+            以下の操作で矩形が消えることを確認：
+            <ul>
+                <li>背景をクリック → 矩形消える</li>
+                <li><span class="key">Delete</span>キー → ゲート削除＆矩形消える</li>
+                <li>新しい範囲選択 → 古い矩形が新しい矩形に置き換わる</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-card">
+        <h2>🎯 追加テスト</h2>
+        
+        <div class="step">
+            <strong>Shift/Ctrl選択との組み合わせ</strong><br>
+            1. 矩形選択でゲートを選択<br>
+            2. <span class="key">Shift</span> + クリックで追加選択<br>
+            <span class="expected">期待結果: 矩形は最初の選択範囲のまま表示される</span>
+        </div>
+        
+        <div class="step">
+            <strong>空の矩形選択</strong><br>
+            1. 何もない場所で矩形選択<br>
+            2. マウスを離す<br>
+            <span class="expected">期待結果: ゲートが選択されていないので矩形は消える</span>
+        </div>
+    </div>
+
+    <div class="fixed-banner" style="margin-top: 40px;">
+        <h3>🎉 Ultrathink Philosophy: Simple is Best!</h3>
+        <p>複雑な条件を削除し、シンプルな実装で完璧な動作を実現</p>
+    </div>
+</body>
+</html>

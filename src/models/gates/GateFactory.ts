@@ -78,15 +78,30 @@ export class GateFactory {
    */
   static createCustomGate(definition: CustomGateDefinition, position: Position): Gate {
     const id = `gate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const inputsArray = new Array(definition.inputs.length).fill('');
     
-    return {
+    console.log('🏭 GateFactory.createCustomGate:', {
+      gateId: id,
+      definition,
+      definitionInputs: definition.inputs,
+      definitionInputsLength: definition.inputs.length,
+      createdInputsArray: inputsArray,
+      createdInputsLength: inputsArray.length
+    });
+    
+    const customGate: Gate = {
       id,
-      type: 'CUSTOM',
+      type: 'CUSTOM' as const,
       position,
-      inputs: new Array(definition.inputs.length).fill(''),
+      inputs: inputsArray,
       output: false,
+      outputs: new Array(definition.outputs.length).fill(false), // 複数出力の初期化
       customGateDefinition: definition,
     };
+    
+    console.log('✅ カスタムゲート作成完了:', customGate);
+    
+    return customGate;
   }
 
   /**

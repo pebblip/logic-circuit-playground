@@ -8,6 +8,7 @@ interface WireComponentProps {
 
 export const WireComponent: React.FC<WireComponentProps> = ({ wire }) => {
   const gates = useCircuitStore((state) => state.gates);
+  const deleteWire = useCircuitStore((state) => state.deleteWire);
   
   const fromGate = gates.find(g => g.id === wire.from.gateId);
   const toGate = gates.find(g => g.id === wire.to.gateId);
@@ -112,11 +113,27 @@ export const WireComponent: React.FC<WireComponentProps> = ({ wire }) => {
   const midX = (from.x + to.x) / 2;
   const path = `M ${from.x} ${from.y} Q ${midX} ${from.y} ${midX} ${(from.y + to.y) / 2} T ${to.x} ${to.y}`;
 
+  // 右クリックハンドラー
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    deleteWire(wire.id);
+  };
+
   return (
-    <g>
+    <g onContextMenu={handleContextMenu}>
       <path
         d={path}
         className={`wire ${wire.isActive ? 'active' : ''}`}
+        style={{ cursor: 'context-menu' }}
+      />
+      {/* 見えない太い線でクリック領域を拡大 */}
+      <path
+        d={path}
+        fill="none"
+        stroke="transparent"
+        strokeWidth="20"
+        style={{ cursor: 'context-menu' }}
       />
       {wire.isActive && (
         <>

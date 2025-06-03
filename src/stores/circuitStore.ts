@@ -21,6 +21,13 @@ interface CircuitStore extends CircuitState {
   allowedGates: GateType[] | null; // null = 全て許可
   setAllowedGates: (gates: GateType[] | null) => void;
   
+  // 複数選択
+  selectedGateIds: string[];
+  setSelectedGates: (gateIds: string[]) => void;
+  addToSelection: (gateId: string) => void;
+  removeFromSelection: (gateId: string) => void;
+  clearSelection: () => void;
+  
   
   // カスタムゲート管理
   addCustomGate: (definition: CustomGateDefinition) => void;
@@ -29,6 +36,7 @@ interface CircuitStore extends CircuitState {
   
   // ゲート操作
   addGate: (type: GateType, position: Position) => Gate;
+  addCustomGateInstance: (definition: CustomGateDefinition, position: Position) => Gate;
   moveGate: (gateId: string, position: Position, saveToHistory?: boolean) => void;
   selectGate: (gateId: string | null) => void;
   deleteGate: (gateId: string) => void;
@@ -62,6 +70,7 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
   gates: [],
   wires: [],
   selectedGateId: null,
+  selectedGateIds: [],
   isDrawingWire: false,
   wireStart: null,
   customGates: initialCustomGates, // localStorageから読み込んだ値で初期化
@@ -95,6 +104,34 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
   addGate: (type, position) => {
     // GateFactoryを使用してゲートを作成（特殊ゲートにも対応）
     const newGate = GateFactory.createGate(type, position);
+    
+    set((state) => {
+      const newGates = [...state.gates, newGate];
+      
+      // 回路全体を評価
+      const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(newGates, state.wires);
+      
+      return {
+        gates: evaluatedGates,
+        wires: evaluatedWires,
+      };
+    });
+    
+    // 履歴に追加
+    get().pushHistory();
+    
+    return newGate;
+  },
+
+  addCustomGateInstance: (definition, position) => {
+    console.log('🏗️ addCustomGateInstance called:', {
+      definition,
+      inputsLength: definition.inputs.length,
+      outputsLength: definition.outputs.length
+    });
+    
+    // GateFactoryを使用してカスタムゲートを作成
+    const newGate = GateFactory.createCustomGate(definition, position);
     
     set((state) => {
       const newGates = [...state.gates, newGate];
@@ -210,15 +247,51 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
 
   selectGate: (gateId) => {
     console.log('Store selectGate called with:', gateId);
-    set({ selectedGateId: gateId });
+    set({ 
+      selectedGateId: gateId,
+      selectedGateIds: gateId ? [gateId] : []
+    });
     console.log('Store state after selection:', useCircuitStore.getState().selectedGateId);
+  },
+  
+  setSelectedGates: (gateIds) => {
+    set({ 
+      selectedGateIds: gateIds,
+      selectedGateId: gateIds.length === 1 ? gateIds[0] : null
+    });
+  },
+  
+  addToSelection: (gateId) => {
+    set((state) => ({
+      selectedGateIds: [...state.selectedGateIds, gateId],
+      selectedGateId: null // 複数選択時は単一選択をクリア
+    }));
+  },
+  
+  removeFromSelection: (gateId) => {
+    set((state) => {
+      const newSelection = state.selectedGateIds.filter(id => id !== gateId);
+      return {
+        selectedGateIds: newSelection,
+        selectedGateId: newSelection.length === 1 ? newSelection[0] : null
+      };
+    });
+  },
+  
+  clearSelection: () => {
+    set({ selectedGateIds: [], selectedGateId: null });
   },
 
   deleteGate: (gateId) => {
     set((state) => {
-      const newGates = state.gates.filter((gate) => gate.id !== gateId);
+      // 削除対象のゲートIDリスト（単一の場合も配列にする）
+      const gateIdsToDelete = state.selectedGateIds.includes(gateId) 
+        ? state.selectedGateIds 
+        : [gateId];
+      
+      const newGates = state.gates.filter((gate) => !gateIdsToDelete.includes(gate.id));
       const newWires = state.wires.filter(
-        (wire) => wire.from.gateId !== gateId && wire.to.gateId !== gateId
+        (wire) => !gateIdsToDelete.includes(wire.from.gateId) && !gateIdsToDelete.includes(wire.to.gateId)
       );
       
       // 回路全体を評価
@@ -227,7 +300,8 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
       return {
         gates: evaluatedGates,
         wires: evaluatedWires,
-        selectedGateId: state.selectedGateId === gateId ? null : state.selectedGateId,
+        selectedGateId: null,
+        selectedGateIds: [],
       };
     });
     

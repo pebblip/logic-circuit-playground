@@ -2,7 +2,7 @@ import { Gate, Wire, GateType } from '../types/circuit';
 import { isCustomGate } from '../types/gates';
 
 // ゲートのロジックを評価
-export function evaluateGate(gate: Gate, inputs: boolean[]): boolean {
+export function evaluateGate(gate: Gate, inputs: boolean[]): boolean | boolean[] {
   switch (gate.type) {
     case 'INPUT':
       return gate.output;
@@ -100,9 +100,23 @@ export function evaluateGate(gate: Gate, inputs: boolean[]): boolean {
       // カスタムゲートの評価
       if (isCustomGate(gate) && gate.customGateDefinition) {
         const definition = gate.customGateDefinition;
+        console.log('🔧 カスタムゲート評価開始:', {
+          gateId: gate.id,
+          gateName: definition.name,
+          inputs: inputs,
+          inputsLength: inputs.length,
+          definitionInputs: definition.inputs.length,
+          outputsCount: definition.outputs.length
+        });
         
         // 内部回路がある場合は回路評価
         if (definition.internalCircuit) {
+          console.log('📋 内部回路を評価:', {
+            internalGatesCount: definition.internalCircuit.gates.length,
+            inputMappings: definition.internalCircuit.inputMappings,
+            outputMappings: definition.internalCircuit.outputMappings
+          });
+          
           // 入力値を内部ゲートにマッピング
           const internalGates = definition.internalCircuit.gates.map(g => ({ ...g }));
           
@@ -110,8 +124,25 @@ export function evaluateGate(gate: Gate, inputs: boolean[]): boolean {
           Object.entries(definition.internalCircuit.inputMappings).forEach(([pinIndex, mapping]) => {
             const inputValue = inputs[Number(pinIndex)] || false;
             const targetGate = internalGates.find(g => g.id === mapping.gateId);
-            if (targetGate && mapping.pinIndex < targetGate.inputs.length) {
-              targetGate.inputs[mapping.pinIndex] = inputValue ? '1' : '';
+            console.log('🔌 入力マッピング適用:', {
+              pinIndex,
+              inputValue,
+              targetGateId: mapping.gateId,
+              targetGateType: targetGate?.type
+            });
+            if (targetGate) {
+              // INPUTゲートの場合はoutputを設定
+              if (targetGate.type === 'INPUT') {
+                targetGate.output = inputValue;
+                console.log('📥 INPUTゲート出力設定:', { gateId: targetGate.id, output: inputValue });
+              } else if (mapping.pinIndex < targetGate.inputs.length) {
+                targetGate.inputs[mapping.pinIndex] = inputValue ? '1' : '';
+                console.log('📥 ゲート入力設定:', { 
+                  gateId: targetGate.id, 
+                  pinIndex: mapping.pinIndex, 
+                  value: inputValue ? '1' : '' 
+                });
+              }
             }
           });
           
@@ -121,26 +152,88 @@ export function evaluateGate(gate: Gate, inputs: boolean[]): boolean {
             definition.internalCircuit.wires
           );
           
-          // 出力マッピングから結果を取得（最初の出力のみ）
-          const outputMapping = definition.internalCircuit.outputMappings[0];
-          if (outputMapping) {
-            const outputGate = evaluatedGates.find(g => g.id === outputMapping.gateId);
-            if (outputGate) {
-              // 出力ピンの場合は出力を、通常ピンの場合は対応する値を返す
-              if (outputMapping.pinIndex === -1) {
-                return outputGate.output;
+          console.log('⚡ 内部回路評価完了:', {
+            evaluatedGatesCount: evaluatedGates.length,
+            gateOutputs: evaluatedGates.map(g => ({ id: g.id, type: g.type, output: g.output }))
+          });
+          
+          // 全ての出力マッピングから結果を取得
+          const outputs: boolean[] = [];
+          for (let outputIndex = 0; outputIndex < definition.outputs.length; outputIndex++) {
+            const outputMapping = definition.internalCircuit.outputMappings[outputIndex];
+            if (outputMapping) {
+              const outputGate = evaluatedGates.find(g => g.id === outputMapping.gateId);
+              console.log('📤 出力マッピング処理 [' + outputIndex + ']:', {
+                outputMapping,
+                outputGateId: outputMapping.gateId,
+                outputGateFound: !!outputGate,
+                outputGateType: outputGate?.type,
+                outputGateOutput: outputGate?.output
+              });
+              if (outputGate) {
+                let result;
+                // OUTPUTゲートの場合、outputを返す
+                if (outputGate.type === 'OUTPUT') {
+                  result = outputGate.output;
+                  console.log('✅ OUTPUTゲートから結果取得 [' + outputIndex + ']:', { result });
+                }
+                // その他のゲートで出力ピンの場合
+                else if (outputMapping.pinIndex === -1) {
+                  result = outputGate.output;
+                  console.log('✅ 出力ピンから結果取得 [' + outputIndex + ']:', { result });
+                }
+                // 入力ピンの場合
+                else {
+                  result = outputGate.inputs[outputMapping.pinIndex] === '1';
+                  console.log('✅ 入力ピンから結果取得 [' + outputIndex + ']:', { 
+                    pinIndex: outputMapping.pinIndex,
+                    pinValue: outputGate.inputs[outputMapping.pinIndex],
+                    result 
+                  });
+                }
+                outputs.push(result);
+              } else {
+                outputs.push(false);
               }
-              return false;
+            } else {
+              outputs.push(false);
             }
           }
+          
+          console.log('🎯 カスタムゲート全出力:', { outputs });
+          
+          // 単一出力の場合は後方互換性のためにbooleanを返す
+          if (outputs.length === 1) {
+            return outputs[0];
+          }
+          // 複数出力の場合は配列を返す
+          return outputs;
         }
         // 真理値表がある場合はフォールバック
         else if (definition.truthTable) {
           const inputPattern = inputs.map(input => input ? '1' : '0').join('');
           const outputPattern = definition.truthTable[inputPattern];
           
-          if (outputPattern && outputPattern.length > 0) {
-            return outputPattern[0] === '1';
+          console.log('📊 真理値表フォールバック処理:', {
+            gateId: gate.id,
+            gateName: definition.name,
+            inputs,
+            inputPattern,
+            truthTable: definition.truthTable,
+            outputPattern
+          });
+          
+          if (outputPattern) {
+            // 真理値表から全ての出力を取得
+            const outputs = outputPattern.split('').map(bit => bit === '1');
+            console.log('✅ 真理値表から結果取得:', { outputs });
+            
+            // 単一出力の場合は後方互換性のためにbooleanを返す
+            if (outputs.length === 1) {
+              return outputs[0];
+            }
+            // 複数出力の場合は配列を返す
+            return outputs;
           }
         }
       }
@@ -233,14 +326,34 @@ export function evaluateCircuit(gates: Gate[], wires: Wire[]): { gates: Gate[], 
       if (wire.to.gateId === gateId) {
         const fromGate = updatedGates.find(g => g.id === wire.from.gateId);
         if (fromGate) {
-          inputs[wire.to.pinIndex] = fromGate.output;
+          // カスタムゲートで複数出力がある場合
+          if (fromGate.type === 'CUSTOM' && fromGate.outputs && wire.from.pinIndex < 0) {
+            // 出力ピンインデックスを計算（-1 → 0, -2 → 1, ...）
+            const outputIndex = (-wire.from.pinIndex) - 1;
+            inputs[wire.to.pinIndex] = fromGate.outputs[outputIndex] || false;
+          } else {
+            // 通常のゲートまたは単一出力
+            inputs[wire.to.pinIndex] = fromGate.output;
+          }
         }
       }
     });
     
     // ゲートを評価
     if (gate.type !== 'INPUT') {
-      gate.output = evaluateGate(gate, inputs);
+      const result = evaluateGate(gate, inputs);
+      
+      // 結果が配列の場合（複数出力）
+      if (Array.isArray(result)) {
+        gate.outputs = result;
+        // 後方互換性のため、最初の出力を gate.output にも設定
+        gate.output = result[0] || false;
+      } else {
+        // 単一出力の場合
+        gate.output = result;
+        // outputs配列もクリア
+        gate.outputs = undefined;
+      }
     }
     
     // すべてのゲートで入力状態を保存（表示用）
@@ -252,11 +365,35 @@ export function evaluateCircuit(gates: Gate[], wires: Wire[]): { gates: Gate[], 
     const connections = gateOutputConnections.get(gateId) || [];
     connections.forEach(conn => {
       const wire = updatedWires.find(w => w.id === conn.wireId);
-      if (wire) {
-        wire.isActive = gate.output;
+      if (wire && wire.from.gateId === gateId) {
+        // カスタムゲートで複数出力がある場合
+        if (gate.type === 'CUSTOM' && gate.outputs && wire.from.pinIndex < 0) {
+          // 出力ピンインデックスを計算（-1 → 0, -2 → 1, ...）
+          const outputIndex = (-wire.from.pinIndex) - 1;
+          wire.isActive = gate.outputs[outputIndex] || false;
+        } else {
+          // 通常のゲートまたは単一出力
+          wire.isActive = gate.output;
+        }
       }
     });
   });
+  
+  // カスタムゲートの評価結果をログ出力
+  const customGates = updatedGates.filter(g => g.type === 'CUSTOM');
+  if (customGates.length > 0) {
+    console.log('🔄 回路評価完了 - カスタムゲート状態:', {
+      customGatesCount: customGates.length,
+      customGateStates: customGates.map(g => ({
+        id: g.id,
+        name: g.customGateDefinition?.name,
+        inputs: g.inputs,
+        output: g.output,
+        inputsLength: g.inputs.length,
+        definitionInputsLength: g.customGateDefinition?.inputs.length
+      }))
+    });
+  }
   
   return { gates: updatedGates, wires: updatedWires };
 }
