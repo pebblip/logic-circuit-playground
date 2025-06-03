@@ -10,10 +10,25 @@ interface HistoryState {
   wires: Wire[];
 }
 
+// クリップボード用の型
+interface ClipboardData {
+  gates: Gate[];
+  wires: Wire[];
+  bounds: {
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+  };
+}
+
 interface CircuitStore extends CircuitState {
   // 履歴管理
   history: HistoryState[];
   historyIndex: number;
+  
+  // クリップボード
+  clipboard: ClipboardData | null;
   
   // アプリケーションモード
   appMode: '学習モード' | '自由制作' | 'パズル・チャレンジ';
@@ -58,6 +73,11 @@ interface CircuitStore extends CircuitState {
   canUndo: () => boolean;
   canRedo: () => boolean;
   
+  // Copy/Paste
+  copySelection: () => void;
+  paste: (position: Position) => void;
+  canPaste: () => boolean;
+  
   // 履歴管理（内部用）
   pushHistory: () => void;
 }
@@ -76,6 +96,7 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
   customGates: initialCustomGates, // localStorageから読み込んだ値で初期化
   history: [{ gates: [], wires: [] }], // 初期状態を履歴に追加
   historyIndex: 0,
+  clipboard: null,
   appMode: '自由制作',
   allowedGates: null,
 
@@ -667,6 +688,109 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
   
   canUndo: () => get().historyIndex > 0,
   canRedo: () => get().historyIndex < get().history.length - 1,
+  
+  // Copy/Paste
+  copySelection: () => {
+    const state = get();
+    const selectedGates = state.gates.filter(g => state.selectedGateIds.includes(g.id));
+    
+    if (selectedGates.length === 0) return;
+    
+    // 選択されたゲート間のワイヤーのみをコピー
+    const selectedGateIds = new Set(state.selectedGateIds);
+    const internalWires = state.wires.filter(w => 
+      selectedGateIds.has(w.from.gateId) && selectedGateIds.has(w.to.gateId)
+    );
+    
+    // 境界ボックスを計算
+    const xs = selectedGates.map(g => g.position.x);
+    const ys = selectedGates.map(g => g.position.y);
+    const bounds = {
+      minX: Math.min(...xs),
+      minY: Math.min(...ys),
+      maxX: Math.max(...xs),
+      maxY: Math.max(...ys),
+    };
+    
+    set({
+      clipboard: {
+        gates: selectedGates.map(g => ({ ...g })), // ディープコピー
+        wires: internalWires.map(w => ({ ...w })), // ディープコピー
+        bounds
+      }
+    });
+    
+    console.log('📋 コピー完了:', selectedGates.length, 'ゲート', internalWires.length, 'ワイヤー');
+  },
+  
+  paste: (position) => {
+    const state = get();
+    if (!state.clipboard || state.clipboard.gates.length === 0) return;
+    
+    const { gates: clipboardGates, wires: clipboardWires, bounds } = state.clipboard;
+    
+    // クリップボードの中心を計算
+    const centerX = (bounds.minX + bounds.maxX) / 2;
+    const centerY = (bounds.minY + bounds.maxY) / 2;
+    
+    // マウス位置へのオフセットを計算
+    const offsetX = position.x - centerX;
+    const offsetY = position.y - centerY;
+    
+    // IDマッピング（古いID → 新しいID）
+    const idMapping = new Map<string, string>();
+    
+    // 新しいゲートを作成
+    const newGates = clipboardGates.map(gate => {
+      const newId = `gate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      idMapping.set(gate.id, newId);
+      
+      return {
+        ...gate,
+        id: newId,
+        position: {
+          x: gate.position.x + offsetX,
+          y: gate.position.y + offsetY
+        }
+      };
+    });
+    
+    // 新しいワイヤーを作成（内部接続のみ）
+    const newWires = clipboardWires.map(wire => ({
+      ...wire,
+      id: `wire-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      from: {
+        ...wire.from,
+        gateId: idMapping.get(wire.from.gateId) || wire.from.gateId
+      },
+      to: {
+        ...wire.to,
+        gateId: idMapping.get(wire.to.gateId) || wire.to.gateId
+      }
+    }));
+    
+    // 状態を更新
+    set(state => {
+      const updatedGates = [...state.gates, ...newGates];
+      const updatedWires = [...state.wires, ...newWires];
+      
+      // 回路を評価
+      const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(updatedGates, updatedWires);
+      
+      return {
+        gates: evaluatedGates,
+        wires: evaluatedWires,
+        selectedGateIds: newGates.map(g => g.id), // ペーストしたゲートを選択
+      };
+    });
+    
+    // 履歴に追加
+    get().pushHistory();
+    
+    console.log('📋 ペースト完了:', newGates.length, 'ゲート', newWires.length, 'ワイヤー');
+  },
+  
+  canPaste: () => get().clipboard !== null && get().clipboard.gates.length > 0,
   
   // アプリケーションモード管理
   setAppMode: (mode) => {

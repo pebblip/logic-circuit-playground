@@ -4,6 +4,7 @@ import { GateComponent } from './Gate';
 import { WireComponent } from './Wire';
 import { evaluateCircuit } from '../utils/simulation';
 import { useIsMobile } from '../hooks/useResponsive';
+import { Position } from '../types/circuit';
 
 interface ViewBox {
   x: number;
@@ -68,6 +69,23 @@ export const Canvas: React.FC = () => {
         selectedGateIds.forEach(gateId => deleteGate(gateId));
         setSelectionRect(null); // 削除後は選択矩形をクリア
       }
+      // Ctrl+C でコピー
+      if ((event.ctrlKey || event.metaKey) && event.key === 'c' && selectedGateIds.length > 0) {
+        event.preventDefault();
+        const copySelection = useCircuitStore.getState().copySelection;
+        copySelection();
+        
+        // コピーフィードバック（選択枠を一瞬光らせる）
+        // TODO: 視覚的フィードバックの実装
+      }
+      // Ctrl+V でペースト
+      if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+        event.preventDefault();
+        const { paste, canPaste } = useCircuitStore.getState();
+        if (canPaste()) {
+          paste(mousePosition);
+        }
+      }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
@@ -86,7 +104,7 @@ export const Canvas: React.FC = () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isDrawingWire, cancelWireDrawing, selectedGateIds]);
+  }, [isDrawingWire, cancelWireDrawing, selectedGateIds, mousePosition]);
 
   // CLOCKゲートがある場合、定期的に回路を更新
   React.useEffect(() => {
@@ -134,6 +152,7 @@ export const Canvas: React.FC = () => {
         endY: svgPoint.y
       });
     }
+    
   };
 
   const handleClick = (event: React.MouseEvent) => {
@@ -261,6 +280,7 @@ export const Canvas: React.FC = () => {
     return false;
   };
 
+
   // タッチイベント（モバイル用）
   const handleTouchStart = (event: React.TouchEvent) => {
     if (event.touches.length === 1) {
@@ -319,7 +339,7 @@ export const Canvas: React.FC = () => {
     }
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (event: React.MouseEvent) => {
     handlePanEnd();
     
     // 選択矩形終了時の処理
@@ -539,6 +559,7 @@ export const Canvas: React.FC = () => {
             pointerEvents="none"
           />
         )}
+        
       </svg>
     </div>
   );
