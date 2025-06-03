@@ -111,35 +111,36 @@ export const LEDCounterVisualizer: React.FC<LEDCounterVisualizerProps> = ({
       </div>
 
       {/* 計算説明 */}
-      <div className="calculation-breakdown">
-        <div className="calculation-title">💡 計算方法:</div>
-        <div className="calculation-steps">
-          {binaryStates.map((isOn, index) => {
-            const power = bitCount - 1 - index;
-            const value = isOn ? Math.pow(2, power) : 0;
-            return (
-              <div 
-                key={index} 
-                className={`calculation-step ${isOn ? 'active' : 'inactive'}`}
-                onMouseEnter={() => handleLEDMouseEnter(index)}
-                onMouseLeave={handleLEDMouseLeave}
-              >
-                <span className="bit-part">{isOn ? '1' : '0'}</span>
-                <span className="multiply">×</span>
-                <span className="power">2^{power}</span>
-                <span className="equals">=</span>
-                <span className="result">{value}</span>
-              </div>
-            );
-          })}
+      {displayMode === 'decimal' && (
+        <div className="calculation-breakdown">
+          <div className="calculation-title">💡 計算方法:</div>
+          <div className="calculation-steps">
+            {binaryStates.map((isOn, index) => {
+              const power = bitCount - 1 - index;
+              const value = isOn ? Math.pow(2, power) : 0;
+              return (
+                <div 
+                  key={index} 
+                  className={`calculation-step ${isOn ? 'active' : 'inactive'}`}
+                  onMouseEnter={() => handleLEDMouseEnter(index)}
+                  onMouseLeave={handleLEDMouseLeave}
+                >
+                  <span className="bit-part">{isOn ? '1' : '0'}</span>
+                  <span className="multiply">×</span>
+                  <span className="power">2^{power}</span>
+                  <span className="equals">=</span>
+                  <span className="result">{value}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="final-sum">
+            合計: {binaryStates.map((isOn, index) => {
+              const power = bitCount - 1 - index;
+              return isOn ? Math.pow(2, power) : 0;
+            }).filter(v => v > 0).join(' + ')} = <strong>{decimalValue}</strong>
+          </div>
         </div>
-        <div className="final-sum">
-          合計: {binaryStates.map((isOn, index) => {
-            const power = bitCount - 1 - index;
-            return isOn ? Math.pow(2, power) : 0;
-          }).filter(v => v > 0).join(' + ')} = <strong>{decimalValue}</strong>
-        </div>
-      </div>
       )}
       
       {/* 16進数変換説明 */}
