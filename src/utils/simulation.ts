@@ -1,5 +1,10 @@
 import { Gate, Wire, GateType } from '../types/circuit';
 import { isCustomGate } from '../types/gates';
+import {
+  setGateInputValue,
+  getGateInputValue,
+  booleanArrayToDisplayStates
+} from './signalConversion';
 
 // ゲートのロジックを評価
 export function evaluateGate(gate: Gate, inputs: boolean[]): boolean | boolean[] {
@@ -136,7 +141,7 @@ export function evaluateGate(gate: Gate, inputs: boolean[]): boolean | boolean[]
                 targetGate.output = inputValue;
                 console.log('📥 INPUTゲート出力設定:', { gateId: targetGate.id, output: inputValue });
               } else if (mapping.pinIndex < targetGate.inputs.length) {
-                targetGate.inputs[mapping.pinIndex] = inputValue ? '1' : '';
+                setGateInputValue(targetGate, mapping.pinIndex, inputValue);
                 console.log('📥 ゲート入力設定:', { 
                   gateId: targetGate.id, 
                   pinIndex: mapping.pinIndex, 
@@ -184,7 +189,7 @@ export function evaluateGate(gate: Gate, inputs: boolean[]): boolean | boolean[]
                 }
                 // 入力ピンの場合
                 else {
-                  result = outputGate.inputs[outputMapping.pinIndex] === '1';
+                  result = getGateInputValue(outputGate, outputMapping.pinIndex);
                   console.log('✅ 入力ピンから結果取得 [' + outputIndex + ']:', { 
                     pinIndex: outputMapping.pinIndex,
                     pinValue: outputGate.inputs[outputMapping.pinIndex],
@@ -358,7 +363,7 @@ export function evaluateCircuit(gates: Gate[], wires: Wire[]): { gates: Gate[], 
     
     // すべてのゲートで入力状態を保存（表示用）
     if (gate.type !== 'INPUT') {
-      gate.inputs = inputs.map(input => input ? '1' : '');
+      gate.inputs = booleanArrayToDisplayStates(inputs);
     }
     
     // このゲートから出ているワイヤーの状態を更新

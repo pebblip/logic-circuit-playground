@@ -1,5 +1,6 @@
 import React from 'react';
 import { TruthTableResult, exportTruthTableAsCSV, calculateTruthTableStats } from '../utils/truthTableGenerator';
+import { displayStateToBoolean } from '../utils/signalConversion';
 
 interface TruthTableDisplayProps {
   result: TruthTableResult;
@@ -207,7 +208,7 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
                       fontFamily: 'monospace',
                       fontSize: '16px',
                       fontWeight: '600',
-                      color: input === '1' ? '#00ff88' : 'rgba(255, 255, 255, 0.5)'
+                      color: displayStateToBoolean(input) ? '#00ff88' : 'rgba(255, 255, 255, 0.5)'
                     }}>
                       {input}
                     </td>
@@ -226,7 +227,7 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
                       fontFamily: 'monospace',
                       fontSize: '16px',
                       fontWeight: '600',
-                      color: output === '1' ? '#ff6699' : 'rgba(255, 255, 255, 0.5)'
+                      color: displayStateToBoolean(output) ? '#ff6699' : 'rgba(255, 255, 255, 0.5)'
                     }}>
                       {output}
                     </td>

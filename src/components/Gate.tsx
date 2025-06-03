@@ -4,6 +4,7 @@ import { useCircuitStore } from '../stores/circuitStore';
 import { useIsMobile } from '../hooks/useResponsive';
 import { isCustomGate } from '../types/gates';
 import { GateFactory } from '../models/gates/GateFactory';
+import { getGateInputValue } from '../utils/signalConversion';
 
 interface GateComponentProps {
   gate: Gate;
@@ -316,7 +317,7 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
           <g>
             <g onMouseDown={handleMouseDown} onTouchStart={handleTouchStart} onClick={handleGateClick} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <circle cx="0" cy="0" r="20" fill="#1a1a1a" stroke={isSelected ? '#00aaff' : '#444'} strokeWidth={isSelected ? '3' : '2'}/>
-              <circle cx="0" cy="0" r="15" fill={gate.inputs[0] === '1' ? '#00ff88' : '#333'}/>
+              <circle cx="0" cy="0" r="15" fill={getGateInputValue(gate, 0) ? '#00ff88' : '#333'}/>
               <text x="0" y="5" className="gate-text" style={{ fontSize: '20px' }}>💡</text>
             </g>
             {/* 入力ピン */}
@@ -329,10 +330,10 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
               />
               <circle 
                 cx="-30" cy="0" r="6" 
-                className={`pin input-pin ${gate.inputs[0] === '1' ? 'active' : ''}`}
+                className={`pin input-pin ${getGateInputValue(gate, 0) ? 'active' : ''}`}
                 pointerEvents="none"
               />
-              <line x1="-20" y1="0" x2="-30" y2="0" className={`pin-line ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+              <line x1="-20" y1="0" x2="-30" y2="0" className={`pin-line ${getGateInputValue(gate, 0) ? 'active' : ''}`} pointerEvents="none"/>
             </g>
           </g>
         );
@@ -429,14 +430,14 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
             {/* 入力ピン - D */}
             <g>
               <circle cx="-60" cy="-20" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 0, false)} />
-              <circle cx="-60" cy="-20" r="6" className={`pin ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none" />
-              <line x1="-50" y1="-20" x2="-60" y2="-20" className={`pin-line ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+              <circle cx="-60" cy="-20" r="6" className={`pin ${getGateInputValue(gate, 0) ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="-20" x2="-60" y2="-20" className={`pin-line ${getGateInputValue(gate, 0) ? 'active' : ''}`} pointerEvents="none"/>
             </g>
             {/* 入力ピン - CLK */}
             <g>
               <circle cx="-60" cy="20" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 1, false)} />
-              <circle cx="-60" cy="20" r="6" className={`pin ${gate.inputs[1] === '1' ? 'active' : ''}`} pointerEvents="none" />
-              <line x1="-50" y1="20" x2="-60" y2="20" className={`pin-line ${gate.inputs[1] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+              <circle cx="-60" cy="20" r="6" className={`pin ${getGateInputValue(gate, 1) ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="20" x2="-60" y2="20" className={`pin-line ${getGateInputValue(gate, 1) ? 'active' : ''}`} pointerEvents="none"/>
             </g>
             
             {/* 出力ピン - Q */}
@@ -471,14 +472,14 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
             {/* 入力ピン - S */}
             <g>
               <circle cx="-60" cy="-20" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 0, false)} />
-              <circle cx="-60" cy="-20" r="6" className={`pin ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none" />
-              <line x1="-50" y1="-20" x2="-60" y2="-20" className={`pin-line ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+              <circle cx="-60" cy="-20" r="6" className={`pin ${getGateInputValue(gate, 0) ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="-20" x2="-60" y2="-20" className={`pin-line ${getGateInputValue(gate, 0) ? 'active' : ''}`} pointerEvents="none"/>
             </g>
             {/* 入力ピン - R */}
             <g>
               <circle cx="-60" cy="20" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 1, false)} />
-              <circle cx="-60" cy="20" r="6" className={`pin ${gate.inputs[1] === '1' ? 'active' : ''}`} pointerEvents="none" />
-              <line x1="-50" y1="20" x2="-60" y2="20" className={`pin-line ${gate.inputs[1] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+              <circle cx="-60" cy="20" r="6" className={`pin ${getGateInputValue(gate, 1) ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="20" x2="-60" y2="20" className={`pin-line ${getGateInputValue(gate, 1) ? 'active' : ''}`} pointerEvents="none"/>
             </g>
             
             {/* 出力ピン - Q */}
@@ -512,20 +513,20 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
             {/* 入力ピン - A (I0) */}
             <g>
               <circle cx="-60" cy="-25" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 0, false)} />
-              <circle cx="-60" cy="-25" r="6" className={`pin ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none" />
-              <line x1="-50" y1="-25" x2="-60" y2="-25" className={`pin-line ${gate.inputs[0] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+              <circle cx="-60" cy="-25" r="6" className={`pin ${getGateInputValue(gate, 0) ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="-25" x2="-60" y2="-25" className={`pin-line ${getGateInputValue(gate, 0) ? 'active' : ''}`} pointerEvents="none"/>
             </g>
             {/* 入力ピン - B (I1) */}
             <g>
               <circle cx="-60" cy="0" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 1, false)} />
-              <circle cx="-60" cy="0" r="6" className={`pin ${gate.inputs[1] === '1' ? 'active' : ''}`} pointerEvents="none" />
-              <line x1="-50" y1="0" x2="-60" y2="0" className={`pin-line ${gate.inputs[1] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+              <circle cx="-60" cy="0" r="6" className={`pin ${getGateInputValue(gate, 1) ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="0" x2="-60" y2="0" className={`pin-line ${getGateInputValue(gate, 1) ? 'active' : ''}`} pointerEvents="none"/>
             </g>
             {/* 入力ピン - S (Select) */}
             <g>
               <circle cx="-60" cy="25" r="15" fill="transparent" style={{ cursor: 'crosshair' }} onClick={(e) => handlePinClick(e, 2, false)} />
-              <circle cx="-60" cy="25" r="6" className={`pin ${gate.inputs[2] === '1' ? 'active' : ''}`} pointerEvents="none" />
-              <line x1="-50" y1="25" x2="-60" y2="25" className={`pin-line ${gate.inputs[2] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+              <circle cx="-60" cy="25" r="6" className={`pin ${getGateInputValue(gate, 2) ? 'active' : ''}`} pointerEvents="none" />
+              <line x1="-50" y1="25" x2="-60" y2="25" className={`pin-line ${getGateInputValue(gate, 2) ? 'active' : ''}`} pointerEvents="none"/>
             </g>
             
             {/* 出力ピン - Y */}
@@ -606,12 +607,12 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
                   />
                   <circle 
                     cx={-halfWidth - 10} cy={y} r="6" 
-                    className={`pin input-pin ${gate.inputs[index] === '1' ? 'active' : ''}`}
+                    className={`pin input-pin ${getGateInputValue(gate, index) ? 'active' : ''}`}
                     pointerEvents="none"
                   />
                   <line 
                     x1={-halfWidth} y1={y} x2={-halfWidth - 10} y2={y} 
-                    className={`pin-line ${gate.inputs[index] === '1' ? 'active' : ''}`} 
+                    className={`pin-line ${getGateInputValue(gate, index) ? 'active' : ''}`} 
                     pointerEvents="none"
                   />
                   {/* ピン名 */}
@@ -693,10 +694,10 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
                   />
                   <circle 
                     cx="-45" cy={y} r="6" 
-                    className={`pin ${gate.inputs[index] === '1' ? 'active' : ''}`}
+                    className={`pin ${getGateInputValue(gate, index) ? 'active' : ''}`}
                     pointerEvents="none"
                   />
-                  <line x1="-35" y1={y} x2="-45" y2={y} className={`pin-line ${gate.inputs[index] === '1' ? 'active' : ''}`} pointerEvents="none"/>
+                  <line x1="-35" y1={y} x2="-45" y2={y} className={`pin-line ${getGateInputValue(gate, index) ? 'active' : ''}`} pointerEvents="none"/>
                 </g>
               );
             })}

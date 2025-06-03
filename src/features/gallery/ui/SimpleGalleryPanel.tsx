@@ -1,9 +1,30 @@
 import React from 'react';
 import { useCircuitStore } from '../../../stores/circuitStore';
+import { Gate, Wire, GateType } from '../../../types/circuit';
 import './SimpleGalleryPanel.css';
 
+// ヘルパー関数: ゲートを作成
+const g = (id: string, type: GateType, x: number, y: number, metadata?: any): Gate => ({
+  id,
+  type,
+  position: { x, y },
+  output: false,
+  inputs: [],
+  ...(metadata && { metadata })
+});
+
 // ultrathink: 驚きの回路だけを厳選
-const AMAZING_CIRCUITS = [
+interface CircuitData {
+  id: string;
+  title: string;
+  subtitle: string;
+  preview: string;
+  instruction: string;
+  gates: Gate[];
+  wires: Wire[];
+}
+
+const AMAZING_CIRCUITS: CircuitData[] = [
   {
     id: 'not-magic',
     title: '🔄 反転マジック',
@@ -11,9 +32,9 @@ const AMAZING_CIRCUITS = [
     preview: '0 → 1, 1 → 0',
     instruction: '🖱️ 左のスイッチをダブルクリック！',
     gates: [
-      { id: 'input1', type: 'INPUT', position: { x: 100, y: 200 }, output: false, inputs: [] },
-      { id: 'not1', type: 'NOT', position: { x: 300, y: 200 }, output: false, inputs: [] },
-      { id: 'output1', type: 'OUTPUT', position: { x: 500, y: 200 }, output: false, inputs: [] }
+      g('input1', 'INPUT', 100, 200),
+      g('not1', 'NOT', 300, 200),
+      g('output1', 'OUTPUT', 500, 200)
     ],
     wires: [
       { id: 'w1', from: { gateId: 'input1', pinIndex: -1 }, to: { gateId: 'not1', pinIndex: 0 }, isActive: false },
@@ -28,11 +49,11 @@ const AMAZING_CIRCUITS = [
     preview: 'S/R → [?] → Q',
     instruction: '👆 上のSをクリック→下のRをクリックで切り替え',
     gates: [
-      { id: 'input-s', type: 'INPUT', position: { x: 100, y: 150 }, output: false, inputs: [] },
-      { id: 'input-r', type: 'INPUT', position: { x: 100, y: 250 }, output: false, inputs: [] },
-      { id: 'sr-latch', type: 'SR-LATCH', position: { x: 300, y: 200 }, output: false, inputs: [] },
-      { id: 'output-q', type: 'OUTPUT', position: { x: 500, y: 150 }, output: false, inputs: [] },
-      { id: 'output-qbar', type: 'OUTPUT', position: { x: 500, y: 250 }, output: false, inputs: [] }
+      g('input-s', 'INPUT', 100, 150),
+      g('input-r', 'INPUT', 100, 250),
+      g('sr-latch', 'SR-LATCH', 300, 200),
+      g('output-q', 'OUTPUT', 500, 150),
+      g('output-qbar', 'OUTPUT', 500, 250)
     ],
     wires: [
       { id: 'w1', from: { gateId: 'input-s', pinIndex: -1 }, to: { gateId: 'sr-latch', pinIndex: 0 }, isActive: false },
@@ -49,10 +70,10 @@ const AMAZING_CIRCUITS = [
     preview: '1 & 1 = 1',
     instruction: '💡 両方のスイッチをONにしてみて！',
     gates: [
-      { id: 'input-a', type: 'INPUT', position: { x: 100, y: 150 }, output: false, inputs: [] },
-      { id: 'input-b', type: 'INPUT', position: { x: 100, y: 250 }, output: false, inputs: [] },
-      { id: 'and1', type: 'AND', position: { x: 300, y: 200 }, output: false, inputs: [] },
-      { id: 'output1', type: 'OUTPUT', position: { x: 500, y: 200 }, output: false, inputs: [] }
+      g('input-a', 'INPUT', 100, 150),
+      g('input-b', 'INPUT', 100, 250),
+      g('and1', 'AND', 300, 200),
+      g('output1', 'OUTPUT', 500, 200)
     ],
     wires: [
       { id: 'w1', from: { gateId: 'input-a', pinIndex: -1 }, to: { gateId: 'and1', pinIndex: 0 }, isActive: false },
@@ -68,10 +89,10 @@ const AMAZING_CIRCUITS = [
     preview: '1 | 0 = 1',
     instruction: '✨ どちらか片方をONにしてみて！',
     gates: [
-      { id: 'input-a', type: 'INPUT', position: { x: 100, y: 150 }, output: false, inputs: [] },
-      { id: 'input-b', type: 'INPUT', position: { x: 100, y: 250 }, output: false, inputs: [] },
-      { id: 'or1', type: 'OR', position: { x: 300, y: 200 }, output: false, inputs: [] },
-      { id: 'output1', type: 'OUTPUT', position: { x: 500, y: 200 }, output: false, inputs: [] }
+      g('input-a', 'INPUT', 100, 150),
+      g('input-b', 'INPUT', 100, 250),
+      g('or1', 'OR', 300, 200),
+      g('output1', 'OUTPUT', 500, 200)
     ],
     wires: [
       { id: 'w1', from: { gateId: 'input-a', pinIndex: -1 }, to: { gateId: 'or1', pinIndex: 0 }, isActive: false },
@@ -87,12 +108,12 @@ const AMAZING_CIRCUITS = [
     preview: 'A⊕B⊕B = A',
     instruction: '🔐 上2つをONにすると暗号化→復号化が見れる！',
     gates: [
-      { id: 'input-a', type: 'INPUT', position: { x: 100, y: 100 }, output: false, inputs: [] },
-      { id: 'input-key', type: 'INPUT', position: { x: 100, y: 200 }, output: false, inputs: [] },
-      { id: 'xor1', type: 'XOR', position: { x: 300, y: 150 }, output: false, inputs: [] },
-      { id: 'xor2', type: 'XOR', position: { x: 500, y: 150 }, output: false, inputs: [] },
-      { id: 'output-encrypted', type: 'OUTPUT', position: { x: 450, y: 50 }, output: false, inputs: [] },
-      { id: 'output-decrypted', type: 'OUTPUT', position: { x: 700, y: 150 }, output: false, inputs: [] }
+      g('input-a', 'INPUT', 100, 100),
+      g('input-key', 'INPUT', 100, 200),
+      g('xor1', 'XOR', 300, 150),
+      g('xor2', 'XOR', 500, 150),
+      g('output-encrypted', 'OUTPUT', 450, 50),
+      g('output-decrypted', 'OUTPUT', 700, 150)
     ],
     wires: [
       // 暗号化: A XOR KEY

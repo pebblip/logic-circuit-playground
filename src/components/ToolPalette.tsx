@@ -5,6 +5,7 @@ import { GateFactory } from '../models/gates/GateFactory';
 import { CreateCustomGateDialog } from './dialogs/CreateCustomGateDialog';
 import { TruthTableDisplay } from './TruthTableDisplay';
 import { generateTruthTable, TruthTableResult } from '../utils/truthTableGenerator';
+import { displayStateToBoolean } from '../utils/signalConversion';
 
 const BASIC_GATES: { type: GateType; label: string }[] = [
   { type: 'AND', label: 'AND' },
@@ -355,6 +356,7 @@ export const ToolPalette: React.FC = () => {
               key={type}
               className={`tool-card ${isDisabled ? 'disabled' : ''}`}
               data-gate-type={type}
+              data-testid={`gate-${type}`}
               title={isDisabled ? '学習モードではこのゲートは使用できません' : 'ドラッグしてキャンバスに配置'}
               draggable={!isDisabled}
               onDragStart={(e) => {
@@ -390,6 +392,7 @@ export const ToolPalette: React.FC = () => {
               key={type}
               className={`tool-card ${isDisabled ? 'disabled' : ''}`}
               data-gate-type={type}
+              data-testid={`gate-${type}`}
               title={isDisabled ? '学習モードではこのゲートは使用できません' : 'ドラッグしてキャンバスに配置'}
               draggable={!isDisabled}
               onDragStart={(e) => {
@@ -425,6 +428,7 @@ export const ToolPalette: React.FC = () => {
               key={type}
               className={`tool-card ${isDisabled ? 'disabled' : ''}`}
               data-gate-type={type}
+              data-testid={`gate-${type}`}
               title={isDisabled ? '学習モードではこのゲートは使用できません' : 'ドラッグしてキャンバスに配置'}
               draggable={!isDisabled}
               onDragStart={(e) => {
@@ -511,8 +515,8 @@ export const ToolPalette: React.FC = () => {
                 const table = Object.entries(definition.truthTable).map(([inputs, outputs]) => ({
                   inputs,
                   outputs,
-                  inputValues: inputs.split('').map(bit => bit === '1'),
-                  outputValues: outputs.split('').map(bit => bit === '1')
+                  inputValues: inputs.split('').map(bit => displayStateToBoolean(bit)),
+                  outputValues: outputs.split('').map(bit => displayStateToBoolean(bit))
                 }));
                 
                 const result = {

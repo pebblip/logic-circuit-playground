@@ -130,7 +130,7 @@ export class CircuitPatternRecognizer {
   private hasCounterLikeStructure(gates: Gate[], wires: Wire[]): boolean {
     // フリップフロップ、ラッチ、またはフィードバックループの存在をチェック
     const flipflopGates = gates.filter(g => 
-      g.type === 'D_FLIPFLOP' || g.type === 'SR_LATCH'
+      g.type === 'D-FF' || g.type === 'SR-LATCH'
     );
     
     if (flipflopGates.length > 0) return true;

@@ -4,6 +4,9 @@ import { GateComponent } from './Gate';
 import { WireComponent } from './Wire';
 import { evaluateCircuit } from '../utils/simulation';
 import { useIsMobile } from '../hooks/useResponsive';
+import { useCanvasPan } from '../hooks/useCanvasPan';
+import { useCanvasSelection } from '../hooks/useCanvasSelection';
+import { useCanvasZoom } from '../hooks/useCanvasZoom';
 import { Position } from '../types/circuit';
 
 interface ViewBox {
@@ -13,12 +16,6 @@ interface ViewBox {
   height: number;
 }
 
-interface SelectionRect {
-  startX: number;
-  startY: number;
-  endX: number;
-  endY: number;
-}
 
 interface CanvasProps {
   highlightedGateId?: string | null;
@@ -28,13 +25,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 400, y: 300 });
   const [viewBox, setViewBox] = useState<ViewBox>({ x: 0, y: 0, width: 1200, height: 800 });
-  const [isPanning, setIsPanning] = useState(false);
-  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
-  const [scale, setScale] = useState(1);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
-  const [isSelecting, setIsSelecting] = useState(false);
-  const [selectionRect, setSelectionRect] = useState<SelectionRect | null>(null);
-  const selectionJustFinished = useRef(false);
   
   const isMobile = useIsMobile();
   const { 
@@ -51,6 +42,19 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     addGate,
     addCustomGateInstance
   } = useCircuitStore();
+
+  // カスタムフックの使用
+  const { scale, handleZoom, resetZoom, zoomIn, zoomOut } = useCanvasZoom(svgRef, viewBox, setViewBox);
+  const { isPanning, handlePanStart, handlePan, handlePanEnd } = useCanvasPan(svgRef, viewBox, setViewBox, scale);
+  const { 
+    isSelecting, 
+    selectionRect, 
+    selectionJustFinished,
+    startSelection,
+    updateSelection,
+    endSelection,
+    clearSelection: clearSelectionRect
+  } = useCanvasSelection(gates, setSelectedGates);
 
   // キーボードイベント処理
   React.useEffect(() => {
@@ -71,7 +75,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         event.preventDefault();
         const deleteGate = useCircuitStore.getState().deleteGate;
         selectedGateIds.forEach(gateId => deleteGate(gateId));
-        setSelectionRect(null); // 削除後は選択矩形をクリア
+        clearSelectionRect(); // 削除後は選択矩形をクリア
       }
       // Ctrl+C でコピー
       if ((event.ctrlKey || event.metaKey) && event.key === 'c' && selectedGateIds.length > 0) {
@@ -95,10 +99,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     const handleKeyUp = (event: KeyboardEvent) => {
       if (event.key === ' ') {
         setIsSpacePressed(false);
-        setIsPanning(false);
-        if (svgRef.current) {
-          svgRef.current.style.cursor = 'default';
-        }
+        handlePanEnd();
       }
     };
 
@@ -149,12 +150,8 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     }
     
     // 選択矩形の更新
-    if (isSelecting && selectionRect) {
-      setSelectionRect({
-        ...selectionRect,
-        endX: svgPoint.x,
-        endY: svgPoint.y
-      });
+    if (isSelecting) {
+      updateSelection(svgPoint.x, svgPoint.y);
     }
     
   };
@@ -185,80 +182,16 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       // 選択をクリア（Shift/Ctrlキーが押されていない場合）
       if (!event.shiftKey && !event.ctrlKey && !event.metaKey) {
         clearSelection();
-        setSelectionRect(null); // 選択矩形もクリア
+        clearSelectionRect(); // 選択矩形もクリア
       }
     }
   };
 
-  // パン開始
-  const handlePanStart = (clientX: number, clientY: number) => {
-    if (!isDrawingWire) {
-      setIsPanning(true);
-      setPanStart({ x: clientX, y: clientY });
-      if (svgRef.current && isSpacePressed) {
-        svgRef.current.style.cursor = 'grabbing';
-      }
-    }
-  };
-
-  // パン中
-  const handlePan = (clientX: number, clientY: number) => {
-    if (isPanning) {
-      const dx = (panStart.x - clientX) / scale;
-      const dy = (panStart.y - clientY) / scale;
-      
-      setViewBox(prev => ({
-        ...prev,
-        x: prev.x + dx,
-        y: prev.y + dy,
-      }));
-      
-      setPanStart({ x: clientX, y: clientY });
-    }
-  };
-
-  // パン終了
-  const handlePanEnd = () => {
-    setIsPanning(false);
-    if (svgRef.current && isSpacePressed) {
-      svgRef.current.style.cursor = 'grab';
-    } else if (svgRef.current) {
-      svgRef.current.style.cursor = 'default';
-    }
-  };
-
-  // ズーム処理
-  const handleZoom = (delta: number, centerX: number, centerY: number) => {
-    const zoomFactor = delta > 0 ? 1.1 : 0.9;
-    const newScale = Math.max(0.5, Math.min(3, scale * zoomFactor));
-    
-    if (newScale !== scale) {
-      // ズームの中心点を基準に調整
-      const scaleDiff = newScale - scale;
-      const dx = (centerX - viewBox.x - viewBox.width / 2) * (scaleDiff / scale);
-      const dy = (centerY - viewBox.y - viewBox.height / 2) * (scaleDiff / scale);
-      
-      setViewBox(prev => ({
-        x: prev.x - dx,
-        y: prev.y - dy,
-        width: 1200 / newScale,
-        height: 800 / newScale,
-      }));
-      
-      setScale(newScale);
-    }
-  };
 
   // ホイールイベント
   const handleWheel = (event: React.WheelEvent) => {
     event.preventDefault();
-    
-    if (!svgRef.current) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    const centerX = viewBox.x + (event.clientX - rect.left) * viewBox.width / rect.width;
-    const centerY = viewBox.y + (event.clientY - rect.top) * viewBox.height / rect.height;
-    
-    handleZoom(-event.deltaY, centerX, centerY);
+    handleZoom(-event.deltaY, event.clientX, event.clientY);
   };
 
   // ゲート要素かどうかを判定する関数
@@ -333,13 +266,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       point.y = event.clientY;
       const svgPoint = point.matrixTransform(svgRef.current.getScreenCTM()!.inverse());
       
-      setIsSelecting(true);
-      setSelectionRect({
-        startX: svgPoint.x,
-        startY: svgPoint.y,
-        endX: svgPoint.x,
-        endY: svgPoint.y
-      });
+      startSelection(svgPoint.x, svgPoint.y);
     }
   };
 
@@ -347,35 +274,8 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     handlePanEnd();
     
     // 選択矩形終了時の処理
-    if (isSelecting && selectionRect) {
-      // 矩形内のゲートを選択
-      const minX = Math.min(selectionRect.startX, selectionRect.endX);
-      const maxX = Math.max(selectionRect.startX, selectionRect.endX);
-      const minY = Math.min(selectionRect.startY, selectionRect.endY);
-      const maxY = Math.max(selectionRect.startY, selectionRect.endY);
-      
-      const selectedGates = gates.filter(gate => {
-        const { x, y } = gate.position;
-        return x >= minX && x <= maxX && y >= minY && y <= maxY;
-      });
-      
-      if (selectedGates.length > 0) {
-        setSelectedGates(selectedGates.map(g => g.id));
-        // 選択されたゲートがある場合は選択矩形を維持
-        // setSelectionRectは削除しない！
-      } else {
-        // 選択されたゲートがない場合のみクリア
-        setSelectionRect(null);
-      }
-      
-      setIsSelecting(false);
-      // 矩形選択直後のクリックイベントを無視するためのフラグ
-      // ドラッグ選択が実際に行われた場合のみフラグを立てる
-      const dragDistance = Math.abs(selectionRect.endX - selectionRect.startX) + 
-                          Math.abs(selectionRect.endY - selectionRect.startY);
-      if (dragDistance > 5) { // 5px以上ドラッグした場合のみ
-        selectionJustFinished.current = true;
-      }
+    if (isSelecting) {
+      endSelection();
     }
   };
 
@@ -400,7 +300,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       document.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [isPanning, panStart, scale, viewBox]);
+  }, [isPanning, handlePan, handlePanEnd]);
 
   // ドロップハンドラ
   const handleDrop = (event: React.DragEvent) => {
@@ -428,56 +328,13 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     event.dataTransfer.dropEffect = 'copy';
   };
 
-  // ズームボタンハンドラー
-  const handleZoomIn = () => {
-    const centerX = viewBox.x + viewBox.width / 2;
-    const centerY = viewBox.y + viewBox.height / 2;
-    handleZoom(-100, centerX, centerY); // negative delta for zoom in
-  };
-
-  const handleZoomOut = () => {
-    const centerX = viewBox.x + viewBox.width / 2;
-    const centerY = viewBox.y + viewBox.height / 2;
-    handleZoom(100, centerX, centerY); // positive delta for zoom out
-  };
-
-  const handleZoomReset = () => {
-    setScale(1);
-    setViewBox({ x: 0, y: 0, width: 1200, height: 800 });
-  };
-
-  const zoomPercentage = Math.round(scale * 100);
 
   return (
     <div className="canvas-container">
-      {/* ズームコントロール */}
-      <div className="zoom-controls">
-        <button 
-          className="zoom-button" 
-          onClick={handleZoomOut}
-          title="ズームアウト"
-        >
-          −
-        </button>
-        <button 
-          className="zoom-button zoom-reset" 
-          onClick={handleZoomReset}
-          title="ズームリセット"
-        >
-          {zoomPercentage}%
-        </button>
-        <button 
-          className="zoom-button" 
-          onClick={handleZoomIn}
-          title="ズームイン"
-        >
-          +
-        </button>
-      </div>
-      
       <svg
         ref={svgRef}
         className="canvas"
+        data-testid="canvas"
         viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
@@ -569,6 +426,15 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         )}
         
       </svg>
+      
+      {/* ズームコントロール */}
+      <div className="zoom-controls">
+        <button className="zoom-button" onClick={zoomOut}>−</button>
+        <button className="zoom-button zoom-reset" onClick={resetZoom}>
+          {Math.round(scale * 100)}%
+        </button>
+        <button className="zoom-button" onClick={zoomIn}>＋</button>
+      </div>
     </div>
   );
 };

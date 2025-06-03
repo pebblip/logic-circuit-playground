@@ -529,6 +529,7 @@ export class CircuitStorageService {
 
   private validateCircuitData(circuit: SavedCircuit): boolean {
     return !!(
+      circuit &&
       circuit.metadata &&
       circuit.metadata.id &&
       circuit.metadata.name &&
@@ -540,5 +541,15 @@ export class CircuitStorageService {
   }
 }
 
-// シングルトンインスタンスをエクスポート
-export const circuitStorage = CircuitStorageService.getInstance();
+// シングルトンインスタンスを遅延初期化でエクスポート
+export const circuitStorage = (() => {
+  let instance: CircuitStorageService | null = null;
+  return {
+    get: () => {
+      if (!instance) {
+        instance = CircuitStorageService.getInstance();
+      }
+      return instance;
+    }
+  };
+})();

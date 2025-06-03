@@ -3,6 +3,7 @@ import { Gate, Wire, CircuitState, GateType, Position, CustomGateDefinition, Cus
 import { evaluateCircuit } from '../utils/simulation';
 import { GateFactory } from '../models/gates/GateFactory';
 import { saveCustomGates, loadCustomGates } from '../utils/customGateStorage';
+import { booleanToDisplayState, displayStateToBoolean, getGateInputValue, setGateInputValue } from '../utils/signalConversion';
 
 // 履歴管理用の型
 interface HistoryState {
@@ -126,6 +127,13 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
     // GateFactoryを使用してゲートを作成（特殊ゲートにも対応）
     const newGate = GateFactory.createGate(type, position);
     
+    // 新しいゲートの入力値を適切な形式で初期化
+    if (newGate.inputs && newGate.inputs.length > 0) {
+      newGate.inputs = newGate.inputs.map(input => 
+        typeof input === 'boolean' ? booleanToDisplayState(input) : input
+      );
+    }
+    
     set((state) => {
       const newGates = [...state.gates, newGate];
       
@@ -153,6 +161,13 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
     
     // GateFactoryを使用してカスタムゲートを作成
     const newGate = GateFactory.createCustomGate(definition, position);
+    
+    // カスタムゲートの入力値を適切な形式で初期化
+    if (newGate.inputs && newGate.inputs.length > 0) {
+      newGate.inputs = newGate.inputs.map(input => 
+        typeof input === 'boolean' ? booleanToDisplayState(input) : input
+      );
+    }
     
     set((state) => {
       const newGates = [...state.gates, newGate];
@@ -556,10 +571,14 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
 
   updateGateOutput: (gateId, output) => {
     set((state) => {
-      // まずINPUTゲートの状態を更新
-      const updatedGates = state.gates.map((gate) =>
-        gate.id === gateId ? { ...gate, output } : gate
-      );
+      // INPUTゲートの状態を更新（boolean値を統一的に処理）
+      const updatedGates = state.gates.map((gate) => {
+        if (gate.id === gateId) {
+          // 出力値を適切な型で設定
+          return { ...gate, output };
+        }
+        return gate;
+      });
       
       // 回路全体を評価
       const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(updatedGates, state.wires);
@@ -664,8 +683,16 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
       const newIndex = state.historyIndex - 1;
       const historicalState = state.history[newIndex];
       
+      // 履歴から復元する際も入力値の形式を統一
+      const normalizedGates = historicalState.gates.map(gate => ({
+        ...gate,
+        inputs: gate.inputs ? gate.inputs.map(input => 
+          typeof input === 'boolean' ? booleanToDisplayState(input) : input
+        ) : []
+      }));
+      
       set({
-        gates: historicalState.gates,
+        gates: normalizedGates,
         wires: historicalState.wires,
         historyIndex: newIndex,
         selectedGateId: null,
@@ -681,8 +708,16 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
       const newIndex = state.historyIndex + 1;
       const historicalState = state.history[newIndex];
       
+      // 履歴から復元する際も入力値の形式を統一
+      const normalizedGates = historicalState.gates.map(gate => ({
+        ...gate,
+        inputs: gate.inputs ? gate.inputs.map(input => 
+          typeof input === 'boolean' ? booleanToDisplayState(input) : input
+        ) : []
+      }));
+      
       set({
-        gates: historicalState.gates,
+        gates: normalizedGates,
         wires: historicalState.wires,
         historyIndex: newIndex,
         selectedGateId: null,
@@ -733,7 +768,13 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
     
     set({
       clipboard: {
-        gates: selectedGates.map(g => ({ ...g })), // ディープコピー
+        gates: selectedGates.map(g => ({ 
+          ...g,
+          // コピー時に入力値の形式を統一
+          inputs: g.inputs ? g.inputs.map(input => 
+            typeof input === 'boolean' ? booleanToDisplayState(input) : input
+          ) : []
+        })), // ディープコピー
         wires: internalWires.map(w => ({ ...w })), // ディープコピー
         bounds
       }
@@ -764,9 +805,15 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
       const newId = `gate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       idMapping.set(gate.id, newId);
       
+      // ペースト時に入力値の形式を統一
+      const normalizedInputs = gate.inputs ? gate.inputs.map(input => 
+        typeof input === 'boolean' ? booleanToDisplayState(input) : input
+      ) : [];
+      
       return {
         ...gate,
         id: newId,
+        inputs: normalizedInputs,
         position: {
           x: gate.position.x + offsetX,
           y: gate.position.y + offsetY

@@ -253,7 +253,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ isOpen, onClose })
                           key={index}
                           className="quiz-option"
                           onClick={() => {
-                            if (index === currentStep.action.correct) {
+                            if (currentStep.action.type === 'quiz' && index === currentStep.action.correct) {
                               handleNextStep();
                             } else {
                               // 不正解のフィードバック

@@ -6,6 +6,7 @@ import { PropertyPanel } from '../PropertyPanel';
 import { LearningPanel } from '../../features/learning-mode/ui/LearningPanel';
 import { CircuitVisualizerPanel } from '../CircuitVisualizerPanel';
 import { useCircuitStore } from '../../stores/circuitStore';
+import { AppMode } from '../../types/AppMode';
 
 interface DesktopLayoutProps {
   children?: React.ReactNode;
@@ -16,7 +17,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   const [isVisualizerOpen, setIsVisualizerOpen] = useState(false);
   const [highlightedGateId, setHighlightedGateId] = useState<string | null>(null);
   
-  const handleModeChange = (mode: '学習モード' | '自由制作') => {
+  const handleModeChange = (mode: AppMode) => {
     setAppMode(mode);
   };
   

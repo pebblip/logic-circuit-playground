@@ -4,6 +4,7 @@ import { isCustomGate } from '../types/gates';
 import { TruthTableDisplay } from './TruthTableDisplay';
 import { generateTruthTable } from '../utils/truthTableGenerator';
 import { GateDescription, getGateDescription } from '../data/gateDescriptions';
+import { booleanToDisplayState, getGateInputsAsBoolean } from '../utils/signalConversion';
 
 export const PropertyPanel: React.FC = () => {
   const { gates, wires, selectedGateId, updateClockFrequency } = useCircuitStore();
@@ -82,15 +83,12 @@ export const PropertyPanel: React.FC = () => {
     };
   }, [showDetailModal, showTruthTableModal, forceCloseModal]);
 
-  // 構造化されたゲート説明データ
-  const getGateDescriptionData = (gateType: string): GateDescription => {
-    return getGateDescription(gateType);
-  };
+  // 構造化されたゲート説明データ（外部化済み）
 
 
   // 美しいJSXレンダリング関数
   const renderGateDescription = (gateType: string) => {
-    const data = getGateDescriptionData(gateType);
+    const data = getGateDescription(gateType);
     
     return (
       <div style={{ fontSize: '14px', lineHeight: '1.7', color: 'rgba(255, 255, 255, 0.9)' }}>
@@ -284,19 +282,18 @@ export const PropertyPanel: React.FC = () => {
       const inputNames = definition.inputs.map(input => input.name);
       const outputNames = definition.outputs.map(output => output.name);
       
-      const table = Object.entries(definition.truthTable).map(([inputs, outputs]) => ({
+      const table = definition.truthTable ? Object.entries(definition.truthTable).map(([inputs, outputs]) => ({
         inputs,
         outputs,
         inputValues: inputs.split('').map(bit => bit === '1'),
         outputValues: outputs.split('').map(bit => bit === '1')
-      }));
+      })) : [];
       
       const result = {
         table,
         inputCount: definition.inputs.length,
         outputCount: definition.outputs.length,
-        isSequential: false,
-        recognizedPattern: definition.recognizedPattern
+        isSequential: false
       };
       
       setTruthTableData({
@@ -316,9 +313,9 @@ export const PropertyPanel: React.FC = () => {
       if (truthTable.length > 0) {
         const table = truthTable.map(row => {
           const inputs = selectedGate.type === 'NOT' ? 
-            row.a.toString() : 
-            `${row.a}${row.b}`;
-          const outputs = row.out.toString();
+            booleanToDisplayState(!!row.a) : 
+            `${booleanToDisplayState(!!row.a)}${booleanToDisplayState(!!row.b)}`;
+          const outputs = booleanToDisplayState(!!row.out);
           
           return {
             inputs,
@@ -373,7 +370,9 @@ export const PropertyPanel: React.FC = () => {
     // カスタムゲートの場合
     if (isCustomGate(selectedGate) && selectedGate.customGateDefinition?.truthTable) {
       const definition = selectedGate.customGateDefinition;
-      return Object.entries(definition.truthTable).map(([inputs, outputs]) => {
+      const truthTable = definition.truthTable;
+      if (!truthTable) return [];
+      return Object.entries(truthTable).map(([inputs, outputs]) => {
         const row: any = {};
         
         // 入力列を追加
@@ -439,17 +438,11 @@ export const PropertyPanel: React.FC = () => {
 
   const truthTable = getTruthTable();
 
-  const getGateDescription = () => {
+  const getGateDescriptionLegacy = () => {
     // カスタムゲートの場合
     if (isCustomGate(selectedGate) && selectedGate.customGateDefinition) {
       const definition = selectedGate.customGateDefinition;
-      let description = definition.description || 'ユーザー定義のカスタムゲートです。';
-      
-      if (definition.recognizedPattern) {
-        description += ` このゲートは${definition.recognizedPattern}のパターンとして認識されています。`;
-      }
-      
-      return description;
+      return definition.description || 'ユーザー定義のカスタムゲートです。';
     }
 
     // 基本ゲートの場合
@@ -938,7 +931,7 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
               {/* 入力状態 */}
               {selectedGate.inputs && selectedGate.inputs.length > 0 && (
                 <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.7)' }}>
-                  入力: [{selectedGate.inputs.join(',')}]
+                  入力: [{getGateInputsAsBoolean(selectedGate).map(val => booleanToDisplayState(val) || '0').join(',')}]
                 </span>
               )}
               {/* 出力状態 */}
@@ -947,7 +940,7 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
                 color: selectedGate.output ? '#00ff88' : 'rgba(255, 255, 255, 0.5)',
                 fontWeight: '600'
               }}>
-                出力: {selectedGate.output ? '1' : '0'}
+                出力: {booleanToDisplayState(selectedGate.output)}
               </span>
             </div>
           </div>

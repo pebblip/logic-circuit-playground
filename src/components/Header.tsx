@@ -4,10 +4,11 @@ import { LoadCircuitDialog } from './dialogs/LoadCircuitDialog';
 import { ExportImportDialog } from './dialogs/ExportImportDialog';
 import { HelpPanel } from './HelpPanel';
 import { useCircuitStore } from '../stores/circuitStore';
+import { AppMode } from '../types/AppMode';
 
 interface HeaderProps {
-  activeMode: string;
-  onModeChange: (mode: string) => void;
+  activeMode: AppMode;
+  onModeChange: (mode: AppMode) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {

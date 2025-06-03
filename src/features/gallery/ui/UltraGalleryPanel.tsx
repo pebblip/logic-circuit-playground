@@ -1,9 +1,32 @@
 import React from 'react';
 import { useCircuitStore } from '../../../stores/circuitStore';
+import { Gate, Wire, GateType } from '../../../types/circuit';
 import './UltraGalleryPanel.css';
 
+// ヘルパー関数: ゲートを作成
+const g = (id: string, type: GateType, x: number, y: number, output = false, metadata?: any, label?: string): Gate => ({
+  id,
+  type,
+  position: { x, y },
+  output,
+  inputs: [],
+  ...(metadata && { metadata }),
+  ...(label && { label })
+});
+
+// 回路データの型定義
+interface CircuitData {
+  id: string;
+  name: string;
+  desc: string;
+  icon: string;
+  howTo: string;
+  gates: Gate[];
+  wires: Wire[];
+}
+
 // ultrathink: 本当に驚く回路だけ
-const AMAZING_CIRCUITS = [
+const AMAZING_CIRCUITS: CircuitData[] = [
   {
     id: '7seg',
     name: '7セグ',
@@ -12,17 +35,17 @@ const AMAZING_CIRCUITS = [
     howTo: '💡 スイッチをOFFにすると「1」が消えるよ！',
     gates: [
       // 簡単な7セグ表示（数字の「1」を表示）
-      { id: 'input', type: 'INPUT', position: { x: 100, y: 200 }, output: true, inputs: [], label: 'ON/OFF' }, // デフォルトでON
+      g('input', 'INPUT', 100, 200, true, undefined, 'ON/OFF'), // デフォルトでON
       
       // 7セグメントの各セグメント（a-g）
       // 「1」を表示するにはbとcだけON
-      { id: 'seg_a', type: 'OUTPUT', position: { x: 400, y: 50 }, output: false, inputs: [] },   // 上
-      { id: 'seg_b', type: 'OUTPUT', position: { x: 500, y: 100 }, output: false, inputs: [] },  // 右上
-      { id: 'seg_c', type: 'OUTPUT', position: { x: 500, y: 200 }, output: false, inputs: [] },  // 右下
-      { id: 'seg_d', type: 'OUTPUT', position: { x: 400, y: 250 }, output: false, inputs: [] },  // 下
-      { id: 'seg_e', type: 'OUTPUT', position: { x: 300, y: 200 }, output: false, inputs: [] },  // 左下
-      { id: 'seg_f', type: 'OUTPUT', position: { x: 300, y: 100 }, output: false, inputs: [] },  // 左上
-      { id: 'seg_g', type: 'OUTPUT', position: { x: 400, y: 150 }, output: false, inputs: [] }   // 中央
+      g('seg_a', 'OUTPUT', 400, 50),   // 上
+      g('seg_b', 'OUTPUT', 500, 100),  // 右上
+      g('seg_c', 'OUTPUT', 500, 200),  // 右下
+      g('seg_d', 'OUTPUT', 400, 250),  // 下
+      g('seg_e', 'OUTPUT', 300, 200),  // 左下
+      g('seg_f', 'OUTPUT', 300, 100),  // 左上
+      g('seg_g', 'OUTPUT', 400, 150)   // 中央
     ],
     wires: [
       // 「1」を表示するにはbとcだけ接続
@@ -38,26 +61,26 @@ const AMAZING_CIRCUITS = [
     howTo: '💡 左の4つのスイッチで2進数を入力！上2つが数A、下2つが数B。例: 01 + 01 = 10',
     gates: [
       // 4ビット加算器の簡易版（2ビット）
-      { id: 'a0', type: 'INPUT', position: { x: 50, y: 100 }, output: false, inputs: [], label: 'A0' },
-      { id: 'a1', type: 'INPUT', position: { x: 50, y: 200 }, output: false, inputs: [], label: 'A1' },
-      { id: 'b0', type: 'INPUT', position: { x: 50, y: 300 }, output: false, inputs: [], label: 'B0' },
-      { id: 'b1', type: 'INPUT', position: { x: 50, y: 400 }, output: false, inputs: [], label: 'B1' },
+      g('a0', 'INPUT', 50, 100, false, undefined, 'A0'),
+      g('a1', 'INPUT', 50, 200, false, undefined, 'A1'),
+      g('b0', 'INPUT', 50, 300, false, undefined, 'B0'),
+      g('b1', 'INPUT', 50, 400, false, undefined, 'B1'),
       
       // 半加算器1（最下位ビット）
-      { id: 'xor1', type: 'XOR', position: { x: 200, y: 150 }, output: false, inputs: [] },
-      { id: 'and1', type: 'AND', position: { x: 200, y: 250 }, output: false, inputs: [] },
+      g('xor1', 'XOR', 200, 150),
+      g('and1', 'AND', 200, 250),
       
       // 全加算器1（上位ビット）
-      { id: 'xor2', type: 'XOR', position: { x: 350, y: 300 }, output: false, inputs: [] },
-      { id: 'and2', type: 'AND', position: { x: 350, y: 400 }, output: false, inputs: [] },
-      { id: 'xor3', type: 'XOR', position: { x: 500, y: 350 }, output: false, inputs: [] },
-      { id: 'and3', type: 'AND', position: { x: 500, y: 450 }, output: false, inputs: [] },
-      { id: 'or1', type: 'OR', position: { x: 650, y: 400 }, output: false, inputs: [] },
+      g('xor2', 'XOR', 350, 300),
+      g('and2', 'AND', 350, 400),
+      g('xor3', 'XOR', 500, 350),
+      g('and3', 'AND', 500, 450),
+      g('or1', 'OR', 650, 400),
       
       // 出力
-      { id: 's0', type: 'OUTPUT', position: { x: 800, y: 150 }, output: false, inputs: [], label: 'S0' },
-      { id: 's1', type: 'OUTPUT', position: { x: 800, y: 350 }, output: false, inputs: [], label: 'S1' },
-      { id: 'cout', type: 'OUTPUT', position: { x: 800, y: 400 }, output: false, inputs: [], label: 'Carry' }
+      g('s0', 'OUTPUT', 800, 150, false, undefined, 'S0'),
+      g('s1', 'OUTPUT', 800, 350, false, undefined, 'S1'),
+      g('cout', 'OUTPUT', 800, 400, false, undefined, 'Carry')
     ],
     wires: [
       // 半加算器の配線
@@ -92,13 +115,13 @@ const AMAZING_CIRCUITS = [
     howTo: '⏰ 自動でカウント開始！右の2つの出力で00→01→10→11を繰り返すよ',
     gates: [
       // 簡単な2ビットカウンタ
-      { id: 'clock', type: 'CLOCK', position: { x: 100, y: 200 }, output: false, inputs: [], metadata: { frequency: 1, startTime: Date.now() } },
-      { id: 'not1', type: 'NOT', position: { x: 250, y: 150 }, output: false, inputs: [] },
-      { id: 'not2', type: 'NOT', position: { x: 250, y: 250 }, output: false, inputs: [] },
-      { id: 'dff1', type: 'D-FF', position: { x: 400, y: 150 }, output: false, inputs: [] },
-      { id: 'dff2', type: 'D-FF', position: { x: 400, y: 250 }, output: false, inputs: [] },
-      { id: 'out0', type: 'OUTPUT', position: { x: 600, y: 150 }, output: false, inputs: [], label: 'ビット0' },
-      { id: 'out1', type: 'OUTPUT', position: { x: 600, y: 250 }, output: false, inputs: [], label: 'ビット1' }
+      g('clock', 'CLOCK', 100, 200, false, { frequency: 1, startTime: Date.now() }),
+      g('not1', 'NOT', 250, 150),
+      g('not2', 'NOT', 250, 250),
+      g('dff1', 'D-FF', 400, 150),
+      g('dff2', 'D-FF', 400, 250),
+      g('out0', 'OUTPUT', 600, 150, false, undefined, 'ビット0'),
+      g('out1', 'OUTPUT', 600, 250, false, undefined, 'ビット1')
     ],
     wires: [
       // CLOCKからDFF1へ
@@ -126,19 +149,19 @@ const AMAZING_CIRCUITS = [
     howTo: '🎮 左の3つから1つ選んでON！COM（常にグー）に勝つにはパーを選ぼう',
     gates: [
       // プレイヤー入力（一つだけONにする）
-      { id: 'p_rock', type: 'INPUT', position: { x: 50, y: 100 }, output: false, inputs: [], label: '✊グー' },
-      { id: 'p_scissors', type: 'INPUT', position: { x: 50, y: 200 }, output: false, inputs: [], label: '✌️チョキ' },
-      { id: 'p_paper', type: 'INPUT', position: { x: 50, y: 300 }, output: false, inputs: [], label: '✋パー' },
+      g('p_rock', 'INPUT', 50, 100, false, undefined, '✊グー'),
+      g('p_scissors', 'INPUT', 50, 200, false, undefined, '✌️チョキ'),
+      g('p_paper', 'INPUT', 50, 300, false, undefined, '✋パー'),
       
       // コンピュータ（固定でグーを出す）
-      { id: 'c_rock', type: 'INPUT', position: { x: 50, y: 400 }, output: true, inputs: [], label: 'COM:✊' },
+      g('c_rock', 'INPUT', 50, 400, true, undefined, 'COM:✊'),
       
       // 勝利判定（パーを出したら勝ち）
-      { id: 'win_check', type: 'AND', position: { x: 250, y: 250 }, output: false, inputs: [] },
+      g('win_check', 'AND', 250, 250),
       
       // 結果表示
-      { id: 'win', type: 'OUTPUT', position: { x: 450, y: 200 }, output: false, inputs: [], label: '勝ち！' },
-      { id: 'lose', type: 'OUTPUT', position: { x: 450, y: 300 }, output: false, inputs: [], label: '負け...' }
+      g('win', 'OUTPUT', 450, 200, false, undefined, '勝ち！'),
+      g('lose', 'OUTPUT', 450, 300, false, undefined, '負け...')
     ],
     wires: [
       // パーを出したら勝ち
