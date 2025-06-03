@@ -489,6 +489,25 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
         return { isDrawingWire: false, wireStart: null };
       }
 
+      // 重要: 入力ピンに既に接続されているワイヤーがある場合は接続を拒否
+      // 論理回路では各入力ピンには1つのワイヤーしか接続できない
+      const targetInputPin = to.pinIndex >= 0 ? to : (from.pinIndex >= 0 ? from : null);
+      if (targetInputPin) {
+        const existingConnection = state.wires.find(wire => 
+          wire.to.gateId === targetInputPin.gateId && 
+          wire.to.pinIndex === targetInputPin.pinIndex
+        );
+        
+        if (existingConnection) {
+          console.log('⚠️ 入力ピンに既に接続されています:', {
+            gateId: targetInputPin.gateId,
+            pinIndex: targetInputPin.pinIndex,
+            existingWireId: existingConnection.id
+          });
+          return { isDrawingWire: false, wireStart: null };
+        }
+      }
+
       const newWire: Wire = {
         id: `wire-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         from: { gateId: from.gateId, pinIndex: from.pinIndex },
@@ -790,7 +809,7 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
     console.log('📋 ペースト完了:', newGates.length, 'ゲート', newWires.length, 'ワイヤー');
   },
   
-  canPaste: () => get().clipboard !== null && get().clipboard.gates.length > 0,
+  canPaste: () => get().clipboard !== null && (get().clipboard?.gates.length ?? 0) > 0,
   
   // アプリケーションモード管理
   setAppMode: (mode) => {
