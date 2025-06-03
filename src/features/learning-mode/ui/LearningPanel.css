@@ -242,7 +242,8 @@
   padding-top: 20px;
 }
 
-.prev-button, .next-button {
+.prev-button,
+.next-button {
   padding: 10px 20px;
   border-radius: 6px;
   font-size: 14px;
@@ -430,7 +431,8 @@
 
 /* お祝いアニメーション */
 @keyframes celebrationPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
   }

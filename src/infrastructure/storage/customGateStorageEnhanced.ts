@@ -1,4 +1,4 @@
-import { CustomGateDefinition } from '@/types/circuit';
+import type { CustomGateDefinition } from '@/types/circuit';
 
 const STORAGE_KEY = 'logic-circuit-playground-custom-gates';
 const MAX_STORAGE_SIZE = 5 * 1024 * 1024; // 5MB limit
@@ -48,7 +48,9 @@ function hasCircularReference(obj: any, seen = new WeakSet()): boolean {
 /**
  * 重複IDを除去
  */
-export function removeDuplicateIds(customGates: CustomGateDefinition[]): CustomGateDefinition[] {
+export function removeDuplicateIds(
+  customGates: CustomGateDefinition[]
+): CustomGateDefinition[] {
   const seen = new Set<string>();
   return customGates.filter(gate => {
     if (seen.has(gate.id)) {
@@ -82,7 +84,11 @@ export function saveCustomGatesEnhanced(
     checkSize?: boolean;
   } = {}
 ): { success: boolean; error?: string } {
-  const { validate = true, removeDuplicates = true, checkSize = true } = options;
+  const {
+    validate = true,
+    removeDuplicates = true,
+    checkSize = true,
+  } = options;
 
   try {
     // localStorage が利用可能かチェック
@@ -94,9 +100,13 @@ export function saveCustomGatesEnhanced(
 
     // 検証
     if (validate) {
-      const invalidGates = gatesToSave.filter(gate => !validateCustomGate(gate));
+      const invalidGates = gatesToSave.filter(
+        gate => !validateCustomGate(gate)
+      );
       if (invalidGates.length > 0) {
-        console.warn(`⚠️ ${invalidGates.length}個の無効なゲート定義をスキップしました`);
+        console.warn(
+          `⚠️ ${invalidGates.length}個の無効なゲート定義をスキップしました`
+        );
         gatesToSave = gatesToSave.filter(validateCustomGate);
       }
     }
@@ -117,17 +127,20 @@ export function saveCustomGatesEnhanced(
     if (checkSize) {
       const size = estimateStorageSize(gatesToSave);
       if (size > MAX_STORAGE_SIZE) {
-        throw new Error(`データサイズが制限を超えています: ${(size / 1024 / 1024).toFixed(2)}MB`);
+        throw new Error(
+          `データサイズが制限を超えています: ${(size / 1024 / 1024).toFixed(2)}MB`
+        );
       }
     }
 
     const json = JSON.stringify(gatesToSave);
     localStorage.setItem(STORAGE_KEY, json);
     console.log(`✅ ${gatesToSave.length}個のカスタムゲートを保存しました`);
-    
+
     return { success: true };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
     console.error('❌ カスタムゲートの保存に失敗:', error);
     return { success: false, error: errorMessage };
   }
@@ -136,15 +149,21 @@ export function saveCustomGatesEnhanced(
 /**
  * カスタムゲートをlocalStorageから読み込み（拡張版）
  */
-export function loadCustomGatesEnhanced(options: {
-  validate?: boolean;
-  removeDuplicates?: boolean;
-  fallbackToPartial?: boolean;
-} = {}): {
+export function loadCustomGatesEnhanced(
+  options: {
+    validate?: boolean;
+    removeDuplicates?: boolean;
+    fallbackToPartial?: boolean;
+  } = {}
+): {
   gates: CustomGateDefinition[];
   errors: string[];
 } {
-  const { validate = true, removeDuplicates = true, fallbackToPartial = true } = options;
+  const {
+    validate = true,
+    removeDuplicates = true,
+    fallbackToPartial = true,
+  } = options;
   const errors: string[] = [];
 
   try {
@@ -158,9 +177,9 @@ export function loadCustomGatesEnhanced(options: {
       console.log('💡 保存されたカスタムゲートはありません');
       return { gates: [], errors: [] };
     }
-    
+
     let customGates = JSON.parse(json);
-    
+
     // 配列でない場合の処理
     if (!Array.isArray(customGates)) {
       if (fallbackToPartial && typeof customGates === 'object') {
@@ -198,7 +217,7 @@ export function loadCustomGatesEnhanced(options: {
     if (errors.length > 0) {
       console.warn('⚠️ 読み込み時の警告:', errors);
     }
-    
+
     return { gates: customGates, errors };
   } catch (error) {
     console.error('❌ カスタムゲートの読み込みに失敗:', error);
@@ -229,7 +248,7 @@ export function importCustomGates(
 
   try {
     const imported = JSON.parse(jsonString);
-    
+
     if (!Array.isArray(imported)) {
       throw new Error('インポートデータは配列形式である必要があります');
     }
@@ -247,7 +266,7 @@ export function importCustomGates(
     if (merge) {
       const existing = loadCustomGatesEnhanced({ validate }).gates;
       const existingIds = new Set(existing.map(g => g.id));
-      
+
       // 既存のIDと重複するものは新しいIDを生成
       gates = gates.map(gate => {
         if (existingIds.has(gate.id)) {
@@ -286,7 +305,8 @@ export function migrateOldFormat(oldData: any): CustomGateDefinition | null {
       displayName: oldData.displayName || oldData.name,
       description: oldData.description || '',
       inputs: oldData.inputs || [],
-      outputs: oldData.outputs || (oldData.output ? [{ name: 'Q', index: 0 }] : []),
+      outputs:
+        oldData.outputs || (oldData.output ? [{ name: 'Q', index: 0 }] : []),
       truthTable: oldData.truthTable,
       internalCircuit: oldData.internalCircuit,
       analysis: oldData.analysis,

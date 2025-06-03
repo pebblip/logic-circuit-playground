@@ -1,4 +1,5 @@
 // ultrathink - シンプルで段階的な学習体験
+import React from 'react';
 
 export interface Lesson {
   id: string;
@@ -20,8 +21,12 @@ export interface LessonStep {
   validation?: StepValidation;
 }
 
-export type StepAction = 
-  | { type: 'place-gate'; gateType: string; position?: { x: number; y: number } }
+export type StepAction =
+  | {
+      type: 'place-gate';
+      gateType: string;
+      position?: { x: number; y: number };
+    }
   | { type: 'connect-wire'; from: string; to: string }
   | { type: 'toggle-input'; gateId: string; value: boolean }
   | { type: 'observe'; highlight?: string[] }
@@ -50,51 +55,58 @@ export const lessons: Lesson[] = [
     steps: [
       {
         id: 'welcome',
-        instruction: 'ようこそ！今日は「NOTゲート」という、信号を逆転させる部品について学びます。',
-        action: { type: 'observe' }
+        instruction:
+          'ようこそ！今日は「NOTゲート」という、信号を逆転させる部品について学びます。',
+        action: { type: 'observe' },
       },
       {
         id: 'place-input',
-        instruction: 'まず、INPUTゲート（スイッチ）を配置してみましょう。左のパレットから「INPUT」をクリックしてください。',
+        instruction:
+          'まず、INPUTゲート（スイッチ）を配置してみましょう。左のパレットから「INPUT」をクリックしてください。',
         action: { type: 'place-gate', gateType: 'INPUT' },
-        validation: { type: 'gate-placed' }
+        validation: { type: 'gate-placed' },
       },
       {
         id: 'place-not',
-        instruction: '次に、NOTゲートを配置します。「NOT」をクリックしてください。',
+        instruction:
+          '次に、NOTゲートを配置します。「NOT」をクリックしてください。',
         action: { type: 'place-gate', gateType: 'NOT' },
-        validation: { type: 'gate-placed' }
+        validation: { type: 'gate-placed' },
       },
       {
         id: 'place-output',
-        instruction: '最後に、結果を見るためのOUTPUTゲート（LED）を配置しましょう。',
+        instruction:
+          '最後に、結果を見るためのOUTPUTゲート（LED）を配置しましょう。',
         action: { type: 'place-gate', gateType: 'OUTPUT' },
-        validation: { type: 'gate-placed' }
+        validation: { type: 'gate-placed' },
       },
       {
         id: 'connect-input-to-not',
-        instruction: 'INPUTの出力ピン（右側の点）をクリックして、NOTゲートの入力ピン（左側の点）に接続してください。',
+        instruction:
+          'INPUTの出力ピン（右側の点）をクリックして、NOTゲートの入力ピン（左側の点）に接続してください。',
         hint: 'ピンをクリックすると緑の線が出ます。もう一方のピンをクリックすると接続完了！',
         action: { type: 'connect-wire', from: 'INPUT', to: 'NOT' },
-        validation: { type: 'wire-connected' }
+        validation: { type: 'wire-connected' },
       },
       {
         id: 'connect-not-to-output',
         instruction: 'NOTゲートの出力をOUTPUTゲートに接続しましょう。',
         action: { type: 'connect-wire', from: 'NOT', to: 'OUTPUT' },
-        validation: { type: 'wire-connected' }
+        validation: { type: 'wire-connected' },
       },
       {
         id: 'test-off',
-        instruction: 'INPUTをダブルクリックしてOFFの状態を確認してください。OUTPUTはどうなりましたか？',
+        instruction:
+          'INPUTをダブルクリックしてOFFの状態を確認してください。OUTPUTはどうなりましたか？',
         action: { type: 'toggle-input', gateId: 'INPUT', value: false },
-        validation: { type: 'output-matches', expected: { OUTPUT: true } }
+        validation: { type: 'output-matches', expected: { OUTPUT: true } },
       },
       {
         id: 'test-on',
-        instruction: 'もう一度INPUTをダブルクリックしてONにしてみましょう。今度はどうなりましたか？',
+        instruction:
+          'もう一度INPUTをダブルクリックしてONにしてみましょう。今度はどうなりましたか？',
         action: { type: 'toggle-input', gateId: 'INPUT', value: true },
-        validation: { type: 'output-matches', expected: { OUTPUT: false } }
+        validation: { type: 'output-matches', expected: { OUTPUT: false } },
       },
       {
         id: 'quiz',
@@ -103,18 +115,19 @@ export const lessons: Lesson[] = [
           type: 'quiz',
           question: 'NOTゲートに「1」を入力すると、出力は何になりますか？',
           options: ['0', '1', '変わらない', 'エラーになる'],
-          correct: 0
+          correct: 0,
         },
-        validation: { type: 'quiz-answered' }
+        validation: { type: 'quiz-answered' },
       },
       {
         id: 'complete',
-        instruction: '素晴らしい！NOTゲートは入力を反転させることが分かりました。0→1、1→0に変換する、デジタル世界の「反対言葉」です！',
-        action: { type: 'observe' }
-      }
-    ]
+        instruction:
+          '素晴らしい！NOTゲートは入力を反転させることが分かりました。0→1、1→0に変換する、デジタル世界の「反対言葉」です！',
+        action: { type: 'observe' },
+      },
+    ],
   },
-  
+
   {
     id: 'intro-and-gate',
     title: 'ANDゲート - 両方必要！',
@@ -126,62 +139,67 @@ export const lessons: Lesson[] = [
     steps: [
       {
         id: 'intro',
-        instruction: 'ANDゲートは「両方の入力がONの時だけ」出力がONになります。エレベーターのドアのように、「ドアが閉まっている」AND「ボタンが押された」時だけ動きます。',
-        action: { type: 'observe' }
+        instruction:
+          'ANDゲートは「両方の入力がONの時だけ」出力がONになります。エレベーターのドアのように、「ドアが閉まっている」AND「ボタンが押された」時だけ動きます。',
+        action: { type: 'observe' },
       },
       {
         id: 'place-input-1',
         instruction: '1つ目のINPUTゲートを配置してください。',
         action: { type: 'place-gate', gateType: 'INPUT' },
-        validation: { type: 'gate-placed' }
+        validation: { type: 'gate-placed' },
       },
       {
         id: 'place-input-2',
         instruction: '2つ目のINPUTゲートを配置してください。',
         action: { type: 'place-gate', gateType: 'INPUT' },
-        validation: { type: 'gate-placed' }
+        validation: { type: 'gate-placed' },
       },
       {
         id: 'place-and',
         instruction: 'ANDゲートを配置しましょう。',
         action: { type: 'place-gate', gateType: 'AND' },
-        validation: { type: 'gate-placed' }
+        validation: { type: 'gate-placed' },
       },
       {
         id: 'place-output',
-        instruction: 'OUTPUTゲートを配置して、結果を確認できるようにしましょう。',
+        instruction:
+          'OUTPUTゲートを配置して、結果を確認できるようにしましょう。',
         action: { type: 'place-gate', gateType: 'OUTPUT' },
-        validation: { type: 'gate-placed' }
+        validation: { type: 'gate-placed' },
       },
       {
         id: 'connect-wires',
-        instruction: '2つのINPUTをANDゲートの入力に、ANDゲートの出力をOUTPUTに接続してください。',
+        instruction:
+          '2つのINPUTをANDゲートの入力に、ANDゲートの出力をOUTPUTに接続してください。',
         hint: '上のINPUT→ANDの上入力、下のINPUT→ANDの下入力のように接続します。',
-        action: { type: 'observe' }
+        action: { type: 'observe' },
       },
       {
         id: 'test-00',
-        instruction: '両方のINPUTをOFF（0）にしてみましょう。OUTPUTはどうなりますか？',
+        instruction:
+          '両方のINPUTをOFF（0）にしてみましょう。OUTPUTはどうなりますか？',
         action: { type: 'observe' },
-        validation: { type: 'output-matches', expected: { OUTPUT: false } }
+        validation: { type: 'output-matches', expected: { OUTPUT: false } },
       },
       {
         id: 'test-01',
-        instruction: '下のINPUTだけONにしてみましょう。OUTPUTは変わりましたか？',
+        instruction:
+          '下のINPUTだけONにしてみましょう。OUTPUTは変わりましたか？',
         action: { type: 'observe' },
-        validation: { type: 'output-matches', expected: { OUTPUT: false } }
+        validation: { type: 'output-matches', expected: { OUTPUT: false } },
       },
       {
         id: 'test-10',
         instruction: '今度は上のINPUTだけONにしてみましょう。',
         action: { type: 'observe' },
-        validation: { type: 'output-matches', expected: { OUTPUT: false } }
+        validation: { type: 'output-matches', expected: { OUTPUT: false } },
       },
       {
         id: 'test-11',
         instruction: '最後に、両方のINPUTをONにしてみましょう！',
         action: { type: 'observe' },
-        validation: { type: 'output-matches', expected: { OUTPUT: true } }
+        validation: { type: 'output-matches', expected: { OUTPUT: true } },
       },
       {
         id: 'quiz',
@@ -189,33 +207,34 @@ export const lessons: Lesson[] = [
         action: {
           type: 'quiz',
           question: 'ANDゲートが「1」を出力するのはどんな時？',
-          options: ['どちらか一方が1の時', '両方が1の時', '両方が0の時', 'いつでも1'],
-          correct: 1
+          options: [
+            'どちらか一方が1の時',
+            '両方が1の時',
+            '両方が0の時',
+            'いつでも1',
+          ],
+          correct: 1,
         },
-        validation: { type: 'quiz-answered' }
+        validation: { type: 'quiz-answered' },
       },
       {
         id: 'complete',
-        instruction: '完璧です！ANDゲートは「両方の条件が満たされた時」だけ動作します。まるで「パスワード」AND「指紋」の両方が必要なセキュリティシステムのようですね！',
-        action: { type: 'observe' }
-      }
+        instruction:
+          '完璧です！ANDゲートは「両方の条件が満たされた時」だけ動作します。まるで「パスワード」AND「指紋」の両方が必要なセキュリティシステムのようですね！',
+        action: { type: 'observe' },
+      },
     ],
     verification: {
       inputs: [
         { A: false, B: false },
         { A: false, B: true },
         { A: true, B: false },
-        { A: true, B: true }
+        { A: true, B: true },
       ],
-      expectedOutputs: [
-        { Y: false },
-        { Y: false },
-        { Y: false },
-        { Y: true }
-      ]
-    }
+      expectedOutputs: [{ Y: false }, { Y: false }, { Y: false }, { Y: true }],
+    },
   },
-  
+
   {
     id: 'intro-or-gate',
     title: 'ORゲート - どちらかでOK！',
@@ -227,66 +246,71 @@ export const lessons: Lesson[] = [
     steps: [
       {
         id: 'intro',
-        instruction: 'ORゲートは「どちらか一方でもON」なら出力がONになります。「電車」OR「バス」どちらでも目的地に行けるような感じです！',
-        action: { type: 'observe' }
+        instruction:
+          'ORゲートは「どちらか一方でもON」なら出力がONになります。「電車」OR「バス」どちらでも目的地に行けるような感じです！',
+        action: { type: 'observe' },
       },
       {
         id: 'place-input-1',
         instruction: '1つ目のINPUTゲートを配置してください。',
         action: { type: 'place-gate', gateType: 'INPUT' },
-        validation: { type: 'gate-placed' }
+        validation: { type: 'gate-placed' },
       },
       {
         id: 'place-input-2',
         instruction: '2つ目のINPUTゲートを配置してください。',
         action: { type: 'place-gate', gateType: 'INPUT' },
-        validation: { type: 'gate-placed' }
+        validation: { type: 'gate-placed' },
       },
       {
         id: 'place-or',
         instruction: 'ORゲートを配置しましょう。',
         action: { type: 'place-gate', gateType: 'OR' },
-        validation: { type: 'gate-placed' }
+        validation: { type: 'gate-placed' },
       },
       {
         id: 'place-output',
-        instruction: 'OUTPUTゲートを配置して、結果を確認できるようにしましょう。',
+        instruction:
+          'OUTPUTゲートを配置して、結果を確認できるようにしましょう。',
         action: { type: 'place-gate', gateType: 'OUTPUT' },
-        validation: { type: 'gate-placed' }
+        validation: { type: 'gate-placed' },
       },
       {
         id: 'connect-wires',
-        instruction: '2つのINPUTをORゲートの入力に、ORゲートの出力をOUTPUTに接続してください。',
-        action: { type: 'observe' }
+        instruction:
+          '2つのINPUTをORゲートの入力に、ORゲートの出力をOUTPUTに接続してください。',
+        action: { type: 'observe' },
       },
       {
         id: 'test-00',
-        instruction: '両方のINPUTをOFF（0）にしてみましょう。OUTPUTはどうなりますか？',
+        instruction:
+          '両方のINPUTをOFF（0）にしてみましょう。OUTPUTはどうなりますか？',
         action: { type: 'observe' },
-        validation: { type: 'output-matches', expected: { OUTPUT: false } }
+        validation: { type: 'output-matches', expected: { OUTPUT: false } },
       },
       {
         id: 'test-01',
         instruction: '下のINPUTだけONにしてみましょう。今度はどうなりますか？',
         action: { type: 'observe' },
-        validation: { type: 'output-matches', expected: { OUTPUT: true } }
+        validation: { type: 'output-matches', expected: { OUTPUT: true } },
       },
       {
         id: 'test-10',
         instruction: '上のINPUTだけONにしてみましょう。',
         action: { type: 'observe' },
-        validation: { type: 'output-matches', expected: { OUTPUT: true } }
+        validation: { type: 'output-matches', expected: { OUTPUT: true } },
       },
       {
         id: 'test-11',
         instruction: '両方のINPUTをONにしてみましょう！',
         action: { type: 'observe' },
-        validation: { type: 'output-matches', expected: { OUTPUT: true } }
+        validation: { type: 'output-matches', expected: { OUTPUT: true } },
       },
       {
         id: 'compare',
-        instruction: 'ANDゲートとの違いに気づきましたか？ORは「どちらか一方でも」ONならOKです！',
-        action: { type: 'observe' }
+        instruction:
+          'ANDゲートとの違いに気づきましたか？ORは「どちらか一方でも」ONならOKです！',
+        action: { type: 'observe' },
       },
       {
         id: 'quiz',
@@ -294,55 +318,57 @@ export const lessons: Lesson[] = [
         action: {
           type: 'quiz',
           question: 'ORゲートが「0」を出力するのはどんな時？',
-          options: ['どちらか一方が0の時', '両方が0の時', '両方が1の時', 'いつでも0'],
-          correct: 1
+          options: [
+            'どちらか一方が0の時',
+            '両方が0の時',
+            '両方が1の時',
+            'いつでも0',
+          ],
+          correct: 1,
         },
-        validation: { type: 'quiz-answered' }
+        validation: { type: 'quiz-answered' },
       },
       {
         id: 'complete',
-        instruction: '素晴らしい！ORゲートは「どちらか一方でも条件を満たせばOK」です。まるで「現金」OR「クレジットカード」どちらでも支払いOKなお店のようですね！',
-        action: { type: 'observe' }
-      }
+        instruction:
+          '素晴らしい！ORゲートは「どちらか一方でも条件を満たせばOK」です。まるで「現金」OR「クレジットカード」どちらでも支払いOKなお店のようですね！',
+        action: { type: 'observe' },
+      },
     ],
     verification: {
       inputs: [
         { A: false, B: false },
         { A: false, B: true },
         { A: true, B: false },
-        { A: true, B: true }
+        { A: true, B: true },
       ],
-      expectedOutputs: [
-        { Y: false },
-        { Y: true },
-        { Y: true },
-        { Y: true }
-      ]
-    }
+      expectedOutputs: [{ Y: false }, { Y: true }, { Y: true }, { Y: true }],
+    },
   },
-  
+
   {
     id: 'first-circuit',
     title: '初めての回路 - 警報システム',
     description: '複数のゲートを組み合わせて、実用的な回路を作ろう！',
-    objective: '「ドアが開いている」OR「窓が開いている」AND「警報がON」の時に警報を鳴らす',
+    objective:
+      '「ドアが開いている」OR「窓が開いている」AND「警報がON」の時に警報を鳴らす',
     difficulty: 'intermediate',
     estimatedMinutes: 15,
     prerequisites: ['intro-not-gate', 'intro-and-gate', 'intro-or-gate'],
     steps: [
       // 実践的な回路構築のステップ
-    ]
-  }
+    ],
+  },
 ];
 
 // カテゴリー別のレッスン整理
 export const lessonCategories = {
   basics: {
     title: '基本ゲート',
-    lessons: ['intro-not-gate', 'intro-and-gate', 'intro-or-gate']
+    lessons: ['intro-not-gate', 'intro-and-gate', 'intro-or-gate'],
   },
   combinations: {
     title: '組み合わせ回路',
-    lessons: ['first-circuit']
-  }
+    lessons: ['first-circuit'],
+  },
 };

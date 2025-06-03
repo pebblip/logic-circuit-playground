@@ -1,4 +1,5 @@
-import { useState, useCallback, RefObject } from 'react';
+import type { RefObject } from 'react';
+import { useState, useCallback } from 'react';
 
 interface ViewBox {
   x: number;
@@ -17,40 +18,46 @@ export const useCanvasZoom = (
 ) => {
   const [scale, setScale] = useState(1);
 
-  const handleZoom = useCallback((delta: number, clientX: number, clientY: number) => {
-    if (!svgRef.current) return;
+  const handleZoom = useCallback(
+    (delta: number, clientX: number, clientY: number) => {
+      if (!svgRef.current) return;
 
-    const scaleFactor = delta > 0 ? 0.9 : 1.1;
-    const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale * scaleFactor));
-    
-    if (newScale === scale) return;
+      const scaleFactor = delta > 0 ? 0.9 : 1.1;
+      const newScale = Math.max(
+        MIN_SCALE,
+        Math.min(MAX_SCALE, scale * scaleFactor)
+      );
 
-    // マウス位置を中心にズーム
-    const rect = svgRef.current.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
+      if (newScale === scale) return;
 
-    // SVG座標系でのマウス位置
-    const svgX = viewBox.x + (x / rect.width) * viewBox.width;
-    const svgY = viewBox.y + (y / rect.height) * viewBox.height;
+      // マウス位置を中心にズーム
+      const rect = svgRef.current.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
 
-    // 新しいビューボックスサイズ
-    const newWidth = 1200 / newScale;
-    const newHeight = 800 / newScale;
+      // SVG座標系でのマウス位置
+      const svgX = viewBox.x + (x / rect.width) * viewBox.width;
+      const svgY = viewBox.y + (y / rect.height) * viewBox.height;
 
-    // マウス位置が同じ場所に留まるように調整
-    const newX = svgX - (x / rect.width) * newWidth;
-    const newY = svgY - (y / rect.height) * newHeight;
+      // 新しいビューボックスサイズ
+      const newWidth = 1200 / newScale;
+      const newHeight = 800 / newScale;
 
-    setViewBox({
-      x: newX,
-      y: newY,
-      width: newWidth,
-      height: newHeight
-    });
+      // マウス位置が同じ場所に留まるように調整
+      const newX = svgX - (x / rect.width) * newWidth;
+      const newY = svgY - (y / rect.height) * newHeight;
 
-    setScale(newScale);
-  }, [scale, svgRef, viewBox, setViewBox]);
+      setViewBox({
+        x: newX,
+        y: newY,
+        width: newWidth,
+        height: newHeight,
+      });
+
+      setScale(newScale);
+    },
+    [scale, svgRef, viewBox, setViewBox]
+  );
 
   const resetZoom = useCallback(() => {
     setViewBox({ x: 0, y: 0, width: 1200, height: 800 });
@@ -74,6 +81,6 @@ export const useCanvasZoom = (
     handleZoom,
     resetZoom,
     zoomIn,
-    zoomOut
+    zoomOut,
   };
 };

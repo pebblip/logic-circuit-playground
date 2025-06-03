@@ -21,8 +21,10 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
       <Header activeMode={appMode} onModeChange={setAppMode} />
       <div className="tablet-main">
         {/* ツールパレット（折りたたみ可能） */}
-        <div className={`tablet-tool-palette ${isToolPaletteOpen ? 'open' : 'collapsed'}`}>
-          <button 
+        <div
+          className={`tablet-tool-palette ${isToolPaletteOpen ? 'open' : 'collapsed'}`}
+        >
+          <button
             className="palette-toggle"
             onClick={() => setIsToolPaletteOpen(!isToolPaletteOpen)}
           >
@@ -30,16 +32,18 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
           </button>
           {isToolPaletteOpen && <ToolPalette />}
         </div>
-        
+
         {/* キャンバス */}
         <div className="tablet-canvas-container">
           <Canvas />
         </div>
-        
+
         {/* プロパティパネル（折りたたみ可能、学習モード時は非表示） */}
         {appMode !== '学習モード' && (
-          <div className={`tablet-property-panel ${isPropertyPanelOpen ? 'open' : 'collapsed'}`}>
-            <button 
+          <div
+            className={`tablet-property-panel ${isPropertyPanelOpen ? 'open' : 'collapsed'}`}
+          >
+            <button
               className="panel-toggle"
               onClick={() => setIsPropertyPanelOpen(!isPropertyPanelOpen)}
             >
@@ -49,9 +53,9 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
           </div>
         )}
       </div>
-      
+
       {/* 学習モードパネル */}
-      <LearningPanel 
+      <LearningPanel
         isOpen={appMode === '学習モード'}
         onClose={() => setAppMode('自由制作')}
       />

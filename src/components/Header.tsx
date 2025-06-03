@@ -4,7 +4,7 @@ import { LoadCircuitDialog } from './dialogs/LoadCircuitDialog';
 import { ExportImportDialog } from './dialogs/ExportImportDialog';
 import { HelpPanel } from './HelpPanel';
 import { useCircuitStore } from '../stores/circuitStore';
-import { AppMode } from '../types/appMode';
+import type { AppMode } from '../types/appMode';
 import { useMultipleDialogs } from '../hooks/useDialog';
 
 interface HeaderProps {
@@ -14,7 +14,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
   const { gates } = useCircuitStore();
-  
+
   // 統一ダイアログ管理
   const dialogs = useMultipleDialogs({});
 
@@ -30,15 +30,15 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
     // エクスポート成功時の処理
   };
 
-  const handleShare = () => {
+  const _handleShare = () => {
     // 回路共有機能は後で実装
   };
 
-  const handleFormatCircuit = async () => {
+  const _handleFormatCircuit = async () => {
     if (gates.length === 0) {
       return;
     }
-    
+
     // TODO: 回路整形機能は後で実装
   };
 
@@ -46,24 +46,24 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
     <>
       <header className="header">
         <div className="logo">論理回路プレイグラウンド</div>
-        
+
         <div className="mode-tabs">
-          <button 
+          <button
             className={`mode-tab ${activeMode === '学習モード' ? 'active' : ''}`}
             onClick={() => onModeChange('学習モード')}
           >
             学習モード
           </button>
-          <button 
+          <button
             className={`mode-tab ${activeMode === '自由制作' ? 'active' : ''}`}
             onClick={() => onModeChange('自由制作')}
           >
             自由制作
           </button>
         </div>
-        
+
         <div className="header-actions">
-          <button 
+          <button
             className="button"
             onClick={() => dialogs.load.open()}
             title="回路を読み込み"
@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
             <span>📂</span>
             <span>開く</span>
           </button>
-          <button 
+          <button
             className="button"
             onClick={() => dialogs.save.open()}
             title="回路を保存"
@@ -79,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
             <span>💾</span>
             <span>保存</span>
           </button>
-          <button 
+          <button
             className="button help-button"
             onClick={() => dialogs.help.open()}
             title="ヘルプ"
@@ -96,24 +96,21 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
         onClose={dialogs.save.close}
         onSuccess={handleSaveSuccess}
       />
-      
+
       <LoadCircuitDialog
         isOpen={dialogs.load.isOpen}
         onClose={dialogs.load.close}
         onLoad={handleLoadSuccess}
       />
-      
+
       <ExportImportDialog
         isOpen={dialogs.export.isOpen}
         onClose={dialogs.export.close}
         mode="export"
         onSuccess={handleExportSuccess}
       />
-      
-      <HelpPanel
-        isOpen={dialogs.help.isOpen}
-        onClose={dialogs.help.close}
-      />
+
+      <HelpPanel isOpen={dialogs.help.isOpen} onClose={dialogs.help.close} />
     </>
   );
 };

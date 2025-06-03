@@ -1,20 +1,20 @@
-import { Position } from '@/types/circuit';
+import type { Position } from '@/types/circuit';
 
 /**
  * SVG座標変換ユーティリティ
- * 
+ *
  * クライアント座標（マウスやタッチ）をSVG内の座標系に変換
  * 複数箇所で重複していたロジックを統一し、保守性を向上
  */
 
 /**
  * クライアント座標をSVG座標に変換
- * 
+ *
  * @param clientX - クライアントX座標（マウス/タッチイベントから取得）
  * @param clientY - クライアントY座標（マウス/タッチイベントから取得）
  * @param svgElement - 対象のSVG要素（省略時は.canvasセレクタで自動検出）
  * @returns SVG座標系でのPosition、または変換失敗時はnull
- * 
+ *
  * @example
  * ```typescript
  * // マウスイベントからSVG座標を取得
@@ -22,7 +22,7 @@ import { Position } from '@/types/circuit';
  * if (svgPos) {
  *   console.log('SVG座標:', svgPos.x, svgPos.y);
  * }
- * 
+ *
  * // 特定のSVG要素を指定
  * const svgPos = clientToSVGCoordinates(clientX, clientY, svgRef.current);
  * ```
@@ -40,7 +40,7 @@ export function clientToSVGCoordinates(
     } else {
       svg = document.querySelector('.canvas') as SVGSVGElement;
     }
-    
+
     if (!svg) {
       console.warn('⚠️ SVG要素が見つかりません');
       return null;
@@ -63,7 +63,7 @@ export function clientToSVGCoordinates(
 
     return {
       x: svgPoint.x,
-      y: svgPoint.y
+      y: svgPoint.y,
     };
   } catch (error) {
     console.error('❌ SVG座標変換に失敗:', error);
@@ -73,7 +73,7 @@ export function clientToSVGCoordinates(
 
 /**
  * マウスイベントからSVG座標を取得（便利なヘルパー関数）
- * 
+ *
  * @param event - マウスイベント
  * @param svgElement - 対象のSVG要素（省略時は自動検出）
  * @returns SVG座標系でのPosition、または変換失敗時はnull
@@ -87,7 +87,7 @@ export function mouseEventToSVGCoordinates(
 
 /**
  * タッチイベントからSVG座標を取得（便利なヘルパー関数）
- * 
+ *
  * @param touch - タッチオブジェクト
  * @param svgElement - 対象のSVG要素（省略時は自動検出）
  * @returns SVG座標系でのPosition、または変換失敗時はnull
@@ -101,7 +101,7 @@ export function touchToSVGCoordinates(
 
 /**
  * ReactイベントからSVG座標を取得（TypeScript対応）
- * 
+ *
  * @param event - ReactマウスイベントまたはReactタッチイベント
  * @param svgElement - 対象のSVG要素（省略時は自動検出）
  * @returns SVG座標系でのPosition、または変換失敗時はnull

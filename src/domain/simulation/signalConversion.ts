@@ -43,7 +43,10 @@ export function displayStatesToBooleanArray(states: string[]): boolean[] {
  * @param index 入力インデックス
  * @returns boolean値
  */
-export function getGateInputValue(gate: { inputs: (string | boolean)[] }, index: number): boolean {
+export function getGateInputValue(
+  gate: { inputs: (string | boolean)[] },
+  index: number
+): boolean {
   const input = gate.inputs[index];
   if (typeof input === 'boolean') {
     return input;
@@ -57,7 +60,11 @@ export function getGateInputValue(gate: { inputs: (string | boolean)[] }, index:
  * @param index 入力インデックス
  * @param value boolean値
  */
-export function setGateInputValue(gate: { inputs: (string | boolean)[] }, index: number, value: boolean): void {
+export function setGateInputValue(
+  gate: { inputs: (string | boolean)[] },
+  index: number,
+  value: boolean
+): void {
   // 現在の実装に合わせて文字列として保存
   gate.inputs[index] = booleanToDisplayState(value);
 }
@@ -67,8 +74,10 @@ export function setGateInputValue(gate: { inputs: (string | boolean)[] }, index:
  * @param gate ゲート
  * @returns boolean配列
  */
-export function getGateInputsAsBoolean(gate: { inputs: (string | boolean)[] }): boolean[] {
-  return gate.inputs.map(input => 
+export function getGateInputsAsBoolean(gate: {
+  inputs: (string | boolean)[];
+}): boolean[] {
+  return gate.inputs.map(input =>
     typeof input === 'boolean' ? input : displayStateToBoolean(input as string)
   );
 }
@@ -84,6 +93,7 @@ export function debugSignal(signal: any, context: string): void {
     type: typeof signal,
     isBoolean: typeof signal === 'boolean',
     isString: typeof signal === 'string',
-    booleanValue: typeof signal === 'string' ? displayStateToBoolean(signal) : signal
+    booleanValue:
+      typeof signal === 'string' ? displayStateToBoolean(signal) : signal,
   });
 }

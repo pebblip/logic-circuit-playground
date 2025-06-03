@@ -1,13 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  CircuitMetadata, 
-  GalleryFilter, 
+import type {
+  CircuitMetadata,
+  GalleryFilter,
   GallerySortOption,
-  FEATURED_CIRCUITS, 
+} from '../data/gallery';
+import {
+  FEATURED_CIRCUITS,
   POPULAR_TAGS,
   CATEGORY_LABELS,
   COMPLEXITY_LABELS,
-  GalleryService
+  GalleryService,
 } from '../data/gallery';
 import { useCircuitStore } from '../../../stores/circuitStore';
 import './GalleryPanel.css';
@@ -17,41 +19,46 @@ interface GalleryPanelProps {
 }
 
 export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
-  const [selectedCircuit, setSelectedCircuit] = useState<CircuitMetadata | null>(null);
+  const [selectedCircuit, setSelectedCircuit] =
+    useState<CircuitMetadata | null>(null);
   const [filter, setFilter] = useState<GalleryFilter>({});
-  const [sort, setSort] = useState<GallerySortOption>({ field: 'likes', direction: 'desc' });
+  const [sort, setSort] = useState<GallerySortOption>({
+    field: 'likes',
+    direction: 'desc',
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  
+
   const { clearAll, setAppMode } = useCircuitStore();
 
   // フィルタリング&ソート済み回路一覧
   const filteredCircuits = useMemo(() => {
     const filtered = GalleryService.filterCircuits(FEATURED_CIRCUITS, {
       ...filter,
-      searchQuery: searchQuery.trim() || undefined
+      searchQuery: searchQuery.trim() || undefined,
     });
     return GalleryService.sortCircuits(filtered, sort);
   }, [filter, sort, searchQuery]);
 
   // 注目の回路（featured）
-  const featuredCircuits = useMemo(() => 
-    FEATURED_CIRCUITS.filter(circuit => circuit.isFeatured).slice(0, 3)
-  , []);
+  const featuredCircuits = useMemo(
+    () => FEATURED_CIRCUITS.filter(circuit => circuit.isFeatured).slice(0, 3),
+    []
+  );
 
   // 回路を読み込んで自由制作モードで開く
   const handleLoadCircuit = (circuit: CircuitMetadata) => {
     clearAll();
-    
+
     // ストアに直接回路データを設定
     useCircuitStore.setState({
       gates: circuit.gates.map(gate => ({ ...gate })), // ディープコピー
       wires: circuit.wires.map(wire => ({ ...wire })), // ディープコピー
       selectedGateId: null,
       isDrawingWire: false,
-      wireStart: null
+      wireStart: null,
     });
-    
+
     // 自由制作モードに切り替え
     setAppMode('自由制作');
   };
@@ -82,12 +89,12 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
             type="text"
             placeholder="回路を検索..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             className="search-input"
           />
         </div>
-        
-        <button 
+
+        <button
           className={`filter-toggle ${showFilters ? 'active' : ''}`}
           onClick={() => setShowFilters(!showFilters)}
         >
@@ -101,35 +108,49 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
         <div className="filters-panel">
           <div className="filter-row">
             <label>カテゴリ</label>
-            <select 
-              value={filter.category || ''} 
-              onChange={(e) => setFilter({ ...filter, category: e.target.value as any || undefined })}
+            <select
+              value={filter.category || ''}
+              onChange={e =>
+                setFilter({
+                  ...filter,
+                  category: (e.target.value as any) || undefined,
+                })
+              }
             >
               <option value="">すべて</option>
               {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
+                <option key={key} value={key}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>
-          
+
           <div className="filter-row">
             <label>複雑さ</label>
-            <select 
-              value={filter.complexity || ''} 
-              onChange={(e) => setFilter({ ...filter, complexity: e.target.value as any || undefined })}
+            <select
+              value={filter.complexity || ''}
+              onChange={e =>
+                setFilter({
+                  ...filter,
+                  complexity: (e.target.value as any) || undefined,
+                })
+              }
             >
               <option value="">すべて</option>
               {Object.entries(COMPLEXITY_LABELS).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
+                <option key={key} value={key}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>
-          
+
           <div className="filter-row">
             <label>ソート</label>
-            <select 
+            <select
               value={`${sort.field}-${sort.direction}`}
-              onChange={(e) => {
+              onChange={e => {
                 const [field, direction] = e.target.value.split('-');
                 setSort({ field: field as any, direction: direction as any });
               }}
@@ -147,8 +168,8 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
       {filter.tags && filter.tags.length > 0 && (
         <div className="selected-tags">
           {filter.tags.map(tag => (
-            <button 
-              key={tag} 
+            <button
+              key={tag}
               className="tag selected"
               onClick={() => handleTagClick(tag)}
             >
@@ -178,16 +199,18 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
       <div className="circuit-info">
         <h3 className="circuit-title">{circuit.title}</h3>
         <p className="circuit-description">{circuit.description}</p>
-        
+
         <div className="circuit-meta">
           <span className="category">{CATEGORY_LABELS[circuit.category]}</span>
-          <span className="complexity">{COMPLEXITY_LABELS[circuit.complexity]}</span>
+          <span className="complexity">
+            {COMPLEXITY_LABELS[circuit.complexity]}
+          </span>
         </div>
-        
+
         <div className="circuit-tags">
           {circuit.tags.slice(0, 3).map(tag => (
-            <button 
-              key={tag} 
+            <button
+              key={tag}
               className="tag"
               onClick={() => handleTagClick(tag)}
             >
@@ -195,7 +218,7 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
             </button>
           ))}
         </div>
-        
+
         <div className="circuit-stats">
           <span className="stat">
             <span>👤</span>
@@ -214,21 +237,21 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
 
       {/* アクションボタン */}
       <div className="circuit-actions">
-        <button 
+        <button
           className="action-button primary"
           onClick={() => handleLoadCircuit(circuit)}
         >
           <span>🔧</span>
           <span>開く</span>
         </button>
-        <button 
+        <button
           className="action-button secondary"
           onClick={() => setSelectedCircuit(circuit)}
         >
           <span>👁️</span>
           <span>詳細</span>
         </button>
-        <button 
+        <button
           className="action-button secondary"
           onClick={() => handleLike(circuit.id)}
         >
@@ -253,8 +276,8 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
       <h3>🏷️ 人気タグ</h3>
       <div className="tags-cloud">
         {POPULAR_TAGS.slice(0, 15).map(tag => (
-          <button 
-            key={tag} 
+          <button
+            key={tag}
             className={`tag ${filter.tags?.includes(tag) ? 'selected' : ''}`}
             onClick={() => handleTagClick(tag)}
           >
@@ -270,22 +293,28 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
 
     return (
       <div className="circuit-detail-modal">
-        <div className="modal-backdrop" onClick={() => setSelectedCircuit(null)} />
+        <div
+          className="modal-backdrop"
+          onClick={() => setSelectedCircuit(null)}
+        />
         <div className="modal-content">
           <div className="modal-header">
             <h2>{selectedCircuit.title}</h2>
-            <button 
+            <button
               className="close-button"
               onClick={() => setSelectedCircuit(null)}
             >
               ✕
             </button>
           </div>
-          
+
           <div className="modal-body">
             <div className="circuit-preview">
               {selectedCircuit.thumbnail ? (
-                <img src={selectedCircuit.thumbnail} alt={selectedCircuit.title} />
+                <img
+                  src={selectedCircuit.thumbnail}
+                  alt={selectedCircuit.title}
+                />
               ) : (
                 <div className="preview-placeholder">
                   <span>📱</span>
@@ -293,10 +322,10 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
                 </div>
               )}
             </div>
-            
+
             <div className="circuit-details">
               <p className="description">{selectedCircuit.description}</p>
-              
+
               <div className="detail-stats">
                 <div className="stat-group">
                   <span className="label">作者</span>
@@ -304,11 +333,15 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
                 </div>
                 <div className="stat-group">
                   <span className="label">カテゴリ</span>
-                  <span className="value">{CATEGORY_LABELS[selectedCircuit.category]}</span>
+                  <span className="value">
+                    {CATEGORY_LABELS[selectedCircuit.category]}
+                  </span>
                 </div>
                 <div className="stat-group">
                   <span className="label">複雑さ</span>
-                  <span className="value">{COMPLEXITY_LABELS[selectedCircuit.complexity]}</span>
+                  <span className="value">
+                    {COMPLEXITY_LABELS[selectedCircuit.complexity]}
+                  </span>
                 </div>
                 <div className="stat-group">
                   <span className="label">ゲート数</span>
@@ -319,17 +352,19 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
                   <span className="value">{selectedCircuit.wires.length}</span>
                 </div>
               </div>
-              
+
               <div className="circuit-tags">
                 {selectedCircuit.tags.map(tag => (
-                  <span key={tag} className="tag">{tag}</span>
+                  <span key={tag} className="tag">
+                    {tag}
+                  </span>
                 ))}
               </div>
             </div>
           </div>
-          
+
           <div className="modal-actions">
-            <button 
+            <button
               className="action-button primary"
               onClick={() => {
                 handleLoadCircuit(selectedCircuit);
@@ -339,7 +374,7 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
               <span>🔧</span>
               <span>この回路を開く</span>
             </button>
-            <button 
+            <button
               className="action-button secondary"
               onClick={() => handleLike(selectedCircuit.id)}
             >
@@ -372,16 +407,21 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
             {filteredCircuits.length} 件の回路
           </span>
         </div>
-        
+
         <div className="circuits-grid">
           {filteredCircuits.map(renderCircuitCard)}
         </div>
-        
+
         {filteredCircuits.length === 0 && (
           <div className="no-results">
             <span>😅</span>
             <p>検索条件に一致する回路が見つかりませんでした</p>
-            <button onClick={() => { setFilter({}); setSearchQuery(''); }}>
+            <button
+              onClick={() => {
+                setFilter({});
+                setSearchQuery('');
+              }}
+            >
               フィルタをリセット
             </button>
           </div>

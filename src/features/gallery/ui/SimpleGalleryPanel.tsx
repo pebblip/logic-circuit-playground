@@ -1,16 +1,22 @@
 import React from 'react';
 import { useCircuitStore } from '../../../stores/circuitStore';
-import { Gate, Wire, GateType } from '../../../types/circuit';
+import type { Gate, Wire, GateType } from '../../../types/circuit';
 import './SimpleGalleryPanel.css';
 
 // ヘルパー関数: ゲートを作成
-const g = (id: string, type: GateType, x: number, y: number, metadata?: any): Gate => ({
+const g = (
+  id: string,
+  type: GateType,
+  x: number,
+  y: number,
+  metadata?: any
+): Gate => ({
   id,
   type,
   position: { x, y },
   output: false,
   inputs: [],
-  ...(metadata && { metadata })
+  ...(metadata && { metadata }),
 });
 
 // ultrathink: 驚きの回路だけを厳選
@@ -34,14 +40,24 @@ const AMAZING_CIRCUITS: CircuitData[] = [
     gates: [
       g('input1', 'INPUT', 100, 200),
       g('not1', 'NOT', 300, 200),
-      g('output1', 'OUTPUT', 500, 200)
+      g('output1', 'OUTPUT', 500, 200),
     ],
     wires: [
-      { id: 'w1', from: { gateId: 'input1', pinIndex: -1 }, to: { gateId: 'not1', pinIndex: 0 }, isActive: false },
-      { id: 'w2', from: { gateId: 'not1', pinIndex: -1 }, to: { gateId: 'output1', pinIndex: 0 }, isActive: false }
-    ]
+      {
+        id: 'w1',
+        from: { gateId: 'input1', pinIndex: -1 },
+        to: { gateId: 'not1', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w2',
+        from: { gateId: 'not1', pinIndex: -1 },
+        to: { gateId: 'output1', pinIndex: 0 },
+        isActive: false,
+      },
+    ],
   },
-  
+
   {
     id: 'memory-bit',
     title: '🧠 1ビットメモリ',
@@ -53,16 +69,36 @@ const AMAZING_CIRCUITS: CircuitData[] = [
       g('input-r', 'INPUT', 100, 250),
       g('sr-latch', 'SR-LATCH', 300, 200),
       g('output-q', 'OUTPUT', 500, 150),
-      g('output-qbar', 'OUTPUT', 500, 250)
+      g('output-qbar', 'OUTPUT', 500, 250),
     ],
     wires: [
-      { id: 'w1', from: { gateId: 'input-s', pinIndex: -1 }, to: { gateId: 'sr-latch', pinIndex: 0 }, isActive: false },
-      { id: 'w2', from: { gateId: 'input-r', pinIndex: -1 }, to: { gateId: 'sr-latch', pinIndex: 1 }, isActive: false },
-      { id: 'w3', from: { gateId: 'sr-latch', pinIndex: -1 }, to: { gateId: 'output-q', pinIndex: 0 }, isActive: false },
-      { id: 'w4', from: { gateId: 'sr-latch', pinIndex: -2 }, to: { gateId: 'output-qbar', pinIndex: 0 }, isActive: false }
-    ]
+      {
+        id: 'w1',
+        from: { gateId: 'input-s', pinIndex: -1 },
+        to: { gateId: 'sr-latch', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w2',
+        from: { gateId: 'input-r', pinIndex: -1 },
+        to: { gateId: 'sr-latch', pinIndex: 1 },
+        isActive: false,
+      },
+      {
+        id: 'w3',
+        from: { gateId: 'sr-latch', pinIndex: -1 },
+        to: { gateId: 'output-q', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w4',
+        from: { gateId: 'sr-latch', pinIndex: -2 },
+        to: { gateId: 'output-qbar', pinIndex: 0 },
+        isActive: false,
+      },
+    ],
   },
-  
+
   {
     id: 'and-demo',
     title: '🤝 ANDゲート',
@@ -73,15 +109,30 @@ const AMAZING_CIRCUITS: CircuitData[] = [
       g('input-a', 'INPUT', 100, 150),
       g('input-b', 'INPUT', 100, 250),
       g('and1', 'AND', 300, 200),
-      g('output1', 'OUTPUT', 500, 200)
+      g('output1', 'OUTPUT', 500, 200),
     ],
     wires: [
-      { id: 'w1', from: { gateId: 'input-a', pinIndex: -1 }, to: { gateId: 'and1', pinIndex: 0 }, isActive: false },
-      { id: 'w2', from: { gateId: 'input-b', pinIndex: -1 }, to: { gateId: 'and1', pinIndex: 1 }, isActive: false },
-      { id: 'w3', from: { gateId: 'and1', pinIndex: -1 }, to: { gateId: 'output1', pinIndex: 0 }, isActive: false }
-    ]
+      {
+        id: 'w1',
+        from: { gateId: 'input-a', pinIndex: -1 },
+        to: { gateId: 'and1', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w2',
+        from: { gateId: 'input-b', pinIndex: -1 },
+        to: { gateId: 'and1', pinIndex: 1 },
+        isActive: false,
+      },
+      {
+        id: 'w3',
+        from: { gateId: 'and1', pinIndex: -1 },
+        to: { gateId: 'output1', pinIndex: 0 },
+        isActive: false,
+      },
+    ],
   },
-  
+
   {
     id: 'or-demo',
     title: '🌈 ORゲート',
@@ -92,15 +143,30 @@ const AMAZING_CIRCUITS: CircuitData[] = [
       g('input-a', 'INPUT', 100, 150),
       g('input-b', 'INPUT', 100, 250),
       g('or1', 'OR', 300, 200),
-      g('output1', 'OUTPUT', 500, 200)
+      g('output1', 'OUTPUT', 500, 200),
     ],
     wires: [
-      { id: 'w1', from: { gateId: 'input-a', pinIndex: -1 }, to: { gateId: 'or1', pinIndex: 0 }, isActive: false },
-      { id: 'w2', from: { gateId: 'input-b', pinIndex: -1 }, to: { gateId: 'or1', pinIndex: 1 }, isActive: false },
-      { id: 'w3', from: { gateId: 'or1', pinIndex: -1 }, to: { gateId: 'output1', pinIndex: 0 }, isActive: false }
-    ]
+      {
+        id: 'w1',
+        from: { gateId: 'input-a', pinIndex: -1 },
+        to: { gateId: 'or1', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w2',
+        from: { gateId: 'input-b', pinIndex: -1 },
+        to: { gateId: 'or1', pinIndex: 1 },
+        isActive: false,
+      },
+      {
+        id: 'w3',
+        from: { gateId: 'or1', pinIndex: -1 },
+        to: { gateId: 'output1', pinIndex: 0 },
+        isActive: false,
+      },
+    ],
   },
-  
+
   {
     id: 'xor-magic',
     title: '✨ XORマジック',
@@ -113,62 +179,92 @@ const AMAZING_CIRCUITS: CircuitData[] = [
       g('xor1', 'XOR', 300, 150),
       g('xor2', 'XOR', 500, 150),
       g('output-encrypted', 'OUTPUT', 450, 50),
-      g('output-decrypted', 'OUTPUT', 700, 150)
+      g('output-decrypted', 'OUTPUT', 700, 150),
     ],
     wires: [
       // 暗号化: A XOR KEY
-      { id: 'w1', from: { gateId: 'input-a', pinIndex: -1 }, to: { gateId: 'xor1', pinIndex: 0 }, isActive: false },
-      { id: 'w2', from: { gateId: 'input-key', pinIndex: -1 }, to: { gateId: 'xor1', pinIndex: 1 }, isActive: false },
-      { id: 'w3', from: { gateId: 'xor1', pinIndex: -1 }, to: { gateId: 'output-encrypted', pinIndex: 0 }, isActive: false },
+      {
+        id: 'w1',
+        from: { gateId: 'input-a', pinIndex: -1 },
+        to: { gateId: 'xor1', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w2',
+        from: { gateId: 'input-key', pinIndex: -1 },
+        to: { gateId: 'xor1', pinIndex: 1 },
+        isActive: false,
+      },
+      {
+        id: 'w3',
+        from: { gateId: 'xor1', pinIndex: -1 },
+        to: { gateId: 'output-encrypted', pinIndex: 0 },
+        isActive: false,
+      },
       // 復号化: (A XOR KEY) XOR KEY = A
-      { id: 'w4', from: { gateId: 'xor1', pinIndex: -1 }, to: { gateId: 'xor2', pinIndex: 0 }, isActive: false },
-      { id: 'w5', from: { gateId: 'input-key', pinIndex: -1 }, to: { gateId: 'xor2', pinIndex: 1 }, isActive: false },
-      { id: 'w6', from: { gateId: 'xor2', pinIndex: -1 }, to: { gateId: 'output-decrypted', pinIndex: 0 }, isActive: false }
-    ]
-  }
+      {
+        id: 'w4',
+        from: { gateId: 'xor1', pinIndex: -1 },
+        to: { gateId: 'xor2', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w5',
+        from: { gateId: 'input-key', pinIndex: -1 },
+        to: { gateId: 'xor2', pinIndex: 1 },
+        isActive: false,
+      },
+      {
+        id: 'w6',
+        from: { gateId: 'xor2', pinIndex: -1 },
+        to: { gateId: 'output-decrypted', pinIndex: 0 },
+        isActive: false,
+      },
+    ],
+  },
 ];
 
-export const SimpleGalleryPanel: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
+export const SimpleGalleryPanel: React.FC<{ isVisible: boolean }> = ({
+  isVisible,
+}) => {
   const { clearAll, setAppMode } = useCircuitStore();
-  
-  const openCircuit = (circuit: typeof AMAZING_CIRCUITS[0]) => {
+
+  const openCircuit = (circuit: (typeof AMAZING_CIRCUITS)[0]) => {
     clearAll();
-    
+
     // 回路を読み込む
     useCircuitStore.setState({
       gates: circuit.gates,
       wires: circuit.wires,
       selectedGateId: null,
       isDrawingWire: false,
-      wireStart: null
+      wireStart: null,
     });
-    
+
     // 自由制作モードへ
     setAppMode('自由制作');
   };
-  
+
   if (!isVisible) return null;
-  
+
   return (
     <div className="simple-gallery">
       <div className="gallery-intro">
         <h1>✨ あっと驚く回路たち</h1>
         <p>クリックして魔法を体験しよう</p>
       </div>
-      
+
       <div className="circuit-showcase">
         {AMAZING_CIRCUITS.map(circuit => (
-          <div 
-            key={circuit.id} 
+          <div
+            key={circuit.id}
             className="showcase-card"
             onClick={() => openCircuit(circuit)}
           >
             <div className="circuit-preview">
-              <div className="preview-animation">
-                {circuit.preview}
-              </div>
+              <div className="preview-animation">{circuit.preview}</div>
             </div>
-            
+
             <div className="circuit-caption">
               <h3>{circuit.title}</h3>
               <p>{circuit.subtitle}</p>
@@ -176,10 +272,8 @@ export const SimpleGalleryPanel: React.FC<{ isVisible: boolean }> = ({ isVisible
                 <p className="circuit-instruction">{circuit.instruction}</p>
               )}
             </div>
-            
-            <div className="try-button">
-              試してみる →
-            </div>
+
+            <div className="try-button">試してみる →</div>
           </div>
         ))}
       </div>

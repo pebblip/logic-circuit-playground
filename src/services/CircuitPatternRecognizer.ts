@@ -1,7 +1,12 @@
-import { Gate, Wire } from '../types/circuit';
+import type { Gate, Wire } from '../types/circuit';
 
 export interface CircuitPattern {
-  type: 'led-counter' | 'digital-clock' | 'traffic-light' | 'password-lock' | 'unknown';
+  type:
+    | 'led-counter'
+    | 'digital-clock'
+    | 'traffic-light'
+    | 'password-lock'
+    | 'unknown';
   confidence: number; // 0-100
   description: string;
   relatedGates: Gate[];
@@ -19,7 +24,6 @@ export interface CounterPattern extends CircuitPattern {
 }
 
 export class CircuitPatternRecognizer {
-  
   recognizePattern(gates: Gate[], wires: Wire[]): CircuitPattern {
     // LEDカウンタパターンを最初に実装
     const counterPattern = this.recognizeLEDCounter(gates, wires);
@@ -35,7 +39,7 @@ export class CircuitPatternRecognizer {
       type: 'unknown',
       confidence: 0,
       description: '認識できないパターンです',
-      relatedGates: []
+      relatedGates: [],
     };
   }
 
@@ -55,16 +59,16 @@ export class CircuitPatternRecognizer {
     // 3. CLOCKから各OUTPUTへのパスが存在するか
     const clockGate = clockGates[0];
     const reachableOutputs = this.findReachableOutputs(clockGate, gates, wires);
-    
+
     if (reachableOutputs.length < 2) {
       return this.createEmptyCounterPattern();
     }
 
     // 4. カウンタっぽい構造か（フリップフロップや論理ゲートの組み合わせ）
     const hasCounterStructure = this.hasCounterLikeStructure(gates, wires);
-    
+
     let confidence = 60; // 基本スコア
-    
+
     // 信頼度計算
     if (reachableOutputs.length === outputGates.length) confidence += 20;
     if (hasCounterStructure) confidence += 15;
@@ -79,8 +83,8 @@ export class CircuitPatternRecognizer {
         bitCount: reachableOutputs.length,
         clockGate,
         outputGates: reachableOutputs,
-        maxValue: Math.pow(2, reachableOutputs.length) - 1
-      }
+        maxValue: Math.pow(2, reachableOutputs.length) - 1,
+      },
     };
   }
 
@@ -94,12 +98,16 @@ export class CircuitPatternRecognizer {
         bitCount: 0,
         clockGate: {} as Gate,
         outputGates: [],
-        maxValue: 0
-      }
+        maxValue: 0,
+      },
     };
   }
 
-  private findReachableOutputs(sourceGate: Gate, gates: Gate[], wires: Wire[]): Gate[] {
+  private findReachableOutputs(
+    sourceGate: Gate,
+    gates: Gate[],
+    wires: Wire[]
+  ): Gate[] {
     const reachableOutputs: Gate[] = [];
     const visited = new Set<string>();
 
@@ -109,7 +117,7 @@ export class CircuitPatternRecognizer {
 
       // このゲートから出ているワイヤーを探す
       const outgoingWires = wires.filter(w => w.from.gateId === gateId);
-      
+
       for (const wire of outgoingWires) {
         const targetGate = gates.find(g => g.id === wire.to.gateId);
         if (!targetGate) continue;
@@ -129,10 +137,10 @@ export class CircuitPatternRecognizer {
 
   private hasCounterLikeStructure(gates: Gate[], wires: Wire[]): boolean {
     // フリップフロップ、ラッチ、またはフィードバックループの存在をチェック
-    const flipflopGates = gates.filter(g => 
-      g.type === 'D-FF' || g.type === 'SR-LATCH'
+    const flipflopGates = gates.filter(
+      g => g.type === 'D-FF' || g.type === 'SR-LATCH'
     );
-    
+
     if (flipflopGates.length > 0) return true;
 
     // フィードバックループの検出（簡易版）
@@ -148,16 +156,16 @@ export class CircuitPatternRecognizer {
   private hasSequentialPattern(outputGates: Gate[], wires: Wire[]): boolean {
     // OUTPUTゲートが順序立って配置されているかチェック
     if (outputGates.length < 2) return false;
-    
+
     const sortedByX = outputGates.sort((a, b) => a.position.x - b.position.x);
-    
+
     // X座標が順序立っている場合にボーナスポイント
     for (let i = 1; i < sortedByX.length; i++) {
-      if (sortedByX[i].position.x <= sortedByX[i-1].position.x) {
+      if (sortedByX[i].position.x <= sortedByX[i - 1].position.x) {
         return false;
       }
     }
-    
+
     return true;
   }
 

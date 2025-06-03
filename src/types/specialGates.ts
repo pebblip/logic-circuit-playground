@@ -1,11 +1,11 @@
 // 特殊ゲートの型定義
 // metadata: anyを排除し、型安全性を向上
 
-import { Gate } from './circuit';
+import type { Gate } from './circuit';
 
 // CLOCKゲートのメタデータ
 export interface ClockMetadata {
-  frequency: number;  // Hz
+  frequency: number; // Hz
   isRunning: boolean;
   startTime: number;
   lastToggleTime?: number;
@@ -75,8 +75,8 @@ export function isMuxGate(gate: Gate): gate is MuxGate {
 export type SpecialGate = ClockGate | DFlipFlopGate | SRLatchGate | MuxGate;
 
 // ゲートの完全な型定義（型安全）
-export type TypedGate = 
-  | Gate  // 基本ゲート（AND, OR, NOT等）
+export type TypedGate =
+  | Gate // 基本ゲート（AND, OR, NOT等）
   | ClockGate
   | DFlipFlopGate
   | SRLatchGate
@@ -87,23 +87,23 @@ export const DEFAULT_METADATA = {
   CLOCK: {
     frequency: 1,
     isRunning: false,
-    startTime: Date.now()
+    startTime: Date.now(),
   } as ClockMetadata,
-  
+
   'D-FF': {
     clockEdge: 'rising',
     previousClockState: false,
     qOutput: false,
-    qBarOutput: false
+    qBarOutput: false,
   } as DFlipFlopMetadata,
-  
+
   'SR-LATCH': {
     qOutput: false,
-    qBarOutput: true
+    qBarOutput: true,
   } as SRLatchMetadata,
-  
+
   MUX: {
     dataInputCount: 2,
-    selectedInput: 0
-  } as MuxMetadata
+    selectedInput: 0,
+  } as MuxMetadata,
 };

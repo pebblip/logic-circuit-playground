@@ -12,7 +12,10 @@ export const FloatingActionButtons: React.FC = () => {
 
   const handleSimulate = () => {
     // 手動でシミュレーションを実行
-    const { gates: updatedGates, wires: updatedWires } = evaluateCircuit(gates, wires);
+    const { gates: updatedGates, wires: updatedWires } = evaluateCircuit(
+      gates,
+      wires
+    );
     useCircuitStore.setState({ gates: updatedGates, wires: updatedWires });
   };
 
@@ -51,26 +54,38 @@ export const FloatingActionButtons: React.FC = () => {
             <button className="fab secondary" onClick={handleSave} title="保存">
               💾
             </button>
-            <button className="fab secondary" onClick={handleLoad} title="読み込み">
+            <button
+              className="fab secondary"
+              onClick={handleLoad}
+              title="読み込み"
+            >
               📂
             </button>
-            <button className="fab secondary" onClick={handleReset} title="クリア">
+            <button
+              className="fab secondary"
+              onClick={handleReset}
+              title="クリア"
+            >
               🗑️
             </button>
           </div>
         )}
 
         {/* メインFAB */}
-        <button 
-          className="fab primary main-fab" 
-          onClick={() => setExpanded(!expanded)} 
+        <button
+          className="fab primary main-fab"
+          onClick={() => setExpanded(!expanded)}
           title={expanded ? '閉じる' : 'メニューを開く'}
         >
           {expanded ? '✕' : '⚙️'}
         </button>
 
         {/* シミュレーションFAB */}
-        <button className="fab primary simulate-fab" onClick={handleSimulate} title="シミュレーション">
+        <button
+          className="fab primary simulate-fab"
+          onClick={handleSimulate}
+          title="シミュレーション"
+        >
           ▶️
         </button>
       </div>
@@ -81,7 +96,7 @@ export const FloatingActionButtons: React.FC = () => {
         onClose={() => setSaveDialogOpen(false)}
         onSuccess={handleSaveSuccess}
       />
-      
+
       <LoadCircuitDialog
         isOpen={loadDialogOpen}
         onClose={() => setLoadDialogOpen(false)}

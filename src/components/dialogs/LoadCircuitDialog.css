@@ -160,7 +160,9 @@
 }
 
 /* 状態表示 */
-.loading-state, .error-state, .empty-state {
+.loading-state,
+.error-state,
+.empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -178,7 +180,8 @@
   margin-bottom: 16px;
 }
 
-.error-state .error-icon, .empty-state .empty-icon {
+.error-state .error-icon,
+.empty-state .empty-icon {
   font-size: 48px;
   margin-bottom: 16px;
 }
@@ -432,51 +435,52 @@
     width: 98vw;
     max-height: 95vh;
   }
-  
+
   .filter-bar {
     flex-direction: column;
     gap: 8px;
     align-items: stretch;
   }
-  
+
   .search-box {
     order: 1;
   }
-  
-  .view-controls, .sort-controls {
+
+  .view-controls,
+  .sort-controls {
     order: 2;
     flex: none;
   }
-  
+
   .circuits-container.grid {
     grid-template-columns: 1fr;
   }
-  
+
   .circuits-container.list .circuit-card {
     grid-template-columns: 60px 1fr auto;
     gap: 12px;
   }
-  
+
   .circuit-thumbnail {
     width: 60px !important;
     height: 45px !important;
   }
-  
+
   .tag-filter-section {
     padding: 8px 16px;
   }
-  
+
   .dialog-content {
     padding: 12px 16px;
   }
-  
+
   .dialog-footer {
     padding: 12px 16px;
     flex-direction: column;
     gap: 8px;
     align-items: stretch;
   }
-  
+
   .footer-actions {
     justify-content: center;
   }
@@ -487,11 +491,11 @@
     font-size: 10px;
     gap: 8px;
   }
-  
+
   .meta-item {
     gap: 2px;
   }
-  
+
   .filter-bar {
     padding: 12px 16px;
   }

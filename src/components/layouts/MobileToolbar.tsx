@@ -1,5 +1,5 @@
 import React from 'react';
-import { GateType } from '../../types/circuit';
+import type { GateType } from '../../types/circuit';
 import { useCircuitStore } from '../../stores/circuitStore';
 
 interface MobileToolbarProps {
@@ -55,24 +55,25 @@ export const MobileToolbar: React.FC<MobileToolbarProps> = ({
     // キャンバスの中央付近に配置
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight - 200; // ツールバーの高さを考慮
-    
+
     const baseX = viewportWidth / 2;
     const baseY = viewportHeight / 2;
-    
+
     // 既存のゲートと重ならない位置を計算
     let x = baseX;
     let y = baseY;
     let offset = 0;
-    
-    while (gates.some(g => 
-      Math.abs(g.position.x - x) < 70 && 
-      Math.abs(g.position.y - y) < 50
-    )) {
+
+    while (
+      gates.some(
+        g => Math.abs(g.position.x - x) < 70 && Math.abs(g.position.y - y) < 50
+      )
+    ) {
       offset += 50;
       x = baseX + (offset % 200) - 100;
       y = baseY + Math.floor(offset / 200) * 60;
     }
-    
+
     addGate(type, { x, y });
   };
 
@@ -80,7 +81,7 @@ export const MobileToolbar: React.FC<MobileToolbarProps> = ({
     <div className={`mobile-toolbar ${isOpen ? 'open' : ''}`}>
       {/* スワイプハンドル */}
       <div className="swipe-handle" onClick={onToggle} />
-      
+
       {/* カテゴリータブ */}
       <div className="tool-categories">
         {Object.entries(TOOL_CATEGORIES).map(([key, category]) => (
@@ -93,10 +94,10 @@ export const MobileToolbar: React.FC<MobileToolbarProps> = ({
           </button>
         ))}
       </div>
-      
+
       {/* ツールグリッド */}
       <div className="tools-grid">
-        {TOOL_CATEGORIES[selectedCategory].gates.map((tool) => (
+        {TOOL_CATEGORIES[selectedCategory].gates.map(tool => (
           <button
             key={tool.type}
             className="tool-item"

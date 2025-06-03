@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useCircuitStore } from '../../stores/circuitStore';
 import { circuitStorage } from '../../services/CircuitStorageService';
-import { CircuitMetadata, CircuitFilter, CircuitStorageResult } from '../../types/circuitStorage';
+import type {
+  CircuitMetadata,
+  CircuitStorageResult,
+} from '../../types/circuitStorage';
 import './LoadCircuitDialog.css';
 
 interface LoadCircuitDialogProps {
@@ -13,20 +16,25 @@ interface LoadCircuitDialogProps {
 export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
   isOpen,
   onClose,
-  onLoad
+  onLoad,
 }) => {
   const { gates: currentGates, wires: currentWires } = useCircuitStore();
   const [circuits, setCircuits] = useState<CircuitMetadata[]>([]);
-  const [filteredCircuits, setFilteredCircuits] = useState<CircuitMetadata[]>([]);
-  const [selectedCircuit, setSelectedCircuit] = useState<CircuitMetadata | null>(null);
+  const [filteredCircuits, setFilteredCircuits] = useState<CircuitMetadata[]>(
+    []
+  );
+  const [selectedCircuit, setSelectedCircuit] =
+    useState<CircuitMetadata | null>(null);
   const [isLoading, setLoading] = useState(false);
   const [isLoadingCircuit, setLoadingCircuit] = useState(false);
   const [error, setError] = useState<string>('');
-  
+
   // フィルター・検索状態
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'updatedAt' | 'gateCount'>('updatedAt');
+  const [sortBy, setSortBy] = useState<
+    'name' | 'createdAt' | 'updatedAt' | 'gateCount'
+  >('updatedAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
@@ -54,10 +62,10 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
 
     try {
       const result = await circuitStorage.get().listCircuits();
-      
+
       if (result.success && result.data) {
         setCircuits(result.data);
-        
+
         // 利用可能なタグを抽出
         const allTags = new Set<string>();
         result.data.forEach((circuit: CircuitMetadata) => {
@@ -68,7 +76,11 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
         setError(result.message || '回路一覧の取得に失敗しました');
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : '読み込み中にエラーが発生しました');
+      setError(
+        error instanceof Error
+          ? error.message
+          : '読み込み中にエラーが発生しました'
+      );
     } finally {
       setLoading(false);
     }
@@ -83,10 +95,11 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
     // 検索クエリでフィルタ
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(circuit =>
-        circuit.name.toLowerCase().includes(query) ||
-        circuit.description?.toLowerCase().includes(query) ||
-        circuit.tags?.some(tag => tag.toLowerCase().includes(query))
+      filtered = filtered.filter(
+        circuit =>
+          circuit.name.toLowerCase().includes(query) ||
+          circuit.description?.toLowerCase().includes(query) ||
+          circuit.tags?.some(tag => tag.toLowerCase().includes(query))
       );
     }
 
@@ -100,7 +113,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
     // ソート
     filtered.sort((a, b) => {
       let aVal: any, bVal: any;
-      
+
       switch (sortBy) {
         case 'name':
           aVal = a.name.toLowerCase();
@@ -115,9 +128,13 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
           bVal = new Date(b[sortBy]).getTime();
       }
 
-      return sortOrder === 'asc' ? 
-        (aVal > bVal ? 1 : -1) : 
-        (aVal < bVal ? 1 : -1);
+      return sortOrder === 'asc'
+        ? aVal > bVal
+          ? 1
+          : -1
+        : aVal < bVal
+          ? 1
+          : -1;
     });
 
     setFilteredCircuits(filtered);
@@ -139,28 +156,31 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
 
     try {
       const result = await circuitStorage.get().loadCircuit(circuitId);
-      
+
       if (result.success && result.data) {
         // Zustandストアの全メソッドを取得
         const store = useCircuitStore.getState();
-        
+
         // 現在の回路をクリア
         store.gates.forEach(gate => store.deleteGate(gate.id));
         store.wires.forEach(wire => store.deleteWire(wire.id));
-        
+
         // 新しい回路を読み込み
         const circuit = result.data.circuit;
-        
+
         // ゲートを追加
         circuit.gates.forEach(gateData => {
           store.addGate(gateData.type, gateData.position);
         });
-        
+
         // ワイヤーを復元（少し複雑）
         setTimeout(() => {
           circuit.wires.forEach(wireData => {
             // ワイヤーの接続を再現
-            store.startWireDrawing(wireData.from.gateId, wireData.from.pinIndex);
+            store.startWireDrawing(
+              wireData.from.gateId,
+              wireData.from.pinIndex
+            );
             store.endWireDrawing(wireData.to.gateId, wireData.to.pinIndex);
           });
         }, 100);
@@ -171,7 +191,11 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
         setError(result.message || '読み込みに失敗しました');
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : '読み込み中にエラーが発生しました');
+      setError(
+        error instanceof Error
+          ? error.message
+          : '読み込み中にエラーが発生しました'
+      );
     } finally {
       setLoadingCircuit(false);
     }
@@ -180,18 +204,21 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
   /**
    * 回路を削除
    */
-  const handleDelete = async (circuit: CircuitMetadata, event: React.MouseEvent) => {
+  const handleDelete = async (
+    circuit: CircuitMetadata,
+    event: React.MouseEvent
+  ) => {
     event.stopPropagation();
-    
+
     const confirmed = window.confirm(
       `回路「${circuit.name}」を削除しますか？\nこの操作は取り消せません。`
     );
-    
+
     if (!confirmed) return;
 
     try {
       const result = await circuitStorage.get().deleteCircuit(circuit.id);
-      
+
       if (result.success) {
         // リストから削除
         setCircuits(prev => prev.filter(c => c.id !== circuit.id));
@@ -202,7 +229,9 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
         setError(result.message || '削除に失敗しました');
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : '削除中にエラーが発生しました');
+      setError(
+        error instanceof Error ? error.message : '削除中にエラーが発生しました'
+      );
     }
   };
 
@@ -211,9 +240,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
    */
   const toggleTagFilter = (tag: string) => {
     setSelectedTags(prev =>
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     );
   };
 
@@ -225,16 +252,16 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return '今日';
     if (diffDays === 1) return '昨日';
     if (diffDays < 7) return `${diffDays}日前`;
     if (diffDays < 30) return `${Math.floor(diffDays / 7)}週間前`;
-    
-    return date.toLocaleDateString('ja-JP', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+
+    return date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
     });
   };
 
@@ -245,10 +272,12 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
       <div className="load-dialog" onClick={e => e.stopPropagation()}>
         {/* ヘッダー */}
         <div className="dialog-header">
-          <h2 className="dialog-title">
-            📂 保存済み回路を読み込み
-          </h2>
-          <button className="close-button" onClick={onClose} aria-label="閉じる">
+          <h2 className="dialog-title">📂 保存済み回路を読み込み</h2>
+          <button
+            className="close-button"
+            onClick={onClose}
+            aria-label="閉じる"
+          >
             ✕
           </button>
         </div>
@@ -290,7 +319,10 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
             <select
               value={`${sortBy}-${sortOrder}`}
               onChange={e => {
-                const [newSortBy, newSortOrder] = e.target.value.split('-') as [typeof sortBy, typeof sortOrder];
+                const [newSortBy, newSortOrder] = e.target.value.split('-') as [
+                  typeof sortBy,
+                  typeof sortOrder,
+                ];
                 setSortBy(newSortBy);
                 setSortOrder(newSortOrder);
               }}
@@ -346,10 +378,9 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
               <span className="empty-icon">📁</span>
               <h3>回路が見つかりません</h3>
               <p>
-                {circuits.length === 0 
+                {circuits.length === 0
                   ? '保存された回路がありません'
-                  : '検索条件に一致する回路がありません'
-                }
+                  : '検索条件に一致する回路がありません'}
               </p>
             </div>
           ) : (
@@ -376,9 +407,11 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
                   <div className="circuit-info">
                     <h3 className="circuit-name">{circuit.name}</h3>
                     {circuit.description && (
-                      <p className="circuit-description">{circuit.description}</p>
+                      <p className="circuit-description">
+                        {circuit.description}
+                      </p>
                     )}
-                    
+
                     <div className="circuit-meta">
                       <span className="meta-item">
                         🔲 {circuit.stats.gateCount}ゲート
@@ -394,7 +427,9 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
                     {circuit.tags && circuit.tags.length > 0 && (
                       <div className="circuit-tags">
                         {circuit.tags.map(tag => (
-                          <span key={tag} className="circuit-tag">{tag}</span>
+                          <span key={tag} className="circuit-tag">
+                            {tag}
+                          </span>
                         ))}
                       </div>
                     )}
@@ -404,7 +439,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
                   <div className="circuit-actions">
                     <button
                       className="action-button delete"
-                      onClick={(e) => handleDelete(circuit, e)}
+                      onClick={e => handleDelete(circuit, e)}
                       title="削除"
                     >
                       🗑️
@@ -433,17 +468,17 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
               </span>
             )}
           </div>
-          
+
           <div className="footer-actions">
-            <button 
-              className="button secondary" 
+            <button
+              className="button secondary"
               onClick={onClose}
               disabled={isLoadingCircuit}
             >
               キャンセル
             </button>
-            <button 
-              className="button primary" 
+            <button
+              className="button primary"
               onClick={() => selectedCircuit && handleLoad(selectedCircuit.id)}
               disabled={isLoadingCircuit || !selectedCircuit}
             >

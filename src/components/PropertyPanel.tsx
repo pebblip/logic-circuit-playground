@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { useCircuitStore } from '../stores/circuitStore';
 import { isCustomGate } from '../types/gates';
 import { TruthTableDisplay } from './TruthTableDisplay';
-import { generateTruthTable } from '../domain/analysis';
-import { GateDescription, getGateDescription } from '../data/gateDescriptions';
-import { booleanToDisplayState, getGateInputsAsBoolean } from '../domain/simulation';
+import { getGateDescription } from '../data/gateDescriptions';
+import {
+  booleanToDisplayState,
+  getGateInputsAsBoolean,
+} from '../domain/simulation';
 
 export const PropertyPanel: React.FC = () => {
-  const { gates, wires, selectedGateId, updateClockFrequency } = useCircuitStore();
+  const { gates, selectedGateId, updateClockFrequency } = useCircuitStore();
   const selectedGate = gates.find(g => g.id === selectedGateId);
-  
+
   // モーダル管理用のstate
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showTruthTableModal, setShowTruthTableModal] = useState(false);
@@ -24,22 +26,29 @@ export const PropertyPanel: React.FC = () => {
     // 実際にselectedGateIdが変わった場合のみ処理
     if (prevSelectedGateIdRef.current !== selectedGateId) {
       prevSelectedGateIdRef.current = selectedGateId;
-      
+
       // モーダルが開いている場合のみ処理
       if (showDetailModal || showTruthTableModal) {
         // すべてのCLOCKゲートの状態を復元
         if (clockWasRunning) {
           const currentGates = useCircuitStore.getState().gates;
           const updatedGates = currentGates.map(gate => {
-            if (gate.type === 'CLOCK' && gate.metadata && !gate.metadata.isRunning) {
-              return { ...gate, metadata: { ...gate.metadata, isRunning: true } };
+            if (
+              gate.type === 'CLOCK' &&
+              gate.metadata &&
+              !gate.metadata.isRunning
+            ) {
+              return {
+                ...gate,
+                metadata: { ...gate.metadata, isRunning: true },
+              };
             }
             return gate;
           });
           useCircuitStore.setState({ gates: updatedGates });
           setClockWasRunning(false);
         }
-        
+
         setShowDetailModal(false);
         setShowTruthTableModal(false);
         setTruthTableData(null);
@@ -54,7 +63,11 @@ export const PropertyPanel: React.FC = () => {
       // 最新のgatesを直接取得
       const currentGates = useCircuitStore.getState().gates;
       const updatedGates = currentGates.map(gate => {
-        if (gate.type === 'CLOCK' && gate.metadata && !gate.metadata.isRunning) {
+        if (
+          gate.type === 'CLOCK' &&
+          gate.metadata &&
+          !gate.metadata.isRunning
+        ) {
           // 停止しているCLOCKゲートを再開
           return { ...gate, metadata: { ...gate.metadata, isRunning: true } };
         }
@@ -63,7 +76,7 @@ export const PropertyPanel: React.FC = () => {
       useCircuitStore.setState({ gates: updatedGates });
       setClockWasRunning(false);
     }
-    
+
     setShowDetailModal(false);
     setShowTruthTableModal(false);
     setTruthTableData(null);
@@ -85,58 +98,69 @@ export const PropertyPanel: React.FC = () => {
 
   // 構造化されたゲート説明データ（外部化済み）
 
-
   // 美しいJSXレンダリング関数
   const renderGateDescription = (gateType: string) => {
     const data = getGateDescription(gateType);
-    
+
     return (
-      <div style={{ fontSize: '14px', lineHeight: '1.7', color: 'rgba(255, 255, 255, 0.9)' }}>
+      <div
+        style={{
+          fontSize: '14px',
+          lineHeight: '1.7',
+          color: 'rgba(255, 255, 255, 0.9)',
+        }}
+      >
         {/* メインタイトル */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          marginBottom: '24px',
-          paddingBottom: '12px',
-          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '24px',
+            paddingBottom: '12px',
+            borderBottom: '2px solid rgba(0, 255, 136, 0.3)',
+          }}
+        >
           <span style={{ fontSize: '24px' }}>{data.icon}</span>
-          <h2 style={{
-            margin: 0,
-            fontSize: '20px',
-            fontWeight: '700',
-            color: '#00ff88'
-          }}>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: '20px',
+              fontWeight: '700',
+              color: '#00ff88',
+            }}
+          >
             {data.title}
           </h2>
         </div>
 
         {/* 基本動作 */}
         <div style={{ marginBottom: '24px' }}>
-          <h3 style={{
-            color: '#00ff88',
-            fontSize: '16px',
-            fontWeight: '600',
-            marginBottom: '12px',
-            borderLeft: '4px solid #00ff88',
-            paddingLeft: '12px'
-          }}>
+          <h3
+            style={{
+              color: '#00ff88',
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '12px',
+              borderLeft: '4px solid #00ff88',
+              paddingLeft: '12px',
+            }}
+          >
             基本動作
           </h3>
-          <p style={{ margin: 0, lineHeight: '1.6' }}>
-            {data.basicOperation}
-          </p>
+          <p style={{ margin: 0, lineHeight: '1.6' }}>{data.basicOperation}</p>
           {data.truthTableNote && (
-            <p style={{ 
-              margin: '12px 0 0 0', 
-              padding: '12px',
-              backgroundColor: 'rgba(0, 255, 136, 0.05)',
-              border: '1px solid rgba(0, 255, 136, 0.2)',
-              borderRadius: '6px',
-              fontSize: '13px',
-              lineHeight: '1.5'
-            }}>
+            <p
+              style={{
+                margin: '12px 0 0 0',
+                padding: '12px',
+                backgroundColor: 'rgba(0, 255, 136, 0.05)',
+                border: '1px solid rgba(0, 255, 136, 0.2)',
+                borderRadius: '6px',
+                fontSize: '13px',
+                lineHeight: '1.5',
+              }}
+            >
               💡 {data.truthTableNote}
             </p>
           )}
@@ -144,26 +168,31 @@ export const PropertyPanel: React.FC = () => {
 
         {/* 日常的な判断との類比 */}
         <div style={{ marginBottom: '24px' }}>
-          <h3 style={{
-            color: '#00ff88',
-            fontSize: '16px',
-            fontWeight: '600',
-            marginBottom: '12px',
-            borderLeft: '4px solid #00ff88',
-            paddingLeft: '12px'
-          }}>
+          <h3
+            style={{
+              color: '#00ff88',
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '12px',
+              borderLeft: '4px solid #00ff88',
+              paddingLeft: '12px',
+            }}
+          >
             日常的な判断との類比
           </h3>
           {data.realWorldAnalogy.map((analogy, index) => (
-            <div key={index} style={{
-              margin: '8px 0',
-              padding: '12px 16px',
-              backgroundColor: 'rgba(255, 255, 255, 0.03)',
-              borderLeft: '3px solid rgba(0, 255, 136, 0.4)',
-              borderRadius: '4px',
-              fontSize: '13px',
-              lineHeight: '1.6'
-            }}>
+            <div
+              key={index}
+              style={{
+                margin: '8px 0',
+                padding: '12px 16px',
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                borderLeft: '3px solid rgba(0, 255, 136, 0.4)',
+                borderRadius: '4px',
+                fontSize: '13px',
+                lineHeight: '1.6',
+              }}
+            >
               {analogy}
             </div>
           ))}
@@ -171,43 +200,47 @@ export const PropertyPanel: React.FC = () => {
 
         {/* なぜ重要？ */}
         <div style={{ marginBottom: '24px' }}>
-          <h3 style={{
-            color: '#00ff88',
-            fontSize: '16px',
-            fontWeight: '600',
-            marginBottom: '12px',
-            borderLeft: '4px solid #00ff88',
-            paddingLeft: '12px'
-          }}>
+          <h3
+            style={{
+              color: '#00ff88',
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '12px',
+              borderLeft: '4px solid #00ff88',
+              paddingLeft: '12px',
+            }}
+          >
             なぜ重要？
           </h3>
-          <p style={{ margin: 0, lineHeight: '1.6' }}>
-            {data.whyImportant}
-          </p>
+          <p style={{ margin: 0, lineHeight: '1.6' }}>{data.whyImportant}</p>
         </div>
 
         {/* 技術的洞察 */}
         {data.technicalInsight && (
           <div style={{ marginBottom: '24px' }}>
-            <h3 style={{
-              color: '#ff6699',
-              fontSize: '16px',
-              fontWeight: '600',
-              marginBottom: '12px',
-              borderLeft: '4px solid #ff6699',
-              paddingLeft: '12px'
-            }}>
+            <h3
+              style={{
+                color: '#ff6699',
+                fontSize: '16px',
+                fontWeight: '600',
+                marginBottom: '12px',
+                borderLeft: '4px solid #ff6699',
+                paddingLeft: '12px',
+              }}
+            >
               技術的洞察
             </h3>
-            <p style={{ 
-              margin: 0, 
-              lineHeight: '1.6',
-              padding: '12px',
-              backgroundColor: 'rgba(255, 102, 153, 0.05)',
-              border: '1px solid rgba(255, 102, 153, 0.2)',
-              borderRadius: '6px',
-              fontSize: '13px'
-            }}>
+            <p
+              style={{
+                margin: 0,
+                lineHeight: '1.6',
+                padding: '12px',
+                backgroundColor: 'rgba(255, 102, 153, 0.05)',
+                border: '1px solid rgba(255, 102, 153, 0.2)',
+                borderRadius: '6px',
+                fontSize: '13px',
+              }}
+            >
               {data.technicalInsight}
             </p>
           </div>
@@ -215,25 +248,29 @@ export const PropertyPanel: React.FC = () => {
 
         {/* 学習のコツ */}
         <div>
-          <h3 style={{
-            color: '#ffd700',
-            fontSize: '16px',
-            fontWeight: '600',
-            marginBottom: '12px',
-            borderLeft: '4px solid #ffd700',
-            paddingLeft: '12px'
-          }}>
+          <h3
+            style={{
+              color: '#ffd700',
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '12px',
+              borderLeft: '4px solid #ffd700',
+              paddingLeft: '12px',
+            }}
+          >
             学習のコツ
           </h3>
-          <p style={{ 
-            margin: 0, 
-            lineHeight: '1.6',
-            padding: '12px',
-            backgroundColor: 'rgba(255, 215, 0, 0.05)',
-            border: '1px solid rgba(255, 215, 0, 0.2)',
-            borderRadius: '6px',
-            fontSize: '13px'
-          }}>
+          <p
+            style={{
+              margin: 0,
+              lineHeight: '1.6',
+              padding: '12px',
+              backgroundColor: 'rgba(255, 215, 0, 0.05)',
+              border: '1px solid rgba(255, 215, 0, 0.2)',
+              borderRadius: '6px',
+              fontSize: '13px',
+            }}
+          >
             💡 {data.learningTip}
           </p>
         </div>
@@ -244,7 +281,9 @@ export const PropertyPanel: React.FC = () => {
   // 詳細説明表示ハンドラ
   const handleShowDetail = () => {
     // すべての実行中のCLOCKゲートを一時停止
-    const runningClocks = gates.filter(g => g.type === 'CLOCK' && g.metadata?.isRunning);
+    const runningClocks = gates.filter(
+      g => g.type === 'CLOCK' && g.metadata?.isRunning
+    );
     if (runningClocks.length > 0) {
       setClockWasRunning(true);
       const updatedGates = gates.map(gate => {
@@ -255,16 +294,18 @@ export const PropertyPanel: React.FC = () => {
       });
       useCircuitStore.setState({ gates: updatedGates });
     }
-    
+
     setShowDetailModal(true);
   };
 
   // 真理値表表示ハンドラ
   const handleShowTruthTable = () => {
     if (!selectedGate) return;
-    
+
     // すべての実行中のCLOCKゲートを一時停止
-    const runningClocks = gates.filter(g => g.type === 'CLOCK' && g.metadata?.isRunning);
+    const runningClocks = gates.filter(
+      g => g.type === 'CLOCK' && g.metadata?.isRunning
+    );
     if (runningClocks.length > 0) {
       setClockWasRunning(true);
       const updatedGates = gates.map(gate => {
@@ -276,70 +317,76 @@ export const PropertyPanel: React.FC = () => {
       useCircuitStore.setState({ gates: updatedGates });
     }
 
-    if (isCustomGate(selectedGate) && selectedGate.customGateDefinition?.truthTable) {
+    if (
+      isCustomGate(selectedGate) &&
+      selectedGate.customGateDefinition?.truthTable
+    ) {
       // カスタムゲートの場合
       const definition = selectedGate.customGateDefinition;
       const inputNames = definition.inputs.map(input => input.name);
       const outputNames = definition.outputs.map(output => output.name);
-      
-      const table = definition.truthTable ? Object.entries(definition.truthTable).map(([inputs, outputs]) => ({
-        inputs,
-        outputs,
-        inputValues: inputs.split('').map(bit => bit === '1'),
-        outputValues: outputs.split('').map(bit => bit === '1')
-      })) : [];
-      
+
+      const table = definition.truthTable
+        ? Object.entries(definition.truthTable).map(([inputs, outputs]) => ({
+            inputs,
+            outputs,
+            inputValues: inputs.split('').map(bit => bit === '1'),
+            outputValues: outputs.split('').map(bit => bit === '1'),
+          }))
+        : [];
+
       const result = {
         table,
         inputCount: definition.inputs.length,
         outputCount: definition.outputs.length,
-        isSequential: false
+        isSequential: false,
       };
-      
+
       setTruthTableData({
         result,
         inputNames,
         outputNames,
-        gateName: definition.displayName
+        gateName: definition.displayName,
       });
     } else {
       // 基本ゲートの場合
       const inputNames = selectedGate.type === 'NOT' ? ['A'] : ['A', 'B'];
       const outputNames = ['出力'];
       const gateName = `${selectedGate.type}ゲート`;
-      
+
       // 基本ゲートの真理値表を生成（簡易版）
       const truthTable = getTruthTable();
       if (truthTable.length > 0) {
         const table = truthTable.map(row => {
-          const inputs = selectedGate.type === 'NOT' ? 
-            booleanToDisplayState(!!row.a) : 
-            `${booleanToDisplayState(!!row.a)}${booleanToDisplayState(!!row.b)}`;
+          const inputs =
+            selectedGate.type === 'NOT'
+              ? booleanToDisplayState(!!row.a)
+              : `${booleanToDisplayState(!!row.a)}${booleanToDisplayState(!!row.b)}`;
           const outputs = booleanToDisplayState(!!row.out);
-          
+
           return {
             inputs,
             outputs,
             inputValues: inputs.split('').map(bit => bit === '1'),
-            outputValues: outputs.split('').map(bit => bit === '1')
+            outputValues: outputs.split('').map(bit => bit === '1'),
           };
         });
-        
+
         setTruthTableData({
           result: {
             table,
             inputCount: inputNames.length,
             outputCount: 1,
             isSequential: false,
-            recognizedPattern: selectedGate.type
+            recognizedPattern: selectedGate.type,
           },
           inputNames,
           outputNames,
-          gateName
+          gateName,
         });
       }
     }
-    
+
     setShowTruthTableModal(true);
   };
 
@@ -351,14 +398,17 @@ export const PropertyPanel: React.FC = () => {
             <span>📝</span>
             <span>プロパティ</span>
           </div>
-          <p style={{ 
-            color: 'rgba(255, 255, 255, 0.5)', 
-            fontSize: '14px',
-            lineHeight: '1.6',
-            textAlign: 'center',
-            margin: '20px 0'
-          }}>
-            ゲートを選択すると<br />
+          <p
+            style={{
+              color: 'rgba(255, 255, 255, 0.5)',
+              fontSize: '14px',
+              lineHeight: '1.6',
+              textAlign: 'center',
+              margin: '20px 0',
+            }}
+          >
+            ゲートを選択すると
+            <br />
             詳細情報が表示されます
           </p>
         </div>
@@ -368,23 +418,26 @@ export const PropertyPanel: React.FC = () => {
 
   const getTruthTable = () => {
     // カスタムゲートの場合
-    if (isCustomGate(selectedGate) && selectedGate.customGateDefinition?.truthTable) {
+    if (
+      isCustomGate(selectedGate) &&
+      selectedGate.customGateDefinition?.truthTable
+    ) {
       const definition = selectedGate.customGateDefinition;
       const truthTable = definition.truthTable;
       if (!truthTable) return [];
       return Object.entries(truthTable).map(([inputs, outputs]) => {
         const row: any = {};
-        
+
         // 入力列を追加
         definition.inputs.forEach((inputPin, index) => {
           row[inputPin.name] = parseInt(inputs[index]);
         });
-        
+
         // 出力列を追加
         definition.outputs.forEach((outputPin, index) => {
           row[`out_${outputPin.name}`] = parseInt(outputs[index]);
         });
-        
+
         return row;
       });
     }
@@ -436,9 +489,9 @@ export const PropertyPanel: React.FC = () => {
     }
   };
 
-  const truthTable = getTruthTable();
+  const _truthTable = getTruthTable();
 
-  const getGateDescriptionLegacy = () => {
+  const _getGateDescriptionLegacy = () => {
     // カスタムゲートの場合
     if (isCustomGate(selectedGate) && selectedGate.customGateDefinition) {
       const definition = selectedGate.customGateDefinition;
@@ -802,7 +855,7 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
 
   // 詳細説明モーダルの内容
   const DetailModal = () => (
-    <div 
+    <div
       style={{
         position: 'fixed',
         top: 0,
@@ -814,15 +867,15 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 3000,
-        backdropFilter: 'blur(4px)'
+        backdropFilter: 'blur(4px)',
       }}
-      onClick={(e) => {
+      onClick={e => {
         if (e.target === e.currentTarget) {
           forceCloseModal();
         }
       }}
     >
-      <div 
+      <div
         style={{
           width: '90vw',
           maxWidth: '700px',
@@ -833,34 +886,40 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
           color: 'white',
           overflow: 'hidden',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
         }}
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
         }}
       >
         {/* ヘッダー */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '16px 24px',
-          backgroundColor: 'rgba(0, 255, 136, 0.05)',
-          borderBottom: '1px solid rgba(0, 255, 136, 0.2)',
-          flexShrink: 0
-        }}>
-          <h2 style={{
-            margin: 0,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: '#00ff88'
-          }}>
-            📖 {isCustomGate(selectedGate) && selectedGate.customGateDefinition ? 
-              selectedGate.customGateDefinition.displayName : 
-              `${selectedGate.type}ゲート`} の詳細説明
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '16px 24px',
+            backgroundColor: 'rgba(0, 255, 136, 0.05)',
+            borderBottom: '1px solid rgba(0, 255, 136, 0.2)',
+            flexShrink: 0,
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#00ff88',
+            }}
+          >
+            📖{' '}
+            {isCustomGate(selectedGate) && selectedGate.customGateDefinition
+              ? selectedGate.customGateDefinition.displayName
+              : `${selectedGate.type}ゲート`}{' '}
+            の詳細説明
           </h2>
           <button
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               e.preventDefault();
               forceCloseModal();
@@ -874,7 +933,7 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
               padding: '4px',
               lineHeight: 1,
               borderRadius: '4px',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
             }}
           >
             ×
@@ -882,11 +941,13 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
         </div>
 
         {/* コンテンツ */}
-        <div style={{
-          flex: 1,
-          overflow: 'auto',
-          padding: '24px'
-        }}>
+        <div
+          style={{
+            flex: 1,
+            overflow: 'auto',
+            padding: '24px',
+          }}
+        >
           {renderGateDescription(selectedGate.type)}
         </div>
       </div>
@@ -900,9 +961,12 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
         <div className="property-group">
           <div className="section-title">
             <span>📝</span>
-            <span>選択中: {isCustomGate(selectedGate) && selectedGate.customGateDefinition ? 
-              selectedGate.customGateDefinition.displayName : 
-              `${selectedGate.type}ゲート`}</span>
+            <span>
+              選択中:{' '}
+              {isCustomGate(selectedGate) && selectedGate.customGateDefinition
+                ? selectedGate.customGateDefinition.displayName
+                : `${selectedGate.type}ゲート`}
+            </span>
           </div>
         </div>
 
@@ -914,32 +978,56 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
           </div>
           <div className="property-row">
             <span className="property-label">ID</span>
-            <span className="property-value" style={{ fontFamily: 'monospace', fontSize: '12px' }}>
+            <span
+              className="property-value"
+              style={{ fontFamily: 'monospace', fontSize: '12px' }}
+            >
               {selectedGate.id}
             </span>
           </div>
           <div className="property-row">
             <span className="property-label">位置</span>
             <span className="property-value">
-              X: {Math.round(selectedGate.position.x)}, Y: {Math.round(selectedGate.position.y)}
+              X: {Math.round(selectedGate.position.x)}, Y:{' '}
+              {Math.round(selectedGate.position.y)}
             </span>
           </div>
           {/* 現在の状態表示 */}
           <div className="property-row">
             <span className="property-label">現在の状態</span>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: '8px',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+              }}
+            >
               {/* 入力状態 */}
               {selectedGate.inputs && selectedGate.inputs.length > 0 && (
-                <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.7)' }}>
-                  入力: [{getGateInputsAsBoolean(selectedGate).map(val => booleanToDisplayState(val) || '0').join(',')}]
+                <span
+                  style={{
+                    fontSize: '12px',
+                    color: 'rgba(255, 255, 255, 0.7)',
+                  }}
+                >
+                  入力: [
+                  {getGateInputsAsBoolean(selectedGate)
+                    .map(val => booleanToDisplayState(val) || '0')
+                    .join(',')}
+                  ]
                 </span>
               )}
               {/* 出力状態 */}
-              <span style={{ 
-                fontSize: '12px', 
-                color: selectedGate.output ? '#00ff88' : 'rgba(255, 255, 255, 0.5)',
-                fontWeight: '600'
-              }}>
+              <span
+                style={{
+                  fontSize: '12px',
+                  color: selectedGate.output
+                    ? '#00ff88'
+                    : 'rgba(255, 255, 255, 0.5)',
+                  fontWeight: '600',
+                }}
+              >
                 出力: {booleanToDisplayState(selectedGate.output)}
               </span>
             </div>
@@ -967,15 +1055,18 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
                 transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
               }}
             >
               📖 詳細説明を表示
             </button>
-            
+
             {/* 基本ゲートとカスタムゲートのみ真理値表ボタン表示 */}
-            {(['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'].includes(selectedGate.type) || 
-              (isCustomGate(selectedGate) && selectedGate.customGateDefinition?.truthTable)) && (
+            {(['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'].includes(
+              selectedGate.type
+            ) ||
+              (isCustomGate(selectedGate) &&
+                selectedGate.customGateDefinition?.truthTable)) && (
               <button
                 onClick={handleShowTruthTable}
                 style={{
@@ -990,7 +1081,7 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
                   transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '8px',
                 }}
               >
                 📊 真理値表を表示
@@ -1008,54 +1099,69 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
             </div>
             <div className="property-row">
               <span className="property-label">現在の周波数</span>
-              <span className="property-value" style={{ color: '#00ff88', fontWeight: '600' }}>
+              <span
+                className="property-value"
+                style={{ color: '#00ff88', fontWeight: '600' }}
+              >
                 {selectedGate.metadata?.frequency || 1} Hz
               </span>
             </div>
             <div style={{ marginTop: '12px' }}>
-              <label style={{
-                display: 'block',
-                marginBottom: '8px',
-                fontSize: '13px',
-                color: 'rgba(255, 255, 255, 0.8)'
-              }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontSize: '13px',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                }}
+              >
                 周波数を変更
               </label>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: '8px'
-              }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: '8px',
+                }}
+              >
                 {[1, 2, 5, 10].map(freq => (
                   <button
                     key={freq}
                     onClick={() => updateClockFrequency(selectedGate.id, freq)}
                     style={{
                       padding: '8px 12px',
-                      backgroundColor: (selectedGate.metadata?.frequency || 1) === freq ? '#00ff88' : 'rgba(255, 255, 255, 0.05)',
+                      backgroundColor:
+                        (selectedGate.metadata?.frequency || 1) === freq
+                          ? '#00ff88'
+                          : 'rgba(255, 255, 255, 0.05)',
                       border: `1px solid ${(selectedGate.metadata?.frequency || 1) === freq ? '#00ff88' : 'rgba(255, 255, 255, 0.2)'}`,
                       borderRadius: '6px',
-                      color: (selectedGate.metadata?.frequency || 1) === freq ? '#000' : '#fff',
+                      color:
+                        (selectedGate.metadata?.frequency || 1) === freq
+                          ? '#000'
+                          : '#fff',
                       fontSize: '12px',
                       fontWeight: '600',
                       cursor: 'pointer',
-                      transition: 'all 0.2s ease'
+                      transition: 'all 0.2s ease',
                     }}
                   >
                     {freq}Hz
                   </button>
                 ))}
               </div>
-              <div style={{
-                marginTop: '8px',
-                padding: '8px 12px',
-                backgroundColor: 'rgba(0, 255, 136, 0.05)',
-                border: '1px solid rgba(0, 255, 136, 0.1)',
-                borderRadius: '6px',
-                fontSize: '11px',
-                color: 'rgba(255, 255, 255, 0.6)',
-                lineHeight: '1.4'
-              }}>
+              <div
+                style={{
+                  marginTop: '8px',
+                  padding: '8px 12px',
+                  backgroundColor: 'rgba(0, 255, 136, 0.05)',
+                  border: '1px solid rgba(0, 255, 136, 0.1)',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  color: 'rgba(255, 255, 255, 0.6)',
+                  lineHeight: '1.4',
+                }}
+              >
                 💡 高い周波数ほど速くON/OFFが切り替わります
               </div>
             </div>
@@ -1065,7 +1171,7 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
 
       {/* モーダル表示 */}
       {showDetailModal === true && selectedGate && <DetailModal />}
-      
+
       {showTruthTableModal && truthTableData && (
         <TruthTableDisplay
           result={truthTableData.result}

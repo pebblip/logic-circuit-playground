@@ -1,7 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { useCircuitStore } from '../../stores/circuitStore';
 import { circuitStorage } from '../../services/CircuitStorageService';
-import { CircuitStorageResult, ExportOptions, ImportOptions } from '../../types/circuitStorage';
+import type {
+  CircuitStorageResult,
+  ExportOptions,
+  ImportOptions,
+} from '../../types/circuitStorage';
 import './ExportImportDialog.css';
 
 interface ExportImportDialogProps {
@@ -15,30 +19,30 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
   isOpen,
   onClose,
   mode,
-  onSuccess
+  onSuccess,
 }) => {
   const { gates, wires } = useCircuitStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Export states
   const [exportOptions, setExportOptions] = useState<ExportOptions>({
     includeMetadata: true,
     includeThumbnail: true,
-    compress: false
+    compress: false,
   });
   const [circuitName, setCircuitName] = useState('');
   const [isExporting, setExporting] = useState(false);
-  
+
   // Import states
   const [importOptions, setImportOptions] = useState<ImportOptions>({
     overwriteExisting: false,
     generateNewName: true,
-    validate: true
+    validate: true,
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isImporting, setImporting] = useState(false);
   const [importPreview, setImportPreview] = useState<any>(null);
-  
+
   const [error, setError] = useState<string>('');
 
   /**
@@ -60,26 +64,22 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
 
     try {
       // 一時的に回路を保存してからエクスポート
-      const saveResult = await circuitStorage.get().saveCircuit(
-        circuitName.trim(),
-        gates,
-        wires,
-        {
+      const saveResult = await circuitStorage
+        .get()
+        .saveCircuit(circuitName.trim(), gates, wires, {
           description: `エクスポート用回路 - ${new Date().toLocaleString('ja-JP')}`,
-          tags: ['export']
-        }
-      );
+          tags: ['export'],
+        });
 
       if (saveResult.success && saveResult.data) {
-        const exportResult = await circuitStorage.get().exportCircuit(
-          saveResult.data.id,
-          exportOptions
-        );
+        const exportResult = await circuitStorage
+          .get()
+          .exportCircuit(saveResult.data.id, exportOptions);
 
         if (exportResult.success) {
           // 一時的に保存した回路を削除
           await circuitStorage.get().deleteCircuit(saveResult.data.id);
-          
+
           onSuccess?.(exportResult);
           onClose();
         } else {
@@ -88,8 +88,12 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
       } else {
         setError(saveResult.message || '回路の準備に失敗しました');
       }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'エクスポート中にエラーが発生しました');
+    } catch (_error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'エクスポート中にエラーが発生しました'
+      );
     } finally {
       setExporting(false);
     }
@@ -98,7 +102,9 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
   /**
    * ファイル選択処理
    */
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -114,7 +120,7 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
     try {
       const text = await file.text();
       const data = JSON.parse(text);
-      
+
       // 基本的なバリデーション
       if (!data.metadata || !data.circuit || !data.version) {
         setError('無効な回路ファイルです');
@@ -129,9 +135,9 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
         wireCount: data.circuit.wires?.length || 0,
         createdAt: data.metadata.createdAt,
         version: data.version,
-        tags: data.metadata.tags || []
+        tags: data.metadata.tags || [],
       });
-    } catch (error) {
+    } catch (_error) {
       setError('ファイルの読み込みに失敗しました');
       setImportPreview(null);
     }
@@ -150,16 +156,22 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
     setError('');
 
     try {
-      const result = await circuitStorage.get().importCircuit(selectedFile, importOptions);
-      
+      const result = await circuitStorage
+        .get()
+        .importCircuit(selectedFile, importOptions);
+
       if (result.success) {
         onSuccess?.(result);
         onClose();
       } else {
         setError(result.message || 'インポートに失敗しました');
       }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'インポート中にエラーが発生しました');
+    } catch (_error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'インポート中にエラーが発生しました'
+      );
     } finally {
       setImporting(false);
     }
@@ -193,9 +205,15 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
         {/* ヘッダー */}
         <div className="dialog-header">
           <h2 className="dialog-title">
-            {mode === 'export' ? '📤 回路をエクスポート' : '📥 回路をインポート'}
+            {mode === 'export'
+              ? '📤 回路をエクスポート'
+              : '📥 回路をインポート'}
           </h2>
-          <button className="close-button" onClick={onClose} aria-label="閉じる">
+          <button
+            className="close-button"
+            onClick={onClose}
+            aria-label="閉じる"
+          >
             ✕
           </button>
         </div>
@@ -227,7 +245,7 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
               {/* エクスポート設定 */}
               <div className="export-settings">
                 <h3>エクスポート設定</h3>
-                
+
                 {/* 回路名 */}
                 <div className="form-group">
                   <label htmlFor="export-name" className="form-label">
@@ -253,10 +271,12 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
                     <input
                       type="checkbox"
                       checked={exportOptions.includeMetadata}
-                      onChange={e => setExportOptions(prev => ({
-                        ...prev,
-                        includeMetadata: e.target.checked
-                      }))}
+                      onChange={e =>
+                        setExportOptions(prev => ({
+                          ...prev,
+                          includeMetadata: e.target.checked,
+                        }))
+                      }
                     />
                     <span className="checkbox-label">
                       メタデータを含める
@@ -268,14 +288,18 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
                     <input
                       type="checkbox"
                       checked={exportOptions.includeThumbnail}
-                      onChange={e => setExportOptions(prev => ({
-                        ...prev,
-                        includeThumbnail: e.target.checked
-                      }))}
+                      onChange={e =>
+                        setExportOptions(prev => ({
+                          ...prev,
+                          includeThumbnail: e.target.checked,
+                        }))
+                      }
                     />
                     <span className="checkbox-label">
                       サムネイルを含める
-                      <small>プレビュー画像（ファイルサイズが大きくなります）</small>
+                      <small>
+                        プレビュー画像（ファイルサイズが大きくなります）
+                      </small>
                     </span>
                   </label>
 
@@ -283,14 +307,18 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
                     <input
                       type="checkbox"
                       checked={exportOptions.compress}
-                      onChange={e => setExportOptions(prev => ({
-                        ...prev,
-                        compress: e.target.checked
-                      }))}
+                      onChange={e =>
+                        setExportOptions(prev => ({
+                          ...prev,
+                          compress: e.target.checked,
+                        }))
+                      }
                     />
                     <span className="checkbox-label">
                       圧縮する
-                      <small>ファイルサイズを小さくします（可読性は下がります）</small>
+                      <small>
+                        ファイルサイズを小さくします（可読性は下がります）
+                      </small>
                     </span>
                   </label>
                 </div>
@@ -314,18 +342,23 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
                   <label htmlFor="circuit-file" className="file-input-label">
                     <span className="file-icon">📁</span>
                     <span className="file-text">
-                      {selectedFile ? selectedFile.name : 'JSONファイルを選択...'}
+                      {selectedFile
+                        ? selectedFile.name
+                        : 'JSONファイルを選択...'}
                     </span>
                   </label>
                 </div>
-                
+
                 {selectedFile && (
                   <div className="file-info">
                     <span className="file-size">
                       サイズ: {(selectedFile.size / 1024).toFixed(1)} KB
                     </span>
                     <span className="file-date">
-                      更新日: {new Date(selectedFile.lastModified).toLocaleDateString('ja-JP')}
+                      更新日:{' '}
+                      {new Date(selectedFile.lastModified).toLocaleDateString(
+                        'ja-JP'
+                      )}
                     </span>
                   </div>
                 )}
@@ -339,10 +372,12 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
                     <div className="preview-header">
                       <h4 className="preview-name">{importPreview.name}</h4>
                       {importPreview.description && (
-                        <p className="preview-description">{importPreview.description}</p>
+                        <p className="preview-description">
+                          {importPreview.description}
+                        </p>
                       )}
                     </div>
-                    
+
                     <div className="preview-stats">
                       <span className="stat-item">
                         <span className="stat-icon">🔲</span>
@@ -354,18 +389,22 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
                       </span>
                       <span className="stat-item">
                         <span className="stat-icon">📅</span>
-                        {new Date(importPreview.createdAt).toLocaleDateString('ja-JP')}
+                        {new Date(importPreview.createdAt).toLocaleDateString(
+                          'ja-JP'
+                        )}
                       </span>
                       <span className="stat-item">
-                        <span className="stat-icon">⚙️</span>
-                        v{importPreview.version}
+                        <span className="stat-icon">⚙️</span>v
+                        {importPreview.version}
                       </span>
                     </div>
 
                     {importPreview.tags.length > 0 && (
                       <div className="preview-tags">
                         {importPreview.tags.map((tag: string) => (
-                          <span key={tag} className="preview-tag">{tag}</span>
+                          <span key={tag} className="preview-tag">
+                            {tag}
+                          </span>
                         ))}
                       </div>
                     )}
@@ -382,14 +421,18 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
                       <input
                         type="checkbox"
                         checked={importOptions.generateNewName}
-                        onChange={e => setImportOptions(prev => ({
-                          ...prev,
-                          generateNewName: e.target.checked
-                        }))}
+                        onChange={e =>
+                          setImportOptions(prev => ({
+                            ...prev,
+                            generateNewName: e.target.checked,
+                          }))
+                        }
                       />
                       <span className="checkbox-label">
                         新しい名前を生成
-                        <small>同名の回路がある場合に自動的に番号を付けます</small>
+                        <small>
+                          同名の回路がある場合に自動的に番号を付けます
+                        </small>
                       </span>
                     </label>
 
@@ -397,10 +440,12 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
                       <input
                         type="checkbox"
                         checked={importOptions.validate}
-                        onChange={e => setImportOptions(prev => ({
-                          ...prev,
-                          validate: e.target.checked
-                        }))}
+                        onChange={e =>
+                          setImportOptions(prev => ({
+                            ...prev,
+                            validate: e.target.checked,
+                          }))
+                        }
                       />
                       <span className="checkbox-label">
                         ファイルを検証
@@ -412,10 +457,12 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
                       <input
                         type="checkbox"
                         checked={importOptions.overwriteExisting}
-                        onChange={e => setImportOptions(prev => ({
-                          ...prev,
-                          overwriteExisting: e.target.checked
-                        }))}
+                        onChange={e =>
+                          setImportOptions(prev => ({
+                            ...prev,
+                            overwriteExisting: e.target.checked,
+                          }))
+                        }
                       />
                       <span className="checkbox-label">
                         既存の回路を上書き
@@ -439,19 +486,21 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
 
         {/* フッター */}
         <div className="dialog-footer">
-          <button 
-            className="button secondary" 
+          <button
+            className="button secondary"
             onClick={onClose}
             disabled={isExporting || isImporting}
           >
             キャンセル
           </button>
-          
+
           {mode === 'export' ? (
-            <button 
-              className="button primary" 
+            <button
+              className="button primary"
               onClick={handleExport}
-              disabled={isExporting || !circuitName.trim() || gates.length === 0}
+              disabled={
+                isExporting || !circuitName.trim() || gates.length === 0
+              }
             >
               {isExporting ? (
                 <>
@@ -466,8 +515,8 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
               )}
             </button>
           ) : (
-            <button 
-              className="button primary" 
+            <button
+              className="button primary"
               onClick={handleImport}
               disabled={isImporting || !selectedFile}
             >
@@ -489,10 +538,10 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
         {/* ヒント */}
         <div className="shortcuts-hint">
           <span>
-            💡 {mode === 'export' 
-              ? 'エクスポートしたファイルは他の人と共有できます' 
-              : 'インポートすると現在の回路は失われます'
-            }
+            💡{' '}
+            {mode === 'export'
+              ? 'エクスポートしたファイルは他の人と共有できます'
+              : 'インポートすると現在の回路は失われます'}
           </span>
         </div>
       </div>

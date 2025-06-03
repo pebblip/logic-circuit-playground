@@ -1,16 +1,20 @@
-import { Gate, Position, CustomGateDefinition } from './circuit';
+import type { Gate, CustomGateDefinition } from './circuit';
 
 // ゲートタイプの詳細定義
 export type BasicGateType = 'AND' | 'OR' | 'NOT' | 'XOR' | 'NAND' | 'NOR';
 export type IOGateType = 'INPUT' | 'OUTPUT';
 export type SpecialGateType = 'CLOCK' | 'D-FF' | 'SR-LATCH' | 'MUX';
 export type CustomGateType = 'CUSTOM';
-export type AllGateType = BasicGateType | IOGateType | SpecialGateType | CustomGateType;
+export type AllGateType =
+  | BasicGateType
+  | IOGateType
+  | SpecialGateType
+  | CustomGateType;
 
 // 特殊ゲートのインターフェース
 export interface ClockGate extends Gate {
   type: 'CLOCK';
-  frequency: number;  // Hz
+  frequency: number; // Hz
   isRunning: boolean;
   lastToggleTime: number;
 }
@@ -31,7 +35,7 @@ export interface SRLatchGate extends Gate {
 
 export interface MuxGate extends Gate {
   type: 'MUX';
-  dataInputs: string[];  // 2, 4, or 8 inputs
+  dataInputs: string[]; // 2, 4, or 8 inputs
   selectInputs: string[]; // 1, 2, or 3 select lines
 }
 
@@ -49,17 +53,17 @@ export const GATE_SIZES = {
   XOR: { width: 70, height: 50 },
   NAND: { width: 70, height: 50 },
   NOR: { width: 70, height: 50 },
-  
+
   // 入出力
   INPUT: { width: 50, height: 30 },
   OUTPUT: { width: 40, height: 40 },
-  
+
   // 特殊ゲート
-  CLOCK: { width: 80, height: 80 },  // 円形
+  CLOCK: { width: 80, height: 80 }, // 円形
   'D-FF': { width: 100, height: 80 },
   'SR-LATCH': { width: 100, height: 80 },
   MUX: { width: 100, height: 100 },
-  
+
   // カスタムゲート（デフォルト、実際は可変）
   CUSTOM: { width: 100, height: 80 },
 } as const;
@@ -73,19 +77,19 @@ export const PIN_CONFIGS = {
   XOR: { inputs: 2, outputs: 1 },
   NAND: { inputs: 2, outputs: 1 },
   NOR: { inputs: 2, outputs: 1 },
-  
+
   // 入出力
   INPUT: { inputs: 0, outputs: 1 },
   OUTPUT: { inputs: 1, outputs: 0 },
-  
+
   // 特殊ゲート
   CLOCK: { inputs: 0, outputs: 1 },
-  'D-FF': { inputs: 2, outputs: 2 },  // D, CLK -> Q, Q̄
-  'SR-LATCH': { inputs: 2, outputs: 2 },  // S, R -> Q, Q̄
-  MUX: { inputs: -1, outputs: 1 },  // 可変
-  
+  'D-FF': { inputs: 2, outputs: 2 }, // D, CLK -> Q, Q̄
+  'SR-LATCH': { inputs: 2, outputs: 2 }, // S, R -> Q, Q̄
+  MUX: { inputs: -1, outputs: 1 }, // 可変
+
   // カスタムゲート（可変）
-  CUSTOM: { inputs: -1, outputs: -1 },  // 可変
+  CUSTOM: { inputs: -1, outputs: -1 }, // 可変
 } as const;
 
 // 型ガード関数

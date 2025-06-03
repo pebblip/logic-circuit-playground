@@ -8,14 +8,14 @@ interface ResponsiveConfig {
 }
 
 const DEFAULT_CONFIG: ResponsiveConfig = {
-  mobile: 640,  // max-width for mobile
+  mobile: 640, // max-width for mobile
   tablet: 1024, // max-width for tablet
 };
 
 export function useResponsive(config: ResponsiveConfig = DEFAULT_CONFIG) {
   const [breakpoint, setBreakpoint] = useState<Breakpoint>(() => {
     if (typeof window === 'undefined') return 'desktop';
-    
+
     const width = window.innerWidth;
     if (width <= config.mobile) return 'mobile';
     if (width <= config.tablet) return 'tablet';
@@ -26,7 +26,7 @@ export function useResponsive(config: ResponsiveConfig = DEFAULT_CONFIG) {
     const handleResize = () => {
       const width = window.innerWidth;
       let newBreakpoint: Breakpoint;
-      
+
       if (width <= config.mobile) {
         newBreakpoint = 'mobile';
       } else if (width <= config.tablet) {
@@ -34,7 +34,7 @@ export function useResponsive(config: ResponsiveConfig = DEFAULT_CONFIG) {
       } else {
         newBreakpoint = 'desktop';
       }
-      
+
       if (newBreakpoint !== breakpoint) {
         setBreakpoint(newBreakpoint);
       }
@@ -45,7 +45,7 @@ export function useResponsive(config: ResponsiveConfig = DEFAULT_CONFIG) {
 
     // Add event listener
     window.addEventListener('resize', handleResize);
-    
+
     // Cleanup
     return () => window.removeEventListener('resize', handleResize);
   }, [breakpoint, config.mobile, config.tablet]);

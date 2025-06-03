@@ -5,13 +5,7 @@ export * from './circuit';
 export * from './gates';
 
 // 型の再エクスポート（便利なアクセスのため）
-export type {
-  Gate,
-  Wire,
-  Position,
-  GateType,
-  CircuitState,
-} from './circuit';
+export type { Gate, Wire, Position, GateType, CircuitState } from './circuit';
 
 export type {
   BasicGateType,

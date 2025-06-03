@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCircuitStore } from '../../stores/circuitStore';
 import { circuitStorage } from '../../services/CircuitStorageService';
-import { CircuitStorageResult } from '../../types/circuitStorage';
+import type { CircuitStorageResult } from '../../types/circuitStorage';
 import './SaveCircuitDialog.css';
 
 interface SaveCircuitDialogProps {
@@ -19,14 +19,14 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
   onSuccess,
   defaultName = '',
   overwriteMode = false,
-  circuitId
+  circuitId: _circuitId,
 }) => {
   const { gates, wires } = useCircuitStore();
   const [formData, setFormData] = useState({
     name: defaultName,
     description: '',
     tags: [] as string[],
-    tagInput: ''
+    tagInput: '',
   });
   const [isLoading, setSaving] = useState(false);
   const [previewSvg, setPreviewSvg] = useState<string>('');
@@ -46,7 +46,7 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
         name: defaultName,
         description: '',
         tags: [],
-        tagInput: ''
+        tagInput: '',
       });
       setError('');
     }
@@ -58,8 +58,11 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
   const generatePreview = () => {
     try {
       // 回路の境界を計算
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      
+      let minX = Infinity,
+        minY = Infinity,
+        maxX = -Infinity,
+        maxY = -Infinity;
+
       gates.forEach(gate => {
         const padding = 50;
         minX = Math.min(minX, gate.position.x - padding);
@@ -75,7 +78,7 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
 
       const width = maxX - minX;
       const height = maxY - minY;
-      const scale = Math.min(200 / width, 150 / height, 1);
+      const _scale = Math.min(200 / width, 150 / height, 1);
 
       // SVGプレビューを生成
       const svgContent = `
@@ -90,28 +93,36 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
           <rect width="100%" height="100%" fill="url(#preview-grid)"/>
           
           <!-- ワイヤー -->
-          ${wires.map(wire => {
-            const fromGate = gates.find(g => g.id === wire.from.gateId);
-            const toGate = gates.find(g => g.id === wire.to.gateId);
-            if (!fromGate || !toGate) return '';
-            
-            return `<line x1="${fromGate.position.x + 45}" y1="${fromGate.position.y}" 
+          ${wires
+            .map(wire => {
+              const fromGate = gates.find(g => g.id === wire.from.gateId);
+              const toGate = gates.find(g => g.id === wire.to.gateId);
+              if (!fromGate || !toGate) return '';
+
+              return `<line x1="${fromGate.position.x + 45}" y1="${fromGate.position.y}" 
                           x2="${toGate.position.x - 45}" y2="${toGate.position.y}"
                           stroke="${wire.isActive ? '#00ff88' : '#444'}" stroke-width="2"/>`;
-          }).join('')}
+            })
+            .join('')}
           
           <!-- ゲート -->
-          ${gates.map(gate => {
-            const fillColor = gate.type === 'INPUT' ? 
-              (gate.output ? '#00ff88' : '#666') : '#1a1a1a';
-            
-            return `<g transform="translate(${gate.position.x}, ${gate.position.y})">
+          ${gates
+            .map(gate => {
+              const fillColor =
+                gate.type === 'INPUT'
+                  ? gate.output
+                    ? '#00ff88'
+                    : '#666'
+                  : '#1a1a1a';
+
+              return `<g transform="translate(${gate.position.x}, ${gate.position.y})">
               <rect x="-35" y="-25" width="70" height="50" rx="8" 
                     fill="${fillColor}" stroke="#444" stroke-width="2"/>
               <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" 
                     fill="#fff" font-size="12" font-family="monospace">${gate.type}</text>
             </g>`;
-          }).join('')}
+            })
+            .join('')}
         </svg>
       `;
 
@@ -131,7 +142,7 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
       setFormData(prev => ({
         ...prev,
         tags: [...prev.tags, tag],
-        tagInput: ''
+        tagInput: '',
       }));
     }
   };
@@ -142,7 +153,7 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
   const removeTag = (tagToRemove: string) => {
     setFormData(prev => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      tags: prev.tags.filter(tag => tag !== tagToRemove),
     }));
   };
 
@@ -166,20 +177,18 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
     try {
       // サムネイル生成（Base64エンコード）
       // 日本語などのUnicode文字を含むSVGを正しくエンコード
-      const thumbnail = previewSvg ? 
-        `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(previewSvg)))}` : undefined;
+      const thumbnail = previewSvg
+        ? `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(previewSvg)))}`
+        : undefined;
 
-      const result = await circuitStorage.get().saveCircuit(
-        formData.name.trim(),
-        gates,
-        wires,
-        {
+      const result = await circuitStorage
+        .get()
+        .saveCircuit(formData.name.trim(), gates, wires, {
           description: formData.description.trim() || undefined,
           tags: formData.tags.length > 0 ? formData.tags : undefined,
           thumbnail,
-          overwrite: overwriteMode
-        }
-      );
+          overwrite: overwriteMode,
+        });
 
       if (result.success) {
         onSuccess?.(result);
@@ -188,7 +197,9 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
         setError(result.message || '保存に失敗しました');
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : '保存中にエラーが発生しました');
+      setError(
+        error instanceof Error ? error.message : '保存中にエラーが発生しました'
+      );
     } finally {
       setSaving(false);
     }
@@ -212,13 +223,21 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
-      <div className="save-dialog" onClick={e => e.stopPropagation()} onKeyDown={handleKeyDown}>
+      <div
+        className="save-dialog"
+        onClick={e => e.stopPropagation()}
+        onKeyDown={handleKeyDown}
+      >
         {/* ヘッダー */}
         <div className="dialog-header">
           <h2 className="dialog-title">
             {overwriteMode ? '📝 回路を上書き保存' : '💾 回路を保存'}
           </h2>
-          <button className="close-button" onClick={onClose} aria-label="閉じる">
+          <button
+            className="close-button"
+            onClick={onClose}
+            aria-label="閉じる"
+          >
             ✕
           </button>
         </div>
@@ -263,7 +282,9 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
                 className="form-input"
                 placeholder="回路名を入力..."
                 value={formData.name}
-                onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={e =>
+                  setFormData(prev => ({ ...prev, name: e.target.value }))
+                }
                 autoFocus
                 maxLength={100}
               />
@@ -271,13 +292,20 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
 
             {/* 説明 */}
             <div className="form-group">
-              <label htmlFor="circuit-description" className="form-label">説明</label>
+              <label htmlFor="circuit-description" className="form-label">
+                説明
+              </label>
               <textarea
                 id="circuit-description"
                 className="form-textarea"
                 placeholder="回路の説明を入力（オプション）..."
                 value={formData.description}
-                onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={e =>
+                  setFormData(prev => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
                 rows={3}
                 maxLength={500}
               />
@@ -285,7 +313,9 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
 
             {/* タグ */}
             <div className="form-group">
-              <label htmlFor="circuit-tags" className="form-label">タグ</label>
+              <label htmlFor="circuit-tags" className="form-label">
+                タグ
+              </label>
               <div className="tag-input-container">
                 <input
                   id="circuit-tags"
@@ -293,7 +323,9 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
                   className="form-input"
                   placeholder="タグを追加..."
                   value={formData.tagInput}
-                  onChange={e => setFormData(prev => ({ ...prev, tagInput: e.target.value }))}
+                  onChange={e =>
+                    setFormData(prev => ({ ...prev, tagInput: e.target.value }))
+                  }
                   onKeyDown={e => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
@@ -301,8 +333,8 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
                     }
                   }}
                 />
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="add-tag-button"
                   onClick={addTag}
                   disabled={!formData.tagInput.trim()}
@@ -315,8 +347,8 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
                   {formData.tags.map(tag => (
                     <span key={tag} className="tag-chip">
                       {tag}
-                      <button 
-                        className="tag-remove" 
+                      <button
+                        className="tag-remove"
                         onClick={() => removeTag(tag)}
                         aria-label={`${tag}を削除`}
                       >
@@ -340,15 +372,15 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
 
         {/* フッター */}
         <div className="dialog-footer">
-          <button 
-            className="button secondary" 
+          <button
+            className="button secondary"
             onClick={onClose}
             disabled={isLoading}
           >
             キャンセル
           </button>
-          <button 
-            className="button primary" 
+          <button
+            className="button primary"
             onClick={handleSave}
             disabled={isLoading || !formData.name.trim()}
           >

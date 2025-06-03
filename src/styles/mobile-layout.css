@@ -93,7 +93,9 @@
   background: #0a0a0a;
   touch-action: none;
   min-height: 0; /* flex itemが縮小可能にする */
-  height: calc(100vh - 60px - 100px); /* 画面高さ - ヘッダー - ツールバー予約領域（更に縮小） */
+  height: calc(
+    100vh - 60px - 100px
+  ); /* 画面高さ - ヘッダー - ツールバー予約領域（更に縮小） */
 }
 
 /* モバイルツールバー */
@@ -166,7 +168,11 @@
 }
 
 .category-chip.active {
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 170, 255, 0.15));
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 136, 0.2),
+    rgba(0, 170, 255, 0.15)
+  );
   border-color: rgba(0, 255, 136, 0.4);
   color: #00ff88;
   transform: scale(1.05);
@@ -218,7 +224,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 170, 255, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 136, 0.1),
+    rgba(0, 170, 255, 0.05)
+  );
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -353,14 +363,14 @@
     bottom: 240px;
     right: 12px;
   }
-  
+
   .fab {
     width: 44px;
     height: 44px;
     border-radius: 22px;
     font-size: 18px;
   }
-  
+
   .fab.secondary {
     font-size: 16px;
   }
@@ -371,11 +381,11 @@
   .pin-hit-area {
     r: 25;
   }
-  
+
   .gate {
     cursor: grab;
   }
-  
+
   .gate:active {
     cursor: grabbing;
   }

@@ -25,13 +25,13 @@ class MockSVGElement {
     return {
       x: 0,
       y: 0,
-      matrixTransform: () => ({ x: 0, y: 0 })
+      matrixTransform: () => ({ x: 0, y: 0 }),
     };
   }
-  
+
   getScreenCTM() {
     return {
-      inverse: () => ({})
+      inverse: () => ({}),
     };
   }
 }

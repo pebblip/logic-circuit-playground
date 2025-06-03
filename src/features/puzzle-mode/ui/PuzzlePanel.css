@@ -6,7 +6,8 @@
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   padding: 20px;
   overflow-y: auto;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* === パズル一覧 === */
@@ -198,7 +199,8 @@
   background: #fef2f2;
 }
 
-.test-inputs, .test-output {
+.test-inputs,
+.test-output {
   font-family: 'Monaco', 'Menlo', monospace;
   font-size: 12px;
   margin-bottom: 4px;
@@ -266,8 +268,13 @@
 }
 
 @keyframes celebration-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
 }
 
 /* === ヒント === */
@@ -339,21 +346,21 @@
   .puzzle-panel {
     padding: 16px;
   }
-  
+
   .puzzle-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .test-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .puzzle-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .validation-result {
     flex-direction: column;
     text-align: center;

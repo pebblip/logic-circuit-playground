@@ -1,0 +1,10 @@
+dist
+build
+node_modules
+pnpm-lock.yaml
+.next
+.vscode
+cypress/screenshots
+cypress/videos
+*.min.js
+*.min.css

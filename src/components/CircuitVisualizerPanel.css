@@ -120,8 +120,13 @@
 }
 
 @keyframes pulseIcon {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .hint-text {
@@ -346,11 +351,11 @@
   .circuit-visualizer-panel {
     width: 360px;
   }
-  
+
   .panel-header {
     padding: 16px;
   }
-  
+
   .visualizer-content {
     padding: 16px;
   }
@@ -367,7 +372,7 @@
     height: calc(100vh - 56px);
     z-index: 1000;
   }
-  
+
   .pattern-info {
     display: none; /* モバイルでは非表示 */
   }

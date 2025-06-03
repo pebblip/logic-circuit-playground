@@ -1,4 +1,9 @@
-import { Gate, GateType, Position, CustomGateDefinition } from '../../types/circuit';
+import type {
+  Gate,
+  GateType,
+  Position,
+  CustomGateDefinition,
+} from '../../types/circuit';
 import { GATE_SIZES, PIN_CONFIGS, isCustomGate } from '../../types/gates';
 import { IdGenerator } from '../../shared/id';
 
@@ -10,7 +15,7 @@ export class GateFactory {
   static createGate(type: GateType, position: Position): Gate {
     const id = IdGenerator.generateGateId();
     const pinConfig = PIN_CONFIGS[type];
-    
+
     // 基本的なゲート構造
     const baseGate: Gate = {
       id,
@@ -29,9 +34,9 @@ export class GateFactory {
             frequency: 1, // 1Hz default
             isRunning: true, // デフォルトでON（楽しい！）
             startTime: Date.now(),
-          }
+          },
         };
-      
+
       case 'D-FF':
         return {
           ...baseGate,
@@ -41,9 +46,9 @@ export class GateFactory {
             previousClockState: false,
             qOutput: false,
             qBarOutput: true,
-          }
+          },
         };
-      
+
       case 'SR-LATCH':
         return {
           ...baseGate,
@@ -52,9 +57,9 @@ export class GateFactory {
           metadata: {
             qOutput: false,
             qBarOutput: true,
-          }
+          },
         };
-      
+
       case 'MUX':
         return {
           ...baseGate,
@@ -62,13 +67,13 @@ export class GateFactory {
           metadata: {
             dataInputs: ['', ''],
             selectInputs: [''],
-          }
+          },
         };
-      
+
       case 'CUSTOM':
         // カスタムゲートは後で設定される
         return baseGate;
-      
+
       default:
         return baseGate;
     }
@@ -77,10 +82,13 @@ export class GateFactory {
   /**
    * カスタムゲートを作成する
    */
-  static createCustomGate(definition: CustomGateDefinition, position: Position): Gate {
+  static createCustomGate(
+    definition: CustomGateDefinition,
+    position: Position
+  ): Gate {
     const id = IdGenerator.generateGateId();
     const inputsArray = new Array(definition.inputs.length).fill('');
-    
+
     const customGate: Gate = {
       id,
       type: 'CUSTOM' as const,
@@ -90,7 +98,7 @@ export class GateFactory {
       outputs: new Array(definition.outputs.length).fill(false), // 複数出力の初期化
       customGateDefinition: definition,
     };
-    
+
     return customGate;
   }
 
@@ -99,19 +107,19 @@ export class GateFactory {
    */
   private static createInputArray(type: GateType): string[] {
     const config = PIN_CONFIGS[type];
-    
+
     if (type === 'INPUT' || type === 'CLOCK') {
       return []; // 入力ピンなし
     }
-    
+
     if (type === 'NOT' || type === 'OUTPUT') {
       return ['']; // 1入力
     }
-    
+
     if (type === 'MUX') {
       return ['', '', '']; // デフォルトは2:1 MUX
     }
-    
+
     // その他は2入力
     return ['', ''];
   }
@@ -123,32 +131,35 @@ export class GateFactory {
     if (typeof gate === 'string') {
       return GATE_SIZES[gate] || { width: 70, height: 50 };
     }
-    
+
     if (isCustomGate(gate) && gate.customGateDefinition) {
       return {
         width: gate.customGateDefinition.width,
         height: gate.customGateDefinition.height,
       };
     }
-    
+
     return GATE_SIZES[gate.type] || { width: 70, height: 50 };
   }
 
   /**
    * ゲートのピン数を取得
    */
-  static getPinCount(gate: Gate | GateType): { inputs: number; outputs: number } {
+  static getPinCount(gate: Gate | GateType): {
+    inputs: number;
+    outputs: number;
+  } {
     if (typeof gate === 'string') {
       return PIN_CONFIGS[gate] || { inputs: 2, outputs: 1 };
     }
-    
+
     if (isCustomGate(gate) && gate.customGateDefinition) {
       return {
         inputs: gate.customGateDefinition.inputs.length,
         outputs: gate.customGateDefinition.outputs.length,
       };
     }
-    
+
     return PIN_CONFIGS[gate.type] || { inputs: 2, outputs: 1 };
   }
 }

@@ -1,19 +1,22 @@
 import React from 'react';
-import { Wire, Gate } from '../types/circuit';
+import type { Wire } from '../types/circuit';
 import { useCircuitStore } from '../stores/circuitStore';
-import { getInputPinPosition, getOutputPinPosition } from '../domain/analysis/pinPositionCalculator';
+import {
+  getInputPinPosition,
+  getOutputPinPosition,
+} from '../domain/analysis/pinPositionCalculator';
 
 interface WireComponentProps {
   wire: Wire;
 }
 
 export const WireComponent: React.FC<WireComponentProps> = ({ wire }) => {
-  const gates = useCircuitStore((state) => state.gates);
-  const deleteWire = useCircuitStore((state) => state.deleteWire);
-  
+  const gates = useCircuitStore(state => state.gates);
+  const deleteWire = useCircuitStore(state => state.deleteWire);
+
   const fromGate = gates.find(g => g.id === wire.from.gateId);
   const toGate = gates.find(g => g.id === wire.to.gateId);
-  
+
   if (!fromGate || !toGate) return null;
 
   // ピン位置計算を統一化されたユーティリティから取得
@@ -35,7 +38,11 @@ export const WireComponent: React.FC<WireComponentProps> = ({ wire }) => {
   };
 
   return (
-    <g onContextMenu={handleContextMenu} data-wire-id={wire.id} data-testid={`wire-${wire.id}`}>
+    <g
+      onContextMenu={handleContextMenu}
+      data-wire-id={wire.id}
+      data-testid={`wire-${wire.id}`}
+    >
       <path
         d={path}
         className={`wire ${wire.isActive ? 'active' : ''}`}

@@ -1,14 +1,14 @@
-import { 
-  SavedCircuit, 
-  CircuitMetadata, 
-  CircuitData, 
-  CircuitFilter, 
+import type {
+  SavedCircuit,
+  CircuitMetadata,
+  CircuitData,
+  CircuitFilter,
   CircuitStorageResult,
   ExportOptions,
   ImportOptions,
-  CIRCUIT_STORAGE_VERSION 
 } from '../types/circuitStorage';
-import { Gate, Wire } from '../types/circuit';
+import { CIRCUIT_STORAGE_VERSION } from '../types/circuitStorage';
+import type { Gate, Wire } from '../types/circuit';
 import { IdGenerator } from '../shared/id';
 
 /**
@@ -52,16 +52,25 @@ export class CircuitStorageService {
         resolve();
       };
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = event => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
+
         // 回路データ保存用のオブジェクトストア
         if (!db.objectStoreNames.contains('circuits')) {
-          const circuitStore = db.createObjectStore('circuits', { keyPath: 'metadata.id' });
+          const circuitStore = db.createObjectStore('circuits', {
+            keyPath: 'metadata.id',
+          });
           circuitStore.createIndex('name', 'metadata.name', { unique: false });
-          circuitStore.createIndex('createdAt', 'metadata.createdAt', { unique: false });
-          circuitStore.createIndex('updatedAt', 'metadata.updatedAt', { unique: false });
-          circuitStore.createIndex('tags', 'metadata.tags', { unique: false, multiEntry: true });
+          circuitStore.createIndex('createdAt', 'metadata.createdAt', {
+            unique: false,
+          });
+          circuitStore.createIndex('updatedAt', 'metadata.updatedAt', {
+            unique: false,
+          });
+          circuitStore.createIndex('tags', 'metadata.tags', {
+            unique: false,
+            multiEntry: true,
+          });
         }
 
         // サムネイル専用のオブジェクトストア（大容量対応）
@@ -76,9 +85,9 @@ export class CircuitStorageService {
    * 回路を保存
    */
   public async saveCircuit(
-    name: string, 
-    gates: Gate[], 
-    wires: Wire[], 
+    name: string,
+    gates: Gate[],
+    wires: Wire[],
     options: {
       description?: string;
       tags?: string[];
@@ -89,9 +98,9 @@ export class CircuitStorageService {
     try {
       // メタデータ生成
       const now = new Date().toISOString();
-      const circuitId = options.overwrite ? 
-        await this.findCircuitIdByName(name) || this.generateId() : 
-        this.generateId();
+      const circuitId = options.overwrite
+        ? (await this.findCircuitIdByName(name)) || this.generateId()
+        : this.generateId();
 
       const metadata: CircuitMetadata = {
         id: circuitId,
@@ -103,21 +112,21 @@ export class CircuitStorageService {
         stats: {
           gateCount: gates.length,
           wireCount: wires.length,
-          gateTypes: this.calculateGateTypes(gates)
-        }
+          gateTypes: this.calculateGateTypes(gates),
+        },
       };
 
       const circuit: CircuitData = { gates, wires };
-      
+
       const savedCircuit: SavedCircuit = {
         metadata,
         circuit,
-        version: CIRCUIT_STORAGE_VERSION
+        version: CIRCUIT_STORAGE_VERSION,
       };
 
       // IndexedDBに保存
       await this.saveToIndexedDB(savedCircuit);
-      
+
       // サムネイルを別途保存（容量最適化）
       if (options.thumbnail) {
         await this.saveThumbnail(circuitId, options.thumbnail);
@@ -129,14 +138,13 @@ export class CircuitStorageService {
       return {
         success: true,
         message: `回路「${name}」を保存しました`,
-        data: { id: circuitId }
+        data: { id: circuitId },
       };
-
     } catch (error) {
       console.error('❌ Circuit save failed:', error);
       return {
         success: false,
-        message: `保存に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`
+        message: `保存に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
       };
     }
   }
@@ -147,11 +155,11 @@ export class CircuitStorageService {
   public async loadCircuit(circuitId: string): Promise<CircuitStorageResult> {
     try {
       const savedCircuit = await this.loadFromIndexedDB(circuitId);
-      
+
       if (!savedCircuit) {
         return {
           success: false,
-          message: '回路が見つかりません'
+          message: '回路が見つかりません',
         };
       }
 
@@ -164,14 +172,13 @@ export class CircuitStorageService {
       return {
         success: true,
         message: `回路「${savedCircuit.metadata.name}」を読み込みました`,
-        data: savedCircuit
+        data: savedCircuit,
       };
-
     } catch (error) {
       console.error('❌ Circuit load failed:', error);
       return {
         success: false,
-        message: `読み込みに失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`
+        message: `読み込みに失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
       };
     }
   }
@@ -179,19 +186,22 @@ export class CircuitStorageService {
   /**
    * 保存済み回路一覧を取得
    */
-  public async listCircuits(filter: CircuitFilter = {}): Promise<CircuitStorageResult> {
+  public async listCircuits(
+    filter: CircuitFilter = {}
+  ): Promise<CircuitStorageResult> {
     try {
       // まずはLocalStorageから高速でメタデータを取得
       const metadataList = this.getMetadataIndex();
-      
+
       // フィルタリング
       let filteredList = metadataList;
-      
+
       if (filter.nameQuery) {
         const query = filter.nameQuery.toLowerCase();
-        filteredList = filteredList.filter(meta => 
-          meta.name.toLowerCase().includes(query) ||
-          meta.description?.toLowerCase().includes(query)
+        filteredList = filteredList.filter(
+          meta =>
+            meta.name.toLowerCase().includes(query) ||
+            meta.description?.toLowerCase().includes(query)
         );
       }
 
@@ -204,10 +214,10 @@ export class CircuitStorageService {
       // ソート
       const sortBy = filter.sortBy || 'updatedAt';
       const sortOrder = filter.sortOrder || 'desc';
-      
+
       filteredList.sort((a, b) => {
         let aVal: any, bVal: any;
-        
+
         switch (sortBy) {
           case 'name':
             aVal = a.name.toLowerCase();
@@ -222,9 +232,13 @@ export class CircuitStorageService {
             bVal = new Date(b[sortBy]).getTime();
         }
 
-        return sortOrder === 'asc' ? 
-          (aVal > bVal ? 1 : -1) : 
-          (aVal < bVal ? 1 : -1);
+        return sortOrder === 'asc'
+          ? aVal > bVal
+            ? 1
+            : -1
+          : aVal < bVal
+            ? 1
+            : -1;
       });
 
       // ページネーション
@@ -237,14 +251,13 @@ export class CircuitStorageService {
       return {
         success: true,
         message: `${filteredList.length}個の回路が見つかりました`,
-        data: filteredList
+        data: filteredList,
       };
-
     } catch (error) {
       console.error('❌ Circuit list failed:', error);
       return {
         success: false,
-        message: `一覧取得に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`
+        message: `一覧取得に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
       };
     }
   }
@@ -256,23 +269,22 @@ export class CircuitStorageService {
     try {
       // IndexedDBから削除
       await this.deleteFromIndexedDB(circuitId);
-      
+
       // サムネイルも削除
       await this.deleteThumbnail(circuitId);
-      
+
       // LocalStorageのインデックスからも削除
       await this.removeFromMetadataIndex(circuitId);
 
       return {
         success: true,
-        message: '回路を削除しました'
+        message: '回路を削除しました',
       };
-
     } catch (error) {
       console.error('❌ Circuit delete failed:', error);
       return {
         success: false,
-        message: `削除に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`
+        message: `削除に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
       };
     }
   }
@@ -280,11 +292,14 @@ export class CircuitStorageService {
   /**
    * 回路をJSONファイルとしてエクスポート
    */
-  public async exportCircuit(circuitId: string, options: ExportOptions = {
-    includeMetadata: true,
-    includeThumbnail: false,
-    compress: false
-  }): Promise<CircuitStorageResult> {
+  public async exportCircuit(
+    circuitId: string,
+    options: ExportOptions = {
+      includeMetadata: true,
+      includeThumbnail: false,
+      compress: false,
+    }
+  ): Promise<CircuitStorageResult> {
     try {
       const result = await this.loadCircuit(circuitId);
       if (!result.success || !result.data) {
@@ -292,7 +307,7 @@ export class CircuitStorageService {
       }
 
       const savedCircuit: SavedCircuit = result.data;
-      
+
       // オプションに応じてデータを調整
       if (!options.includeMetadata) {
         delete savedCircuit.metadata.description;
@@ -304,9 +319,13 @@ export class CircuitStorageService {
         delete savedCircuit.metadata.thumbnail;
       }
 
-      const jsonData = JSON.stringify(savedCircuit, null, options.compress ? 0 : 2);
+      const jsonData = JSON.stringify(
+        savedCircuit,
+        null,
+        options.compress ? 0 : 2
+      );
       const blob = new Blob([jsonData], { type: 'application/json' });
-      
+
       // ダウンロードリンクを作成
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -319,14 +338,13 @@ export class CircuitStorageService {
 
       return {
         success: true,
-        message: `回路「${savedCircuit.metadata.name}」をエクスポートしました`
+        message: `回路「${savedCircuit.metadata.name}」をエクスポートしました`,
       };
-
     } catch (error) {
       console.error('❌ Circuit export failed:', error);
       return {
         success: false,
-        message: `エクスポートに失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`
+        message: `エクスポートに失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
       };
     }
   }
@@ -334,11 +352,14 @@ export class CircuitStorageService {
   /**
    * JSONファイルから回路をインポート
    */
-  public async importCircuit(file: File, options: ImportOptions = {
-    overwriteExisting: false,
-    generateNewName: true,
-    validate: true
-  }): Promise<CircuitStorageResult> {
+  public async importCircuit(
+    file: File,
+    options: ImportOptions = {
+      overwriteExisting: false,
+      generateNewName: true,
+      validate: true,
+    }
+  ): Promise<CircuitStorageResult> {
     try {
       const text = await file.text();
       const savedCircuit: SavedCircuit = JSON.parse(text);
@@ -347,17 +368,19 @@ export class CircuitStorageService {
       if (options.validate && !this.validateCircuitData(savedCircuit)) {
         return {
           success: false,
-          message: '無効な回路ファイルです'
+          message: '無効な回路ファイルです',
         };
       }
 
       // 名前の重複チェック
       if (options.generateNewName) {
-        savedCircuit.metadata.name = await this.generateUniqueName(savedCircuit.metadata.name);
+        savedCircuit.metadata.name = await this.generateUniqueName(
+          savedCircuit.metadata.name
+        );
       }
 
       // 新しいIDを生成
-      const oldId = savedCircuit.metadata.id;
+      const _oldId = savedCircuit.metadata.id;
       savedCircuit.metadata.id = this.generateId();
       savedCircuit.metadata.createdAt = new Date().toISOString();
       savedCircuit.metadata.updatedAt = new Date().toISOString();
@@ -371,17 +394,16 @@ export class CircuitStorageService {
           description: savedCircuit.metadata.description,
           tags: savedCircuit.metadata.tags,
           thumbnail: savedCircuit.metadata.thumbnail,
-          overwrite: options.overwriteExisting
+          overwrite: options.overwriteExisting,
         }
       );
 
       return saveResult;
-
     } catch (error) {
       console.error('❌ Circuit import failed:', error);
       return {
         success: false,
-        message: `インポートに失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`
+        message: `インポートに失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
       };
     }
   }
@@ -390,7 +412,7 @@ export class CircuitStorageService {
 
   private async saveToIndexedDB(circuit: SavedCircuit): Promise<void> {
     if (!this.db) await this.initializeDatabase();
-    
+
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(['circuits'], 'readwrite');
       const store = transaction.objectStore('circuits');
@@ -401,9 +423,11 @@ export class CircuitStorageService {
     });
   }
 
-  private async loadFromIndexedDB(circuitId: string): Promise<SavedCircuit | null> {
+  private async loadFromIndexedDB(
+    circuitId: string
+  ): Promise<SavedCircuit | null> {
     if (!this.db) await this.initializeDatabase();
-    
+
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(['circuits'], 'readonly');
       const store = transaction.objectStore('circuits');
@@ -416,7 +440,7 @@ export class CircuitStorageService {
 
   private async deleteFromIndexedDB(circuitId: string): Promise<void> {
     if (!this.db) await this.initializeDatabase();
-    
+
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(['circuits'], 'readwrite');
       const store = transaction.objectStore('circuits');
@@ -427,9 +451,12 @@ export class CircuitStorageService {
     });
   }
 
-  private async saveThumbnail(circuitId: string, thumbnail: string): Promise<void> {
+  private async saveThumbnail(
+    circuitId: string,
+    thumbnail: string
+  ): Promise<void> {
     if (!this.db) await this.initializeDatabase();
-    
+
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(['thumbnails'], 'readwrite');
       const store = transaction.objectStore('thumbnails');
@@ -442,7 +469,7 @@ export class CircuitStorageService {
 
   private async loadThumbnail(circuitId: string): Promise<string | null> {
     if (!this.db) await this.initializeDatabase();
-    
+
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(['thumbnails'], 'readonly');
       const store = transaction.objectStore('thumbnails');
@@ -455,7 +482,7 @@ export class CircuitStorageService {
 
   private async deleteThumbnail(circuitId: string): Promise<void> {
     if (!this.db) await this.initializeDatabase();
-    
+
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(['thumbnails'], 'readwrite');
       const store = transaction.objectStore('thumbnails');
@@ -478,13 +505,13 @@ export class CircuitStorageService {
   private async updateMetadataIndex(metadata: CircuitMetadata): Promise<void> {
     const index = this.getMetadataIndex();
     const existingIndex = index.findIndex(m => m.id === metadata.id);
-    
+
     if (existingIndex >= 0) {
       index[existingIndex] = metadata;
     } else {
       index.push(metadata);
     }
-    
+
     localStorage.setItem(this.localStorageKey, JSON.stringify(index));
   }
 
@@ -515,7 +542,7 @@ export class CircuitStorageService {
   private async generateUniqueName(baseName: string): Promise<string> {
     const index = this.getMetadataIndex();
     const existingNames = new Set(index.map(m => m.name));
-    
+
     if (!existingNames.has(baseName)) {
       return baseName;
     }
@@ -524,7 +551,7 @@ export class CircuitStorageService {
     while (existingNames.has(`${baseName} (${counter})`)) {
       counter++;
     }
-    
+
     return `${baseName} (${counter})`;
   }
 
@@ -551,6 +578,6 @@ export const circuitStorage = (() => {
         instance = CircuitStorageService.getInstance();
       }
       return instance;
-    }
+    },
   };
 })();

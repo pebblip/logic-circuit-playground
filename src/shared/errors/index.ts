@@ -2,7 +2,7 @@ import React from 'react';
 
 /**
  * 統一エラーハンドリングシステム
- * 
+ *
  * 複数箇所で重複していたエラーハンドリングロジックを統一し、
  * 一貫性と保守性を向上させるユーティリティ
  */
@@ -45,12 +45,12 @@ export interface OperationResult<T> {
 export class ErrorHandler {
   /**
    * 非同期操作のエラーハンドリングを統一的に処理
-   * 
+   *
    * @template T - 操作の戻り値の型
    * @param operation - 実行する非同期操作
    * @param options - エラーハンドリングの設定
    * @returns 操作結果または null（失敗時）
-   * 
+   *
    * @example
    * ```typescript
    * // 基本的な使用例
@@ -63,7 +63,7 @@ export class ErrorHandler {
    *     operationName: '回路保存'
    *   }
    * );
-   * 
+   *
    * if (result) {
    *   console.log('保存成功:', result);
    * }
@@ -78,7 +78,7 @@ export class ErrorHandler {
       setLoading,
       defaultErrorMessage = '操作に失敗しました',
       enableConsoleLog = true,
-      operationName = '操作'
+      operationName = '操作',
     } = options;
 
     // ローディング開始
@@ -98,7 +98,7 @@ export class ErrorHandler {
       return result;
     } catch (error) {
       const errorMessage = this.extractErrorMessage(error, defaultErrorMessage);
-      
+
       if (enableConsoleLog) {
         console.error(`❌ ${operationName}に失敗:`, error);
       }
@@ -113,12 +113,12 @@ export class ErrorHandler {
 
   /**
    * OperationResult形式の操作のエラーハンドリング
-   * 
+   *
    * @template T - 操作の戻り値の型
    * @param operation - OperationResultを返す非同期操作
    * @param options - エラーハンドリングの設定
    * @returns 操作結果
-   * 
+   *
    * @example
    * ```typescript
    * const result = await ErrorHandler.handleOperationResult(
@@ -129,7 +129,7 @@ export class ErrorHandler {
    *     operationName: '回路読み込み'
    *   }
    * );
-   * 
+   *
    * if (result.success) {
    *   console.log('読み込み成功:', result.data);
    * }
@@ -143,7 +143,7 @@ export class ErrorHandler {
       onError,
       setLoading,
       enableConsoleLog = true,
-      operationName = '操作'
+      operationName = '操作',
     } = options;
 
     // ローディング開始
@@ -169,18 +169,21 @@ export class ErrorHandler {
 
       return result;
     } catch (error) {
-      const errorMessage = this.extractErrorMessage(error, '操作中にエラーが発生しました');
-      
+      const errorMessage = this.extractErrorMessage(
+        error,
+        '操作中にエラーが発生しました'
+      );
+
       if (enableConsoleLog) {
         console.error(`❌ ${operationName}でエラーが発生:`, error);
       }
 
       onError(errorMessage, error);
-      
+
       return {
         success: false,
         message: errorMessage,
-        originalError: error
+        originalError: error,
       };
     } finally {
       // ローディング終了
@@ -190,7 +193,7 @@ export class ErrorHandler {
 
   /**
    * 複数の非同期操作を順次実行
-   * 
+   *
    * @param operations - 実行する操作の配列
    * @param options - エラーハンドリングの設定
    * @returns 全ての操作が成功した場合はtrue
@@ -221,8 +224,11 @@ export class ErrorHandler {
 
       return true;
     } catch (error) {
-      const errorMessage = this.extractErrorMessage(error, '操作の実行に失敗しました');
-      
+      const errorMessage = this.extractErrorMessage(
+        error,
+        '操作の実行に失敗しました'
+      );
+
       if (enableConsoleLog) {
         console.error('❌ 操作シーケンスでエラーが発生:', error);
       }
@@ -236,12 +242,15 @@ export class ErrorHandler {
 
   /**
    * エラーオブジェクトから適切なエラーメッセージを抽出
-   * 
+   *
    * @param error - エラーオブジェクト
    * @param defaultMessage - デフォルトメッセージ
    * @returns 適切なエラーメッセージ
    */
-  static extractErrorMessage(error: unknown, defaultMessage: string = '不明なエラーが発生しました'): string {
+  static extractErrorMessage(
+    error: unknown,
+    defaultMessage: string = '不明なエラーが発生しました'
+  ): string {
     if (!error) {
       return defaultMessage;
     }
@@ -273,59 +282,71 @@ export class ErrorHandler {
 
   /**
    * 統一されたエラーログ出力
-   * 
+   *
    * @param context - エラーが発生したコンテキスト
    * @param error - エラーオブジェクト
    * @param additionalInfo - 追加情報
    */
-  static logError(context: string, error: unknown, additionalInfo?: Record<string, any>): void {
+  static logError(
+    context: string,
+    error: unknown,
+    additionalInfo?: Record<string, any>
+  ): void {
     const timestamp = new Date().toISOString();
     console.group(`❌ [${timestamp}] ${context}`);
-    
+
     if (error instanceof Error) {
       console.error('Error:', error.message);
       console.error('Stack:', error.stack);
     } else {
       console.error('Error:', error);
     }
-    
+
     if (additionalInfo) {
       console.error('Additional Info:', additionalInfo);
     }
-    
+
     console.groupEnd();
   }
 
   /**
    * 統一された警告ログ出力
-   * 
+   *
    * @param context - 警告が発生したコンテキスト
    * @param message - 警告メッセージ
    * @param additionalInfo - 追加情報
    */
-  static logWarning(context: string, message: string, additionalInfo?: Record<string, any>): void {
+  static logWarning(
+    context: string,
+    message: string,
+    additionalInfo?: Record<string, any>
+  ): void {
     const timestamp = new Date().toISOString();
     console.group(`⚠️ [${timestamp}] ${context}`);
     console.warn('Warning:', message);
-    
+
     if (additionalInfo) {
       console.warn('Additional Info:', additionalInfo);
     }
-    
+
     console.groupEnd();
   }
 
   /**
    * 統一された情報ログ出力
-   * 
+   *
    * @param context - ログのコンテキスト
    * @param message - 情報メッセージ
    * @param additionalInfo - 追加情報
    */
-  static logInfo(context: string, message: string, additionalInfo?: Record<string, any>): void {
+  static logInfo(
+    context: string,
+    message: string,
+    additionalInfo?: Record<string, any>
+  ): void {
     const timestamp = new Date().toISOString();
     console.log(`ℹ️ [${timestamp}] ${context}: ${message}`);
-    
+
     if (additionalInfo) {
       console.log('Additional Info:', additionalInfo);
     }
@@ -338,22 +359,22 @@ export class ErrorHandler {
 
 /**
  * エラーハンドリング付きの非同期操作フック
- * 
+ *
  * @param defaultErrorMessage - デフォルトのエラーメッセージ
  * @returns エラーハンドリング用の関数とステート
- * 
+ *
  * @example
  * ```typescript
  * const MyComponent = () => {
  *   const { executeAsync, isLoading, error, clearError } = useAsyncErrorHandler('操作に失敗しました');
- * 
+ *
  *   const handleSave = () => {
  *     executeAsync(
  *       () => saveData(),
  *       { operationName: '保存' }
  *     );
  *   };
- * 
+ *
  *   return (
  *     <div>
  *       {error && <div className="error">{error}</div>}
@@ -369,33 +390,39 @@ export function useAsyncErrorHandler(defaultErrorMessage?: string) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string>('');
 
-  const executeAsync = React.useCallback(async <T>(
-    operation: () => Promise<T>,
-    options: Partial<ErrorHandlingOptions> = {}
-  ): Promise<T | null> => {
-    const result = await ErrorHandler.handleAsync(operation, {
-      onError: setError,
-      setLoading: setIsLoading,
-      defaultErrorMessage,
-      ...options
-    });
+  const executeAsync = React.useCallback(
+    async <T>(
+      operation: () => Promise<T>,
+      options: Partial<ErrorHandlingOptions> = {}
+    ): Promise<T | null> => {
+      const result = await ErrorHandler.handleAsync(operation, {
+        onError: setError,
+        setLoading: setIsLoading,
+        defaultErrorMessage,
+        ...options,
+      });
 
-    return result;
-  }, [defaultErrorMessage]);
+      return result;
+    },
+    [defaultErrorMessage]
+  );
 
-  const executeOperationResult = React.useCallback(async <T>(
-    operation: () => Promise<OperationResult<T>>,
-    options: Partial<ErrorHandlingOptions> = {}
-  ): Promise<OperationResult<T>> => {
-    const result = await ErrorHandler.handleOperationResult(operation, {
-      onError: setError,
-      setLoading: setIsLoading,
-      defaultErrorMessage,
-      ...options
-    });
+  const executeOperationResult = React.useCallback(
+    async <T>(
+      operation: () => Promise<OperationResult<T>>,
+      options: Partial<ErrorHandlingOptions> = {}
+    ): Promise<OperationResult<T>> => {
+      const result = await ErrorHandler.handleOperationResult(operation, {
+        onError: setError,
+        setLoading: setIsLoading,
+        defaultErrorMessage,
+        ...options,
+      });
 
-    return result;
-  }, [defaultErrorMessage]);
+      return result;
+    },
+    [defaultErrorMessage]
+  );
 
   const clearError = React.useCallback(() => {
     setError('');
@@ -407,7 +434,7 @@ export function useAsyncErrorHandler(defaultErrorMessage?: string) {
     isLoading,
     error,
     clearError,
-    setError
+    setError,
   };
 }
 
@@ -424,13 +451,16 @@ export async function handleAsyncError<T>(
 ): Promise<T | null> {
   return ErrorHandler.handleAsync(asyncFn, {
     onError,
-    defaultErrorMessage: '操作に失敗しました'
+    defaultErrorMessage: '操作に失敗しました',
   });
 }
 
 /**
  * @deprecated ErrorHandler.extractErrorMessage() を使用してください
  */
-export function getErrorMessage(error: unknown, defaultMessage: string = '不明なエラー'): string {
+export function getErrorMessage(
+  error: unknown,
+  defaultMessage: string = '不明なエラー'
+): string {
   return ErrorHandler.extractErrorMessage(error, defaultMessage);
 }

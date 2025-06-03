@@ -1,5 +1,18 @@
 // 基本的な型定義
-export type GateType = 'AND' | 'OR' | 'NOT' | 'XOR' | 'NAND' | 'NOR' | 'INPUT' | 'OUTPUT' | 'CLOCK' | 'D-FF' | 'SR-LATCH' | 'MUX' | 'CUSTOM';
+export type GateType =
+  | 'AND'
+  | 'OR'
+  | 'NOT'
+  | 'XOR'
+  | 'NAND'
+  | 'NOR'
+  | 'INPUT'
+  | 'OUTPUT'
+  | 'CLOCK'
+  | 'D-FF'
+  | 'SR-LATCH'
+  | 'MUX'
+  | 'CUSTOM';
 
 export interface Position {
   x: number;
@@ -48,10 +61,10 @@ export interface Gate {
   id: string;
   type: GateType;
   position: Position;
-  inputs: string[];  // 入力ピンの状態
-  output: boolean;   // 出力ピンの状態（後方互換性のため残す）
+  inputs: string[]; // 入力ピンの状態
+  output: boolean; // 出力ピンの状態（後方互換性のため残す）
   outputs?: boolean[]; // 複数出力のサポート（カスタムゲート用）
-  metadata?: any;    // 特殊ゲート用の追加データ（後方互換性のため）
+  metadata?: any; // 特殊ゲート用の追加データ（後方互換性のため）
   customGateDefinition?: CustomGateDefinition; // カスタムゲート用定義
 }
 

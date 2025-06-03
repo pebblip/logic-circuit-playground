@@ -1,4 +1,4 @@
-import { Gate, Wire } from './circuit';
+import type { Gate, Wire } from './circuit';
 
 /**
  * 保存用の回路データ構造

@@ -208,7 +208,7 @@
 .led.on {
   background: radial-gradient(circle, #00ff88 0%, #00cc70 70%);
   border-color: #00ff88;
-  box-shadow: 
+  box-shadow:
     0 0 16px rgba(0, 255, 136, 0.6),
     inset 0 2px 4px rgba(255, 255, 255, 0.3);
 }
@@ -223,7 +223,11 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), transparent);
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
   opacity: 0.3;
 }
 
@@ -373,7 +377,8 @@
   text-align: center;
 }
 
-.multiply, .equals {
+.multiply,
+.equals {
   color: rgba(255, 255, 255, 0.6);
 }
 
@@ -511,24 +516,24 @@
   .led-counter-visualizer {
     padding: 16px;
   }
-  
+
   .decimal-number {
     font-size: 48px;
   }
-  
+
   .led-row {
     gap: 12px;
   }
-  
+
   .led {
     width: 28px;
     height: 28px;
   }
-  
+
   .calculation-steps {
     font-size: 12px;
   }
-  
+
   .fullscreen .led-counter-visualizer {
     transform: scale(1);
   }

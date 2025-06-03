@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { Gate } from '../types/circuit';
+import type { Gate } from '../types/circuit';
 
 export interface SelectionRect {
   startX: number;
@@ -13,7 +13,9 @@ export const useCanvasSelection = (
   setSelectedGates: (gateIds: string[]) => void
 ) => {
   const [isSelecting, setIsSelecting] = useState(false);
-  const [selectionRect, setSelectionRect] = useState<SelectionRect | null>(null);
+  const [selectionRect, setSelectionRect] = useState<SelectionRect | null>(
+    null
+  );
   const selectionJustFinished = useRef(false);
 
   const startSelection = useCallback((x: number, y: number) => {
@@ -22,19 +24,22 @@ export const useCanvasSelection = (
       startX: x,
       startY: y,
       endX: x,
-      endY: y
+      endY: y,
     });
   }, []);
 
-  const updateSelection = useCallback((x: number, y: number) => {
-    if (!isSelecting || !selectionRect) return;
+  const updateSelection = useCallback(
+    (x: number, y: number) => {
+      if (!isSelecting || !selectionRect) return;
 
-    setSelectionRect({
-      ...selectionRect,
-      endX: x,
-      endY: y
-    });
-  }, [isSelecting, selectionRect]);
+      setSelectionRect({
+        ...selectionRect,
+        endX: x,
+        endY: y,
+      });
+    },
+    [isSelecting, selectionRect]
+  );
 
   const endSelection = useCallback(() => {
     if (!isSelecting || !selectionRect) {
@@ -64,9 +69,11 @@ export const useCanvasSelection = (
     setIsSelecting(false);
 
     // 矩形選択直後のクリックイベントを無視するためのフラグ
-    const dragDistance = Math.abs(selectionRect.endX - selectionRect.startX) + 
-                        Math.abs(selectionRect.endY - selectionRect.startY);
-    if (dragDistance > 5) { // 5px以上ドラッグした場合のみ
+    const dragDistance =
+      Math.abs(selectionRect.endX - selectionRect.startX) +
+      Math.abs(selectionRect.endY - selectionRect.startY);
+    if (dragDistance > 5) {
+      // 5px以上ドラッグした場合のみ
       selectionJustFinished.current = true;
     }
   }, [isSelecting, selectionRect, gates, setSelectedGates]);
@@ -83,6 +90,6 @@ export const useCanvasSelection = (
     startSelection,
     updateSelection,
     endSelection,
-    clearSelection
+    clearSelection,
   };
 };

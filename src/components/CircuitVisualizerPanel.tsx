@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useCircuitStore } from '../stores/circuitStore';
-import { circuitPatternRecognizer, CircuitPattern } from '../services/CircuitPatternRecognizer';
+import type { CircuitPattern } from '../services/CircuitPatternRecognizer';
+import { circuitPatternRecognizer } from '../services/CircuitPatternRecognizer';
 import { LEDCounterVisualizer } from './visualizers/LEDCounterVisualizer';
 import './CircuitVisualizerPanel.css';
 
@@ -15,22 +16,27 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
   isVisible,
   onClose,
   onGateHighlight,
-  onGateUnhighlight
+  onGateUnhighlight,
 }) => {
   const { gates, wires } = useCircuitStore();
-  const [recognizedPattern, setRecognizedPattern] = useState<CircuitPattern | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [recognizedPattern, setRecognizedPattern] =
+    useState<CircuitPattern | null>(null);
+  const [_isAnalyzing, _setIsAnalyzing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showFullscreenHint, setShowFullscreenHint] = useState(false);
 
   // 回路パターン認識（依存配列を最適化）
   const currentPattern = useMemo(() => {
     if (gates.length === 0) return null;
-    
+
     // ゲートとワイヤーの実質的な変更のみを検出
-    const gateSignature = gates.map(g => `${g.id}-${g.type}-${g.output}`).join('|');
-    const wireSignature = wires.map(w => `${w.from.gateId}-${w.to.gateId}`).join('|');
-    
+    const _gateSignature = gates
+      .map(g => `${g.id}-${g.type}-${g.output}`)
+      .join('|');
+    const _wireSignature = wires
+      .map(w => `${w.from.gateId}-${w.to.gateId}`)
+      .join('|');
+
     return circuitPatternRecognizer.recognizePattern(gates, wires);
   }, [gates.length, gates.map(g => g.output).join(','), wires.length]);
 
@@ -54,9 +60,15 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
           <div className="pattern-hints">
             <h4>💡 試してみてください:</h4>
             <ul>
-              <li>🔢 <strong>LEDカウンタ</strong>: CLOCK + OUTPUT×2-8個</li>
-              <li>🕐 <strong>デジタル時計</strong> (準備中)</li>
-              <li>🚦 <strong>信号機制御</strong> (準備中)</li>
+              <li>
+                🔢 <strong>LEDカウンタ</strong>: CLOCK + OUTPUT×2-8個
+              </li>
+              <li>
+                🕐 <strong>デジタル時計</strong> (準備中)
+              </li>
+              <li>
+                🚦 <strong>信号機制御</strong> (準備中)
+              </li>
             </ul>
           </div>
         </div>
@@ -89,40 +101,37 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
         setIsFullscreen(false);
       }
     };
-    
+
     if (isFullscreen) {
       document.addEventListener('keydown', handleEscape);
       return () => document.removeEventListener('keydown', handleEscape);
     }
   }, [isFullscreen]);
-  
+
   if (!isVisible) return null;
 
   return (
-    <div 
+    <div
       className={`circuit-visualizer-panel ${isFullscreen ? 'fullscreen' : ''}`}
       onMouseEnter={() => !isFullscreen && setShowFullscreenHint(true)}
       onMouseLeave={() => setShowFullscreenHint(false)}
     >
       {/* フルスクリーンヒント */}
       {showFullscreenHint && !isFullscreen && (
-        <div 
-          className="fullscreen-hint"
-          onClick={() => setIsFullscreen(true)}
-        >
+        <div className="fullscreen-hint" onClick={() => setIsFullscreen(true)}>
           <div className="hint-content">
             <span className="hint-icon">⛶</span>
             <span className="hint-text">クリックで全画面表示</span>
           </div>
         </div>
       )}
-      
+
       <div className="panel-header">
         <div className="panel-title">
           <span className="title-icon">🎯</span>
           <h2>回路ビジュアライザー</h2>
         </div>
-        
+
         <div className="panel-controls">
           {recognizedPattern && (
             <div className="pattern-info">
@@ -134,9 +143,9 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
               </div>
             </div>
           )}
-          
+
           {isFullscreen && (
-            <button 
+            <button
               className="exit-fullscreen-button"
               onClick={() => setIsFullscreen(false)}
               title="通常表示に戻る"
@@ -145,9 +154,9 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
               <span className="exit-text">ESC</span>
             </button>
           )}
-          
+
           {!isFullscreen && (
-            <button 
+            <button
               className="close-button"
               onClick={onClose}
               title="ビジュアライザーを閉じる"
@@ -158,9 +167,7 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
         </div>
       </div>
 
-      <div className="visualizer-content">
-        {renderVisualizer()}
-      </div>
+      <div className="visualizer-content">{renderVisualizer()}</div>
 
       {recognizedPattern && (
         <div className="panel-footer">

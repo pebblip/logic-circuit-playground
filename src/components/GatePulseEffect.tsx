@@ -7,9 +7,16 @@ interface GatePulseEffectProps {
   prevActive: boolean;
 }
 
-export const GatePulseEffect: React.FC<GatePulseEffectProps> = ({ x, y, active, prevActive }) => {
-  const [pulses, setPulses] = useState<{ id: string; scale: number; opacity: number }[]>([]);
-  
+export const GatePulseEffect: React.FC<GatePulseEffectProps> = ({
+  x,
+  y,
+  active,
+  prevActive,
+}) => {
+  const [pulses, setPulses] = useState<
+    { id: string; scale: number; opacity: number }[]
+  >([]);
+
   // 状態が変化した時にパルスを生成
   useEffect(() => {
     if (active !== prevActive) {
@@ -21,27 +28,28 @@ export const GatePulseEffect: React.FC<GatePulseEffectProps> = ({ x, y, active, 
       setPulses(prev => [...prev, newPulse]);
     }
   }, [active, prevActive]);
-  
+
   // パルスのアニメーション
   useEffect(() => {
     if (pulses.length === 0) return;
-    
+
     const animationFrame = requestAnimationFrame(function animate() {
-      setPulses(prev => prev
-        .map(pulse => ({
-          ...pulse,
-          scale: pulse.scale + 0.03,
-          opacity: pulse.opacity - 0.02,
-        }))
-        .filter(pulse => pulse.opacity > 0)
+      setPulses(prev =>
+        prev
+          .map(pulse => ({
+            ...pulse,
+            scale: pulse.scale + 0.03,
+            opacity: pulse.opacity - 0.02,
+          }))
+          .filter(pulse => pulse.opacity > 0)
       );
-      
+
       requestAnimationFrame(animate);
     });
-    
+
     return () => cancelAnimationFrame(animationFrame);
   }, [pulses.length]);
-  
+
   return (
     <g className="gate-pulse-effects" pointerEvents="none">
       {pulses.map(pulse => (

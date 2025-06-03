@@ -1,5 +1,9 @@
 import React from 'react';
-import { TruthTableResult, exportTruthTableAsCSV, calculateTruthTableStats } from '../domain/analysis';
+import type { TruthTableResult } from '../domain/analysis';
+import {
+  exportTruthTableAsCSV,
+  calculateTruthTableStats,
+} from '../domain/analysis';
 import { displayStateToBoolean } from '../domain/simulation';
 
 interface TruthTableDisplayProps {
@@ -15,7 +19,7 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
   inputNames,
   outputNames,
   gateName = 'カスタムゲート',
-  onClose
+  onClose,
 }) => {
   const stats = calculateTruthTableStats(result);
 
@@ -33,47 +37,55 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 3000,
-      backdropFilter: 'blur(4px)'
-    }}>
-      <div style={{
-        width: '90vw',
-        maxWidth: '800px',
-        maxHeight: '90vh',
-        backgroundColor: '#0f1441',
-        border: '1px solid rgba(0, 255, 136, 0.5)',
-        borderRadius: '16px',
-        color: 'white',
-        overflow: 'hidden',
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         display: 'flex',
-        flexDirection: 'column'
-      }}>
-        {/* ヘッダー */}
-        <div style={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 3000,
+        backdropFilter: 'blur(4px)',
+      }}
+    >
+      <div
+        style={{
+          width: '90vw',
+          maxWidth: '800px',
+          maxHeight: '90vh',
+          backgroundColor: '#0f1441',
+          border: '1px solid rgba(0, 255, 136, 0.5)',
+          borderRadius: '16px',
+          color: 'white',
+          overflow: 'hidden',
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '16px 24px',
-          backgroundColor: 'rgba(0, 255, 136, 0.05)',
-          borderBottom: '1px solid rgba(0, 255, 136, 0.2)',
-          flexShrink: 0
-        }}>
-          <h2 style={{
-            margin: 0,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: '#00ff88'
-          }}>
+          flexDirection: 'column',
+        }}
+      >
+        {/* ヘッダー */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '16px 24px',
+            backgroundColor: 'rgba(0, 255, 136, 0.05)',
+            borderBottom: '1px solid rgba(0, 255, 136, 0.2)',
+            flexShrink: 0,
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#00ff88',
+            }}
+          >
             📊 {gateName} の真理値表
           </h2>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -86,7 +98,7 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
                 borderRadius: '6px',
                 color: '#00ff88',
                 fontSize: '12px',
-                cursor: 'pointer'
+                cursor: 'pointer',
               }}
             >
               📄 CSV出力
@@ -103,12 +115,13 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
                   padding: '4px',
                   lineHeight: 1,
                   borderRadius: '4px',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
                 }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                onMouseOver={e => {
+                  e.currentTarget.style.backgroundColor =
+                    'rgba(255, 255, 255, 0.1)';
                 }}
-                onMouseOut={(e) => {
+                onMouseOut={e => {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
@@ -119,77 +132,95 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
         </div>
 
         {/* 統計情報とパターン認識 */}
-        <div style={{
-          padding: '16px 24px',
-          backgroundColor: 'rgba(0, 0, 0, 0.2)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-          display: 'flex',
-          gap: '24px',
-          flexWrap: 'wrap'
-        }}>
+        <div
+          style={{
+            padding: '16px 24px',
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            display: 'flex',
+            gap: '24px',
+            flexWrap: 'wrap',
+          }}
+        >
           {result.recognizedPattern && (
-            <div style={{
-              padding: '8px 16px',
-              backgroundColor: 'rgba(0, 255, 136, 0.1)',
-              border: '1px solid #00ff88',
-              borderRadius: '8px',
-              fontSize: '14px'
-            }}>
+            <div
+              style={{
+                padding: '8px 16px',
+                backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                border: '1px solid #00ff88',
+                borderRadius: '8px',
+                fontSize: '14px',
+              }}
+            >
               🎯 <strong>パターン:</strong> {result.recognizedPattern}
             </div>
           )}
           <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.7)' }}>
-            <span>組み合わせ数: {stats.totalCombinations}</span> • 
-            <span> 複雑度: {stats.complexity}</span> • 
+            <span>組み合わせ数: {stats.totalCombinations}</span> •
+            <span> 複雑度: {stats.complexity}</span> •
             <span> TRUE率: {(stats.trueOutputRatio * 100).toFixed(1)}%</span>
           </div>
         </div>
 
         {/* 真理値表 */}
-        <div style={{
-          flex: 1,
-          overflow: 'auto',
-          padding: '16px'
-        }}>
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: '14px'
-          }}>
+        <div
+          style={{
+            flex: 1,
+            overflow: 'auto',
+            padding: '16px',
+          }}
+        >
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              fontSize: '14px',
+            }}
+          >
             <thead>
-              <tr style={{
-                backgroundColor: 'rgba(0, 255, 136, 0.1)',
-                position: 'sticky',
-                top: 0,
-                zIndex: 1
-              }}>
+              <tr
+                style={{
+                  backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 1,
+                }}
+              >
                 {inputNames.map((name, index) => (
-                  <th key={`input-${index}`} style={{
-                    padding: '12px 8px',
-                    textAlign: 'center',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    color: '#00ff88',
-                    fontSize: '12px',
-                    fontWeight: '600'
-                  }}>
+                  <th
+                    key={`input-${index}`}
+                    style={{
+                      padding: '12px 8px',
+                      textAlign: 'center',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      color: '#00ff88',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                    }}
+                  >
                     {name}
                   </th>
                 ))}
-                <th style={{
-                  padding: '12px 8px',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  width: '2px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                }}></th>
-                {outputNames.map((name, index) => (
-                  <th key={`output-${index}`} style={{
+                <th
+                  style={{
                     padding: '12px 8px',
-                    textAlign: 'center',
                     border: '1px solid rgba(255, 255, 255, 0.2)',
-                    color: '#ff6699',
-                    fontSize: '12px',
-                    fontWeight: '600'
-                  }}>
+                    width: '2px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  }}
+                ></th>
+                {outputNames.map((name, index) => (
+                  <th
+                    key={`output-${index}`}
+                    style={{
+                      padding: '12px 8px',
+                      textAlign: 'center',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      color: '#ff6699',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                    }}
+                  >
                     {name}
                   </th>
                 ))}
@@ -197,38 +228,56 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
             </thead>
             <tbody>
               {result.table.map((row, rowIndex) => (
-                <tr key={rowIndex} style={{
-                  backgroundColor: rowIndex % 2 === 0 ? 'rgba(255, 255, 255, 0.02)' : 'transparent'
-                }}>
+                <tr
+                  key={rowIndex}
+                  style={{
+                    backgroundColor:
+                      rowIndex % 2 === 0
+                        ? 'rgba(255, 255, 255, 0.02)'
+                        : 'transparent',
+                  }}
+                >
                   {row.inputs.split('').map((input, colIndex) => (
-                    <td key={`input-${rowIndex}-${colIndex}`} style={{
-                      padding: '10px 8px',
-                      textAlign: 'center',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      fontFamily: 'monospace',
-                      fontSize: '16px',
-                      fontWeight: '600',
-                      color: displayStateToBoolean(input) ? '#00ff88' : 'rgba(255, 255, 255, 0.5)'
-                    }}>
+                    <td
+                      key={`input-${rowIndex}-${colIndex}`}
+                      style={{
+                        padding: '10px 8px',
+                        textAlign: 'center',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        fontFamily: 'monospace',
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        color: displayStateToBoolean(input)
+                          ? '#00ff88'
+                          : 'rgba(255, 255, 255, 0.5)',
+                      }}
+                    >
                       {input}
                     </td>
                   ))}
-                  <td style={{
-                    padding: '10px 8px',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    width: '2px'
-                  }}></td>
-                  {row.outputs.split('').map((output, colIndex) => (
-                    <td key={`output-${rowIndex}-${colIndex}`} style={{
+                  <td
+                    style={{
                       padding: '10px 8px',
-                      textAlign: 'center',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      fontFamily: 'monospace',
-                      fontSize: '16px',
-                      fontWeight: '600',
-                      color: displayStateToBoolean(output) ? '#ff6699' : 'rgba(255, 255, 255, 0.5)'
-                    }}>
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      width: '2px',
+                    }}
+                  ></td>
+                  {row.outputs.split('').map((output, colIndex) => (
+                    <td
+                      key={`output-${rowIndex}-${colIndex}`}
+                      style={{
+                        padding: '10px 8px',
+                        textAlign: 'center',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        fontFamily: 'monospace',
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        color: displayStateToBoolean(output)
+                          ? '#ff6699'
+                          : 'rgba(255, 255, 255, 0.5)',
+                      }}
+                    >
                       {output}
                     </td>
                   ))}
@@ -239,14 +288,16 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
         </div>
 
         {/* フッター */}
-        <div style={{
-          padding: '12px 24px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-          backgroundColor: 'rgba(0, 0, 0, 0.2)',
-          fontSize: '11px',
-          color: 'rgba(255, 255, 255, 0.5)',
-          textAlign: 'center'
-        }}>
+        <div
+          style={{
+            padding: '12px 24px',
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
+            fontSize: '11px',
+            color: 'rgba(255, 255, 255, 0.5)',
+            textAlign: 'center',
+          }}
+        >
           💡 ヒント: この真理値表から回路の動作を理解できます
         </div>
       </div>

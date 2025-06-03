@@ -3,11 +3,9 @@ import { useCircuitStore } from '../stores/circuitStore';
 import { GateComponent } from './Gate';
 import { WireComponent } from './Wire';
 import { evaluateCircuit } from '@domain/simulation';
-import { useIsMobile } from '../hooks/useResponsive';
 import { useCanvasPan } from '../hooks/useCanvasPan';
 import { useCanvasSelection } from '../hooks/useCanvasSelection';
 import { useCanvasZoom } from '../hooks/useCanvasZoom';
-import { Position } from '../types/circuit';
 import { reactEventToSVGCoordinates } from '@infrastructure/ui/svgCoordinates';
 
 interface ViewBox {
@@ -17,7 +15,6 @@ interface ViewBox {
   height: number;
 }
 
-
 interface CanvasProps {
   highlightedGateId?: string | null;
 }
@@ -25,36 +22,47 @@ interface CanvasProps {
 export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 400, y: 300 });
-  const [viewBox, setViewBox] = useState<ViewBox>({ x: 0, y: 0, width: 1200, height: 800 });
+  const [viewBox, setViewBox] = useState<ViewBox>({
+    x: 0,
+    y: 0,
+    width: 1200,
+    height: 800,
+  });
   const [isSpacePressed, setIsSpacePressed] = useState(false);
-  
-  const isMobile = useIsMobile();
-  const { 
-    gates, 
-    wires, 
-    isDrawingWire, 
-    wireStart, 
+
+  const {
+    gates,
+    wires,
+    isDrawingWire,
+    wireStart,
     cancelWireDrawing,
-    selectGate,
     selectedGateIds,
     setSelectedGates,
-    addToSelection,
     clearSelection,
     addGate,
-    addCustomGateInstance
+    addCustomGateInstance,
   } = useCircuitStore();
 
   // カスタムフックの使用
-  const { scale, handleZoom, resetZoom, zoomIn, zoomOut } = useCanvasZoom(svgRef, viewBox, setViewBox);
-  const { isPanning, handlePanStart, handlePan, handlePanEnd } = useCanvasPan(svgRef, viewBox, setViewBox, scale);
-  const { 
-    isSelecting, 
-    selectionRect, 
+  const { scale, handleZoom, resetZoom, zoomIn, zoomOut } = useCanvasZoom(
+    svgRef,
+    viewBox,
+    setViewBox
+  );
+  const { isPanning, handlePanStart, handlePan, handlePanEnd } = useCanvasPan(
+    svgRef,
+    viewBox,
+    setViewBox,
+    scale
+  );
+  const {
+    isSelecting,
+    selectionRect,
     selectionJustFinished,
     startSelection,
     updateSelection,
     endSelection,
-    clearSelection: clearSelectionRect
+    clearSelection: clearSelectionRect,
   } = useCanvasSelection(gates, setSelectedGates);
 
   // キーボードイベント処理
@@ -72,18 +80,25 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         }
       }
       // Deleteキーで選択中のゲートを削除
-      if ((event.key === 'Delete' || event.key === 'Backspace') && selectedGateIds.length > 0) {
+      if (
+        (event.key === 'Delete' || event.key === 'Backspace') &&
+        selectedGateIds.length > 0
+      ) {
         event.preventDefault();
         const deleteGate = useCircuitStore.getState().deleteGate;
         selectedGateIds.forEach(gateId => deleteGate(gateId));
         clearSelectionRect(); // 削除後は選択矩形をクリア
       }
       // Ctrl+C でコピー
-      if ((event.ctrlKey || event.metaKey) && event.key === 'c' && selectedGateIds.length > 0) {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key === 'c' &&
+        selectedGateIds.length > 0
+      ) {
         event.preventDefault();
         const copySelection = useCircuitStore.getState().copySelection;
         copySelection();
-        
+
         // コピーフィードバック（選択枠を一瞬光らせる）
         // TODO: 視覚的フィードバックの実装
       }
@@ -115,26 +130,35 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   // CLOCKゲートがある場合、定期的に回路を更新
   React.useEffect(() => {
     // 実行中のCLOCKゲートがあるか確認
-    const hasRunningClockGate = gates.some(gate => gate.type === 'CLOCK' && gate.metadata?.isRunning);
-    
+    const hasRunningClockGate = gates.some(
+      gate => gate.type === 'CLOCK' && gate.metadata?.isRunning
+    );
+
     if (hasRunningClockGate) {
       const interval = setInterval(() => {
         // 現在の状態を直接取得
         const currentState = useCircuitStore.getState();
-        const { gates: updatedGates, wires: updatedWires } = evaluateCircuit(currentState.gates, currentState.wires);
+        const { gates: updatedGates, wires: updatedWires } = evaluateCircuit(
+          currentState.gates,
+          currentState.wires
+        );
         useCircuitStore.setState({ gates: updatedGates, wires: updatedWires });
       }, 50); // 20Hz更新
-      
+
       return () => {
         clearInterval(interval);
       };
     }
-  }, [gates.filter(g => g.type === 'CLOCK').map(g => g.metadata?.isRunning).join(',')]);
-
+  }, [
+    gates
+      .filter(g => g.type === 'CLOCK')
+      .map(g => g.metadata?.isRunning)
+      .join(','),
+  ]);
 
   const handleMouseMove = (event: React.MouseEvent) => {
     if (!svgRef.current) return;
-    
+
     const svgPoint = reactEventToSVGCoordinates(event, svgRef.current);
     if (!svgPoint) return;
 
@@ -142,17 +166,16 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       x: svgPoint.x,
       y: svgPoint.y,
     });
-    
+
     // パン中の処理
     if (isPanning) {
       handlePan(event.clientX, event.clientY);
     }
-    
+
     // 選択矩形の更新
     if (isSelecting) {
       updateSelection(svgPoint.x, svgPoint.y);
     }
-    
   };
 
   const handleClick = (event: React.MouseEvent) => {
@@ -161,17 +184,17 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       selectionJustFinished.current = false;
       return;
     }
-    
+
     const target = event.target as SVGElement;
-    
+
     // ゲート要素かどうかをチェック
     const isGate = isGateElement(target);
-    
+
     // ゲート要素の場合は何もしない（ゲート自体のクリックハンドラーに任せる）
     if (isGate) {
       return;
     }
-    
+
     // 背景（grid）またはSVG自体をクリックした場合のみ選択解除
     if (target === svgRef.current || target.id === 'canvas-background') {
       // ワイヤー描画をキャンセル
@@ -186,7 +209,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     }
   };
 
-
   // ホイールイベント
   const handleWheel = (event: React.WheelEvent) => {
     event.preventDefault();
@@ -196,7 +218,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   // ゲート要素かどうかを判定する関数
   const isGateElement = (element: Element | null): boolean => {
     if (!element) return false;
-    
+
     // 要素自体または親要素を辿ってゲート関連の要素を探す
     let current = element;
     while (current && current !== svgRef.current) {
@@ -208,7 +230,10 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         return true;
       }
       // SVG要素でclassName属性をチェック
-      if (current.getAttribute && current.getAttribute('class')?.includes('gate-container')) {
+      if (
+        current.getAttribute &&
+        current.getAttribute('class')?.includes('gate-container')
+      ) {
         return true;
       }
       current = current.parentElement as Element;
@@ -216,13 +241,12 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     return false;
   };
 
-
   // タッチイベント（モバイル用）
   const handleTouchStart = (event: React.TouchEvent) => {
     if (event.touches.length === 1) {
       const touch = event.touches[0];
       const target = event.target as Element;
-      
+
       // ゲート要素をタッチした場合はパンを開始しない
       if (!isGateElement(target)) {
         handlePanStart(touch.clientX, touch.clientY);
@@ -245,31 +269,36 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   const handleMouseDown = (event: React.MouseEvent) => {
     const target = event.target as SVGElement;
     const isGate = isGateElement(target);
-    
+
     // スペース+左クリックでパン（優先的に処理）
     if (event.button === 0 && isSpacePressed) {
       handlePanStart(event.clientX, event.clientY);
       return; // 他の処理を実行しない
     }
-    
+
     // 中ボタン、Ctrl+左クリックでパン
     if (event.button === 1 || (event.button === 0 && event.ctrlKey)) {
       handlePanStart(event.clientX, event.clientY);
     }
     // 左クリックで背景をクリックした場合、選択矩形を開始
-    else if (event.button === 0 && !isGate && !isDrawingWire && (target === svgRef.current || target.id === 'canvas-background')) {
+    else if (
+      event.button === 0 &&
+      !isGate &&
+      !isDrawingWire &&
+      (target === svgRef.current || target.id === 'canvas-background')
+    ) {
       if (!svgRef.current) return;
-      
+
       const svgPoint = reactEventToSVGCoordinates(event, svgRef.current);
       if (!svgPoint) return;
-      
+
       startSelection(svgPoint.x, svgPoint.y);
     }
   };
 
-  const handleMouseUp = (event: React.MouseEvent) => {
+  const handleMouseUp = (_event: React.MouseEvent) => {
     handlePanEnd();
-    
+
     // 選択矩形終了時の処理
     if (isSelecting) {
       endSelection();
@@ -302,27 +331,29 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   // ドロップハンドラ
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
-    
+
     const draggedGate = (window as any)._draggedGate;
     if (!draggedGate || !svgRef.current) return;
-    
+
     // SVG座標系でのドロップ位置を取得
     const svgPoint = reactEventToSVGCoordinates(event, svgRef.current);
     if (!svgPoint) return;
-    
+
     // ゲートを配置
     if (draggedGate.type === 'CUSTOM' && draggedGate.customDefinition) {
-      addCustomGateInstance(draggedGate.customDefinition, { x: svgPoint.x, y: svgPoint.y });
+      addCustomGateInstance(draggedGate.customDefinition, {
+        x: svgPoint.x,
+        y: svgPoint.y,
+      });
     } else {
       addGate(draggedGate.type, { x: svgPoint.x, y: svgPoint.y });
     }
   };
-  
+
   const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'copy';
   };
-
 
   return (
     <div className="canvas-container">
@@ -345,31 +376,36 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       >
         {/* グリッド */}
         <defs>
-          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"
-            patternTransform={`scale(${1})`}>
-            <circle cx="10" cy="10" r="0.5" fill="rgba(255, 255, 255, 0.1)"/>
+          <pattern
+            id="grid"
+            width="20"
+            height="20"
+            patternUnits="userSpaceOnUse"
+            patternTransform={`scale(${1})`}
+          >
+            <circle cx="10" cy="10" r="0.5" fill="rgba(255, 255, 255, 0.1)" />
           </pattern>
-          
+
           {/* パーティクルのグロー効果 */}
           <filter id="particleGlow">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
             <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
-          
+
           {/* ゲートのグロー効果 */}
           <filter id="gateGlow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
             <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
         </defs>
-        <rect 
-          id="canvas-background" 
+        <rect
+          id="canvas-background"
           x={viewBox.x - 5000}
           y={viewBox.y - 5000}
           width={viewBox.width + 10000}
@@ -378,7 +414,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         />
 
         {/* ワイヤー */}
-        {wires.map((wire) => (
+        {wires.map(wire => (
           <WireComponent key={wire.id} wire={wire} />
         ))}
 
@@ -397,14 +433,14 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         )}
 
         {/* ゲート */}
-        {gates.map((gate) => (
-          <GateComponent 
-            key={gate.id} 
-            gate={gate} 
+        {gates.map(gate => (
+          <GateComponent
+            key={gate.id}
+            gate={gate}
             isHighlighted={highlightedGateId === gate.id}
           />
         ))}
-        
+
         {/* 選択矩形 */}
         {selectionRect && (
           <rect
@@ -419,16 +455,19 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
             pointerEvents="none"
           />
         )}
-        
       </svg>
-      
+
       {/* ズームコントロール */}
       <div className="zoom-controls">
-        <button className="zoom-button" onClick={zoomOut}>−</button>
+        <button className="zoom-button" onClick={zoomOut}>
+          −
+        </button>
         <button className="zoom-button zoom-reset" onClick={resetZoom}>
           {Math.round(scale * 100)}%
         </button>
-        <button className="zoom-button" onClick={zoomIn}>＋</button>
+        <button className="zoom-button" onClick={zoomIn}>
+          ＋
+        </button>
       </div>
     </div>
   );

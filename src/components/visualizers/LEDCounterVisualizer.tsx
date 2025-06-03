@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { CounterPattern } from '../../services/CircuitPatternRecognizer';
+import type { CounterPattern } from '../../services/CircuitPatternRecognizer';
 import './LEDCounterVisualizer.css';
 
 interface LEDCounterVisualizerProps {
@@ -11,20 +11,24 @@ interface LEDCounterVisualizerProps {
 export const LEDCounterVisualizer: React.FC<LEDCounterVisualizerProps> = ({
   pattern,
   onGateHighlight,
-  onGateUnhighlight
+  onGateUnhighlight,
 }) => {
   const { bitCount, outputGates, maxValue } = pattern.metadata;
-  const [displayMode, setDisplayMode] = useState<'decimal' | 'hex' | 'binary'>('decimal');
-  const [countDirection, setCountDirection] = useState<'up' | 'down'>('up');
-  const [showTooltip, setShowTooltip] = useState(false);
+  const [displayMode, _setDisplayMode] = useState<'decimal' | 'hex' | 'binary'>(
+    'decimal'
+  );
+  const [countDirection, _setCountDirection] = useState<'up' | 'down'>('up');
+  const [_showTooltip, _setShowTooltip] = useState(false);
 
   // 各OUTPUTゲートの状態から二進数と十進数を計算
   const { binaryStates, decimalValue, binaryString } = useMemo(() => {
     // 出力ゲートをX座標でソート（左から右へ、MSBからLSBへ）
-    const sortedOutputs = [...outputGates].sort((a, b) => a.position.x - b.position.x);
-    
+    const sortedOutputs = [...outputGates].sort(
+      (a, b) => a.position.x - b.position.x
+    );
+
     const states = sortedOutputs.map(gate => gate.output || false);
-    const binary = states.map(state => state ? '1' : '0').join('');
+    const binary = states.map(state => (state ? '1' : '0')).join('');
     const decimal = states.reduce((acc, state, index) => {
       return acc + (state ? Math.pow(2, bitCount - 1 - index) : 0);
     }, 0);
@@ -32,7 +36,7 @@ export const LEDCounterVisualizer: React.FC<LEDCounterVisualizerProps> = ({
     return {
       binaryStates: states,
       decimalValue: decimal,
-      binaryString: binary
+      binaryString: binary,
     };
   }, [outputGates, bitCount]);
 
@@ -64,7 +68,7 @@ export const LEDCounterVisualizer: React.FC<LEDCounterVisualizerProps> = ({
           <div className="decimal-number">{decimalValue}</div>
           <div className="decimal-label">現在の値</div>
         </div>
-        
+
         <div className="conversion-arrow">
           <span>⬇️</span>
           <div className="conversion-label">二進数から変換</div>
@@ -98,8 +102,8 @@ export const LEDCounterVisualizer: React.FC<LEDCounterVisualizerProps> = ({
         <div className="binary-label">二進数:</div>
         <div className="binary-value">
           {binaryString.split('').map((bit, index) => (
-            <span 
-              key={index} 
+            <span
+              key={index}
               className={`binary-bit ${bit === '1' ? 'active' : ''}`}
               onMouseEnter={() => handleLEDMouseEnter(index)}
               onMouseLeave={handleLEDMouseLeave}
@@ -119,8 +123,8 @@ export const LEDCounterVisualizer: React.FC<LEDCounterVisualizerProps> = ({
               const power = bitCount - 1 - index;
               const value = isOn ? Math.pow(2, power) : 0;
               return (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className={`calculation-step ${isOn ? 'active' : 'inactive'}`}
                   onMouseEnter={() => handleLEDMouseEnter(index)}
                   onMouseLeave={handleLEDMouseLeave}
@@ -135,27 +139,35 @@ export const LEDCounterVisualizer: React.FC<LEDCounterVisualizerProps> = ({
             })}
           </div>
           <div className="final-sum">
-            合計: {binaryStates.map((isOn, index) => {
-              const power = bitCount - 1 - index;
-              return isOn ? Math.pow(2, power) : 0;
-            }).filter(v => v > 0).join(' + ')} = <strong>{decimalValue}</strong>
+            合計:{' '}
+            {binaryStates
+              .map((isOn, index) => {
+                const power = bitCount - 1 - index;
+                return isOn ? Math.pow(2, power) : 0;
+              })
+              .filter(v => v > 0)
+              .join(' + ')}{' '}
+            = <strong>{decimalValue}</strong>
           </div>
         </div>
       )}
-      
+
       {/* 16進数変換説明 */}
       {displayMode === 'hex' && (
         <div className="calculation-breakdown hex-explanation">
           <div className="calculation-title">🅰️ 16進数変換:</div>
           <div className="hex-content">
             <div className="hex-conversion">
-              {decimalValue} ÷ 16 = {Math.floor(decimalValue / 16)} 余り {decimalValue % 16}
-              {decimalValue % 16 > 9 && ` (${(decimalValue % 16).toString(16).toUpperCase()})`}
+              {decimalValue} ÷ 16 = {Math.floor(decimalValue / 16)} 余り{' '}
+              {decimalValue % 16}
+              {decimalValue % 16 > 9 &&
+                ` (${(decimalValue % 16).toString(16).toUpperCase()})`}
             </div>
             <div className="hex-table">
               <div className="hex-note">0-9 = 0-9, 10-15 = A-F</div>
               <div className="hex-result">
-                結果: <strong>0x{decimalValue.toString(16).toUpperCase()}</strong>
+                結果:{' '}
+                <strong>0x{decimalValue.toString(16).toUpperCase()}</strong>
               </div>
             </div>
           </div>
@@ -165,23 +177,25 @@ export const LEDCounterVisualizer: React.FC<LEDCounterVisualizerProps> = ({
       {/* 進行状況 */}
       <div className="progress-indicator">
         <div className="progress-label">
-          {countDirection === 'up' ? 'カウントアップ進行状況' : 'カウントダウン進行状況'}
+          {countDirection === 'up'
+            ? 'カウントアップ進行状況'
+            : 'カウントダウン進行状況'}
         </div>
         <div className="progress-bar">
-          <div 
+          <div
             className="progress-fill"
-            style={{ 
-              width: countDirection === 'up' 
-                ? `${(decimalValue / maxValue) * 100}%`
-                : `${((maxValue - decimalValue) / maxValue) * 100}%`
+            style={{
+              width:
+                countDirection === 'up'
+                  ? `${(decimalValue / maxValue) * 100}%`
+                  : `${((maxValue - decimalValue) / maxValue) * 100}%`,
             }}
           />
         </div>
         <div className="progress-text">
-          {countDirection === 'up' 
+          {countDirection === 'up'
             ? `${decimalValue} / ${maxValue} (${Math.round((decimalValue / maxValue) * 100)}%)`
-            : `${decimalValue} / 0 (残り${Math.round(((maxValue - decimalValue) / maxValue) * 100)}%)`
-          }
+            : `${decimalValue} / 0 (残り${Math.round(((maxValue - decimalValue) / maxValue) * 100)}%)`}
         </div>
       </div>
     </div>

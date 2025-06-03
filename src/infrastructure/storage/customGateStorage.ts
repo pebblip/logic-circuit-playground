@@ -1,4 +1,4 @@
-import { CustomGateDefinition } from '@/types/circuit';
+import type { CustomGateDefinition } from '@/types/circuit';
 
 const STORAGE_KEY = 'logic-circuit-playground-custom-gates';
 
@@ -23,7 +23,7 @@ export function loadCustomGates(): CustomGateDefinition[] {
     if (!json) {
       return [];
     }
-    
+
     const customGates = JSON.parse(json) as CustomGateDefinition[];
     return customGates;
   } catch (error) {

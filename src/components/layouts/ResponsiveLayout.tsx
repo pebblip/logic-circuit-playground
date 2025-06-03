@@ -9,7 +9,9 @@ interface ResponsiveLayoutProps {
   children?: React.ReactNode;
 }
 
-export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({ children }) => {
+export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
+  children,
+}) => {
   const { breakpoint } = useResponsive();
   useKeyboardShortcuts();
 

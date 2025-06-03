@@ -1,4 +1,5 @@
-import { useState, RefObject, useCallback } from 'react';
+import type { RefObject } from 'react';
+import { useState, useCallback } from 'react';
 
 interface ViewBox {
   x: number;
@@ -20,42 +21,48 @@ export const useCanvasPan = (
 ) => {
   const [panState, setPanState] = useState<PanState>({
     isPanning: false,
-    panStart: { x: 0, y: 0 }
+    panStart: { x: 0, y: 0 },
   });
 
-  const handlePanStart = useCallback((clientX: number, clientY: number) => {
-    setPanState({
-      isPanning: true,
-      panStart: { x: clientX, y: clientY }
-    });
-    if (svgRef.current) {
-      svgRef.current.style.cursor = 'grabbing';
-    }
-  }, [svgRef]);
+  const handlePanStart = useCallback(
+    (clientX: number, clientY: number) => {
+      setPanState({
+        isPanning: true,
+        panStart: { x: clientX, y: clientY },
+      });
+      if (svgRef.current) {
+        svgRef.current.style.cursor = 'grabbing';
+      }
+    },
+    [svgRef]
+  );
 
-  const handlePan = useCallback((clientX: number, clientY: number) => {
-    if (!panState.isPanning) return;
+  const handlePan = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!panState.isPanning) return;
 
-    const dx = (clientX - panState.panStart.x) / scale;
-    const dy = (clientY - panState.panStart.y) / scale;
+      const dx = (clientX - panState.panStart.x) / scale;
+      const dy = (clientY - panState.panStart.y) / scale;
 
-    setViewBox({
-      x: viewBox.x - dx,
-      y: viewBox.y - dy,
-      width: viewBox.width,
-      height: viewBox.height
-    });
+      setViewBox({
+        x: viewBox.x - dx,
+        y: viewBox.y - dy,
+        width: viewBox.width,
+        height: viewBox.height,
+      });
 
-    setPanState({
-      ...panState,
-      panStart: { x: clientX, y: clientY }
-    });
-  }, [panState, scale, viewBox, setViewBox]);
+      setPanState({
+        ...panState,
+        panStart: { x: clientX, y: clientY },
+      });
+    },
+    [panState, scale, viewBox, setViewBox]
+  );
 
   const handlePanEnd = useCallback(() => {
     setPanState({
       ...panState,
-      isPanning: false
+      isPanning: false,
     });
     if (svgRef.current) {
       svgRef.current.style.cursor = 'default';
@@ -66,6 +73,6 @@ export const useCanvasPan = (
     isPanning: panState.isPanning,
     handlePanStart,
     handlePan,
-    handlePanEnd
+    handlePanEnd,
   };
 };

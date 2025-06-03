@@ -104,24 +104,24 @@
   .ultra-gallery {
     padding: 20px;
   }
-  
+
   .circuit-grid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 12px;
   }
-  
+
   .circuit-tile {
     padding: 12px;
   }
-  
+
   .tile-icon {
     font-size: 24px;
   }
-  
+
   .tile-name {
     font-size: 12px;
   }
-  
+
   .tile-desc {
     display: none;
   }

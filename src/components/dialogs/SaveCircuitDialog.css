@@ -162,7 +162,8 @@
   font-size: 12px;
 }
 
-.form-input, .form-textarea {
+.form-input,
+.form-textarea {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
@@ -173,13 +174,15 @@
   outline: none;
 }
 
-.form-input:focus, .form-textarea:focus {
+.form-input:focus,
+.form-textarea:focus {
   border-color: rgba(0, 255, 136, 0.5);
   background: rgba(255, 255, 255, 0.12);
   box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
 }
 
-.form-input::placeholder, .form-textarea::placeholder {
+.form-input::placeholder,
+.form-textarea::placeholder {
   color: rgba(255, 255, 255, 0.4);
 }
 
@@ -356,21 +359,21 @@
     width: 95vw;
     max-height: 90vh;
   }
-  
+
   .dialog-content {
     grid-template-columns: 1fr;
     gap: 20px;
     padding: 16px;
   }
-  
+
   .preview-section {
     order: 2;
   }
-  
+
   .form-section {
     order: 1;
   }
-  
+
   .circuit-preview {
     min-height: 120px;
   }
@@ -378,22 +381,30 @@
 
 /* アニメーション */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px) scale(0.95);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

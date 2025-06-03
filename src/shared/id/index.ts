@@ -1,6 +1,6 @@
 /**
  * 統一ID生成システム
- * 
+ *
  * 複数箇所で重複していたID生成ロジックを統一し、
  * 一貫性と保守性を向上させるユーティリティ
  */
@@ -20,19 +20,19 @@ interface IdConfig {
 const DEFAULT_CONFIG: IdConfig = {
   prefix: '',
   length: 12, // セキュリティを向上させるため9→12文字に増加
-  separator: '-'
+  separator: '-',
 };
 
 /**
  * 高品質なランダム文字列を生成
- * 
+ *
  * @param length - 生成する文字列の長さ
  * @returns ランダム文字列（英数字のみ）
  */
 function generateRandomString(length: number): string {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
-  
+
   // crypto.getRandomValues()が利用可能な場合は使用（より安全）
   if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
     const array = new Uint8Array(length);
@@ -46,25 +46,25 @@ function generateRandomString(length: number): string {
       result += chars[Math.floor(Math.random() * chars.length)];
     }
   }
-  
+
   return result;
 }
 
 /**
  * 基本ID生成関数
- * 
+ *
  * @param config - ID生成設定
  * @returns 一意なID文字列
  */
 function generateId(config: Partial<IdConfig> = {}): string {
   const { prefix, length, separator } = { ...DEFAULT_CONFIG, ...config };
-  
+
   const timestamp = Date.now();
   const randomPart = generateRandomString(length);
-  
+
   // タイムスタンプと追加エントロピーで衝突回避を強化
   const entropy = Math.floor(Math.random() * 1000);
-  
+
   if (prefix) {
     return `${prefix}${separator}${timestamp}${separator}${entropy}${separator}${randomPart}`;
   } else {
@@ -79,9 +79,9 @@ function generateId(config: Partial<IdConfig> = {}): string {
 export class IdGenerator {
   /**
    * ゲートIDを生成
-   * 
+   *
    * @returns gate-{timestamp}-{entropy}-{random} 形式のID
-   * 
+   *
    * @example
    * ```typescript
    * const gateId = IdGenerator.generateGateId();
@@ -94,9 +94,9 @@ export class IdGenerator {
 
   /**
    * ワイヤーIDを生成
-   * 
+   *
    * @returns wire-{timestamp}-{entropy}-{random} 形式のID
-   * 
+   *
    * @example
    * ```typescript
    * const wireId = IdGenerator.generateWireId();
@@ -109,9 +109,9 @@ export class IdGenerator {
 
   /**
    * 回路IDを生成
-   * 
+   *
    * @returns circuit-{timestamp}-{entropy}-{random} 形式のID
-   * 
+   *
    * @example
    * ```typescript
    * const circuitId = IdGenerator.generateCircuitId();
@@ -124,9 +124,9 @@ export class IdGenerator {
 
   /**
    * カスタムゲートIDを生成
-   * 
+   *
    * @returns custom-{timestamp}-{entropy}-{random} 形式のID
-   * 
+   *
    * @example
    * ```typescript
    * const customGateId = IdGenerator.generateCustomGateId();
@@ -139,27 +139,30 @@ export class IdGenerator {
 
   /**
    * カスタムプレフィックスでIDを生成
-   * 
+   *
    * @param prefix - カスタムプレフィックス
    * @param options - 追加オプション
    * @returns 指定されたプレフィックス付きのID
-   * 
+   *
    * @example
    * ```typescript
    * const sessionId = IdGenerator.generateCustomId('session');
    * // => "session-1704067200000-654-jkl012mno345"
    * ```
    */
-  static generateCustomId(prefix: string, options: Partial<Omit<IdConfig, 'prefix'>> = {}): string {
+  static generateCustomId(
+    prefix: string,
+    options: Partial<Omit<IdConfig, 'prefix'>> = {}
+  ): string {
     return generateId({ prefix, ...options });
   }
 
   /**
    * プレフィックスなしの汎用IDを生成
-   * 
+   *
    * @param options - ID生成オプション
    * @returns タイムスタンプとランダム文字列のみのID
-   * 
+   *
    * @example
    * ```typescript
    * const genericId = IdGenerator.generateGenericId();
@@ -210,7 +213,7 @@ export function generateCustomGateId(): string {
 export class IdValidator {
   /**
    * IDが有効な形式かどうかを検証
-   * 
+   *
    * @param id - 検証するID
    * @param expectedPrefix - 期待されるプレフィックス（省略可）
    * @returns 有効な場合はtrue

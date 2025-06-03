@@ -5,7 +5,8 @@
   height: 100%;
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
   overflow-y: auto;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* === ヘッダー === */
@@ -30,8 +31,13 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .gallery-header h1 {
@@ -339,7 +345,8 @@
   margin-bottom: 12px;
 }
 
-.category, .complexity {
+.category,
+.complexity {
   font-size: 11px;
   font-weight: 600;
   padding: 2px 8px;
@@ -602,36 +609,36 @@
   .gallery-header {
     padding: 30px 20px;
   }
-  
+
   .gallery-header h1 {
     font-size: 24px;
   }
-  
+
   .featured-grid,
   .circuits-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .search-section {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filters-panel {
     grid-template-columns: 1fr;
   }
-  
+
   .circuit-stats {
     flex-direction: column;
     gap: 8px;
     align-items: flex-start;
   }
-  
+
   .modal-content {
     margin: 20px;
     max-height: 90vh;
   }
-  
+
   .detail-stats {
     grid-template-columns: 1fr 1fr;
   }
