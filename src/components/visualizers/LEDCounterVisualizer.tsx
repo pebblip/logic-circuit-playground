@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { CounterPattern } from '../../services/CircuitPatternRecognizer';
 import './LEDCounterVisualizer.css';
 
@@ -14,6 +14,9 @@ export const LEDCounterVisualizer: React.FC<LEDCounterVisualizerProps> = ({
   onGateUnhighlight
 }) => {
   const { bitCount, outputGates, maxValue } = pattern.metadata;
+  const [displayMode, setDisplayMode] = useState<'decimal' | 'hex' | 'binary'>('decimal');
+  const [countDirection, setCountDirection] = useState<'up' | 'down'>('up');
+  const [showTooltip, setShowTooltip] = useState(false);
 
   // 各OUTPUTゲートの状態から二進数と十進数を計算
   const { binaryStates, decimalValue, binaryString } = useMemo(() => {
