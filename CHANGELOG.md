@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 📝 Complete architecture redesign (`ARCHITECTURE.md`)
 - 📝 Realistic roadmap with achievable milestones (`ROADMAP.md`) 
 - 📝 Documentation structure guide (`docs/README.md`)
-- 📝 Updated interaction model to one-click placement
+- 📝 Updated interaction model to drag-and-drop placement
 - 📝 Created CHANGELOG.md for version tracking
 
 ### Added
@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - 🔄 Architecture: from Feature-Sliced Design to Hybrid Feature-Domain
-- 🔄 Interaction model: from drag-and-drop to one-click placement
+- 🔄 Interaction model: drag-and-drop placement only (removed auto-placement)
 - 🔄 Mode naming: unified to 学習モード, フリーモード, パズルモード
 - 🔄 Grid layout fix: `minmax(0, 1fr)` for proper constraint
 
