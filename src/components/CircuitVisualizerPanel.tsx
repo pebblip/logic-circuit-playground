@@ -21,6 +21,7 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
   const [recognizedPattern, setRecognizedPattern] = useState<CircuitPattern | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showFullscreenHint, setShowFullscreenHint] = useState(false);
 
   // 回路パターン認識（依存配列を最適化）
   const currentPattern = useMemo(() => {
@@ -81,10 +82,41 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
     }
   };
 
+  // ESCキーでフルスクリーンを終了
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    
+    if (isFullscreen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isFullscreen]);
+  
   if (!isVisible) return null;
 
   return (
-    <div className={`circuit-visualizer-panel ${isFullscreen ? 'fullscreen' : ''}`}>
+    <div 
+      className={`circuit-visualizer-panel ${isFullscreen ? 'fullscreen' : ''}`}
+      onMouseEnter={() => !isFullscreen && setShowFullscreenHint(true)}
+      onMouseLeave={() => setShowFullscreenHint(false)}
+    >
+      {/* フルスクリーンヒント */}
+      {showFullscreenHint && !isFullscreen && (
+        <div 
+          className="fullscreen-hint"
+          onClick={() => setIsFullscreen(true)}
+        >
+          <div className="hint-content">
+            <span className="hint-icon">⛶</span>
+            <span className="hint-text">クリックで全画面表示</span>
+          </div>
+        </div>
+      )}
+      
       <div className="panel-header">
         <div className="panel-title">
           <span className="title-icon">🎯</span>
@@ -103,21 +135,26 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
             </div>
           )}
           
-          <button 
-            className="fullscreen-button"
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            title={isFullscreen ? "通常表示" : "全画面表示"}
-          >
-            {isFullscreen ? '◱' : '◰'}
-          </button>
+          {isFullscreen && (
+            <button 
+              className="exit-fullscreen-button"
+              onClick={() => setIsFullscreen(false)}
+              title="通常表示に戻る"
+            >
+              <span className="exit-icon">×</span>
+              <span className="exit-text">ESC</span>
+            </button>
+          )}
           
-          <button 
-            className="close-button"
-            onClick={onClose}
-            title="ビジュアライザーを閉じる"
-          >
-            ×
-          </button>
+          {!isFullscreen && (
+            <button 
+              className="close-button"
+              onClick={onClose}
+              title="ビジュアライザーを閉じる"
+            >
+              ×
+            </button>
+          )}
         </div>
       </div>
 

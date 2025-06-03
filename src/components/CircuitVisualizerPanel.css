@@ -10,6 +10,7 @@
   z-index: 50;
   box-shadow: -8px 0 32px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
+  cursor: default;
 }
 
 /* フルスクリーンモード */
@@ -26,6 +27,7 @@
   border-radius: 0;
   max-width: none;
   animation: fullscreenIn 0.3s ease-out;
+  background: rgba(10, 10, 15, 0.98);
 }
 
 @keyframes fullscreenIn {
@@ -43,6 +45,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px;
+  overflow: hidden;
 }
 
 .panel-header {
@@ -69,26 +72,93 @@
   font-weight: 600;
 }
 
-.fullscreen-button {
+/* フルスクリーンヒント */
+.fullscreen-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 32px 48px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+  animation: hintFadeIn 0.3s ease-out;
+}
+
+@keyframes hintFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.fullscreen-hint:hover {
+  background: rgba(0, 0, 0, 0.95);
+  border-color: #00ff88;
+  transform: translate(-50%, -50%) scale(1.05);
+  box-shadow: 0 8px 32px rgba(0, 255, 136, 0.3);
+}
+
+.hint-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: white;
+}
+
+.hint-icon {
+  font-size: 48px;
+  color: #00ff88;
+  animation: pulseIcon 2s ease-in-out infinite;
+}
+
+@keyframes pulseIcon {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.hint-text {
+  font-size: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* フルスクリーン終了ボタン */
+.exit-fullscreen-button {
   background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 18px;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 8px;
   transition: all 0.2s ease;
-  margin-right: 8px;
+  font-size: 14px;
 }
 
-.fullscreen-button:hover {
+.exit-fullscreen-button:hover {
   background: rgba(255, 255, 255, 0.2);
-  color: white;
-  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+}
+
+.exit-icon {
+  font-size: 20px;
+}
+
+.exit-text {
+  font-size: 12px;
+  opacity: 0.8;
+  font-weight: 600;
 }
 
 .panel-controls {
@@ -142,8 +212,10 @@
 
 .visualizer-content {
   flex: 1;
-  overflow-y: auto;
   padding: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .visualizer-content::-webkit-scrollbar {
