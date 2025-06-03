@@ -25,41 +25,44 @@ export const PropertyPanel: React.FC = () => {
   const [truthTableData, setTruthTableData] = useState<any>(null);
   const [clockWasRunning, setClockWasRunning] = useState(false);
 
-  // showDetailModalの状態変化を監視
-  React.useEffect(() => {
-    console.log('🔴 showDetailModal changed to:', showDetailModal);
-  }, [showDetailModal]);
+  // 前回のselectedGateIdを記憶
+  const prevSelectedGateIdRef = React.useRef(selectedGateId);
 
   // ゲート選択が変わった時にモーダルを閉じる
   React.useEffect(() => {
-    console.log('🔴 selectedGateId changed, closing modals');
-    
-    // すべてのCLOCKゲートの状態を復元してからモーダルを閉じる
-    if (clockWasRunning) {
-      console.log('🔴 Resuming all CLOCKs due to gate selection change');
-      const updatedGates = gates.map(gate => {
-        if (gate.type === 'CLOCK' && gate.metadata && !gate.metadata.isRunning) {
-          return { ...gate, metadata: { ...gate.metadata, isRunning: true } };
+    // 実際にselectedGateIdが変わった場合のみ処理
+    if (prevSelectedGateIdRef.current !== selectedGateId) {
+      prevSelectedGateIdRef.current = selectedGateId;
+      
+      // モーダルが開いている場合のみ処理
+      if (showDetailModal || showTruthTableModal) {
+        // すべてのCLOCKゲートの状態を復元
+        if (clockWasRunning) {
+          const currentGates = useCircuitStore.getState().gates;
+          const updatedGates = currentGates.map(gate => {
+            if (gate.type === 'CLOCK' && gate.metadata && !gate.metadata.isRunning) {
+              return { ...gate, metadata: { ...gate.metadata, isRunning: true } };
+            }
+            return gate;
+          });
+          useCircuitStore.setState({ gates: updatedGates });
+          setClockWasRunning(false);
         }
-        return gate;
-      });
-      useCircuitStore.setState({ gates: updatedGates });
-      setClockWasRunning(false);
+        
+        setShowDetailModal(false);
+        setShowTruthTableModal(false);
+        setTruthTableData(null);
+      }
     }
-    
-    setShowDetailModal(false);
-    setShowTruthTableModal(false);
-    setTruthTableData(null);
-  }, [selectedGateId, clockWasRunning, gates]);
+  }, [selectedGateId, showDetailModal, showTruthTableModal, clockWasRunning]);
 
   // 強制的にモーダルを閉じる関数
   const forceCloseModal = React.useCallback(() => {
-    console.log('🔴 Force closing modal');
-    
     // すべてのCLOCKゲートの実行状態を復元
     if (clockWasRunning) {
-      console.log('🔴 Resuming all CLOCKs after modal close');
-      const updatedGates = gates.map(gate => {
+      // 最新のgatesを直接取得
+      const currentGates = useCircuitStore.getState().gates;
+      const updatedGates = currentGates.map(gate => {
         if (gate.type === 'CLOCK' && gate.metadata && !gate.metadata.isRunning) {
           // 停止しているCLOCKゲートを再開
           return { ...gate, metadata: { ...gate.metadata, isRunning: true } };
@@ -73,13 +76,12 @@ export const PropertyPanel: React.FC = () => {
     setShowDetailModal(false);
     setShowTruthTableModal(false);
     setTruthTableData(null);
-  }, [clockWasRunning, gates]);
+  }, [clockWasRunning]); // gatesを依存配列から削除
 
   // Escapeキーでモーダルを閉じる
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && (showDetailModal || showTruthTableModal)) {
-        console.log('🔴 Escape key pressed, closing modal');
         forceCloseModal();
       }
     };
@@ -454,12 +456,9 @@ export const PropertyPanel: React.FC = () => {
 
   // 詳細説明表示ハンドラ
   const handleShowDetail = () => {
-    console.log('🔴 handleShowDetail called');
-    
     // すべての実行中のCLOCKゲートを一時停止
     const runningClocks = gates.filter(g => g.type === 'CLOCK' && g.metadata?.isRunning);
     if (runningClocks.length > 0) {
-      console.log('🔴 Pausing all running CLOCKs for modal');
       setClockWasRunning(true);
       const updatedGates = gates.map(gate => {
         if (gate.type === 'CLOCK' && gate.metadata?.isRunning) {
@@ -471,7 +470,6 @@ export const PropertyPanel: React.FC = () => {
     }
     
     setShowDetailModal(true);
-    console.log('🔴 showDetailModal set to true');
   };
 
   // 真理値表表示ハンドラ
@@ -481,7 +479,6 @@ export const PropertyPanel: React.FC = () => {
     // すべての実行中のCLOCKゲートを一時停止
     const runningClocks = gates.filter(g => g.type === 'CLOCK' && g.metadata?.isRunning);
     if (runningClocks.length > 0) {
-      console.log('🔴 Pausing all running CLOCKs for truth table modal');
       setClockWasRunning(true);
       const updatedGates = gates.map(gate => {
         if (gate.type === 'CLOCK' && gate.metadata?.isRunning) {
@@ -1038,9 +1035,7 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
         backdropFilter: 'blur(4px)'
       }}
       onClick={(e) => {
-        console.log('🔴 Modal background clicked!', e.target);
         if (e.target === e.currentTarget) {
-          console.log('🔴 Background clicked, calling forceCloseModal');
           forceCloseModal();
         }
       }}
@@ -1059,7 +1054,6 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
           flexDirection: 'column'
         }}
         onClick={(e) => {
-          console.log('🔴 Modal content clicked, stopping propagation');
           e.stopPropagation();
         }}
       >
@@ -1085,12 +1079,9 @@ if-else文やswitch文のハードウェア版。条件に応じた分岐処理�
           </h2>
           <button
             onClick={(e) => {
-              console.log('🔴 CLOCK Close button clicked!', e);
               e.stopPropagation();
               e.preventDefault();
-              console.log('🔴 Calling forceCloseModal');
               forceCloseModal();
-              console.log('🔴 forceCloseModal called');
             }}
             style={{
               background: 'transparent',
