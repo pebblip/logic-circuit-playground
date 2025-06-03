@@ -86,7 +86,6 @@ interface CircuitStore extends CircuitState {
 
 // アプリ起動時にlocalStorageからカスタムゲートを読み込む
 const initialCustomGates = loadCustomGates();
-console.log('✨ カスタムゲートを初期化:', initialCustomGates.length, '個');
 
 export const useCircuitStore = create<CircuitStore>((set, get) => ({
   gates: [],
@@ -154,11 +153,6 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
   },
 
   addCustomGateInstance: (definition, position) => {
-    console.log('🏗️ addCustomGateInstance called:', {
-      definition,
-      inputsLength: definition.inputs.length,
-      outputsLength: definition.outputs.length
-    });
     
     // GateFactoryを使用してカスタムゲートを作成
     const newGate = GateFactory.createCustomGate(definition, position);
@@ -283,12 +277,10 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
   },
 
   selectGate: (gateId) => {
-    console.log('Store selectGate called with:', gateId);
     set({ 
       selectedGateId: gateId,
       selectedGateIds: gateId ? [gateId] : []
     });
-    console.log('Store state after selection:', useCircuitStore.getState().selectedGateId);
   },
   
   setSelectedGates: (gateIds) => {
@@ -515,7 +507,7 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
         );
         
         if (existingConnection) {
-          console.log('⚠️ 入力ピンに既に接続されています:', {
+          console.warn('⚠️ 入力ピンに既に接続されています:', {
             gateId: targetInputPin.gateId,
             pinIndex: targetInputPin.pinIndex,
             existingWireId: existingConnection.id
@@ -780,8 +772,6 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
         bounds
       }
     });
-    
-    console.log('📋 コピー完了:', selectedGates.length, 'ゲート', internalWires.length, 'ワイヤー');
   },
   
   paste: (position) => {
@@ -853,8 +843,6 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
     
     // 履歴に追加
     get().pushHistory();
-    
-    console.log('📋 ペースト完了:', newGates.length, 'ゲート', newWires.length, 'ワイヤー');
   },
   
   canPaste: () => get().clipboard !== null && (get().clipboard?.gates.length ?? 0) > 0,

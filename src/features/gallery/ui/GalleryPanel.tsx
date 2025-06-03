@@ -54,8 +54,6 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
     
     // 自由制作モードに切り替え
     setAppMode('自由制作');
-    
-    console.log(`✨ 回路「${circuit.title}」を読み込みました`);
   };
 
   // いいねボタン（デモ用）

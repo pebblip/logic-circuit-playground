@@ -211,9 +211,6 @@ export const UltraGalleryPanel: React.FC<{ isVisible: boolean }> = ({ isVisible 
     
     // 使い方を表示（ultrathink: シンプルに）
     if (circuit.howTo) {
-      // コンソールにも出力
-      console.log(`\n🎮 ${circuit.name}の使い方\n${'-'.repeat(40)}\n${circuit.howTo}\n${'-'.repeat(40)}\n`);
-      
       // 一時的にアラートで表示（後で改善予定）
       setTimeout(() => {
         alert(`${circuit.name}の使い方\n\n${circuit.howTo}`);

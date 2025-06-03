@@ -101,13 +101,6 @@ export const ToolPalette: React.FC = () => {
   // カスタムゲートの自動配置も削除 - ドラッグ&ドロップのみ使用
 
   const handleCreateCustomGate = (definition: CustomGateDefinition) => {
-    console.log('🚀 カスタムゲート作成開始:', {
-      definition,
-      definitionInputs: definition.inputs,
-      definitionOutputs: definition.outputs,
-      inputsLength: definition.inputs.length,
-      outputsLength: definition.outputs.length
-    });
     
     const state = useCircuitStore.getState();
     const { gates, wires } = state;
@@ -182,9 +175,6 @@ export const ToolPalette: React.FC = () => {
           gateName: definition.displayName
         });
         setIsTruthTableOpen(true);
-        
-        console.log('🎉 真理値表を生成しました:', { truthTableResult, definition });
-        
       } catch (error) {
         console.warn('真理値表の生成に失敗しました:', error);
       }

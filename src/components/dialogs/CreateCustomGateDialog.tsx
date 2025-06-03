@@ -112,7 +112,6 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
   };
 
   const handleAddOutput = () => {
-    console.log('handleAddOutput called, current outputs:', outputs);
     let name;
     if (outputs.length === 0) {
       name = 'Y';
@@ -129,7 +128,6 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
     
     setOutputs(prevOutputs => {
       const updatedOutputs = [...prevOutputs, newOutput];
-      console.log('Updated outputs:', updatedOutputs);
       return updatedOutputs;
     });
   };

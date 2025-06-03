@@ -9,7 +9,6 @@ export function saveCustomGates(customGates: CustomGateDefinition[]): void {
   try {
     const json = JSON.stringify(customGates);
     localStorage.setItem(STORAGE_KEY, json);
-    console.log(`✅ ${customGates.length}個のカスタムゲートを保存しました`);
   } catch (error) {
     console.error('❌ カスタムゲートの保存に失敗:', error);
   }
@@ -22,12 +21,10 @@ export function loadCustomGates(): CustomGateDefinition[] {
   try {
     const json = localStorage.getItem(STORAGE_KEY);
     if (!json) {
-      console.log('💡 保存されたカスタムゲートはありません');
       return [];
     }
     
     const customGates = JSON.parse(json) as CustomGateDefinition[];
-    console.log(`✅ ${customGates.length}個のカスタムゲートを読み込みました`);
     return customGates;
   } catch (error) {
     console.error('❌ カスタムゲートの読み込みに失敗:', error);
@@ -41,7 +38,6 @@ export function loadCustomGates(): CustomGateDefinition[] {
 export function clearCustomGates(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
-    console.log('🗑️ 保存されたカスタムゲートを削除しました');
   } catch (error) {
     console.error('❌ カスタムゲートの削除に失敗:', error);
   }

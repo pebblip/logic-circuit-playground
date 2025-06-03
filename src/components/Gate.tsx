@@ -177,7 +177,6 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
   // ゲート選択用のクリックハンドラー（ドラッグと分離）
   const handleGateClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    console.log('Gate clicked:', gate.id, 'hasDragged:', hasDragged.current);
     
     // Shift/Ctrl/Cmdキーが押されている場合の複数選択
     if (event.shiftKey || event.ctrlKey || event.metaKey) {
@@ -227,8 +226,6 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
     event.stopPropagation();
     event.preventDefault();
     
-    console.log('Pin clicked:', { gateId: gate.id, gateType: gate.type, pinIndex, isOutput });
-    
     // カスタムゲートの場合、pinIndexは既に正しい値（出力:負、入力:正）
     // 通常ゲートの場合、出力ピンは-1、入力ピンはインデックスをそのまま使用
     let actualPinIndex: number;
@@ -240,8 +237,6 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
       // 通常ゲートは出力ピンの場合のみ-1を使用
       actualPinIndex = isOutput ? -1 : pinIndex;
     }
-    
-    console.log('Actual pin index used:', actualPinIndex);
     
     if (useCircuitStore.getState().isDrawingWire) {
       endWireDrawing(gate.id, actualPinIndex);

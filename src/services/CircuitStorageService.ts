@@ -48,7 +48,7 @@ export class CircuitStorageService {
 
       request.onsuccess = () => {
         this.db = request.result;
-        console.log('✅ IndexedDB initialized successfully');
+        // IndexedDB initialized successfully
         resolve();
       };
 

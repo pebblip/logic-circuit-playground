@@ -16,49 +16,30 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
   const { gates } = useCircuitStore();
   
   // 統一ダイアログ管理
-  const dialogs = useMultipleDialogs({
-    save: {
-      onOpen: () => console.log('💾 Save dialog opened'),
-      onClose: () => console.log('💾 Save dialog closed')
-    },
-    load: {
-      onOpen: () => console.log('📂 Load dialog opened'),
-      onClose: () => console.log('📂 Load dialog closed')
-    },
-    export: {
-      onOpen: () => console.log('📤 Export dialog opened'),
-      onClose: () => console.log('📤 Export dialog closed')
-    },
-    help: {
-      onOpen: () => console.log('❓ Help panel opened'),
-      onClose: () => console.log('❓ Help panel closed')
-    }
-  });
+  const dialogs = useMultipleDialogs({});
 
   const handleSaveSuccess = () => {
-    console.log('✅ 回路が保存されました');
+    // 保存成功時の処理
   };
 
   const handleLoadSuccess = () => {
-    console.log('✅ 回路が読み込まれました');
+    // 読み込み成功時の処理
   };
 
   const handleExportSuccess = () => {
-    console.log('✅ 回路がエクスポートされました');
+    // エクスポート成功時の処理
   };
 
   const handleShare = () => {
-    console.log('🔗 回路を共有');
+    // 回路共有機能は後で実装
   };
 
   const handleFormatCircuit = async () => {
     if (gates.length === 0) {
-      console.log('⚠️ 整形する回路がありません');
       return;
     }
     
     // TODO: 回路整形機能は後で実装
-    console.log('✨ 回路整形機能は準備中です');
   };
 
   return (

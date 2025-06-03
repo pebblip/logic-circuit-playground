@@ -35,11 +35,11 @@ export const FloatingActionButtons: React.FC = () => {
   };
 
   const handleSaveSuccess = () => {
-    console.log('✅ 回路が保存されました');
+    // 保存成功時の処理
   };
 
   const handleLoadSuccess = () => {
-    console.log('✅ 回路が読み込まれました');
+    // 読み込み成功時の処理
   };
 
   return (
