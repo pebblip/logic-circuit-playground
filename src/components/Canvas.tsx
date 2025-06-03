@@ -279,7 +279,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       if (current.getAttribute && current.getAttribute('class')?.includes('gate-container')) {
         return true;
       }
-      current = current.parentElement;
+      current = current.parentElement as Element;
     }
     return false;
   };
