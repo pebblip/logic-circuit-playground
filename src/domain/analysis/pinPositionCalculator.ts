@@ -1,8 +1,8 @@
 // ピン位置計算の統一化
 // Gate.tsxの実際の描画位置と完全に一致させる
 
-import { Gate, Position } from '../types/circuit';
-import { PIN_CONFIGS } from '../types/gates';
+import { Gate, Position } from '../../types/circuit';
+import { PIN_CONFIGS } from '../../types/gates';
 
 export interface PinPosition {
   x: number;

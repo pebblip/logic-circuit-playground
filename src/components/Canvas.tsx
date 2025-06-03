@@ -2,13 +2,13 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useCircuitStore } from '../stores/circuitStore';
 import { GateComponent } from './Gate';
 import { WireComponent } from './Wire';
-import { evaluateCircuit } from '../utils/simulation';
+import { evaluateCircuit } from '@domain/simulation';
 import { useIsMobile } from '../hooks/useResponsive';
 import { useCanvasPan } from '../hooks/useCanvasPan';
 import { useCanvasSelection } from '../hooks/useCanvasSelection';
 import { useCanvasZoom } from '../hooks/useCanvasZoom';
 import { Position } from '../types/circuit';
-import { reactEventToSVGCoordinates } from '../utils/svgCoordinates';
+import { reactEventToSVGCoordinates } from '@infrastructure/ui/svgCoordinates';
 
 interface ViewBox {
   x: number;

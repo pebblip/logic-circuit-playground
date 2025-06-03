@@ -1,6 +1,6 @@
 import { Gate, GateType, Position, CustomGateDefinition } from '../../types/circuit';
 import { GATE_SIZES, PIN_CONFIGS, isCustomGate } from '../../types/gates';
-import { IdGenerator } from '../../utils/idGenerator';
+import { IdGenerator } from '../../shared/id';
 
 export class GateFactory {
   /**

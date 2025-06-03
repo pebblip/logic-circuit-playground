@@ -4,8 +4,8 @@ import { useCircuitStore } from '../stores/circuitStore';
 import { useIsMobile } from '../hooks/useResponsive';
 import { isCustomGate } from '../types/gates';
 import { GateFactory } from '../models/gates/GateFactory';
-import { getGateInputValue } from '../utils/signalConversion';
-import { clientToSVGCoordinates, reactEventToSVGCoordinates, touchToSVGCoordinates } from '../utils/svgCoordinates';
+import { getGateInputValue } from '../domain/simulation';
+import { clientToSVGCoordinates, reactEventToSVGCoordinates, touchToSVGCoordinates } from '../infrastructure/ui/svgCoordinates';
 
 interface GateComponentProps {
   gate: Gate;

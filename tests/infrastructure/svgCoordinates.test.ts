@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { clientToSVGCoordinates, mouseEventToSVGCoordinates, touchToSVGCoordinates, reactEventToSVGCoordinates } from './svgCoordinates';
+import { clientToSVGCoordinates, mouseEventToSVGCoordinates, touchToSVGCoordinates, reactEventToSVGCoordinates } from '@infrastructure/ui/svgCoordinates';
 
 // SVG要素のモック
 class MockSVGPoint {

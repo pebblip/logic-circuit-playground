@@ -1,7 +1,7 @@
 import React from 'react';
 import { Wire, Gate } from '../types/circuit';
 import { useCircuitStore } from '../stores/circuitStore';
-import { getInputPinPosition, getOutputPinPosition } from '../utils/pinPositionCalculator';
+import { getInputPinPosition, getOutputPinPosition } from '../domain/analysis/pinPositionCalculator';
 
 interface WireComponentProps {
   wire: Wire;

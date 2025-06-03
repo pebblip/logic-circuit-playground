@@ -1,4 +1,4 @@
-import { CustomGateDefinition } from '../types/circuit';
+import { CustomGateDefinition } from '@/types/circuit';
 
 const STORAGE_KEY = 'logic-circuit-playground-custom-gates';
 

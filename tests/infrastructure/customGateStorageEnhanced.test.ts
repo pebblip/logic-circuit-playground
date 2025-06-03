@@ -7,7 +7,7 @@ import {
   exportCustomGates,
   importCustomGates,
   migrateOldFormat,
-} from './customGateStorageEnhanced';
+} from '@infrastructure/storage/customGateStorageEnhanced';
 import { CustomGateDefinition } from '../types/circuit';
 
 // localStorage のモック

@@ -4,8 +4,8 @@ import { useCircuitStore } from '../stores/circuitStore';
 import { GateFactory } from '../models/gates/GateFactory';
 import { CreateCustomGateDialog } from './dialogs/CreateCustomGateDialog';
 import { TruthTableDisplay } from './TruthTableDisplay';
-import { generateTruthTable, TruthTableResult } from '../utils/truthTableGenerator';
-import { displayStateToBoolean } from '../utils/signalConversion';
+import { generateTruthTable, TruthTableResult } from '../domain/analysis';
+import { displayStateToBoolean } from '../domain/simulation';
 
 const BASIC_GATES: { type: GateType; label: string }[] = [
   { type: 'AND', label: 'AND' },

@@ -1,6 +1,6 @@
 import React from 'react';
-import { TruthTableResult, exportTruthTableAsCSV, calculateTruthTableStats } from '../utils/truthTableGenerator';
-import { displayStateToBoolean } from '../utils/signalConversion';
+import { TruthTableResult, exportTruthTableAsCSV, calculateTruthTableStats } from '../domain/analysis';
+import { displayStateToBoolean } from '../domain/simulation';
 
 interface TruthTableDisplayProps {
   result: TruthTableResult;

@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import { Gate, Wire, CircuitState, GateType, Position, CustomGateDefinition, CustomGatePin } from '../types/circuit';
-import { evaluateCircuit } from '../utils/simulation';
+import { evaluateCircuit } from '@domain/simulation';
 import { GateFactory } from '../models/gates/GateFactory';
-import { saveCustomGates, loadCustomGates } from '../utils/customGateStorage';
-import { booleanToDisplayState, displayStateToBoolean, getGateInputValue, setGateInputValue } from '../utils/signalConversion';
-import { IdGenerator } from '../utils/idGenerator';
+import { saveCustomGates, loadCustomGates } from '@infrastructure/storage/customGateStorage';
+import { booleanToDisplayState, displayStateToBoolean, getGateInputValue, setGateInputValue } from '@domain/simulation';
+import { IdGenerator } from '@shared/id';
 
 // 履歴管理用の型
 interface HistoryState {

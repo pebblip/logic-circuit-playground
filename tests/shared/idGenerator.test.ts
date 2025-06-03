@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { IdGenerator, IdValidator, generateGateId, generateWireId, generateCircuitId, generateCustomGateId } from './idGenerator';
+import { IdGenerator, IdValidator, generateGateId, generateWireId, generateCircuitId, generateCustomGateId } from '@shared/id';
 
 describe('統一ID生成システム', () => {
   beforeEach(() => {

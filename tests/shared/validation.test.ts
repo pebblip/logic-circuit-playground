@@ -7,7 +7,7 @@ import {
   validateCircuitName, 
   validateGateName, 
   validateJsonFileName 
-} from './validation';
+} from '@shared/validation';
 
 describe('統一バリデーションシステム', () => {
   describe('ValidationRules', () => {

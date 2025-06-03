@@ -13,6 +13,11 @@ export default defineConfig({
       '@hooks': resolve(__dirname, './src/hooks'),
       '@utils': resolve(__dirname, './src/utils'),
       '@types': resolve(__dirname, './src/types'),
+      '@domain': resolve(__dirname, './src/domain'),
+      '@shared': resolve(__dirname, './src/shared'),
+      '@infrastructure': resolve(__dirname, './src/infrastructure'),
+      '@features': resolve(__dirname, './src/features'),
+      '@tests': resolve(__dirname, './tests'),
     },
   },
   test: {

@@ -1,5 +1,5 @@
-import { Gate, Wire } from '../types/circuit';
-import { evaluateCircuit } from './simulation';
+import { Gate, Wire } from '../../types/circuit';
+import { evaluateCircuit } from '../simulation';
 
 export interface TruthTableRow {
   inputs: string;

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useCircuitStore } from '../stores/circuitStore';
 import { isCustomGate } from '../types/gates';
 import { TruthTableDisplay } from './TruthTableDisplay';
-import { generateTruthTable } from '../utils/truthTableGenerator';
+import { generateTruthTable } from '../domain/analysis';
 import { GateDescription, getGateDescription } from '../data/gateDescriptions';
-import { booleanToDisplayState, getGateInputsAsBoolean } from '../utils/signalConversion';
+import { booleanToDisplayState, getGateInputsAsBoolean } from '../domain/simulation';
 
 export const PropertyPanel: React.FC = () => {
   const { gates, wires, selectedGateId, updateClockFrequency } = useCircuitStore();

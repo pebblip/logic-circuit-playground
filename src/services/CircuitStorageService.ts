@@ -9,7 +9,7 @@ import {
   CIRCUIT_STORAGE_VERSION 
 } from '../types/circuit-storage';
 import { Gate, Wire } from '../types/circuit';
-import { IdGenerator } from '../utils/idGenerator';
+import { IdGenerator } from '../shared/id';
 
 /**
  * 高性能な回路保存・読み込みサービス

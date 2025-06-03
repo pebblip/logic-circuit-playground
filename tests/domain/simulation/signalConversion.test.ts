@@ -8,7 +8,7 @@ import {
   setGateInputValue,
   getGateInputsAsBoolean,
   debugSignal
-} from './signalConversion';
+} from '../../../src/domain/simulation/signalConversion';
 
 describe('signalConversion', () => {
   describe('booleanToDisplayState', () => {

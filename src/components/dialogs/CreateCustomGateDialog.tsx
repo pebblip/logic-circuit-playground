@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CustomGateDefinition, CustomGatePin } from '../../types/circuit';
-import { IdGenerator } from '../../utils/idGenerator';
+import { IdGenerator } from '../../shared/id';
 
 interface CreateCustomGateDialogProps {
   isOpen: boolean;

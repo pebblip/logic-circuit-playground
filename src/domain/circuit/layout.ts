@@ -1,4 +1,4 @@
-import { Gate, Wire } from '../types/circuit';
+import { Gate, Wire } from '../../types/circuit';
 
 export interface LayoutPosition {
   x: number;

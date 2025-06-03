@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { WireComponent } from './Wire';
 import { useCircuitStore } from '../stores/circuitStore';
 import { Gate, Wire } from '../types/circuit';
-import * as pinCalc from '../utils/pinPositionCalculator';
+import * as pinCalc from '../domain/analysis/pinPositionCalculator';
 
 // モックストア
 const mockGates: Gate[] = [

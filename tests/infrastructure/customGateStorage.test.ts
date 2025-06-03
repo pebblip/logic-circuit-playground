@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { saveCustomGates, loadCustomGates, clearCustomGates } from './customGateStorage';
-import { CustomGateDefinition } from '../types/circuit';
+import { saveCustomGates, loadCustomGates, clearCustomGates } from '@infrastructure/storage/customGateStorage';
+import { CustomGateDefinition } from '@/types/circuit';
 
 // localStorage のモック
 const localStorageMock = (() => {

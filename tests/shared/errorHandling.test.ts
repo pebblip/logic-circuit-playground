@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { ErrorHandler, useAsyncErrorHandler, handleAsyncError, getErrorMessage } from './errorHandling';
+import { ErrorHandler, useAsyncErrorHandler, handleAsyncError, getErrorMessage } from '@shared/errors';
 
 describe('統一エラーハンドリングシステム', () => {
   beforeEach(() => {

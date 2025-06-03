@@ -1,5 +1,5 @@
-import { Gate, Wire, GateType } from '../types/circuit';
-import { isCustomGate } from '../types/gates';
+import { Gate, Wire, GateType } from '../../types/circuit';
+import { isCustomGate } from '../../types/gates';
 import {
   setGateInputValue,
   getGateInputValue,

@@ -1,4 +1,4 @@
-import { CustomGateDefinition } from '../types/circuit';
+import { CustomGateDefinition } from '@/types/circuit';
 
 const STORAGE_KEY = 'logic-circuit-playground-custom-gates';
 const MAX_STORAGE_SIZE = 5 * 1024 * 1024; // 5MB limit

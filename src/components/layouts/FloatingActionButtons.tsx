@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { evaluateCircuit } from '../../utils/simulation';
+import { evaluateCircuit } from '../../domain/simulation';
 import { useCircuitStore } from '../../stores/circuitStore';
 import { SaveCircuitDialog } from '../dialogs/SaveCircuitDialog';
 import { LoadCircuitDialog } from '../dialogs/LoadCircuitDialog';

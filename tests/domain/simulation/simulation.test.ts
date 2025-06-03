@@ -2,8 +2,8 @@
 // 最重要機能の確実な品質保証
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { evaluateGate, evaluateCircuit } from './simulation';
-import { Gate, Wire, GateType } from '../types/circuit';
+import { evaluateGate, evaluateCircuit } from '@domain/simulation';
+import { Gate, Wire, GateType } from '@/types/circuit';
 
 describe('Logic Gate Evaluation', () => {
   describe('Basic Logic Gates', () => {

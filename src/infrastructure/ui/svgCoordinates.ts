@@ -1,4 +1,4 @@
-import { Position } from '../types/circuit';
+import { Position } from '@/types/circuit';
 
 /**
  * SVG座標変換ユーティリティ

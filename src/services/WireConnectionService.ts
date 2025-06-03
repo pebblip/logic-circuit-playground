@@ -2,7 +2,7 @@
 // circuitStore.tsからワイヤー操作関連の責任を移動
 
 import { Gate, Wire, Position } from '../types/circuit';
-import { getPinPosition, PinPosition } from '../utils/pinPositionCalculator';
+import { getPinPosition, PinPosition } from '../domain/analysis/pinPositionCalculator';
 
 export interface WireDrawingState {
   gateId: string;
