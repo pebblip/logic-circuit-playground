@@ -137,18 +137,47 @@ export const LEDCounterVisualizer: React.FC<LEDCounterVisualizerProps> = ({
           }).filter(v => v > 0).join(' + ')} = <strong>{decimalValue}</strong>
         </div>
       </div>
+      )}
+      
+      {/* 16進数変換説明 */}
+      {displayMode === 'hex' && (
+        <div className="calculation-breakdown hex-explanation">
+          <div className="calculation-title">🅰️ 16進数変換:</div>
+          <div className="hex-content">
+            <div className="hex-conversion">
+              {decimalValue} ÷ 16 = {Math.floor(decimalValue / 16)} 余り {decimalValue % 16}
+              {decimalValue % 16 > 9 && ` (${(decimalValue % 16).toString(16).toUpperCase()})`}
+            </div>
+            <div className="hex-table">
+              <div className="hex-note">0-9 = 0-9, 10-15 = A-F</div>
+              <div className="hex-result">
+                結果: <strong>0x{decimalValue.toString(16).toUpperCase()}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 進行状況 */}
       <div className="progress-indicator">
-        <div className="progress-label">カウンタ進行状況</div>
+        <div className="progress-label">
+          {countDirection === 'up' ? 'カウントアップ進行状況' : 'カウントダウン進行状況'}
+        </div>
         <div className="progress-bar">
           <div 
             className="progress-fill"
-            style={{ width: `${(decimalValue / maxValue) * 100}%` }}
+            style={{ 
+              width: countDirection === 'up' 
+                ? `${(decimalValue / maxValue) * 100}%`
+                : `${((maxValue - decimalValue) / maxValue) * 100}%`
+            }}
           />
         </div>
         <div className="progress-text">
-          {decimalValue} / {maxValue} ({Math.round((decimalValue / maxValue) * 100)}%)
+          {countDirection === 'up' 
+            ? `${decimalValue} / ${maxValue} (${Math.round((decimalValue / maxValue) * 100)}%)`
+            : `${decimalValue} / 0 (残り${Math.round(((maxValue - decimalValue) / maxValue) * 100)}%)`
+          }
         </div>
       </div>
     </div>
