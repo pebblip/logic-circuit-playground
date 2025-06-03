@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { SaveCircuitDialog } from './dialogs/SaveCircuitDialog';
 import { LoadCircuitDialog } from './dialogs/LoadCircuitDialog';
 import { ExportImportDialog } from './dialogs/ExportImportDialog';
 import { HelpPanel } from './HelpPanel';
 import { useCircuitStore } from '../stores/circuitStore';
 import { AppMode } from '../types/AppMode';
+import { useMultipleDialogs } from '../hooks/useDialog';
 
 interface HeaderProps {
   activeMode: AppMode;
@@ -12,12 +13,27 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
-  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
-  const [loadDialogOpen, setLoadDialogOpen] = useState(false);
-  const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  const [helpPanelOpen, setHelpPanelOpen] = useState(false);
-  
   const { gates } = useCircuitStore();
+  
+  // 統一ダイアログ管理
+  const dialogs = useMultipleDialogs({
+    save: {
+      onOpen: () => console.log('💾 Save dialog opened'),
+      onClose: () => console.log('💾 Save dialog closed')
+    },
+    load: {
+      onOpen: () => console.log('📂 Load dialog opened'),
+      onClose: () => console.log('📂 Load dialog closed')
+    },
+    export: {
+      onOpen: () => console.log('📤 Export dialog opened'),
+      onClose: () => console.log('📤 Export dialog closed')
+    },
+    help: {
+      onOpen: () => console.log('❓ Help panel opened'),
+      onClose: () => console.log('❓ Help panel closed')
+    }
+  });
 
   const handleSaveSuccess = () => {
     console.log('✅ 回路が保存されました');
@@ -68,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
         <div className="header-actions">
           <button 
             className="button"
-            onClick={() => setLoadDialogOpen(true)}
+            onClick={() => dialogs.load.open()}
             title="回路を読み込み"
           >
             <span>📂</span>
@@ -76,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
           </button>
           <button 
             className="button"
-            onClick={() => setSaveDialogOpen(true)}
+            onClick={() => dialogs.save.open()}
             title="回路を保存"
           >
             <span>💾</span>
@@ -84,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
           </button>
           <button 
             className="button help-button"
-            onClick={() => setHelpPanelOpen(true)}
+            onClick={() => dialogs.help.open()}
             title="ヘルプ"
           >
             <span>❓</span>
@@ -93,29 +109,29 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
         </div>
       </header>
 
-      {/* ダイアログ */}
+      {/* ダイアログ - 統一管理 */}
       <SaveCircuitDialog
-        isOpen={saveDialogOpen}
-        onClose={() => setSaveDialogOpen(false)}
+        isOpen={dialogs.save.isOpen}
+        onClose={dialogs.save.close}
         onSuccess={handleSaveSuccess}
       />
       
       <LoadCircuitDialog
-        isOpen={loadDialogOpen}
-        onClose={() => setLoadDialogOpen(false)}
+        isOpen={dialogs.load.isOpen}
+        onClose={dialogs.load.close}
         onLoad={handleLoadSuccess}
       />
       
       <ExportImportDialog
-        isOpen={exportDialogOpen}
-        onClose={() => setExportDialogOpen(false)}
+        isOpen={dialogs.export.isOpen}
+        onClose={dialogs.export.close}
         mode="export"
         onSuccess={handleExportSuccess}
       />
       
       <HelpPanel
-        isOpen={helpPanelOpen}
-        onClose={() => setHelpPanelOpen(false)}
+        isOpen={dialogs.help.isOpen}
+        onClose={dialogs.help.close}
       />
     </>
   );

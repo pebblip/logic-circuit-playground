@@ -1,5 +1,6 @@
 import { Gate, GateType, Position, CustomGateDefinition } from '../../types/circuit';
 import { GATE_SIZES, PIN_CONFIGS, isCustomGate } from '../../types/gates';
+import { IdGenerator } from '../../utils/idGenerator';
 
 export class GateFactory {
   /**
@@ -7,7 +8,7 @@ export class GateFactory {
    * 既存のaddGateとの互換性を保ちながら、特殊ゲートに対応
    */
   static createGate(type: GateType, position: Position): Gate {
-    const id = `gate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const id = IdGenerator.generateGateId();
     const pinConfig = PIN_CONFIGS[type];
     
     // 基本的なゲート構造
@@ -77,7 +78,7 @@ export class GateFactory {
    * カスタムゲートを作成する
    */
   static createCustomGate(definition: CustomGateDefinition, position: Position): Gate {
-    const id = `gate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const id = IdGenerator.generateGateId();
     const inputsArray = new Array(definition.inputs.length).fill('');
     
     console.log('🏭 GateFactory.createCustomGate:', {

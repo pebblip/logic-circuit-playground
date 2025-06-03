@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CustomGateDefinition, CustomGatePin } from '../../types/circuit';
+import { IdGenerator } from '../../utils/idGenerator';
 
 interface CreateCustomGateDialogProps {
   isOpen: boolean;
@@ -153,7 +154,7 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
     }
 
     const definition: CustomGateDefinition = {
-      id: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: IdGenerator.generateCustomGateId(),
       name: gateName.trim(),
       displayName: displayName.trim(),
       description: description.trim(),

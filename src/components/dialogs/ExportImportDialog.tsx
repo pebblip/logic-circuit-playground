@@ -60,7 +60,7 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
 
     try {
       // 一時的に回路を保存してからエクスポート
-      const saveResult = await circuitStorage.saveCircuit(
+      const saveResult = await circuitStorage.get().saveCircuit(
         circuitName.trim(),
         gates,
         wires,
@@ -71,14 +71,14 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
       );
 
       if (saveResult.success && saveResult.data) {
-        const exportResult = await circuitStorage.exportCircuit(
+        const exportResult = await circuitStorage.get().exportCircuit(
           saveResult.data.id,
           exportOptions
         );
 
         if (exportResult.success) {
           // 一時的に保存した回路を削除
-          await circuitStorage.deleteCircuit(saveResult.data.id);
+          await circuitStorage.get().deleteCircuit(saveResult.data.id);
           
           onSuccess?.(exportResult);
           onClose();
@@ -150,7 +150,7 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
     setError('');
 
     try {
-      const result = await circuitStorage.importCircuit(selectedFile, importOptions);
+      const result = await circuitStorage.get().importCircuit(selectedFile, importOptions);
       
       if (result.success) {
         onSuccess?.(result);

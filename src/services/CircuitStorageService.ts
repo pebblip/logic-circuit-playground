@@ -9,6 +9,7 @@ import {
   CIRCUIT_STORAGE_VERSION 
 } from '../types/circuit-storage';
 import { Gate, Wire } from '../types/circuit';
+import { IdGenerator } from '../utils/idGenerator';
 
 /**
  * 高性能な回路保存・読み込みサービス
@@ -494,7 +495,7 @@ export class CircuitStorageService {
   }
 
   private generateId(): string {
-    return `circuit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return IdGenerator.generateCircuitId();
   }
 
   private calculateGateTypes(gates: Gate[]): Record<string, number> {

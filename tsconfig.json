@@ -39,7 +39,9 @@
     "src/components/Circuit/Number4BitGateComponent.tsx",
     "src/components/Layout/**/*",
     "src/components/ModeSelection/**/*",
-    "src/design-system/**/*"
+    "src/design-system/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

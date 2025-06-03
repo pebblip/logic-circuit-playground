@@ -199,8 +199,8 @@ describe('CircuitStorageService', () => {
       const id1 = (service as any).generateId();
       const id2 = (service as any).generateId();
       
-      expect(id1).toMatch(/^circuit-\d+-[a-z0-9]+$/);
-      expect(id2).toMatch(/^circuit-\d+-[a-z0-9]+$/);
+      expect(id1).toMatch(/^circuit-\d+-\d+-[a-z0-9]+$/);
+      expect(id2).toMatch(/^circuit-\d+-\d+-[a-z0-9]+$/);
       expect(id1).not.toBe(id2);
     });
 

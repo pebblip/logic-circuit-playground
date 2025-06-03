@@ -5,6 +5,7 @@ import { useIsMobile } from '../hooks/useResponsive';
 import { isCustomGate } from '../types/gates';
 import { GateFactory } from '../models/gates/GateFactory';
 import { getGateInputValue } from '../utils/signalConversion';
+import { clientToSVGCoordinates, reactEventToSVGCoordinates, touchToSVGCoordinates } from '../utils/svgCoordinates';
 
 interface GateComponentProps {
   gate: Gate;
@@ -30,10 +31,8 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
       const svg = document.querySelector('.canvas') as SVGSVGElement;
       if (!svg) return;
 
-      const point = svg.createSVGPoint();
-      point.x = event.clientX;
-      point.y = event.clientY;
-      const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
+      const svgPoint = clientToSVGCoordinates(event.clientX, event.clientY, svg);
+      if (!svgPoint) return;
 
       const deltaX = svgPoint.x - dragStart.current.x - gate.position.x;
       const deltaY = svgPoint.y - dragStart.current.y - gate.position.y;
@@ -161,10 +160,8 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
     const svg = (event.currentTarget as SVGElement).ownerSVGElement;
     if (!svg) return;
 
-    const point = svg.createSVGPoint();
-    point.x = event.clientX;
-    point.y = event.clientY;
-    const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
+    const svgPoint = reactEventToSVGCoordinates(event, svg);
+    if (!svgPoint) return;
 
     dragStart.current = {
       x: svgPoint.x - gate.position.x,
@@ -211,10 +208,8 @@ export const GateComponent: React.FC<GateComponentProps> = ({ gate, isHighlighte
       const svg = (event.currentTarget as SVGElement).ownerSVGElement;
       if (!svg) return;
 
-      const point = svg.createSVGPoint();
-      point.x = touch.clientX;
-      point.y = touch.clientY;
-      const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
+      const svgPoint = touchToSVGCoordinates(touch as Touch, svg);
+      if (!svgPoint) return;
 
       dragStart.current = {
         x: svgPoint.x - gate.position.x,

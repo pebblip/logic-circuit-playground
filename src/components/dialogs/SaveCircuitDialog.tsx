@@ -169,7 +169,7 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
       const thumbnail = previewSvg ? 
         `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(previewSvg)))}` : undefined;
 
-      const result = await circuitStorage.saveCircuit(
+      const result = await circuitStorage.get().saveCircuit(
         formData.name.trim(),
         gates,
         wires,

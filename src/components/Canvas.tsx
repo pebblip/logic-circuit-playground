@@ -8,6 +8,7 @@ import { useCanvasPan } from '../hooks/useCanvasPan';
 import { useCanvasSelection } from '../hooks/useCanvasSelection';
 import { useCanvasZoom } from '../hooks/useCanvasZoom';
 import { Position } from '../types/circuit';
+import { reactEventToSVGCoordinates } from '../utils/svgCoordinates';
 
 interface ViewBox {
   x: number;
@@ -134,10 +135,8 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   const handleMouseMove = (event: React.MouseEvent) => {
     if (!svgRef.current) return;
     
-    const point = svgRef.current.createSVGPoint();
-    point.x = event.clientX;
-    point.y = event.clientY;
-    const svgPoint = point.matrixTransform(svgRef.current.getScreenCTM()!.inverse());
+    const svgPoint = reactEventToSVGCoordinates(event, svgRef.current);
+    if (!svgPoint) return;
 
     setMousePosition({
       x: svgPoint.x,
@@ -261,10 +260,8 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     else if (event.button === 0 && !isGate && !isDrawingWire && (target === svgRef.current || target.id === 'canvas-background')) {
       if (!svgRef.current) return;
       
-      const point = svgRef.current.createSVGPoint();
-      point.x = event.clientX;
-      point.y = event.clientY;
-      const svgPoint = point.matrixTransform(svgRef.current.getScreenCTM()!.inverse());
+      const svgPoint = reactEventToSVGCoordinates(event, svgRef.current);
+      if (!svgPoint) return;
       
       startSelection(svgPoint.x, svgPoint.y);
     }
@@ -310,10 +307,8 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     if (!draggedGate || !svgRef.current) return;
     
     // SVG座標系でのドロップ位置を取得
-    const point = svgRef.current.createSVGPoint();
-    point.x = event.clientX;
-    point.y = event.clientY;
-    const svgPoint = point.matrixTransform(svgRef.current.getScreenCTM()!.inverse());
+    const svgPoint = reactEventToSVGCoordinates(event, svgRef.current);
+    if (!svgPoint) return;
     
     // ゲートを配置
     if (draggedGate.type === 'CUSTOM' && draggedGate.customDefinition) {

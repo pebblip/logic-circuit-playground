@@ -4,6 +4,7 @@ import { evaluateCircuit } from '../utils/simulation';
 import { GateFactory } from '../models/gates/GateFactory';
 import { saveCustomGates, loadCustomGates } from '../utils/customGateStorage';
 import { booleanToDisplayState, displayStateToBoolean, getGateInputValue, setGateInputValue } from '../utils/signalConversion';
+import { IdGenerator } from '../utils/idGenerator';
 
 // 履歴管理用の型
 interface HistoryState {
@@ -524,7 +525,7 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
       }
 
       const newWire: Wire = {
-        id: `wire-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: IdGenerator.generateWireId(),
         from: { gateId: from.gateId, pinIndex: from.pinIndex },
         to: { gateId: to.gateId, pinIndex: to.pinIndex },
         isActive: false,
@@ -802,7 +803,7 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
     
     // 新しいゲートを作成
     const newGates = clipboardGates.map(gate => {
-      const newId = `gate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const newId = IdGenerator.generateGateId();
       idMapping.set(gate.id, newId);
       
       // ペースト時に入力値の形式を統一
@@ -824,7 +825,7 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
     // 新しいワイヤーを作成（内部接続のみ）
     const newWires = clipboardWires.map(wire => ({
       ...wire,
-      id: `wire-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: IdGenerator.generateWireId(),
       from: {
         ...wire.from,
         gateId: idMapping.get(wire.from.gateId) || wire.from.gateId

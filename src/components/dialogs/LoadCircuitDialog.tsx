@@ -53,7 +53,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
     setError('');
 
     try {
-      const result = await circuitStorage.listCircuits();
+      const result = await circuitStorage.get().listCircuits();
       
       if (result.success && result.data) {
         setCircuits(result.data);
@@ -138,7 +138,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
     setError('');
 
     try {
-      const result = await circuitStorage.loadCircuit(circuitId);
+      const result = await circuitStorage.get().loadCircuit(circuitId);
       
       if (result.success && result.data) {
         // Zustandストアの全メソッドを取得
@@ -190,7 +190,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
     if (!confirmed) return;
 
     try {
-      const result = await circuitStorage.deleteCircuit(circuit.id);
+      const result = await circuitStorage.get().deleteCircuit(circuit.id);
       
       if (result.success) {
         // リストから削除
