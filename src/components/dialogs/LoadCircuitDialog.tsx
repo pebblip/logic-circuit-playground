@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCircuitStore } from '../../stores/circuitStore';
 import { circuitStorage } from '../../services/CircuitStorageService';
-import { CircuitMetadata, CircuitFilter, CircuitStorageResult } from '../../types/circuit-storage';
+import { CircuitMetadata, CircuitFilter, CircuitStorageResult } from '../../types/circuitStorage';
 import './LoadCircuitDialog.css';
 
 interface LoadCircuitDialogProps {

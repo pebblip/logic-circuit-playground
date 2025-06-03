@@ -6,7 +6,7 @@ import { PropertyPanel } from '../PropertyPanel';
 import { LearningPanel } from '../../features/learning-mode/ui/LearningPanel';
 import { CircuitVisualizerPanel } from '../CircuitVisualizerPanel';
 import { useCircuitStore } from '../../stores/circuitStore';
-import { AppMode } from '../../types/AppMode';
+import { AppMode } from '../../types/appMode';
 
 interface DesktopLayoutProps {
   children?: React.ReactNode;

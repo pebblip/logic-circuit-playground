@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useCircuitStore } from '../../stores/circuitStore';
 import { circuitStorage } from '../../services/CircuitStorageService';
-import { CircuitStorageResult, ExportOptions, ImportOptions } from '../../types/circuit-storage';
+import { CircuitStorageResult, ExportOptions, ImportOptions } from '../../types/circuitStorage';
 import './ExportImportDialog.css';
 
 interface ExportImportDialogProps {

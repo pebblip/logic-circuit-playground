@@ -7,7 +7,7 @@ import {
   ExportOptions,
   ImportOptions,
   CIRCUIT_STORAGE_VERSION 
-} from '../types/circuit-storage';
+} from '../types/circuitStorage';
 import { Gate, Wire } from '../types/circuit';
 import { IdGenerator } from '../shared/id';
 

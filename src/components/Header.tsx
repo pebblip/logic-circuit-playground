@@ -4,7 +4,7 @@ import { LoadCircuitDialog } from './dialogs/LoadCircuitDialog';
 import { ExportImportDialog } from './dialogs/ExportImportDialog';
 import { HelpPanel } from './HelpPanel';
 import { useCircuitStore } from '../stores/circuitStore';
-import { AppMode } from '../types/AppMode';
+import { AppMode } from '../types/appMode';
 import { useMultipleDialogs } from '../hooks/useDialog';
 
 interface HeaderProps {

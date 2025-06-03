@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event';
 import { Header } from '@components/Header';
 import { useCircuitStore } from '@/stores/circuitStore';
-import { AppMode } from '@/types/AppMode';
+import { AppMode } from '@/types/appMode';
 
 // モック
 vi.mock('@/stores/circuitStore');
