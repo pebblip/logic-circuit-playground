@@ -130,17 +130,10 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
         {/* ステータスバー */}
         <div className="status-bar">
           <div className="status-item">
-            <div className="status-dot"></div>
-            <span>シミュレーション実行中</span>
-          </div>
-          <div className="status-item">
             <span>ゲート: {gates.length}</span>
           </div>
           <div className="status-item">
             <span>接続: {wires.length}</span>
-          </div>
-          <div className="status-item">
-            <span>100% ズーム</span>
           </div>
         </div>
       </main>

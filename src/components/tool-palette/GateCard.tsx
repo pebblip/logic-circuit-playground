@@ -27,11 +27,7 @@ export const GateCard: React.FC<GateCardProps> = ({
     if (!isDisabled && e.dataTransfer) {
       onDragStart(type, customDefinition);
       e.dataTransfer.effectAllowed = 'copy';
-
-      // プレビュー画像を設定（透明な画像）
-      const dragImage = new Image();
-      dragImage.src = 'data:image/svg+xml,<svg></svg>';
-      e.dataTransfer.setDragImage(dragImage, 0, 0);
+      // デフォルトのドラッグゴーストを使用
     }
   };
 
