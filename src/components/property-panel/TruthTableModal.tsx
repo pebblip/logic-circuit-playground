@@ -3,7 +3,11 @@ import { TruthTableDisplay } from '@/components/TruthTableDisplay';
 
 interface TruthTableModalProps {
   showTruthTableModal: boolean;
-  truthTableData: any;
+  truthTableData: {
+    gateId: string;
+    gateType: string;
+    truthTable: Record<string, string>;
+  } | null;
   onClose: () => void;
 }
 

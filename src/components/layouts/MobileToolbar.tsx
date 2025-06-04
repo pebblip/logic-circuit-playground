@@ -88,7 +88,7 @@ export const MobileToolbar: React.FC<MobileToolbarProps> = ({
           <button
             key={key}
             className={`category-chip ${selectedCategory === key ? 'active' : ''}`}
-            onClick={() => onCategoryChange(key as any)}
+            onClick={() => onCategoryChange(key as keyof typeof TOOL_CATEGORIES)}
           >
             {category.label}
           </button>

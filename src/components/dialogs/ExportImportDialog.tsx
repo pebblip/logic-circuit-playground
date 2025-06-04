@@ -41,7 +41,14 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isImporting, setImporting] = useState(false);
-  const [importPreview, setImportPreview] = useState<any>(null);
+  const [importPreview, setImportPreview] = useState<{
+    name: string;
+    gateCount: number;
+    wireCount: number;
+    createdAt: number;
+    version: string;
+    tags: string[];
+  } | null>(null);
 
   const [error, setError] = useState<string>('');
 

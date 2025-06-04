@@ -90,24 +90,26 @@ export const ToolPalette: React.FC = () => {
 
   // ドラッグ中のゲート情報を共有するため、windowオブジェクトに設定
   React.useEffect(() => {
-    (window as any)._draggedGate = draggedGate;
+    (window as Window & { _draggedGate?: typeof draggedGate })._draggedGate = draggedGate;
   }, [draggedGate]);
 
   // カスタムゲート作成ダイアログを開くイベントリスナー
   React.useEffect(() => {
-    const handleOpenDialog = (event: CustomEvent) => {
-      const { initialInputs, initialOutputs, isFullCircuit } = event.detail;
+    const handleOpenDialog = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        initialInputs: unknown;
+        initialOutputs: unknown;
+        isFullCircuit: boolean;
+      }>;
+      const { initialInputs, initialOutputs, isFullCircuit } = customEvent.detail;
       setDialogInitialData({ initialInputs, initialOutputs, isFullCircuit });
       setIsCreateDialogOpen(true);
     };
 
-    window.addEventListener('open-custom-gate-dialog', handleOpenDialog as any);
+    window.addEventListener('open-custom-gate-dialog', handleOpenDialog);
 
     return () => {
-      window.removeEventListener(
-        'open-custom-gate-dialog',
-        handleOpenDialog as any
-      );
+      window.removeEventListener('open-custom-gate-dialog', handleOpenDialog);
     };
   }, []);
 

@@ -112,7 +112,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
 
     // ソート
     filtered.sort((a, b) => {
-      let aVal: any, bVal: any;
+      let aVal: string | number, bVal: string | number;
 
       switch (sortBy) {
         case 'name':

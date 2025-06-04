@@ -332,7 +332,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
 
-    const draggedGate = (window as any)._draggedGate;
+    const draggedGate = (window as Window & { _draggedGate?: unknown })._draggedGate;
     if (!draggedGate || !svgRef.current) return;
 
     // SVG座標系でのドロップ位置を取得

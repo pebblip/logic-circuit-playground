@@ -79,7 +79,7 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
       case 'led-counter':
         return (
           <LEDCounterVisualizer
-            pattern={recognizedPattern as any}
+            pattern={recognizedPattern as import('../services/CircuitPatternRecognizer').CounterPattern}
             onGateHighlight={onGateHighlight}
             onGateUnhighlight={onGateUnhighlight}
           />

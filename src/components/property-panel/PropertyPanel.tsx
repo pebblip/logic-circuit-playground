@@ -15,7 +15,11 @@ export const PropertyPanel: React.FC = () => {
   // モーダル管理用のstate
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showTruthTableModal, setShowTruthTableModal] = useState(false);
-  const [truthTableData, setTruthTableData] = useState<any>(null);
+  const [truthTableData, setTruthTableData] = useState<{
+    gateId: string;
+    gateType: string;
+    truthTable: Record<string, string>;
+  } | null>(null);
   const [clockWasRunning, setClockWasRunning] = useState(false);
 
   // 前回のselectedGateIdを記憶
@@ -129,7 +133,7 @@ export const PropertyPanel: React.FC = () => {
       const truthTable = definition.truthTable;
       if (!truthTable) return [];
       return Object.entries(truthTable).map(([inputs, outputs]) => {
-        const row: any = {};
+        const row: Record<string, string> = {};
 
         // 入力列を追加
         definition.inputs.forEach((inputPin, index) => {
