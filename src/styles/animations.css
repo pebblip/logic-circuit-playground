@@ -1,0 +1,150 @@
+/* 
+ * アニメーション定義
+ * パフォーマンスを考慮した滑らかなアニメーション
+ */
+
+/* ========== キーフレーム定義 ========== */
+
+@keyframes pulse-highlight {
+  0%, 100% {
+    filter: drop-shadow(0 0 12px var(--color-warning));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px var(--color-warning));
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--color-primary);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--color-primary);
+  }
+}
+
+/* ========== アニメーションクラス ========== */
+
+.animate-fade-in {
+  animation: fade-in var(--transition-base) ease-out;
+}
+
+.animate-slide-in {
+  animation: slide-in var(--transition-base) ease-out;
+}
+
+.animate-bounce-in {
+  animation: bounce-in var(--transition-slow) ease-out;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-glow {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* ========== ホバー効果 ========== */
+
+.hover-lift {
+  transition: transform var(--transition-fast);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.hover-scale {
+  transition: transform var(--transition-fast);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* ========== フォーカス効果 ========== */
+
+.focus-glow:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+/* ========== ローディング ========== */
+
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border-subtle);
+  border-radius: 50%;
+  border-top-color: var(--color-primary);
+  animation: spin 1s ease-in-out infinite;
+}
+
+/* ========== プリローダー ========== */
+
+.preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  transition: opacity var(--transition-base);
+}
+
+.preloader.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}

@@ -285,10 +285,10 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
       >
         <rect
           className={`gate ${isSelected ? 'selected' : ''}`}
-          x="-40"
-          y="-30"
-          width="80"
-          height="60"
+          x="-50"
+          y="-40"
+          width="100"
+          height="80"
           rx="8"
           stroke={isSelected ? '#00aaff' : undefined}
           strokeWidth={isSelected ? '3' : undefined}
@@ -297,16 +297,16 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
           SR-LATCH
         </text>
         {/* ピン名 */}
-        <text className="gate-text" x="-35" y="-20" fontSize="8" style={{ fill: '#999' }}>S</text>
-        <text className="gate-text" x="-35" y="20" fontSize="8" style={{ fill: '#999' }}>R</text>
-        <text className="gate-text" x="40" y="-20" fontSize="8" style={{ fill: '#999' }}>Q</text>
-        <text className="gate-text" x="40" y="20" fontSize="8" style={{ fill: '#999' }}>Q̄</text>
+        <text className="gate-text" x="-35" y="-20" style={{ fontSize: '11px', fill: '#999' }}>S</text>
+        <text className="gate-text" x="-35" y="20" style={{ fontSize: '11px', fill: '#999' }}>R</text>
+        <text className="gate-text" x="40" y="-20" style={{ fontSize: '11px', fill: '#999' }}>Q</text>
+        <text className="gate-text" x="40" y="20" style={{ fontSize: '11px', fill: '#999' }}>Q̄</text>
       </g>
 
       {/* 入力ピン - S */}
       <g>
         <circle
-          cx="-50"
+          cx="-60"
           cy="-20"
           r="15"
           fill="transparent"
@@ -314,16 +314,16 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
           onClick={e => handlePinClick(e, 0, false)}
         />
         <circle
-          cx="-50"
+          cx="-60"
           cy="-20"
           r="6"
           className={`pin ${getGateInputValue(gate, 0) ? 'active' : ''}`}
           pointerEvents="none"
         />
         <line
-          x1="-40"
+          x1="-50"
           y1="-20"
-          x2="-50"
+          x2="-60"
           y2="-20"
           className={`pin-line ${getGateInputValue(gate, 0) ? 'active' : ''}`}
           pointerEvents="none"
@@ -333,7 +333,7 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
       {/* 入力ピン - R */}
       <g>
         <circle
-          cx="-50"
+          cx="-60"
           cy="20"
           r="15"
           fill="transparent"
@@ -341,16 +341,16 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
           onClick={e => handlePinClick(e, 1, false)}
         />
         <circle
-          cx="-50"
+          cx="-60"
           cy="20"
           r="6"
           className={`pin ${getGateInputValue(gate, 1) ? 'active' : ''}`}
           pointerEvents="none"
         />
         <line
-          x1="-40"
+          x1="-50"
           y1="20"
-          x2="-50"
+          x2="-60"
           y2="20"
           className={`pin-line ${getGateInputValue(gate, 1) ? 'active' : ''}`}
           pointerEvents="none"
@@ -360,7 +360,7 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
       {/* 出力ピン - Q */}
       <g>
         <circle
-          cx="50"
+          cx="60"
           cy="-20"
           r="15"
           fill="transparent"
@@ -368,16 +368,16 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
           onClick={e => handlePinClick(e, 0, true)}
         />
         <circle
-          cx="50"
+          cx="60"
           cy="-20"
           r="6"
           className={`pin ${gate.output ? 'active' : ''}`}
           pointerEvents="none"
         />
         <line
-          x1="40"
+          x1="50"
           y1="-20"
-          x2="50"
+          x2="60"
           y2="-20"
           className={`pin-line ${gate.output ? 'active' : ''}`}
           pointerEvents="none"

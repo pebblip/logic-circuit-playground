@@ -1,6 +1,7 @@
 import React from 'react';
 import { ResponsiveLayout } from './components/layouts/ResponsiveLayout';
-import './App.css';
+// 新しい統一デザインシステム
+import './styles/index.css';
 
 export const App: React.FC = () => {
   return <ResponsiveLayout />;

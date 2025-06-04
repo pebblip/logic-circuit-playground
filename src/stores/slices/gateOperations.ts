@@ -28,6 +28,12 @@ export interface GateOperationsSlice {
     position: Position,
     saveToHistory?: boolean
   ) => void;
+  moveMultipleGates: (
+    gateIds: string[],
+    deltaX: number,
+    deltaY: number,
+    saveToHistory?: boolean
+  ) => void;
   deleteGate: (gateId: string) => void;
   updateGateOutput: (gateId: string, output: boolean) => void;
   updateClockFrequency: (gateId: string, frequency: number) => void;
@@ -139,6 +145,69 @@ export const createGateOperationsSlice: StateCreator<
       const newGates = state.gates.map(gate =>
         gate.id === gateId ? { ...gate, position } : gate
       );
+
+      // 回路全体を評価
+      const circuit: Circuit = { gates: newGates, wires: state.wires };
+      const result = evaluateCircuitPure(circuit, defaultConfig);
+      
+      if (isSuccess(result)) {
+        return {
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+          wireStart: newWireStart,
+        };
+      } else {
+        console.warn('Circuit evaluation failed:', result.error.message);
+        return {
+          gates: newGates,
+          wires: state.wires,
+          wireStart: newWireStart,
+        };
+      }
+    });
+
+    // saveToHistoryフラグが設定されている場合のみ履歴に追加
+    if (saveToHistory) {
+      get().saveToHistory();
+    }
+  },
+
+  moveMultipleGates: (gateIds, deltaX, deltaY, saveToHistory = false) => {
+    set(state => {
+      // 移動対象のゲートを更新
+      const newGates = state.gates.map(gate => {
+        if (gateIds.includes(gate.id)) {
+          return {
+            ...gate,
+            position: {
+              x: gate.position.x + deltaX,
+              y: gate.position.y + deltaY,
+            },
+          };
+        }
+        return gate;
+      });
+
+      // ワイヤー描画中で、移動するゲートから出ている場合は起点も更新
+      let newWireStart = state.wireStart;
+      if (
+        state.isDrawingWire &&
+        state.wireStart &&
+        gateIds.includes(state.wireStart.gateId)
+      ) {
+        const gate = newGates.find(g => g.id === state.wireStart!.gateId);
+        if (gate) {
+          // ピンの位置を再計算
+          const pinIndex = state.wireStart.pinIndex;
+          const isOutput = pinIndex < 0;
+
+          const pinPosition = isOutput
+            ? getOutputPinPosition(gate, pinIndex)
+            : getInputPinPosition(gate, pinIndex);
+
+          newWireStart = { ...state.wireStart, position: pinPosition };
+        }
+      }
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };

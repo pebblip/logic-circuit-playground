@@ -265,11 +265,14 @@ export const PropertyPanel: React.FC = () => {
       const truthTable = getTruthTable() as any[];
       if (truthTable.length > 0) {
         const table = truthTable.map(row => {
+          // 真理値表専用の変換（0と1を明確に表示）
+          const boolToTruthTableString = (val: boolean) => val ? '1' : '0';
+          
           const inputs =
             selectedGate.type === 'NOT'
-              ? booleanToDisplayState(!!row.a)
-              : `${booleanToDisplayState(!!row.a)}${booleanToDisplayState(!!row.b)}`;
-          const outputs = booleanToDisplayState(!!row.out);
+              ? boolToTruthTableString(!!row.a)
+              : `${boolToTruthTableString(!!row.a)}${boolToTruthTableString(!!row.b)}`;
+          const outputs = boolToTruthTableString(!!row.out);
 
           return {
             inputs,
@@ -283,10 +286,13 @@ export const PropertyPanel: React.FC = () => {
           gateId: selectedGate.id,
           gateType: selectedGate.type,
           truthTable: truthTable.reduce((acc, row: any, index) => {
+            // 真理値表専用の変換（0と1を明確に表示）
+            const boolToTruthTableString = (val: boolean) => val ? '1' : '0';
+            
             const inputStr = selectedGate.type === 'NOT' 
-              ? booleanToDisplayState(!!row.a)
-              : `${booleanToDisplayState(!!row.a)}${booleanToDisplayState(!!(row.b || 0))}`;
-            const outputStr = booleanToDisplayState(!!row.out);
+              ? boolToTruthTableString(!!row.a)
+              : `${boolToTruthTableString(!!row.a)}${boolToTruthTableString(!!row.b)}`;
+            const outputStr = boolToTruthTableString(!!row.out);
             acc[inputStr] = outputStr;
             return acc;
           }, {} as Record<string, string>),

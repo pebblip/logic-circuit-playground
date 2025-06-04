@@ -1,0 +1,142 @@
+/* 
+ * プリント用スタイル
+ * 回路図を印刷する際の最適化
+ */
+
+/* ========== 基本設定 ========== */
+
+* {
+  -webkit-print-color-adjust: exact !important;
+  color-adjust: exact !important;
+}
+
+body {
+  background: white !important;
+  color: black !important;
+  font-size: 12pt !important;
+  line-height: 1.4 !important;
+}
+
+/* ========== 非表示要素 ========== */
+
+.no-print,
+.header,
+.sidebar-left,
+.sidebar-right,
+.zoom-controls,
+.canvas-toolbar,
+.status-bar {
+  display: none !important;
+}
+
+/* ========== レイアウト調整 ========== */
+
+.app-container {
+  display: block !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+  gap: 0 !important;
+}
+
+.main-canvas {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 70vh !important;
+  background: white !important;
+  border: 1px solid #ccc !important;
+  margin: 0 !important;
+  padding: 20pt !important;
+}
+
+/* ========== 回路要素 ========== */
+
+.gate {
+  fill: white !important;
+  stroke: black !important;
+  stroke-width: 2px !important;
+}
+
+.gate-text {
+  fill: black !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 10pt !important;
+  font-weight: bold !important;
+}
+
+.wire {
+  stroke: black !important;
+  stroke-width: 1.5px !important;
+  fill: none !important;
+}
+
+.wire.active {
+  stroke: #333 !important;
+  stroke-width: 2px !important;
+  filter: none !important;
+}
+
+.pin {
+  fill: white !important;
+  stroke: black !important;
+  stroke-width: 1px !important;
+}
+
+.pin.active {
+  fill: #666 !important;
+  stroke: black !important;
+  filter: none !important;
+}
+
+/* ========== ヘッダー情報 ========== */
+
+.print-header {
+  display: block !important;
+  text-align: center !important;
+  margin-bottom: 20pt !important;
+  padding-bottom: 10pt !important;
+  border-bottom: 1px solid #ccc !important;
+}
+
+.print-header h1 {
+  font-size: 18pt !important;
+  font-weight: bold !important;
+  margin: 0 0 5pt 0 !important;
+  color: black !important;
+}
+
+.print-header .print-info {
+  font-size: 10pt !important;
+  color: #666 !important;
+  margin: 0 !important;
+}
+
+/* ========== ページ設定 ========== */
+
+@page {
+  margin: 1in;
+  size: A4 landscape;
+}
+
+/* ========== ページ分割 ========== */
+
+.page-break-before {
+  page-break-before: always !important;
+}
+
+.page-break-after {
+  page-break-after: always !important;
+}
+
+.page-break-avoid {
+  page-break-inside: avoid !important;
+}
+
+/* ========== ユーティリティ ========== */
+
+.print-only {
+  display: block !important;
+}
+
+.screen-only {
+  display: none !important;
+}

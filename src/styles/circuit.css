@@ -1,0 +1,115 @@
+/* 
+ * 回路・ゲート・ワイヤー専用スタイル
+ * デザイントークンを使用した統一された回路UI
+ */
+
+/* ========== ゲートスタイル ========== */
+.gate {
+  fill: var(--color-bg-tertiary);
+  stroke: var(--color-border-default);
+  stroke-width: 2;
+  rx: var(--border-radius-lg);
+  transition: all var(--transition-base);
+  cursor: move;
+}
+
+.gate:hover {
+  stroke: var(--color-border-strong);
+  fill: var(--color-bg-elevated);
+}
+
+.gate.selected {
+  stroke: var(--color-secondary);
+  stroke-width: 3;
+}
+
+.gate-text {
+  fill: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  font-family: var(--font-family-mono);
+}
+
+/* ========== ピンスタイル ========== */
+.pin {
+  fill: none;
+  stroke: var(--color-border-strong);
+  stroke-width: 2;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.pin:hover {
+  stroke: var(--color-primary);
+  r: 8;
+}
+
+.pin.connected {
+  fill: var(--color-border-strong);
+  stroke: var(--color-border-strong);
+}
+
+.pin.active {
+  fill: var(--color-signal-on);
+  stroke: var(--color-signal-on);
+  filter: drop-shadow(var(--color-signal-glow));
+}
+
+.pin-line {
+  stroke: var(--color-border-strong);
+  stroke-width: 2;
+  transition: all var(--transition-fast);
+}
+
+.pin-line.active {
+  stroke: var(--color-signal-on);
+}
+
+/* ========== ワイヤースタイル ========== */
+.wire {
+  fill: none;
+  stroke: var(--color-signal-off);
+  stroke-width: 2;
+  stroke-linecap: round;
+  transition: stroke var(--transition-base);
+  pointer-events: none;
+}
+
+.wire.active {
+  stroke: var(--color-signal-on);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.6));
+}
+
+/* ========== 信号粒子 ========== */
+.signal-particle {
+  fill: var(--color-signal-on);
+  filter: drop-shadow(0 0 10px var(--color-primary));
+}
+
+/* ========== ゲートハイライト ========== */
+.gate-container.highlighted {
+  filter: drop-shadow(0 0 12px var(--color-warning));
+  animation: pulse-highlight 2s ease-in-out infinite;
+}
+
+/* ========== SVGコンテナ ========== */
+.canvas-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: var(--color-bg-primary);
+}
+
+.canvas {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.canvas:active {
+  cursor: grabbing;
+}

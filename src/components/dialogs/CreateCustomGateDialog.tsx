@@ -5,6 +5,7 @@ import { useCustomGateForm } from '@/hooks/useCustomGateForm';
 import { BasicInfoForm } from './custom-gate-dialog/BasicInfoForm';
 import { PinEditor } from './custom-gate-dialog/PinEditor';
 import { GatePreview } from './custom-gate-dialog/GatePreview';
+import { useCircuitStore } from '@/stores/circuitStore';
 
 interface CreateCustomGateDialogProps {
   isOpen: boolean;
@@ -218,6 +219,7 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
             outputs={formData.outputs}
             gateWidth={formData.gateWidth}
             gateHeight={formData.gateHeight}
+            isFromCircuit={isReadOnly}
           />
         </div>
 

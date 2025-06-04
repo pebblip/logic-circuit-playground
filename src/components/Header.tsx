@@ -2,9 +2,11 @@ import React from 'react';
 import { SaveCircuitDialog } from './dialogs/SaveCircuitDialog';
 import { LoadCircuitDialog } from './dialogs/LoadCircuitDialog';
 import { ExportImportDialog } from './dialogs/ExportImportDialog';
+import { CreateCustomGateDialog } from './dialogs/CreateCustomGateDialog';
 import { HelpPanel } from './HelpPanel';
 import { useCircuitStore } from '../stores/circuitStore';
 import type { AppMode } from '../types/appMode';
+import type { CustomGateDefinition } from '../types/circuit';
 import { useMultipleDialogs } from '../hooks/useDialog';
 
 interface HeaderProps {
@@ -13,7 +15,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
-  const { gates } = useCircuitStore();
+  const { gates, wires, addCustomGate } = useCircuitStore();
 
   // 統一ダイアログ管理
   const dialogs = useMultipleDialogs({
@@ -21,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
     load: {},
     export: {},
     help: {},
+    customGate: {},
   });
 
   const handleSaveSuccess = () => {
@@ -48,6 +51,65 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
     }
 
     // TODO: 回路整形機能は後で実装
+  };
+
+  // 回路からカスタムゲート作成
+  const [customGateDialogData, setCustomGateDialogData] = React.useState<{
+    initialInputs: any[];
+    initialOutputs: any[];
+    isReadOnly: boolean;
+  }>({
+    initialInputs: [],
+    initialOutputs: [],
+    isReadOnly: false,
+  });
+
+  const handleCreateCustomGateFromCircuit = () => {
+    const inputGates = gates.filter(g => g.type === 'INPUT');
+    const outputGates = gates.filter(g => g.type === 'OUTPUT');
+
+    if (inputGates.length === 0 || outputGates.length === 0) {
+      alert('回路にはINPUTゲートとOUTPUTゲートが必要です');
+      return;
+    }
+
+    // 回路から検出されたピン情報を作成
+    const initialInputs = inputGates.map((gate, index) => ({
+      name: `IN${index + 1}`,
+      index,
+      gateId: gate.id,
+    }));
+
+    const initialOutputs = outputGates.map((gate, index) => ({
+      name: `OUT${index + 1}`,
+      index,
+      gateId: gate.id,
+    }));
+
+    const newData = {
+      initialInputs,
+      initialOutputs,
+      isReadOnly: true, // 回路から作成する場合はピン編集を無効化
+    };
+    
+    console.log('=== Header: Setting customGateDialogData ===');
+    console.log('newData:', newData);
+    
+    setCustomGateDialogData(newData);
+    dialogs.customGate.open();
+  };
+
+  const handleCustomGateCreate = (definition: CustomGateDefinition) => {
+    addCustomGate(definition);
+    dialogs.customGate.close();
+    console.log('✅ カスタムゲートが作成されました');
+    
+    // ダイアログを閉じる際にデータをリセット
+    setCustomGateDialogData({
+      initialInputs: [],
+      initialOutputs: [],
+      isReadOnly: false,
+    });
   };
 
   return (
@@ -88,6 +150,14 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
             <span>保存</span>
           </button>
           <button
+            className="button"
+            onClick={handleCreateCustomGateFromCircuit}
+            title="現在の回路からカスタムゲートを作成"
+          >
+            <span>📦</span>
+            <span>回路→IC</span>
+          </button>
+          <button
             className="button help-button"
             onClick={() => dialogs.help.open()}
             title="ヘルプ"
@@ -119,6 +189,23 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
       />
 
       <HelpPanel isOpen={dialogs.help.isOpen} onClose={dialogs.help.close} />
+
+      <CreateCustomGateDialog
+        isOpen={dialogs.customGate.isOpen}
+        onClose={() => {
+          dialogs.customGate.close();
+          // ダイアログを閉じる際にデータをリセット
+          setCustomGateDialogData({
+            initialInputs: [],
+            initialOutputs: [],
+            isReadOnly: false,
+          });
+        }}
+        onSave={handleCustomGateCreate}
+        initialInputs={customGateDialogData.initialInputs}
+        initialOutputs={customGateDialogData.initialOutputs}
+        isReadOnly={customGateDialogData.isReadOnly}
+      />
     </>
   );
 };

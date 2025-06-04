@@ -20,10 +20,12 @@ export const WireComponent: React.FC<WireComponentProps> = ({ wire }) => {
   if (!fromGate || !toGate) return null;
 
   // ピン位置計算を統一化されたユーティリティから取得
-  // wire.from.pinIndex は常に -1 (出力ピン) なので、出力ピンインデックス0を使用
+  // wire.from.pinIndex は負の値（出力ピン）：-1 = 出力0、-2 = 出力1、...
   // wire.to.pinIndex は 0以上の入力ピン番号
-
-  const from = getOutputPinPosition(fromGate, 0); // 修正: 出力ピンは常にインデックス0
+  
+  // 負のpinIndexから実際の出力ピンインデックスを計算
+  const outputPinIndex = Math.abs(wire.from.pinIndex) - 1;
+  const from = getOutputPinPosition(fromGate, outputPinIndex);
   const to = getInputPinPosition(toGate, wire.to.pinIndex);
 
   // ベジェ曲線のパスを生成

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type { Gate } from '../types/circuit';
 
 export interface SelectionRect {
@@ -10,7 +10,8 @@ export interface SelectionRect {
 
 export const useCanvasSelection = (
   gates: Gate[],
-  setSelectedGates: (gateIds: string[]) => void
+  setSelectedGates: (gateIds: string[]) => void,
+  selectedGateIds: string[]
 ) => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectionRect, setSelectionRect] = useState<SelectionRect | null>(
@@ -60,7 +61,13 @@ export const useCanvasSelection = (
 
     if (selectedGates.length > 0) {
       setSelectedGates(selectedGates.map(g => g.id));
-      // 選択されたゲートがある場合は選択矩形を維持
+      // 選択されたゲートがある場合は選択矩形を維持（常に正規化された状態で保存）
+      setSelectionRect({
+        startX: minX,
+        startY: minY,
+        endX: maxX,
+        endY: maxY,
+      });
     } else {
       // 選択されたゲートがない場合のみクリア
       setSelectionRect(null);
@@ -83,6 +90,25 @@ export const useCanvasSelection = (
     selectionJustFinished.current = false;
   }, []);
 
+  const moveSelectionRect = useCallback((deltaX: number, deltaY: number) => {
+    setSelectionRect(prev => {
+      if (!prev) return null;
+      return {
+        startX: prev.startX + deltaX,
+        startY: prev.startY + deltaY,
+        endX: prev.endX + deltaX,
+        endY: prev.endY + deltaY,
+      };
+    });
+  }, []);
+
+  // 選択されたゲートがなくなったら矩形も自動的にクリア
+  useEffect(() => {
+    if (selectedGateIds.length === 0) {
+      setSelectionRect(null);
+    }
+  }, [selectedGateIds]);
+
   return {
     isSelecting,
     selectionRect,
@@ -91,5 +117,7 @@ export const useCanvasSelection = (
     updateSelection,
     endSelection,
     clearSelection,
+    moveSelectionRect,
+    setSelectionRect,
   };
 };

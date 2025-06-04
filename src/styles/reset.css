@@ -1,0 +1,134 @@
+/* 
+ * モダンCSS Reset
+ * ブラウザのデフォルトスタイルを正規化
+ */
+
+/* ========== ボックスモデル ========== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ========== マージン・パディングリセット ========== */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* ========== ドキュメント ========== */
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  height: 100%;
+  line-height: 1.5;
+  font-family: var(--font-family-base);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+/* ========== タイポグラフィ ========== */
+h1, h2, h3, h4, h5, h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+/* ========== リンク ========== */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ========== リスト ========== */
+ul, ol {
+  list-style: none;
+}
+
+/* ========== メディア ========== */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ========== フォーム ========== */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* ========== テーブル ========== */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* ========== その他 ========== */
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+/* フォーカススタイル */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* スクロールバー */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: var(--border-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
+}
+
+/* 選択時のスタイル */
+::selection {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+/* プレースホルダー */
+::placeholder {
+  color: var(--color-text-tertiary);
+  opacity: 1;
+}

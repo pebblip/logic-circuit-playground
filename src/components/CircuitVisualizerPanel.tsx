@@ -1,182 +1,232 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useCircuitStore } from '../stores/circuitStore';
 import type { CircuitPattern } from '../services/CircuitPatternRecognizer';
 import { circuitPatternRecognizer } from '../services/CircuitPatternRecognizer';
-import { LEDCounterVisualizer } from './visualizers/LEDCounterVisualizer';
-import './CircuitVisualizerPanel.css';
 
 interface CircuitVisualizerPanelProps {
   isVisible: boolean;
-  onClose: () => void;
   onGateHighlight?: (gateId: string) => void;
   onGateUnhighlight?: () => void;
 }
 
 export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
   isVisible,
-  onClose,
   onGateHighlight,
   onGateUnhighlight,
 }) => {
   const { gates, wires } = useCircuitStore();
-  const [recognizedPattern, setRecognizedPattern] =
-    useState<CircuitPattern | null>(null);
-  const [_isAnalyzing, _setIsAnalyzing] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showFullscreenHint, setShowFullscreenHint] = useState(false);
 
-  // 回路パターン認識（依存配列を最適化）
+  // 回路パターン認識
   const currentPattern = useMemo(() => {
     if (gates.length === 0) return null;
-
-    // ゲートとワイヤーの実質的な変更のみを検出
-    const _gateSignature = gates
-      .map(g => `${g.id}-${g.type}-${g.output}`)
-      .join('|');
-    const _wireSignature = wires
-      .map(w => `${w.from.gateId}-${w.to.gateId}`)
-      .join('|');
-
     return circuitPatternRecognizer.recognizePattern(gates, wires);
-  }, [gates.length, gates.map(g => g.output).join(','), wires.length]);
-
-  useEffect(() => {
-    if (currentPattern && currentPattern.confidence > 70) {
-      setRecognizedPattern(currentPattern);
-    } else {
-      setRecognizedPattern(null);
-    }
-  }, [currentPattern]);
-
-  const renderVisualizer = () => {
-    if (!recognizedPattern) {
-      return (
-        <div className="no-pattern">
-          <div className="no-pattern-icon">🔍</div>
-          <h3>回路パターンを探しています...</h3>
-          <p>
-            認識可能な回路を作成すると、ここに美しいビジュアライザーが表示されます！
-          </p>
-          <div className="pattern-hints">
-            <h4>💡 試してみてください:</h4>
-            <ul>
-              <li>
-                🔢 <strong>LEDカウンタ</strong>: CLOCK + OUTPUT×2-8個
-              </li>
-              <li>
-                🕐 <strong>デジタル時計</strong> (準備中)
-              </li>
-              <li>
-                🚦 <strong>信号機制御</strong> (準備中)
-              </li>
-            </ul>
-          </div>
-        </div>
-      );
-    }
-
-    switch (recognizedPattern.type) {
-      case 'led-counter':
-        return (
-          <LEDCounterVisualizer
-            pattern={recognizedPattern as import('../services/CircuitPatternRecognizer').CounterPattern}
-            onGateHighlight={onGateHighlight}
-            onGateUnhighlight={onGateUnhighlight}
-          />
-        );
-      default:
-        return (
-          <div className="unknown-pattern">
-            <h3>認識できない回路です</h3>
-            <p>このパターンはまだサポートされていません。</p>
-          </div>
-        );
-    }
-  };
-
-  // ESCキーでフルスクリーンを終了
-  React.useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isFullscreen) {
-        setIsFullscreen(false);
-      }
-    };
-
-    if (isFullscreen) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
-  }, [isFullscreen]);
+  }, [gates, wires]);
 
   if (!isVisible) return null;
 
+  const gateCount = gates.length;
+  const wireCount = wires.length;
+  const inputGates = gates.filter(g => g.type === 'INPUT');
+  const outputGates = gates.filter(g => g.type === 'OUTPUT');
+  const activeGates = gates.filter(g => g.output).length;
+
+  // 入出力の状態を取得
+  const getBinaryInputs = () => {
+    const inputs = inputGates.map(gate => gate.output ? '1' : '0');
+    if (inputs.length === 0) return '未接続';
+    return inputs.join('');
+  };
+
+  const getBinaryOutputs = () => {
+    const outputs = outputGates.map(gate => gate.output ? '1' : '0');
+    if (outputs.length === 0) return '未接続';
+    return outputs.join('');
+  };
+
+  // 出力の10進数値を計算（LEDカウンタの場合）
+  const getDecimalValue = () => {
+    if (outputGates.length === 0) return 0;
+    const sortedOutputs = [...outputGates].sort((a, b) => a.position.x - b.position.x);
+    return sortedOutputs.reduce((acc, gate, index) => {
+      return acc + (gate.output ? Math.pow(2, outputGates.length - 1 - index) : 0);
+    }, 0);
+  };
+
+  const decimalValue = getDecimalValue();
+
+  // LEDの表示用
+  const renderLEDs = () => {
+    if (outputGates.length === 0) return null;
+    
+    const sortedOutputs = [...outputGates].sort((a, b) => a.position.x - b.position.x);
+    
+    return (
+      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', margin: '16px 0' }}>
+        {sortedOutputs.map((gate, index) => (
+          <div
+            key={gate.id}
+            style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              background: gate.output ? '#00ff88' : '#333',
+              border: gate.output ? '2px solid #00ff88' : '2px solid #555',
+              boxShadow: gate.output ? '0 0 12px rgba(0, 255, 136, 0.6)' : 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={() => onGateHighlight?.(gate.id)}
+            onMouseLeave={() => onGateUnhighlight?.()}
+            title={`LED ${index + 1}: ${gate.output ? 'ON' : 'OFF'}`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  // パターン表示名の取得
+  const getPatternDisplayName = (type: string): string => {
+    switch (type) {
+      case 'led-counter':
+        return 'カウンター回路';
+      case 'digital-clock':
+        return 'デジタル時計';
+      case 'traffic-light':
+        return '信号機';
+      case 'password-lock':
+        return 'パスワードロック';
+      default:
+        return '回路';
+    }
+  };
+
   return (
-    <div
-      className={`circuit-visualizer-panel ${isFullscreen ? 'fullscreen' : ''}`}
-      onMouseEnter={() => !isFullscreen && setShowFullscreenHint(true)}
-      onMouseLeave={() => setShowFullscreenHint(false)}
-    >
-      {/* フルスクリーンヒント */}
-      {showFullscreenHint && !isFullscreen && (
-        <div className="fullscreen-hint" onClick={() => setIsFullscreen(true)}>
-          <div className="hint-content">
-            <span className="hint-icon">⛶</span>
-            <span className="hint-text">クリックで全画面表示</span>
-          </div>
-        </div>
-      )}
-
-      <div className="panel-header">
-        <div className="panel-title">
-          <span className="title-icon">🎯</span>
-          <h2>回路ビジュアライザー</h2>
-        </div>
-
-        <div className="panel-controls">
-          {recognizedPattern && (
-            <div className="pattern-info">
-              <div className="confidence-badge">
-                信頼度: {recognizedPattern.confidence}%
-              </div>
-              <div className="pattern-description">
-                {recognizedPattern.description}
-              </div>
-            </div>
-          )}
-
-          {isFullscreen && (
-            <button
-              className="exit-fullscreen-button"
-              onClick={() => setIsFullscreen(false)}
-              title="通常表示に戻る"
-            >
-              <span className="exit-icon">×</span>
-              <span className="exit-text">ESC</span>
-            </button>
-          )}
-
-          {!isFullscreen && (
-            <button
-              className="close-button"
-              onClick={onClose}
-              title="ビジュアライザーを閉じる"
-            >
-              ×
-            </button>
-          )}
-        </div>
+    <div 
+      className="circuit-visualizer-panel"
+      style={{
+        background: 'linear-gradient(135deg, #0d1117 0%, #161b22 100%)',
+        border: '1px solid rgba(0, 255, 136, 0.2)',
+        borderRadius: '12px',
+        height: '100%',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+      {/* ヘッダー */}
+      <div style={{
+        padding: '16px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px'
+      }}>
+        <span style={{ fontSize: '18px' }}>📟</span>
+        <h3 style={{ 
+          margin: 0, 
+          color: '#e6edf3', 
+          fontSize: '16px', 
+          fontWeight: '600' 
+        }}>
+          回路モニター
+        </h3>
       </div>
 
-      <div className="visualizer-content">{renderVisualizer()}</div>
-
-      {recognizedPattern && (
-        <div className="panel-footer">
-          <div className="educational-note">
-            💡 <strong>ヒント:</strong> マウスを各要素にホバーすると、
-            対応する回路部分がハイライトされます！
+      {/* メインコンテンツ */}
+      <div style={{ flex: 1, padding: '20px', textAlign: 'center' }}>
+        {gateCount === 0 ? (
+          <div style={{ color: '#7d8590', padding: '40px 0' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚡</div>
+            <div style={{ fontSize: '14px' }}>回路を作成すると<br />動作状況が表示されます</div>
           </div>
-        </div>
-      )}
+        ) : outputGates.length === 0 ? (
+          <div style={{ color: '#7d8590', padding: '40px 0' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>💡</div>
+            <div style={{ fontSize: '14px' }}>OUTPUT ゲートを追加すると<br />LED表示されます</div>
+          </div>
+        ) : (
+          <>
+            {/* 大きな数値表示 */}
+            <div style={{
+              fontSize: '72px',
+              fontWeight: '700',
+              color: '#00ff88',
+              marginBottom: '8px',
+              fontFamily: 'monospace'
+            }}>
+              {decimalValue}
+            </div>
+            
+            <div style={{
+              fontSize: '14px',
+              color: '#7d8590',
+              marginBottom: '20px'
+            }}>
+              現在の値
+            </div>
+
+            {/* LED表示 */}
+            {renderLEDs()}
+
+            {/* 2進数表示 */}
+            <div style={{
+              background: 'rgba(0, 255, 136, 0.1)',
+              border: '1px solid rgba(0, 255, 136, 0.3)',
+              borderRadius: '8px',
+              padding: '12px',
+              margin: '16px 0'
+            }}>
+              <div style={{ fontSize: '12px', color: '#7d8590', marginBottom: '4px' }}>
+                2進数: <span style={{ 
+                  fontFamily: 'monospace', 
+                  color: '#00ff88', 
+                  fontSize: '16px', 
+                  fontWeight: '600' 
+                }}>
+                  {getBinaryOutputs()}
+                </span>
+              </div>
+            </div>
+
+            {/* 基本情報 */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: '6px',
+              padding: '12px',
+              fontSize: '12px',
+              color: '#7d8590'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span>ゲート数</span>
+                <span style={{ color: '#e6edf3' }}>{gateCount}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span>接続数</span>
+                <span style={{ color: '#e6edf3' }}>{wireCount}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>アクティブ</span>
+                <span style={{ color: '#e6edf3' }}>{activeGates}</span>
+              </div>
+            </div>
+
+            {/* パターン情報（あれば） */}
+            {currentPattern && (
+              <div style={{
+                background: 'rgba(255, 165, 0, 0.1)',
+                border: '1px solid rgba(255, 165, 0, 0.3)',
+                borderRadius: '6px',
+                padding: '8px',
+                marginTop: '12px',
+                fontSize: '12px',
+                color: '#ffa657'
+              }}>
+                {getPatternDisplayName(currentPattern.type)}を検出
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

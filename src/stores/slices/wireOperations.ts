@@ -29,9 +29,10 @@ export const createWireOperationsSlice: StateCreator<
 
     // ピンの位置を計算
     const isOutput = pinIndex < 0;
+    const actualPinIndex = isOutput ? Math.abs(pinIndex) - 1 : pinIndex;
     const position = isOutput
-      ? getOutputPinPosition(gate, pinIndex)
-      : getInputPinPosition(gate, pinIndex);
+      ? getOutputPinPosition(gate, actualPinIndex)
+      : getInputPinPosition(gate, actualPinIndex);
 
     set({
       isDrawingWire: true,

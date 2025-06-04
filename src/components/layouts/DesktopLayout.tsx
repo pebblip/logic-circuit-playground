@@ -41,18 +41,18 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
     setHighlightedGateId(null);
   };
 
-  // 回路がある時に自動でビジュアライザーを表示
-  React.useEffect(() => {
-    if (gates.length >= 3 && !isVisualizerOpen) {
-      // 基本的な回路がある時に自動表示
-      const hasClockAndOutputs =
-        gates.some(g => g.type === 'CLOCK') &&
-        gates.filter(g => g.type === 'OUTPUT').length >= 2;
-      if (hasClockAndOutputs) {
-        setIsVisualizerOpen(true);
-      }
-    }
-  }, [gates, isVisualizerOpen]);
+  // 緊急修正: 自動表示ロジックを無効化（バツボタンの妨害を防ぐ）
+  // React.useEffect(() => {
+  //   if (gates.length >= 3 && !isVisualizerOpen) {
+  //     // 基本的な回路がある時に自動表示
+  //     const hasClockAndOutputs =
+  //       gates.some(g => g.type === 'CLOCK') &&
+  //       gates.filter(g => g.type === 'OUTPUT').length >= 2;
+  //     if (hasClockAndOutputs) {
+  //       setIsVisualizerOpen(true);
+  //     }
+  //   }
+  // }, [gates, isVisualizerOpen]);
 
   return (
     <div className="app-container">
@@ -67,7 +67,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
       {/* メインキャンバス */}
       <main className="main-canvas">
         {/* キャンバスツールバー */}
-        <div className="canvas-toolbar">
+        <div className="canvas-toolbar" data-testid="canvas-toolbar">
           <button
             className="tool-button"
             title="元に戻す"
@@ -118,7 +118,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
             title="ビジュアライザーを開く"
             onClick={() => setIsVisualizerOpen(!isVisualizerOpen)}
           >
-            🎯
+            📟
           </button>
         </div>
 
@@ -151,7 +151,6 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
           {isVisualizerOpen ? (
             <CircuitVisualizerPanel
               isVisible={isVisualizerOpen}
-              onClose={() => setIsVisualizerOpen(false)}
               onGateHighlight={handleGateHighlight}
               onGateUnhighlight={handleGateUnhighlight}
             />

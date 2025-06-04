@@ -1,0 +1,160 @@
+/* 
+ * Logic Circuit Playground - Design Token System
+ * 統一されたデザイン変数で一貫性のあるUIを実現
+ */
+
+:root {
+  /* ========== カラーパレット ========== */
+  
+  /* プライマリカラー（回路・技術） */
+  --color-primary: #00ff88;
+  --color-primary-light: #4dffaa;
+  --color-primary-dark: #00cc6a;
+  --color-primary-subtle: rgba(0, 255, 136, 0.1);
+  
+  /* セカンダリカラー（情報・学習） */
+  --color-secondary: #00aaff;
+  --color-secondary-light: #4dc3ff;
+  --color-secondary-dark: #0088cc;
+  --color-secondary-subtle: rgba(0, 170, 255, 0.1);
+  
+  /* 背景色 */
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #141414;
+  --color-bg-tertiary: #1f1f1f;
+  --color-bg-elevated: rgba(255, 255, 255, 0.03);
+  --color-bg-overlay: rgba(0, 0, 0, 0.8);
+  
+  /* テキスト色 */
+  --color-text-primary: rgba(255, 255, 255, 0.95);
+  --color-text-secondary: rgba(255, 255, 255, 0.7);
+  --color-text-tertiary: rgba(255, 255, 255, 0.5);
+  --color-text-disabled: rgba(255, 255, 255, 0.3);
+  
+  /* 状態色 */
+  --color-success: #4ade80;
+  --color-warning: #fb923c;
+  --color-error: #f87171;
+  --color-info: #60a5fa;
+  
+  /* ボーダー */
+  --color-border-subtle: rgba(255, 255, 255, 0.1);
+  --color-border-default: rgba(255, 255, 255, 0.2);
+  --color-border-strong: rgba(255, 255, 255, 0.3);
+  
+  /* 信号の色（アクティブな回路） */
+  --color-signal-on: #00ff88;
+  --color-signal-off: #333333;
+  --color-signal-glow: 0 0 8px rgba(0, 255, 136, 0.8);
+  
+  /* ========== スペーシング ========== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+  
+  /* ========== タイポグラフィ ========== */
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: 'Courier New', Consolas, monospace;
+  
+  /* フォントサイズ */
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 32px;
+  
+  /* フォントウェイト */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* 行間 */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* ========== レイアウト ========== */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-full: 9999px;
+  
+  /* シャドウ */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(0, 255, 136, 0.3);
+  
+  /* ========== アニメーション ========== */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+  --transition-slower: 500ms ease;
+  
+  /* ========== Zインデックス ========== */
+  --z-canvas: 1;
+  --z-gate: 10;
+  --z-wire: 5;
+  --z-panel: 100;
+  --z-modal: 1000;
+  --z-tooltip: 1100;
+  --z-notification: 1200;
+  
+  /* ========== コンポーネント固有 ========== */
+  
+  /* ゲート */
+  --gate-width: 70px;
+  --gate-height: 50px;
+  --gate-special-width: 100px;
+  --gate-special-height: 80px;
+  --gate-pin-radius: 6px;
+  --gate-pin-hit-radius: 20px;
+  
+  /* パネル */
+  --panel-width-desktop: 280px;
+  --panel-width-tablet: 240px;
+  --panel-padding: var(--spacing-lg);
+  
+  /* ボタン */
+  --button-height-sm: 28px;
+  --button-height-md: 36px;
+  --button-height-lg: 44px;
+  --button-padding-horizontal: var(--spacing-md);
+  
+  /* モーダル */
+  --modal-width-sm: 400px;
+  --modal-width-md: 600px;
+  --modal-width-lg: 800px;
+  --modal-padding: var(--spacing-xl);
+}
+
+/* ========== メディアクエリ変数 ========== */
+@custom-media --mobile (max-width: 640px);
+@custom-media --tablet (min-width: 641px) and (max-width: 1024px);
+@custom-media --desktop (min-width: 1025px);
+
+/* ========== ダークモード（将来の拡張用） ========== */
+@media (prefers-color-scheme: light) {
+  :root {
+    /* ライトモード用の変数をここに定義 */
+  }
+}
+
+/* ========== アクセシビリティ ========== */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-base: 0ms;
+    --transition-slow: 0ms;
+    --transition-slower: 0ms;
+  }
+}

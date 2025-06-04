@@ -42,6 +42,10 @@ vi.mock('@components/dialogs/CreateCustomGateDialog', () => ({
 describe('ToolPalette', () => {
   const mockUseCircuitStore = useCircuitStore as Mock;
   
+  // window.dispatchEvent のモック
+  const mockDispatchEvent = vi.fn();
+  window.dispatchEvent = mockDispatchEvent;
+  
   const defaultStoreState = {
     gates: [],
     customGates: [],
@@ -53,6 +57,7 @@ describe('ToolPalette', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockDispatchEvent.mockClear();
     mockUseCircuitStore.mockReturnValue(defaultStoreState);
     
     // window._draggedGateをクリア
@@ -337,8 +342,16 @@ describe('ToolPalette', () => {
 
     it('カスタムゲート作成ボタンクリックで関数が呼ばれる', () => {
       const mockCreateCustomGate = vi.fn();
+      
+      // INPUT と OUTPUT ゲートを含む gates を設定
+      const gatesWithIO = [
+        { id: 'input1', type: 'INPUT', position: { x: 0, y: 0 }, inputs: [], output: false },
+        { id: 'output1', type: 'OUTPUT', position: { x: 100, y: 0 }, inputs: ['input1'], output: false }
+      ];
+      
       mockUseCircuitStore.mockReturnValue({
         ...defaultStoreState,
+        gates: gatesWithIO,
         createCustomGateFromCurrentCircuit: mockCreateCustomGate
       });
 
@@ -347,7 +360,12 @@ describe('ToolPalette', () => {
       const createButton = screen.getByText('回路→IC').closest('.tool-card');
       fireEvent.click(createButton!);
       
-      expect(mockCreateCustomGate).toHaveBeenCalled();
+      // ダイアログが開かれたことを確認（window.dispatchEventが呼ばれることを確認）
+      expect(window.dispatchEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'open-custom-gate-dialog'
+        })
+      );
     });
 
     it('カスタムゲートの右クリックで真理値表が表示される', () => {

@@ -54,54 +54,13 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
           boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
         }}
       >
-        {/* ヘッダー */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '20px',
-            paddingBottom: '12px',
-            borderBottom: '1px solid rgba(0, 255, 136, 0.2)',
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: '18px',
-              fontWeight: '600',
-              color: '#00ff88',
-            }}
-          >
-            🔬 {truthTableData.gateName} の真理値表
-          </h2>
-          <button
-            onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-              onClose();
-            }}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'rgba(255, 255, 255, 0.7)',
-              fontSize: '20px',
-              cursor: 'pointer',
-              padding: '4px',
-              lineHeight: 1,
-              borderRadius: '4px',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            ×
-          </button>
-        </div>
-
         {/* 真理値表表示 */}
         <TruthTableDisplay
           result={truthTableData.result}
           inputNames={truthTableData.inputNames || []}
           outputNames={truthTableData.outputNames || []}
+          gateName={truthTableData.gateName || 'カスタムゲート'}
+          onClose={onClose}
         />
       </div>
     </div>

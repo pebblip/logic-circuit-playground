@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useCircuitStore } from '../../stores/circuitStore';
 import { circuitStorage } from '../../services/CircuitStorageService';
 import type { CircuitStorageResult } from '../../types/circuitStorage';
+import { CircuitPreview } from '../common/CircuitPreview';
+import '../common/CircuitPreview.css';
 import './SaveCircuitDialog.css';
 
 interface SaveCircuitDialogProps {
@@ -29,15 +31,8 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
     tagInput: '',
   });
   const [isLoading, setSaving] = useState(false);
-  const [previewSvg, setPreviewSvg] = useState<string>('');
   const [error, setError] = useState<string>('');
 
-  // ダイアログが開かれた時にプレビューを生成
-  useEffect(() => {
-    if (isOpen && gates.length > 0) {
-      generatePreview();
-    }
-  }, [isOpen, gates, wires]);
 
   // フォームリセット
   useEffect(() => {
@@ -52,86 +47,6 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
     }
   }, [isOpen, defaultName]);
 
-  /**
-   * 回路のプレビュー画像を生成
-   */
-  const generatePreview = () => {
-    try {
-      // 回路の境界を計算
-      let minX = Infinity,
-        minY = Infinity,
-        maxX = -Infinity,
-        maxY = -Infinity;
-
-      gates.forEach(gate => {
-        const padding = 50;
-        minX = Math.min(minX, gate.position.x - padding);
-        minY = Math.min(minY, gate.position.y - padding);
-        maxX = Math.max(maxX, gate.position.x + padding);
-        maxY = Math.max(maxY, gate.position.y + padding);
-      });
-
-      if (!isFinite(minX)) {
-        minX = minY = 0;
-        maxX = maxY = 100;
-      }
-
-      const width = maxX - minX;
-      const height = maxY - minY;
-      const _scale = Math.min(200 / width, 150 / height, 1);
-
-      // SVGプレビューを生成
-      const svgContent = `
-        <svg viewBox="${minX} ${minY} ${width} ${height}" 
-             width="200" height="150" 
-             style="background: #0a0a0a; border-radius: 8px;">
-          <defs>
-            <pattern id="preview-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-              <circle cx="10" cy="10" r="0.5" fill="rgba(255, 255, 255, 0.1)"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#preview-grid)"/>
-          
-          <!-- ワイヤー -->
-          ${wires
-            .map(wire => {
-              const fromGate = gates.find(g => g.id === wire.from.gateId);
-              const toGate = gates.find(g => g.id === wire.to.gateId);
-              if (!fromGate || !toGate) return '';
-
-              return `<line x1="${fromGate.position.x + 45}" y1="${fromGate.position.y}" 
-                          x2="${toGate.position.x - 45}" y2="${toGate.position.y}"
-                          stroke="${wire.isActive ? '#00ff88' : '#444'}" stroke-width="2"/>`;
-            })
-            .join('')}
-          
-          <!-- ゲート -->
-          ${gates
-            .map(gate => {
-              const fillColor =
-                gate.type === 'INPUT'
-                  ? gate.output
-                    ? '#00ff88'
-                    : '#666'
-                  : '#1a1a1a';
-
-              return `<g transform="translate(${gate.position.x}, ${gate.position.y})">
-              <rect x="-35" y="-25" width="70" height="50" rx="8" 
-                    fill="${fillColor}" stroke="#444" stroke-width="2"/>
-              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" 
-                    fill="#fff" font-size="12" font-family="monospace">${gate.type}</text>
-            </g>`;
-            })
-            .join('')}
-        </svg>
-      `;
-
-      setPreviewSvg(svgContent);
-    } catch (error) {
-      console.error('Preview generation failed:', error);
-      setPreviewSvg('');
-    }
-  };
 
   /**
    * タグ追加
@@ -175,11 +90,9 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
     setError('');
 
     try {
-      // サムネイル生成（Base64エンコード）
-      // 日本語などのUnicode文字を含むSVGを正しくエンコード
-      const thumbnail = previewSvg
-        ? `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(previewSvg)))}`
-        : undefined;
+      // サムネイル生成（共通コンポーネントを使った実装に変更予定）
+      // TODO: CircuitPreviewコンポーネントから直接SVG文字列を取得する方法を検討
+      const thumbnail = undefined;
 
       const result = await circuitStorage
         .get()
@@ -247,26 +160,15 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
           {/* プレビューセクション */}
           <div className="preview-section">
             <h3>プレビュー</h3>
-            <div className="circuit-preview">
-              {previewSvg ? (
-                <div dangerouslySetInnerHTML={{ __html: previewSvg }} />
-              ) : (
-                <div className="preview-placeholder">
-                  <span>🔌</span>
-                  <p>プレビューを生成中...</p>
-                </div>
-              )}
-            </div>
-            <div className="circuit-stats">
-              <span className="stat-item">
-                <span className="stat-icon">🔲</span>
-                {gates.length} ゲート
-              </span>
-              <span className="stat-item">
-                <span className="stat-icon">🔗</span>
-                {wires.length} 接続
-              </span>
-            </div>
+            <CircuitPreview
+              gates={gates}
+              wires={wires}
+              width={200}
+              height={150}
+              backgroundColor="#0a0a0a"
+              showStats={false}
+              className="circuit-preview"
+            />
           </div>
 
           {/* フォームセクション */}

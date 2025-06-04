@@ -73,6 +73,12 @@ export interface CircuitStoreActions {
     position: Position,
     saveToHistory?: boolean
   ) => void;
+  moveMultipleGates: (
+    gateIds: string[],
+    deltaX: number,
+    deltaY: number,
+    saveToHistory?: boolean
+  ) => void;
   selectGate: (gateId: string | null) => void;
   deleteGate: (gateId: string) => void;
 

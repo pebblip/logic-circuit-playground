@@ -36,7 +36,7 @@ body {
   display: flex;
   align-items: center;
   padding: 0 40px 0 20px;
-  z-index: 100;
+  z-index: 1000; /* ヘッダーは最優先 */
   height: 56px;
 }
 
@@ -329,7 +329,7 @@ button.button.primary:hover,
 .main-canvas {
   background: #0a0a0a;
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* 絶対配置要素（ツールバー）を正しく表示するため */
 }
 
 .canvas-toolbar {
@@ -343,7 +343,7 @@ button.button.primary:hover,
   padding: 8px;
   display: flex;
   gap: 4px;
-  z-index: 50;
+  z-index: 100; /* 適切なレベルに修正 */
 }
 
 .tool-button {
@@ -393,7 +393,7 @@ button.button.primary:hover,
   padding: 4px;
   display: flex;
   gap: 2px;
-  z-index: 50;
+  z-index: 100; /* ツールバーと同じレベル */
 }
 
 .zoom-button {

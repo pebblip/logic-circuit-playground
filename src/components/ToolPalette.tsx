@@ -320,7 +320,6 @@ export const ToolPalette: React.FC = () => {
         onDragStart={startDrag}
         onDragEnd={endDrag}
         onContextMenu={handleContextMenu}
-        onCreateFromCircuit={handleOpenCreateFromCircuit}
       />
 
       {/* カスタムゲート作成ダイアログ */}

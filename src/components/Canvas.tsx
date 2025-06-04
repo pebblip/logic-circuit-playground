@@ -6,9 +6,9 @@ import { evaluateCircuitPure, defaultConfig, isSuccess } from '@domain/simulatio
 import type { Circuit } from '@domain/simulation/pure/types';
 import type { Gate, Wire } from '../types/circuit';
 import { useCanvasPan } from '../hooks/useCanvasPan';
-import { useCanvasSelection } from '../hooks/useCanvasSelection';
+import { useCanvasSelection, type SelectionRect } from '../hooks/useCanvasSelection';
 import { useCanvasZoom } from '../hooks/useCanvasZoom';
-import { reactEventToSVGCoordinates } from '@infrastructure/ui/svgCoordinates';
+import { reactEventToSVGCoordinates, mouseEventToSVGCoordinates } from '@infrastructure/ui/svgCoordinates';
 import type { GateType, CustomGateDefinition } from '../types/gates';
 
 
@@ -33,6 +33,11 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     height: 800,
   });
   const [isSpacePressed, setIsSpacePressed] = useState(false);
+  const [isDraggingSelection, setIsDraggingSelection] = useState(false);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const [initialGatePositions, setInitialGatePositions] = useState<Map<string, { x: number; y: number }>>(new Map());
+  const [initialSelectionRect, setInitialSelectionRect] = useState<SelectionRect | null>(null);
+  const [selectionRectOffset, setSelectionRectOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const {
     gates,
@@ -45,6 +50,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     clearSelection,
     addGate,
     addCustomGateInstance,
+    moveMultipleGates,
   } = useCircuitStore();
 
   // カスタムフックの使用
@@ -67,7 +73,9 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     updateSelection,
     endSelection,
     clearSelection: clearSelectionRect,
-  } = useCanvasSelection(gates, setSelectedGates);
+    moveSelectionRect,
+    setSelectionRect,
+  } = useCanvasSelection(gates, setSelectedGates, selectedGateIds);
 
   // キーボードイベント処理
   React.useEffect(() => {
@@ -189,9 +197,16 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     if (isSelecting) {
       updateSelection(svgPoint.x, svgPoint.y);
     }
+
+    // 選択されたゲート群のドラッグ中の処理（削除 - グローバルイベントハンドラで処理）
   };
 
   const handleClick = (event: React.MouseEvent) => {
+    // ドラッグ中の場合はクリックイベントを無視
+    if (isDraggingSelection) {
+      return;
+    }
+    
     // 矩形選択直後のクリックは無視（ドラッグによる選択の場合）
     if (selectionJustFinished.current) {
       selectionJustFinished.current = false;
@@ -254,6 +269,35 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     return false;
   };
 
+  // クリック位置が選択されたゲート上にあるかを判定
+  const isClickOnSelectedGate = (x: number, y: number): boolean => {
+    if (selectedGateIds.length === 0) return false;
+    
+    // ゲートのヒットボックスサイズ（大まかな判定用）
+    const GATE_WIDTH = 70;
+    const GATE_HEIGHT = 50;
+    
+    return gates.some(gate => {
+      if (!selectedGateIds.includes(gate.id)) return false;
+      
+      const left = gate.position.x - GATE_WIDTH / 2;
+      const right = gate.position.x + GATE_WIDTH / 2;
+      const top = gate.position.y - GATE_HEIGHT / 2;
+      const bottom = gate.position.y + GATE_HEIGHT / 2;
+      
+      return x >= left && x <= right && y >= top && y <= bottom;
+    });
+  };
+
+  // クリック位置が選択矩形内にあるかを判定
+  const isClickInSelectionRect = (x: number, y: number): boolean => {
+    if (!selectionRect || selectedGateIds.length === 0) return false;
+    
+    // selectionRectは既に正規化されているので直接使用
+    return x >= selectionRect.startX && x <= selectionRect.endX && 
+           y >= selectionRect.startY && y <= selectionRect.endY;
+  };
+
   // タッチイベント（モバイル用）
   const handleTouchStart = (event: React.TouchEvent) => {
     if (event.touches.length === 1) {
@@ -283,10 +327,40 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     const target = event.target as SVGElement;
     const isGate = isGateElement(target);
 
+    if (!svgRef.current) return;
+    const svgPoint = reactEventToSVGCoordinates(event, svgRef.current);
+    if (!svgPoint) return;
+
     // スペース+左クリックでパン（優先的に処理）
     if (event.button === 0 && isSpacePressed) {
       handlePanStart(event.clientX, event.clientY);
       return; // 他の処理を実行しない
+    }
+
+    // 選択されたゲート上または選択矩形内でのクリック（ドラッグ開始）
+    if (
+      event.button === 0 &&
+      selectedGateIds.length > 0 &&
+      (isClickOnSelectedGate(svgPoint.x, svgPoint.y) || isClickInSelectionRect(svgPoint.x, svgPoint.y))
+    ) {
+      setIsDraggingSelection(true);
+      setDragStart({ x: svgPoint.x, y: svgPoint.y });
+      
+      // 初期ゲート位置を記録
+      const positions = new Map<string, { x: number; y: number }>();
+      gates.forEach(gate => {
+        if (selectedGateIds.includes(gate.id)) {
+          positions.set(gate.id, { x: gate.position.x, y: gate.position.y });
+        }
+      });
+      setInitialGatePositions(positions);
+      
+      // 初期選択矩形位置を記録（そのまま記録）
+      if (selectionRect) {
+        setInitialSelectionRect({ ...selectionRect });
+      }
+      
+      return;
     }
 
     // 中ボタン、Ctrl+左クリックでパン
@@ -300,11 +374,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       !isDrawingWire &&
       (target === svgRef.current || target.id === 'canvas-background')
     ) {
-      if (!svgRef.current) return;
-
-      const svgPoint = reactEventToSVGCoordinates(event, svgRef.current);
-      if (!svgPoint) return;
-
       startSelection(svgPoint.x, svgPoint.y);
     }
   };
@@ -316,6 +385,17 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     if (isSelecting) {
       endSelection();
     }
+
+    // 選択されたゲート群のドラッグ終了
+    if (isDraggingSelection) {
+      setIsDraggingSelection(false);
+      setDragStart(null);
+      setInitialGatePositions(new Map());
+      setInitialSelectionRect(null);
+      // 履歴に保存
+      const { saveToHistory } = useCircuitStore.getState();
+      saveToHistory();
+    }
   };
 
   // グローバルイベントリスナー
@@ -324,11 +404,61 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       if (isPanning) {
         handlePan(event.clientX, event.clientY);
       }
+      
+      // 選択されたゲート群のドラッグ中の処理
+      if (isDraggingSelection && dragStart && svgRef.current && initialGatePositions.size > 0) {
+        const svgPoint = mouseEventToSVGCoordinates(event, svgRef.current);
+        if (!svgPoint) return;
+        
+        const deltaX = svgPoint.x - dragStart.x;
+        const deltaY = svgPoint.y - dragStart.y;
+        
+        
+        // 初期位置からの絶対的な移動を計算
+        const newGates = gates.map(gate => {
+          const initialPos = initialGatePositions.get(gate.id);
+          if (initialPos && selectedGateIds.includes(gate.id)) {
+            return {
+              ...gate,
+              position: {
+                x: initialPos.x + deltaX,
+                y: initialPos.y + deltaY,
+              },
+            };
+          }
+          return gate;
+        });
+        
+        // 状態を更新
+        useCircuitStore.setState({ gates: newGates });
+        
+        // 選択矩形も移動（正規化された状態を維持）
+        if (initialSelectionRect) {
+          const newRect = {
+            startX: initialSelectionRect.startX + deltaX,
+            startY: initialSelectionRect.startY + deltaY,
+            endX: initialSelectionRect.endX + deltaX,
+            endY: initialSelectionRect.endY + deltaY,
+          };
+          setSelectionRect(newRect);
+        }
+      }
     };
 
     const handleGlobalMouseUp = () => {
       if (isPanning) {
         handlePanEnd();
+      }
+      
+      // 選択されたゲート群のドラッグ終了
+      if (isDraggingSelection) {
+        setIsDraggingSelection(false);
+        setDragStart(null);
+        setInitialGatePositions(new Map());
+        setInitialSelectionRect(null);
+        // 履歴に保存
+        const { saveToHistory } = useCircuitStore.getState();
+        saveToHistory();
       }
     };
 
@@ -339,7 +469,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       document.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [isPanning, handlePan, handlePanEnd]);
+  }, [isPanning, handlePan, handlePanEnd, isDraggingSelection, dragStart, selectedGateIds, gates, initialGatePositions, initialSelectionRect, setSelectionRect]);
 
   // ドロップハンドラ
   const handleDrop = (event: React.DragEvent) => {
@@ -460,8 +590,8 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         {/* 選択矩形 */}
         {selectionRect && (
           <rect
-            x={Math.min(selectionRect.startX, selectionRect.endX)}
-            y={Math.min(selectionRect.startY, selectionRect.endY)}
+            x={isSelecting ? Math.min(selectionRect.startX, selectionRect.endX) : selectionRect.startX}
+            y={isSelecting ? Math.min(selectionRect.startY, selectionRect.endY) : selectionRect.startY}
             width={Math.abs(selectionRect.endX - selectionRect.startX)}
             height={Math.abs(selectionRect.endY - selectionRect.startY)}
             fill="rgba(0, 255, 136, 0.1)"
