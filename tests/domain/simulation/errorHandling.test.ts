@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { evaluateCircuitSafe, evaluateCircuit, createFixedTimeProvider } from '@domain/simulation/circuitSimulation';
+import { evaluateCircuitPure, evaluateGateUnified, isFailure, isSuccess, defaultConfig, createFixedTimeProvider } from '@domain/simulation/pure';
 import { Gate, Wire } from '@/types/circuit';
 
-describe('Circuit Simulation Error Handling', () => {
+describe('Circuit Simulation Error Handling - New API', () => {
   const timeProvider = createFixedTimeProvider(1000);
+  const config = { ...defaultConfig, timeProvider, strictValidation: true };
 
   describe('Input Validation', () => {
     it('should detect invalid gate IDs', () => {
@@ -17,11 +18,14 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe(gates, [], timeProvider);
+      const result = evaluateCircuitPure({ gates, wires: [] }, config);
       
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].type).toBe('INVALID_GATE');
-      expect(result.errors[0].message).toContain('invalid ID');
+      expect(isFailure(result)).toBe(true);
+      if (isFailure(result)) {
+        expect(result.error.type).toBe('VALIDATION_ERROR');
+        expect(result.error.violations).toBeDefined();
+        expect(result.error.violations?.some(v => v.message.includes('cannot be empty'))).toBe(true);
+      }
     });
 
     it('should detect missing gate types', () => {
@@ -35,11 +39,13 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe(gates, [], timeProvider);
+      const result = evaluateCircuitPure({ gates, wires: [] }, config);
       
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].type).toBe('INVALID_GATE');
-      expect(result.errors[0].message).toContain('no type specified');
+      expect(isFailure(result)).toBe(true);
+      if (isFailure(result)) {
+        expect(result.error.type).toBe('VALIDATION_ERROR');
+        expect(result.error.violations?.some(v => v.message.includes('must be string'))).toBe(true);
+      }
     });
 
     it('should detect invalid wire connections', () => {
@@ -52,11 +58,16 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe([], wires, timeProvider);
+      const result = evaluateCircuitPure({ gates: [], wires }, config);
       
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].type).toBe('INVALID_WIRE');
-      expect(result.errors[0].message).toContain('invalid connection points');
+      expect(isFailure(result)).toBe(true);
+      if (isFailure(result)) {
+        expect(result.error.type).toBe('VALIDATION_ERROR');
+        expect(result.error.violations?.some(v => v.message && (
+          v.message.includes('Wire from.gateId must be a non-empty string') ||
+          v.message.includes('non-existent source gate')
+        ))).toBe(true);
+      }
     });
 
     it('should detect invalid wire IDs', () => {
@@ -69,16 +80,18 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe([], wires, timeProvider);
+      const result = evaluateCircuitPure({ gates: [], wires }, config);
       
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].type).toBe('INVALID_WIRE');
-      expect(result.errors[0].message).toContain('invalid ID');
+      expect(isFailure(result)).toBe(true);
+      if (isFailure(result)) {
+        expect(result.error.type).toBe('VALIDATION_ERROR');
+        expect(result.error.violations?.some(v => v.message.includes('Wire ID must be a non-empty string'))).toBe(true);
+      }
     });
   });
 
   describe('Duplicate ID Detection', () => {
-    it('should warn about duplicate gate IDs', () => {
+    it('should detect duplicate gate IDs', () => {
       const gates: Gate[] = [
         {
           id: 'duplicate',
@@ -96,12 +109,16 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe(gates, [], timeProvider);
+      const result = evaluateCircuitPure({ gates, wires: [] }, config);
       
-      expect(result.warnings).toContain('Duplicate gate ID detected: duplicate');
+      expect(isFailure(result)).toBe(true);
+      if (isFailure(result)) {
+        expect(result.error.type).toBe('VALIDATION_ERROR');
+        expect(result.error.violations?.some(v => v.message.includes('Duplicate gate ID'))).toBe(true);
+      }
     });
 
-    it('should warn about duplicate wire IDs', () => {
+    it('should detect duplicate wire IDs', () => {
       const gates: Gate[] = [
         {
           id: 'gate1',
@@ -134,9 +151,13 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe(gates, wires, timeProvider);
+      const result = evaluateCircuitPure({ gates, wires }, config);
       
-      expect(result.warnings).toContain('Duplicate wire ID detected: duplicate');
+      expect(isFailure(result)).toBe(true);
+      if (isFailure(result)) {
+        expect(result.error.type).toBe('VALIDATION_ERROR');
+        expect(result.error.violations?.some(v => v.message.includes('Duplicate wire ID'))).toBe(true);
+      }
     });
   });
 
@@ -161,14 +182,13 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe(gates, wires, timeProvider);
+      const result = evaluateCircuitPure({ gates, wires }, config);
       
-      expect(result.errors.filter(e => e.type === 'MISSING_DEPENDENCY')).toHaveLength(1);
-      const missingError = result.errors.find(e => e.type === 'MISSING_DEPENDENCY');
-      expect(missingError?.message).toContain('non-existent source gate: missing_gate');
-      
-      // Also expect an evaluation error when trying to evaluate the missing gate
-      expect(result.errors.some(e => e.type === 'EVALUATION_ERROR')).toBe(true);
+      expect(isFailure(result)).toBe(true);
+      if (isFailure(result)) {
+        expect(result.error.type).toBe('VALIDATION_ERROR');
+        expect(result.error.message).toContain('missing_gate');
+      }
     });
 
     it('should detect missing target gates', () => {
@@ -191,11 +211,13 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe(gates, wires, timeProvider);
+      const result = evaluateCircuitPure({ gates, wires }, config);
       
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].type).toBe('MISSING_DEPENDENCY');
-      expect(result.errors[0].message).toContain('non-existent target gate: missing_gate');
+      expect(isFailure(result)).toBe(true);
+      if (isFailure(result)) {
+        expect(result.error.type).toBe('VALIDATION_ERROR');
+        expect(result.error.message).toContain('missing_gate');
+      }
     });
   });
 
@@ -233,13 +255,14 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe(gates, wires, timeProvider);
+      const result = evaluateCircuitPure({ gates, wires }, config);
       
-      expect(result.errors.some(e => e.type === 'CIRCULAR_DEPENDENCY')).toBe(true);
-      const circularError = result.errors.find(e => e.type === 'CIRCULAR_DEPENDENCY');
-      expect(circularError?.message).toContain('Circular dependency detected');
-      expect(circularError?.details?.stack).toContain('gate1');
-      expect(circularError?.details?.stack).toContain('gate2');
+      expect(isFailure(result)).toBe(true);
+      if (isFailure(result)) {
+        expect(result.error.type).toBe('VALIDATION_ERROR');
+        expect(result.error.violations).toBeDefined();
+        expect(result.error.violations?.some(v => v.code === 'CIRCULAR_DEPENDENCY')).toBe(true);
+      }
     });
 
     it('should detect complex circular dependencies', () => {
@@ -288,9 +311,14 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe(gates, wires, timeProvider);
+      const result = evaluateCircuitPure({ gates, wires }, config);
       
-      expect(result.errors.some(e => e.type === 'CIRCULAR_DEPENDENCY')).toBe(true);
+      expect(isFailure(result)).toBe(true);
+      if (isFailure(result)) {
+        expect(result.error.type).toBe('VALIDATION_ERROR');
+        expect(result.error.violations).toBeDefined();
+        expect(result.error.violations?.some(v => v.code === 'CIRCULAR_DEPENDENCY')).toBe(true);
+      }
     });
   });
 
@@ -307,14 +335,16 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe(gates, [], timeProvider);
+      const result = evaluateCircuitPure({ gates, wires: [] }, config);
       
-      // Should not crash, should provide fallback behavior
-      expect(result.gates).toHaveLength(1);
-      expect(result.gates[0].output).toBe(false); // Safe fallback
+      // The new API should handle this as a validation error
+      expect(isFailure(result)).toBe(true);
+      if (isFailure(result)) {
+        expect(result.error.type).toBe('VALIDATION_ERROR');
+      }
     });
 
-    it('should warn about invalid output pin indices', () => {
+    it('should detect invalid output pin indices', () => {
       // Create a custom gate that will have outputs after evaluation
       const gates: Gate[] = [
         {
@@ -362,15 +392,19 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe(gates, wires, timeProvider);
+      const result = evaluateCircuitPure({ gates, wires }, config);
       
-      // The invalid pin index should be detected during wire state update
-      expect(result.warnings.some(w => w.includes('Invalid output pin index'))).toBe(true);
+      // The new API should validate wire connections properly
+      expect(isFailure(result)).toBe(true);
+      if (isFailure(result)) {
+        expect(result.error.type).toBe('VALIDATION_ERROR');
+        expect(result.error.violations?.some(v => v.message.includes('Invalid pin index'))).toBe(true);
+      }
     });
   });
 
-  describe('Backward Compatibility', () => {
-    it('should maintain backward compatibility with evaluateCircuit', () => {
+  describe('Valid Circuit Evaluation', () => {
+    it('should handle valid circuits without errors', () => {
       const gates: Gate[] = [
         {
           id: 'input1',
@@ -397,19 +431,19 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const safeResult = evaluateCircuitSafe(gates, wires, timeProvider);
-      const legacyResult = evaluateCircuit(gates, wires, timeProvider);
-
-      // Results should be identical (excluding error/warning info)
-      expect(safeResult.gates).toEqual(legacyResult.gates);
-      expect(safeResult.wires).toEqual(legacyResult.wires);
+      const result = evaluateCircuitPure({ gates, wires }, config);
       
-      // Verify logic correctness: NOT true = false
-      expect(safeResult.gates[1].output).toBe(false);
-      expect(legacyResult.gates[1].output).toBe(false);
+      expect(isSuccess(result)).toBe(true);
+      if (isSuccess(result)) {
+        expect(result.data.circuit.gates).toHaveLength(2);
+        expect(result.data.circuit.wires).toHaveLength(1);
+        
+        // Verify logic correctness: NOT true = false
+        expect(result.data.circuit.gates[1].output).toBe(false);
+      }
     });
 
-    it('should handle valid circuits without errors or warnings', () => {
+    it('should evaluate complex valid circuits correctly', () => {
       const gates: Gate[] = [
         {
           id: 'input1',
@@ -462,21 +496,22 @@ describe('Circuit Simulation Error Handling', () => {
         }
       ];
 
-      const result = evaluateCircuitSafe(gates, wires, timeProvider);
+      const result = evaluateCircuitPure({ gates, wires }, config);
       
-      expect(result.errors).toHaveLength(0);
-      expect(result.warnings).toHaveLength(0);
-      expect(result.gates).toHaveLength(4);
-      expect(result.wires).toHaveLength(3);
-      
-      // Verify logic: true AND false = false
-      expect(result.gates[2].output).toBe(false); // AND gate
-      expect(result.gates[3].output).toBe(false); // OUTPUT gate
+      expect(isSuccess(result)).toBe(true);
+      if (isSuccess(result)) {
+        expect(result.data.circuit.gates).toHaveLength(4);
+        expect(result.data.circuit.wires).toHaveLength(3);
+        
+        // Verify logic: true AND false = false
+        expect(result.data.circuit.gates[2].output).toBe(false); // AND gate
+        expect(result.data.circuit.gates[3].output).toBe(false); // OUTPUT gate
+      }
     });
   });
 
   describe('Performance with Error Handling', () => {
-    it('should maintain performance even with error detection', () => {
+    it('should maintain performance even with validation', () => {
       // Create a larger circuit to test performance impact
       const gates: Gate[] = [];
       const wires: Wire[] = [];
@@ -492,10 +527,10 @@ describe('Circuit Simulation Error Handling', () => {
         });
       }
 
-      // Create some valid wires
+      // Create some valid wires (avoiding circular dependencies)
       for (let i = 0; i < 50; i++) {
-        const fromIndex = Math.floor(Math.random() * 80); // Avoid OUTPUT gates
-        const toIndex = 10 + Math.floor(Math.random() * 80); // Avoid INPUT gates
+        const fromIndex = Math.floor(Math.random() * 50); // Lower half
+        const toIndex = 50 + Math.floor(Math.random() * 50); // Upper half
         
         wires.push({
           id: `wire_${i}`,
@@ -506,14 +541,57 @@ describe('Circuit Simulation Error Handling', () => {
       }
 
       const startTime = performance.now();
-      const result = evaluateCircuitSafe(gates, wires, timeProvider);
+      const result = evaluateCircuitPure({ gates, wires }, config);
       const endTime = performance.now();
       
       const executionTime = endTime - startTime;
 
-      expect(result.gates).toHaveLength(100);
-      expect(executionTime).toBeLessThan(100); // Should still be fast
-      console.log(`Error-safe evaluation (100 gates): ${executionTime.toFixed(2)}ms`);
+      expect(isSuccess(result)).toBe(true);
+      if (isSuccess(result)) {
+        expect(result.data.circuit.gates).toHaveLength(100);
+        expect(executionTime).toBeLessThan(100); // Should still be fast
+        console.log(`New API evaluation (100 gates): ${executionTime.toFixed(2)}ms`);
+      }
+    });
+  });
+
+  describe('Debug Information', () => {
+    it('should provide debug information when enabled', () => {
+      const gates: Gate[] = [
+        {
+          id: 'input1',
+          type: 'INPUT',
+          position: { x: 0, y: 0 },
+          inputs: [],
+          output: true,
+        },
+        {
+          id: 'not1',
+          type: 'NOT',
+          position: { x: 100, y: 0 },
+          inputs: [''],
+          output: false,
+        }
+      ];
+
+      const wires: Wire[] = [
+        {
+          id: 'wire1',
+          from: { gateId: 'input1', pinIndex: -1 },
+          to: { gateId: 'not1', pinIndex: 0 },
+          isActive: false,
+        }
+      ];
+
+      const debugConfig = { ...config, enableDebug: true };
+      const result = evaluateCircuitPure({ gates, wires }, debugConfig);
+      
+      expect(isSuccess(result)).toBe(true);
+      if (isSuccess(result)) {
+        expect(result.data.debugTrace).toBeDefined();
+        expect(result.data.evaluationStats).toBeDefined();
+        expect(result.data.evaluationStats.evaluatedGates).toBe(2);
+      }
     });
   });
 });

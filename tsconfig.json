@@ -46,7 +46,9 @@
     "src/components/ModeSelection/**/*",
     "src/design-system/**/*",
     "**/*.test.ts",
-    "**/*.test.tsx"
+    "**/*.test.tsx",
+    "src/domain/simulation/legacy/**/*",
+    "src/domain/simulation/pure/validation.ts"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

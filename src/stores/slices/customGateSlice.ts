@@ -1,12 +1,14 @@
 import type { StateCreator } from 'zustand';
 import type { CircuitStore } from '../types';
-import type { CustomGateDefinition, CustomGatePin } from '@/types/circuit';
+import type { Gate, Wire, CustomGateDefinition, CustomGatePin } from '@/types/circuit';
 import {
   saveCustomGates,
   loadCustomGates,
 } from '@infrastructure/storage/customGateStorage';
-import { evaluateCircuit } from '@domain/simulation';
+import { evaluateCircuitPure, defaultConfig, isSuccess } from '@domain/simulation/pure';
+import type { Circuit } from '@domain/simulation/pure/types';
 import { IdGenerator } from '@shared/id';
+
 
 export interface CustomGateSlice {
   customGates: CustomGateDefinition[];
@@ -86,7 +88,16 @@ export const createCustomGateSlice: StateCreator<
       });
 
       // 回路を評価
-      const { gates: evaluatedGates } = evaluateCircuit(testGates, state.wires);
+      const circuit: Circuit = { gates: testGates, wires: state.wires };
+      const result = evaluateCircuitPure(circuit, defaultConfig);
+      
+      let evaluatedGates: Gate[];
+      if (isSuccess(result)) {
+        evaluatedGates = [...result.data.circuit.gates];
+      } else {
+        console.warn('Custom gate creation: Circuit evaluation failed:', result.error.message);
+        evaluatedGates = testGates;
+      }
 
       // 出力を読み取る
       const outputBits = outputGates

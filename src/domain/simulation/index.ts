@@ -4,8 +4,8 @@
  * 論理回路のシミュレーション、信号処理、クロック制御を担当
  */
 
-export * from './circuitSimulation';
+// 信号変換ユーティリティのみエクスポート（UIで使用）
 export * from './signalConversion';
 
-// デフォルトエクスポート（後方互換性のため）
-export { evaluateCircuit as default } from './circuitSimulation';
+// 新APIのエクスポート（推奨）
+export * from './pure';

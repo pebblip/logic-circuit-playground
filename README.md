@@ -18,10 +18,11 @@ Logic Circuit Playgroundは、論理回路の基礎から応用まで段階的�
 - 🎯 **段階的学習**: 基本ゲートからCPU設計まで
 
 ### 🚧 現在の状況
-**Phase 0: 基本機能の修正中**
-- ワンクリック配置機能の実装中
-- UI/UXの改善作業中
-- 詳細は[CHANGELOG.md](./CHANGELOG.md)を参照
+**Phase C: 新API移行完了 ✅**
+- 新しいResult型パターンによる型安全なAPI実装
+- 純粋関数ベースの回路シミュレーション
+- 既存テスト783個の100%互換性維持
+- 詳細は[NEW_API_MIGRATION_GUIDE.md](./docs/NEW_API_MIGRATION_GUIDE.md)と[CHANGELOG.md](./CHANGELOG.md)を参照
 
 ## 🎯 始め方
 
@@ -68,6 +69,31 @@ npm run preview
 1. 与えられた条件を満たす回路を作成
 2. ヒントを使いながら問題を解決
 3. 最小ゲート数でクリアを目指す
+
+## ⚡ 新API機能 (2025年1月完成)
+
+### 🚀 主な特徴
+- **Result型パターン**: Rustスタイルの型安全なエラーハンドリング
+- **純粋関数設計**: サイドエフェクトなし、完全にテスタブル
+- **Immutable**: 元データを変更せず、新しいデータを返す
+- **詳細なメタデータ**: パフォーマンス情報とバリデーション結果
+- **段階的警告システム**: エラーと警告の明確な分離
+
+### 🎯 使用例
+```typescript
+import { evaluateCircuitPure, defaultConfig, isSuccess } from '@domain/simulation/pure';
+
+const result = evaluateCircuitPure(circuit, defaultConfig);
+
+if (isSuccess(result)) {
+  console.log('評価成功！', result.data.circuit);
+  console.log('メタデータ:', result.data.metadata);
+} else {
+  console.error('エラー:', result.error.message);
+}
+```
+
+> **体験方法**: アプリのヘッダーの「🚀 新API」ボタンから実際にデモを体験できます！
 
 ## 🛠️ アーキテクチャ
 

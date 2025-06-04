@@ -1,12 +1,14 @@
 import type { StateCreator } from 'zustand';
 import type { CircuitStore } from '../types';
-import type { Wire } from '@/types/circuit';
+import type { Gate, Wire } from '@/types/circuit';
 import { IdGenerator } from '@shared/id';
-import { evaluateCircuit } from '@domain/simulation';
+import { evaluateCircuitPure, defaultConfig, isSuccess } from '@domain/simulation/pure';
+import type { Circuit } from '@domain/simulation/pure/types';
 import {
   getInputPinPosition,
   getOutputPinPosition,
 } from '@domain/analysis/pinPositionCalculator';
+
 
 export interface WireOperationsSlice {
   startWireDrawing: (gateId: string, pinIndex: number) => void;
@@ -105,17 +107,25 @@ export const createWireOperationsSlice: StateCreator<
       const updatedWires = [...newWires, newWire];
 
       // 回路全体を評価
-      const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(
-        state.gates,
-        updatedWires
-      );
-
-      return {
-        gates: evaluatedGates,
-        wires: evaluatedWires,
-        isDrawingWire: false,
-        wireStart: null,
-      };
+      const circuit: Circuit = { gates: state.gates, wires: updatedWires };
+      const result = evaluateCircuitPure(circuit, defaultConfig);
+      
+      if (isSuccess(result)) {
+        return {
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+          isDrawingWire: false,
+          wireStart: null,
+        };
+      } else {
+        console.warn('Circuit evaluation failed:', result.error.message);
+        return {
+          gates: state.gates,
+          wires: updatedWires,
+          isDrawingWire: false,
+          wireStart: null,
+        };
+      }
     });
 
     // 履歴に追加
@@ -134,15 +144,21 @@ export const createWireOperationsSlice: StateCreator<
       const newWires = state.wires.filter(wire => wire.id !== wireId);
 
       // 回路全体を評価
-      const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(
-        state.gates,
-        newWires
-      );
-
-      return {
-        gates: evaluatedGates,
-        wires: evaluatedWires,
-      };
+      const circuit: Circuit = { gates: state.gates, wires: newWires };
+      const result = evaluateCircuitPure(circuit, defaultConfig);
+      
+      if (isSuccess(result)) {
+        return {
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+        };
+      } else {
+        console.warn('Circuit evaluation failed:', result.error.message);
+        return {
+          gates: state.gates,
+          wires: newWires,
+        };
+      }
     });
 
     // 履歴に追加

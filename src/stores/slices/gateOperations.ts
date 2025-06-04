@@ -2,17 +2,20 @@ import type { StateCreator } from 'zustand';
 import type { CircuitStore } from '../types';
 import type {
   Gate,
+  Wire,
   GateType,
   Position,
   CustomGateDefinition,
 } from '@/types/circuit';
 import { GateFactory } from '@/models/gates/GateFactory';
-import { evaluateCircuit } from '@domain/simulation';
+import { evaluateCircuitPure, defaultConfig, isSuccess } from '@domain/simulation/pure';
+import type { Circuit } from '@domain/simulation/pure/types';
 import { booleanToDisplayState } from '@domain/simulation';
 import {
   getInputPinPosition,
   getOutputPinPosition,
 } from '@domain/analysis/pinPositionCalculator';
+
 
 export interface GateOperationsSlice {
   addGate: (type: GateType, position: Position) => Gate;
@@ -50,15 +53,21 @@ export const createGateOperationsSlice: StateCreator<
       const newGates = [...state.gates, newGate];
 
       // 回路全体を評価
-      const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(
-        newGates,
-        state.wires
-      );
-
-      return {
-        gates: evaluatedGates,
-        wires: evaluatedWires,
-      };
+      const circuit: Circuit = { gates: newGates, wires: state.wires };
+      const result = evaluateCircuitPure(circuit, defaultConfig);
+      
+      if (isSuccess(result)) {
+        return {
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+        };
+      } else {
+        console.warn('Circuit evaluation failed:', result.error.message);
+        return {
+          gates: newGates,
+          wires: state.wires,
+        };
+      }
     });
 
     // 履歴に追加
@@ -81,15 +90,21 @@ export const createGateOperationsSlice: StateCreator<
       const newGates = [...state.gates, newGate];
 
       // 回路全体を評価
-      const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(
-        newGates,
-        state.wires
-      );
-
-      return {
-        gates: evaluatedGates,
-        wires: evaluatedWires,
-      };
+      const circuit: Circuit = { gates: newGates, wires: state.wires };
+      const result = evaluateCircuitPure(circuit, defaultConfig);
+      
+      if (isSuccess(result)) {
+        return {
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+        };
+      } else {
+        console.warn('Circuit evaluation failed:', result.error.message);
+        return {
+          gates: newGates,
+          wires: state.wires,
+        };
+      }
     });
 
     // 履歴に追加
@@ -126,16 +141,23 @@ export const createGateOperationsSlice: StateCreator<
       );
 
       // 回路全体を評価
-      const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(
-        newGates,
-        state.wires
-      );
-
-      return {
-        gates: evaluatedGates,
-        wires: evaluatedWires,
-        wireStart: newWireStart,
-      };
+      const circuit: Circuit = { gates: newGates, wires: state.wires };
+      const result = evaluateCircuitPure(circuit, defaultConfig);
+      
+      if (isSuccess(result)) {
+        return {
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+          wireStart: newWireStart,
+        };
+      } else {
+        console.warn('Circuit evaluation failed:', result.error.message);
+        return {
+          gates: newGates,
+          wires: state.wires,
+          wireStart: newWireStart,
+        };
+      }
     });
 
     // saveToHistoryフラグが設定されている場合のみ履歴に追加
@@ -161,17 +183,25 @@ export const createGateOperationsSlice: StateCreator<
       );
 
       // 回路全体を評価
-      const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(
-        newGates,
-        newWires
-      );
-
-      return {
-        gates: evaluatedGates,
-        wires: evaluatedWires,
-        selectedGateId: null,
-        selectedGateIds: [],
-      };
+      const circuit: Circuit = { gates: newGates, wires: newWires };
+      const result = evaluateCircuitPure(circuit, defaultConfig);
+      
+      if (isSuccess(result)) {
+        return {
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+          selectedGateId: null,
+          selectedGateIds: [],
+        };
+      } else {
+        console.warn('Circuit evaluation failed:', result.error.message);
+        return {
+          gates: newGates,
+          wires: newWires,
+          selectedGateId: null,
+          selectedGateIds: [],
+        };
+      }
     });
 
     // 履歴に追加
@@ -185,15 +215,21 @@ export const createGateOperationsSlice: StateCreator<
       );
 
       // 回路全体を評価
-      const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(
-        newGates,
-        state.wires
-      );
-
-      return {
-        gates: evaluatedGates,
-        wires: evaluatedWires,
-      };
+      const circuit: Circuit = { gates: newGates, wires: state.wires };
+      const result = evaluateCircuitPure(circuit, defaultConfig);
+      
+      if (isSuccess(result)) {
+        return {
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+        };
+      } else {
+        console.warn('Circuit evaluation failed:', result.error.message);
+        return {
+          gates: newGates,
+          wires: state.wires,
+        };
+      }
     });
   },
 

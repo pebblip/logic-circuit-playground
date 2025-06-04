@@ -2,7 +2,9 @@ import type { StateCreator } from 'zustand';
 import type { CircuitStore, ClipboardData } from '../types';
 import type { Position, Gate, Wire } from '@/types/circuit';
 import { IdGenerator } from '@shared/id';
-import { evaluateCircuit } from '@domain/simulation';
+import { evaluateCircuitPure, defaultConfig, isSuccess } from '@domain/simulation/pure';
+import type { Circuit } from '@domain/simulation/pure/types';
+
 
 export interface ClipboardSlice {
   clipboard: ClipboardData | null;
@@ -111,20 +113,28 @@ export const createClipboardSlice: StateCreator<
     const allWires = [...state.wires, ...newWires];
 
     // 回路全体を評価
-    const { gates: evaluatedGates, wires: evaluatedWires } = evaluateCircuit(
-      allGates,
-      allWires
-    );
-
+    const circuit: Circuit = { gates: allGates, wires: allWires };
+    const result = evaluateCircuitPure(circuit, defaultConfig);
+    
     // 新しくペーストしたゲートを選択
     const newGateIds = newGates.map(g => g.id);
-
-    set({
-      gates: evaluatedGates,
-      wires: evaluatedWires,
-      selectedGateIds: newGateIds,
-      selectedGateId: newGateIds.length === 1 ? newGateIds[0] : null,
-    });
+    
+    if (isSuccess(result)) {
+      set({
+        gates: [...result.data.circuit.gates],
+        wires: [...result.data.circuit.wires],
+        selectedGateIds: newGateIds,
+        selectedGateId: newGateIds.length === 1 ? newGateIds[0] : null,
+      });
+    } else {
+      console.warn('Clipboard operation: Circuit evaluation failed:', result.error.message);
+      set({
+        gates: allGates,
+        wires: allWires,
+        selectedGateIds: newGateIds,
+        selectedGateId: newGateIds.length === 1 ? newGateIds[0] : null,
+      });
+    }
 
     // 履歴に追加
     get().saveToHistory();

@@ -2,12 +2,15 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useCircuitStore } from '../stores/circuitStore';
 import { GateComponent } from './Gate';
 import { WireComponent } from './Wire';
-import { evaluateCircuit } from '@domain/simulation';
+import { evaluateCircuitPure, defaultConfig, isSuccess } from '@domain/simulation/pure';
+import type { Circuit } from '@domain/simulation/pure/types';
+import type { Gate, Wire } from '../types/circuit';
 import { useCanvasPan } from '../hooks/useCanvasPan';
 import { useCanvasSelection } from '../hooks/useCanvasSelection';
 import { useCanvasZoom } from '../hooks/useCanvasZoom';
 import { reactEventToSVGCoordinates } from '@infrastructure/ui/svgCoordinates';
 import type { GateType, CustomGateDefinition } from '../types/gates';
+
 
 interface ViewBox {
   x: number;
@@ -139,11 +142,18 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       const interval = setInterval(() => {
         // 現在の状態を直接取得
         const currentState = useCircuitStore.getState();
-        const { gates: updatedGates, wires: updatedWires } = evaluateCircuit(
-          currentState.gates,
-          currentState.wires
-        );
-        useCircuitStore.setState({ gates: updatedGates, wires: updatedWires });
+        const circuit: Circuit = { 
+          gates: currentState.gates, 
+          wires: currentState.wires 
+        };
+        const result = evaluateCircuitPure(circuit, defaultConfig);
+        
+        if (isSuccess(result)) {
+          useCircuitStore.setState({ 
+            gates: [...result.data.circuit.gates], 
+            wires: [...result.data.circuit.wires] 
+          });
+        }
       }, 50); // 20Hz更新
 
       return () => {

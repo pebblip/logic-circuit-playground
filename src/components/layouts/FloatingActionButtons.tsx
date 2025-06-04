@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { evaluateCircuit } from '../../domain/simulation';
+import { evaluateCircuitPure, defaultConfig, isSuccess } from '../../domain/simulation/pure';
+import type { Circuit } from '../../domain/simulation/pure/types';
+import type { Gate, Wire } from '../../types/circuit';
 import { useCircuitStore } from '../../stores/circuitStore';
 import { SaveCircuitDialog } from '../dialogs/SaveCircuitDialog';
 import { LoadCircuitDialog } from '../dialogs/LoadCircuitDialog';
+
 
 export const FloatingActionButtons: React.FC = () => {
   const { gates, wires } = useCircuitStore();
@@ -12,11 +15,17 @@ export const FloatingActionButtons: React.FC = () => {
 
   const handleSimulate = () => {
     // 手動でシミュレーションを実行
-    const { gates: updatedGates, wires: updatedWires } = evaluateCircuit(
-      gates,
-      wires
-    );
-    useCircuitStore.setState({ gates: updatedGates, wires: updatedWires });
+    const circuit: Circuit = { gates, wires };
+    const result = evaluateCircuitPure(circuit, defaultConfig);
+    
+    if (isSuccess(result)) {
+      useCircuitStore.setState({ 
+        gates: [...result.data.circuit.gates], 
+        wires: [...result.data.circuit.wires] 
+      });
+    } else {
+      alert(`Circuit evaluation failed: ${result.error.message}`);
+    }
   };
 
   const handleSave = () => {

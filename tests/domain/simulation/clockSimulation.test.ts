@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { evaluateGate, evaluateCircuit, createDeterministicTimeProvider, createFixedTimeProvider, TimeProvider } from '@domain/simulation/circuitSimulation';
+import { evaluateGateUnified, evaluateCircuitPure, createDeterministicTimeProvider, createFixedTimeProvider, TimeProvider, isSuccess, defaultConfig } from '@domain/simulation/pure';
 import { Gate, Wire, GateType } from '@/types/circuit';
 
 describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
@@ -32,19 +32,23 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
       };
 
       // At start time
-      expect(evaluateGate(clockGate, [])).toBe(false);
+      const result = evaluateGateUnified(clockGate, [], defaultConfig);
+      expect(isSuccess(result) && result.data.primaryOutput).toBe(false);
 
       // After 1 complete period
       vi.setSystemTime(startTime + 1000);
-      expect(evaluateGate(clockGate, [])).toBe(true);
+      const result2 = evaluateGateUnified(clockGate, [], defaultConfig);
+      expect(isSuccess(result2) && result2.data.primaryOutput).toBe(true);
 
       // After 2 complete periods
       vi.setSystemTime(startTime + 2000);
-      expect(evaluateGate(clockGate, [])).toBe(false);
+      const result3 = evaluateGateUnified(clockGate, [], defaultConfig);
+      expect(isSuccess(result3) && result3.data.primaryOutput).toBe(false);
 
       // After 3 complete periods
       vi.setSystemTime(startTime + 3000);
-      expect(evaluateGate(clockGate, [])).toBe(true);
+      const result4 = evaluateGateUnified(clockGate, [], defaultConfig);
+      expect(isSuccess(result4) && result4.data.primaryOutput).toBe(true);
     });
 
     it('should remain false when not running', () => {
@@ -63,10 +67,12 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
         }
       };
 
-      expect(evaluateGate(clockGate, [])).toBe(false);
+      const result = evaluateGateUnified(clockGate, [], defaultConfig);
+      expect(isSuccess(result) && result.data.primaryOutput).toBe(false);
       
       vi.setSystemTime(startTime + 2000);
-      expect(evaluateGate(clockGate, [])).toBe(false);
+      const result2 = evaluateGateUnified(clockGate, [], defaultConfig);
+      expect(isSuccess(result2) && result2.data.primaryOutput).toBe(false);
     });
   });
 
@@ -105,13 +111,17 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
 
       // At 500ms
       vi.setSystemTime(startTime + 500);
-      expect(evaluateGate(clockGates[0], [])).toBe(false); // 0.5 periods
-      expect(evaluateGate(clockGates[1], [])).toBe(true);  // 1.0 periods
+      const result1 = evaluateGateUnified(clockGates[0], [], defaultConfig);
+      const result2 = evaluateGateUnified(clockGates[1], [], defaultConfig);
+      expect(isSuccess(result1) && result1.data.primaryOutput).toBe(false); // 0.5 periods
+      expect(isSuccess(result2) && result2.data.primaryOutput).toBe(true);  // 1.0 periods
 
       // At 1000ms
       vi.setSystemTime(startTime + 1000);
-      expect(evaluateGate(clockGates[0], [])).toBe(true);  // 1.0 periods
-      expect(evaluateGate(clockGates[1], [])).toBe(false); // 2.0 periods
+      const result3 = evaluateGateUnified(clockGates[0], [], defaultConfig);
+      const result4 = evaluateGateUnified(clockGates[1], [], defaultConfig);
+      expect(isSuccess(result3) && result3.data.primaryOutput).toBe(true);  // 1.0 periods
+      expect(isSuccess(result4) && result4.data.primaryOutput).toBe(false); // 2.0 periods
     });
   });
 
@@ -136,7 +146,8 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
 
       // Initially stopped
       vi.setSystemTime(startTime + 1000);
-      expect(evaluateGate(clockGate, [])).toBe(false);
+      const result = evaluateGateUnified(clockGate, [], defaultConfig);
+      expect(isSuccess(result) && result.data.primaryOutput).toBe(false);
 
       // Start the clock
       clockGate.metadata!.isRunning = true;
@@ -144,7 +155,8 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
       
       // After starting, advance 1 period
       vi.setSystemTime(startTime + 2000);
-      expect(evaluateGate(clockGate, [])).toBe(true);
+      const result2 = evaluateGateUnified(clockGate, [], defaultConfig);
+      expect(isSuccess(result2) && result2.data.primaryOutput).toBe(true);
     });
   });
 
@@ -186,15 +198,21 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
       ];
 
       // Initial evaluation
-      const result1 = evaluateCircuit(gates, wires);
-      expect(result1.gates[0].output).toBe(false); // CLOCK
-      expect(result1.gates[1].output).toBe(true);  // NOT of CLOCK
+      const result1 = evaluateCircuitPure({ gates, wires }, defaultConfig);
+      expect(isSuccess(result1)).toBe(true);
+      if (isSuccess(result1)) {
+        expect(result1.data.circuit.gates[0].output).toBe(false); // CLOCK
+        expect(result1.data.circuit.gates[1].output).toBe(true);  // NOT of CLOCK
+      }
 
       // After 1 period
       vi.setSystemTime(startTime + 1000);
-      const result2 = evaluateCircuit(gates, wires);
-      expect(result2.gates[0].output).toBe(true);  // CLOCK toggled
-      expect(result2.gates[1].output).toBe(false); // NOT of CLOCK
+      const result2 = evaluateCircuitPure({ gates, wires }, defaultConfig);
+      expect(isSuccess(result2)).toBe(true);
+      if (isSuccess(result2)) {
+        expect(result2.data.circuit.gates[0].output).toBe(true);  // CLOCK toggled
+        expect(result2.data.circuit.gates[1].output).toBe(false); // NOT of CLOCK
+      }
     });
   });
 
@@ -218,14 +236,17 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
       }));
 
       const start = performance.now();
-      const result = evaluateCircuit(gates, []);
+      const result = evaluateCircuitPure({ gates, wires: [] }, defaultConfig);
       const end = performance.now();
 
       expect(end - start).toBeLessThan(10);
-      expect(result.gates.length).toBe(10);
-      result.gates.forEach(gate => {
-        expect(typeof gate.output).toBe('boolean');
-      });
+      expect(isSuccess(result)).toBe(true);
+      if (isSuccess(result)) {
+        expect(result.data.circuit.gates.length).toBe(10);
+        result.data.circuit.gates.forEach(gate => {
+          expect(typeof gate.output).toBe('boolean');
+        });
+      }
     });
   });
 
@@ -247,12 +268,18 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
         }
       ];
 
-      const result1 = evaluateCircuit(gates, []);
-      expect(result1.gates.length).toBe(1);
+      const result1 = evaluateCircuitPure({ gates, wires: [] }, defaultConfig);
+      expect(isSuccess(result1)).toBe(true);
+      if (isSuccess(result1)) {
+        expect(result1.data.circuit.gates.length).toBe(1);
+      }
 
       // Remove CLOCK gate
-      const result2 = evaluateCircuit([], []);
-      expect(result2.gates.length).toBe(0);
+      const result2 = evaluateCircuitPure({ gates: [], wires: [] }, defaultConfig);
+      expect(isSuccess(result2)).toBe(true);
+      if (isSuccess(result2)) {
+        expect(result2.data.circuit.gates.length).toBe(0);
+      }
     });
   });
 
@@ -267,7 +294,8 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
         output: false
       };
 
-      expect(evaluateGate(clockGate, [])).toBe(false);
+      const result = evaluateGateUnified(clockGate, [], defaultConfig);
+      expect(isSuccess(result) && result.data.primaryOutput).toBe(false);
     });
 
     it('should handle invalid frequency', () => {
@@ -284,7 +312,8 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
         }
       };
 
-      expect(() => evaluateGate(clockGate, [])).not.toThrow();
+      const result = evaluateGateUnified(clockGate, [], defaultConfig);
+      expect(isSuccess(result)).toBe(true);
     });
 
     it('should initialize startTime during circuit evaluation', () => {
@@ -300,8 +329,11 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
         }
       }];
 
-      const result = evaluateCircuit(gates, []);
-      expect(result.gates[0].metadata?.startTime).toBeDefined();
+      const result = evaluateCircuitPure({ gates, wires: [] }, defaultConfig);
+      expect(isSuccess(result)).toBe(true);
+      if (isSuccess(result)) {
+        expect(result.data.circuit.gates[0].metadata?.startTime).toBeDefined();
+      }
     });
   });
 });
@@ -332,23 +364,33 @@ describe('CLOCK Gate Deterministic Simulation - New Time Provider Tests', () => 
 
       // At startTime (0ms) - 0 periods
       const timeProvider0 = createFixedTimeProvider(0);
-      expect(evaluateGate(clockGate, [], timeProvider0)).toBe(false);
+      const config0 = { ...defaultConfig, timeProvider: timeProvider0 };
+      const result0 = evaluateGateUnified(clockGate, [], config0);
+      expect(isSuccess(result0) && result0.data.primaryOutput).toBe(false);
       
       // At 500ms - 0.5 periods
       const timeProvider500 = createFixedTimeProvider(500);
-      expect(evaluateGate(clockGate, [], timeProvider500)).toBe(false);
+      const config500 = { ...defaultConfig, timeProvider: timeProvider500 };
+      const result500 = evaluateGateUnified(clockGate, [], config500);
+      expect(isSuccess(result500) && result500.data.primaryOutput).toBe(false);
       
       // At 1000ms - 1.0 periods (first toggle)
       const timeProvider1000 = createFixedTimeProvider(1000);
-      expect(evaluateGate(clockGate, [], timeProvider1000)).toBe(true);
+      const config1000 = { ...defaultConfig, timeProvider: timeProvider1000 };
+      const result1000 = evaluateGateUnified(clockGate, [], config1000);
+      expect(isSuccess(result1000) && result1000.data.primaryOutput).toBe(true);
       
       // At 1500ms - 1.5 periods
       const timeProvider1500 = createFixedTimeProvider(1500);
-      expect(evaluateGate(clockGate, [], timeProvider1500)).toBe(true);
+      const config1500 = { ...defaultConfig, timeProvider: timeProvider1500 };
+      const result1500 = evaluateGateUnified(clockGate, [], config1500);
+      expect(isSuccess(result1500) && result1500.data.primaryOutput).toBe(true);
       
       // At 2000ms - 2.0 periods (second toggle)
       const timeProvider2000 = createFixedTimeProvider(2000);
-      expect(evaluateGate(clockGate, [], timeProvider2000)).toBe(false);
+      const config2000 = { ...defaultConfig, timeProvider: timeProvider2000 };
+      const result2000 = evaluateGateUnified(clockGate, [], config2000);
+      expect(isSuccess(result2000) && result2000.data.primaryOutput).toBe(false);
     });
 
     it('should work with circuit evaluation using deterministic time', () => {
@@ -386,19 +428,29 @@ describe('CLOCK Gate Deterministic Simulation - New Time Provider Tests', () => 
       ];
 
       // Time 0: CLOCK=false, NOT=true
-      const result1 = evaluateCircuit(gates, wires, timeProvider);
-      expect(result1.gates[0].output).toBe(false);
-      expect(result1.gates[1].output).toBe(true);
+      const config = { ...defaultConfig, timeProvider };
+      const result1 = evaluateCircuitPure({ gates, wires }, config);
+      expect(isSuccess(result1)).toBe(true);
+      if (isSuccess(result1)) {
+        expect(result1.data.circuit.gates[0].output).toBe(false);
+        expect(result1.data.circuit.gates[1].output).toBe(true);
+      }
 
       // Time 1000: CLOCK=true, NOT=false
-      const result2 = evaluateCircuit(gates, wires, timeProvider);
-      expect(result2.gates[0].output).toBe(true);
-      expect(result2.gates[1].output).toBe(false);
+      const result2 = evaluateCircuitPure({ gates, wires }, config);
+      expect(isSuccess(result2)).toBe(true);
+      if (isSuccess(result2)) {
+        expect(result2.data.circuit.gates[0].output).toBe(true);
+        expect(result2.data.circuit.gates[1].output).toBe(false);
+      }
 
       // Time 2000: CLOCK=false, NOT=true
-      const result3 = evaluateCircuit(gates, wires, timeProvider);
-      expect(result3.gates[0].output).toBe(false);
-      expect(result3.gates[1].output).toBe(true);
+      const result3 = evaluateCircuitPure({ gates, wires }, config);
+      expect(isSuccess(result3)).toBe(true);
+      if (isSuccess(result3)) {
+        expect(result3.data.circuit.gates[0].output).toBe(false);
+        expect(result3.data.circuit.gates[1].output).toBe(true);
+      }
     });
 
     it('should be reproducible with same starting conditions', () => {
@@ -433,9 +485,15 @@ describe('CLOCK Gate Deterministic Simulation - New Time Provider Tests', () => 
 
       // Both should produce identical sequences
       for (let i = 0; i < 5; i++) {
-        const result1 = evaluateGate(clockGate1, [], timeProvider1);
-        const result2 = evaluateGate(clockGate2, [], timeProvider2);
-        expect(result1).toBe(result2);
+        const config1 = { ...defaultConfig, timeProvider: timeProvider1 };
+        const config2 = { ...defaultConfig, timeProvider: timeProvider2 };
+        const result1 = evaluateGateUnified(clockGate1, [], config1);
+        const result2 = evaluateGateUnified(clockGate2, [], config2);
+        expect(isSuccess(result1)).toBe(true);
+        expect(isSuccess(result2)).toBe(true);
+        if (isSuccess(result1) && isSuccess(result2)) {
+          expect(result1.data.primaryOutput).toBe(result2.data.primaryOutput);
+        }
       }
     });
 
@@ -477,9 +535,14 @@ describe('CLOCK Gate Deterministic Simulation - New Time Provider Tests', () => 
 
       testCases.forEach(({ time, expected1Hz, expected4Hz }) => {
         const timeProvider = createFixedTimeProvider(time);
-        const result1Hz = evaluateGate(clock1Hz, [], timeProvider);
-        const result4Hz = evaluateGate(clock4Hz, [], timeProvider);
-        expect([result1Hz, result4Hz]).toEqual([expected1Hz, expected4Hz]);
+        const config = { ...defaultConfig, timeProvider };
+        const result1Hz = evaluateGateUnified(clock1Hz, [], config);
+        const result4Hz = evaluateGateUnified(clock4Hz, [], config);
+        expect(isSuccess(result1Hz)).toBe(true);
+        expect(isSuccess(result4Hz)).toBe(true);
+        if (isSuccess(result1Hz) && isSuccess(result4Hz)) {
+          expect([result1Hz.data.primaryOutput, result4Hz.data.primaryOutput]).toEqual([expected1Hz, expected4Hz]);
+        }
       });
     });
 
@@ -497,11 +560,15 @@ describe('CLOCK Gate Deterministic Simulation - New Time Provider Tests', () => 
       };
 
       // Should work without time provider (uses real time)
-      const result1 = evaluateGate(clockGate, []);
-      const result2 = evaluateGate(clockGate, []);
+      const result1 = evaluateGateUnified(clockGate, [], defaultConfig);
+      const result2 = evaluateGateUnified(clockGate, [], defaultConfig);
       
-      expect(typeof result1).toBe('boolean');
-      expect(typeof result2).toBe('boolean');
+      expect(isSuccess(result1)).toBe(true);
+      expect(isSuccess(result2)).toBe(true);
+      if (isSuccess(result1) && isSuccess(result2)) {
+        expect(typeof result1.data.primaryOutput).toBe('boolean');
+        expect(typeof result2.data.primaryOutput).toBe('boolean');
+      }
     });
   });
 });
