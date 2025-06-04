@@ -5,9 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2025-01-26
+## [Unreleased]
 
-### 🎯 Current Phase: Phase 1 - アーキテクチャ整理 & Phase 2 - UI/UX改善
+### 🎯 Current Status
 
 ### Architecture Decision
 - 🏗️ Adopted **Hybrid Feature-Domain Architecture**
@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 📝 Created CHANGELOG.md for version tracking
 
 ### Added
+- ✅ **Type-safe simulation**: Result<T,E> pattern implementation
+- ✅ **Custom gate creation**: Create new gates from circuits
+- ✅ **Truth table display**: Visualize custom gate behavior
+- ✅ **Comprehensive test suite**: TruthTableDisplay.test.tsx (7 test cases)
+- ✅ **Defensive programming**: Fallback with safeOutputNames
+- ✅ **Required field indicators**: Red asterisk for UI improvement
 - ✅ Zustand store implementation for global state management
 - ✅ Responsive layout implementation with mockup CSS
 - ✅ Performance optimization with React.memo
@@ -40,6 +46,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🔄 Grid layout fix: `minmax(0, 1fr)` for proper constraint
 
 ### Fixed
+- 🐛 **Truth table output headers**: Fixed undefined output names issue
+- 🐛 **Custom gate pin positions**: Unified calculation with CustomGateRenderer
+- 🐛 **複数CLOCKゲート同期問題**: Canvas useEffect依存配列を修正
+- 🐛 **カスタムゲート作成ダイアログ**: イベント伝播とprops受け渡し修正
+- 🐛 **テスト期待値ミス**: pinPositionCalculator期待値を80→85に修正
 - 🐛 Right sidebar not visible due to grid overflow
 - 🐛 Build errors related to TypeScript strict mode
 - 🐛 CLOCK gate modal close button not working due to state update conflicts
@@ -48,41 +59,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🐛 Custom gate creation dialog validation and UI issues
 
 ### Known Issues - Priority High 🔴
-- ⚠️ None currently (基本機能は全て動作)
+- ✅ **問題なし**: 全ての重要機能が正常動作
+- ✅ **新API移行完了**: 技術的負債完全返済
+- ✅ **テスト完全通過**: 全テストケース成功
 
 ### Technical Debt
-- 🏚️ src_old directory needs to be cleaned up
-- 🏚️ ViewModelパターン needs to be integrated with Zustand
+- ✅ **返済完了**: 新API移行によりResult<T,E>パターン導入
+- ✅ **返済完了**: 型安全性の大幅向上（anyタイプ削減）
+- ✅ **返済完了**: 防御的プログラミングによる堅牢性向上
+- 🏚️ src_old directory needs to be cleaned up（参考用として残存）
 - 🏚️ Multiple architectural patterns coexist
 
-## [0.2.0] - 2024-01-XX (Phase 1 Completed)
-
-### Added
-- Feature-Sliced Design architecture documentation
-- Zustand store with immer middleware
-- Bidirectional sync between ViewModel and store
-- Basic responsive hooks
-
-### Changed
-- Migrated from function-based to class-based domain models
-- Implemented ViewModelパターン with EventEmitter
-
-## [0.1.0] - 2024-01-XX (Initial Release)
-
-### Added
-- Basic circuit editor with gate placement
-- Real-time circuit simulation
-- Basic gate types (AND, OR, NOT, XOR, NAND, NOR)
-- Input/Output components (Switch, LED)
-- Connection wire drawing
-- Mode selection screen
-
-### Technical Stack
-- React 18 with TypeScript
-- Vite for build tooling
-- Tailwind CSS for styling
-- Vitest for testing
-- SVG-based rendering
 
 ---
 

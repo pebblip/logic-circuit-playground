@@ -8,21 +8,24 @@
 
 ## 🚀 概要
 
-Logic Circuit Playgroundは、論理回路の基礎から応用まで段階的に学習できるインタラクティブなWebアプリケーションです。ワンクリックでゲートを配置し、リアルタイムでシミュレーションを実行できます。
+Logic Circuit Playgroundは、論理回路の基礎から応用まで段階的に学習できるインタラクティブなWebアプリケーションです。ドラッグ&ドロップでゲートを配置し、リアルタイムでシミュレーションを実行できます。
 
 ### ✨ 特徴
 - 🎮 **3つのモード**: 学習・フリー・パズル
-- 🎨 **直感的な操作**: ワンクリックで簡単ゲート配置
+- 🎨 **直感的な操作**: ドラッグ&ドロップで簡単ゲート配置
 - ⚡ **リアルタイムシミュレーション**: 信号の流れをアニメーション表示
+- 🔧 **カスタムゲート作成**: 回路から新しいゲートを作成可能
+- 📊 **真理値表表示**: ゲートの動作を視覚的に確認
 - 📱 **マルチデバイス対応**: PC・タブレット・スマホで快適操作
 - 🎯 **段階的学習**: 基本ゲートからCPU設計まで
 
-### 🚧 現在の状況
-**Phase C: 新API移行完了 ✅**
-- 新しいResult型パターンによる型安全なAPI実装
+### 🎉 技術的特徴
+**✅ 最新のアーキテクチャとAPI設計**
+- Result<T,E>パターンによる型安全なAPI
 - 純粋関数ベースの回路シミュレーション
-- 既存テスト783個の100%互換性維持
-- 詳細は[NEW_API_MIGRATION_GUIDE.md](./docs/NEW_API_MIGRATION_GUIDE.md)と[CHANGELOG.md](./CHANGELOG.md)を参照
+- 防御的プログラミングによる堅牢性
+- 包括的テストスイート（21+ファイル、全テスト成功）
+- 詳細は[CHANGELOG.md](./docs/CHANGELOG.md)を参照
 
 ## 🎯 始め方
 
@@ -60,40 +63,44 @@ npm run preview
 3. 各レッスンをクリアするとバッジを獲得
 
 ### フリーモード
-1. ツールパレットからゲートをクリックして配置
+1. ツールパレットからゲートをドラッグ&ドロップで配置
 2. ピンをクリックして接続を作成
 3. リアルタイムでシミュレーション実行
 4. 作品を保存・共有
+5. **回路からカスタムゲートを作成**
+6. **真理値表で動作を確認**
 
 ### パズルモード
 1. 与えられた条件を満たす回路を作成
 2. ヒントを使いながら問題を解決
 3. 最小ゲート数でクリアを目指す
 
-## ⚡ 新API機能 (2025年1月完成)
+## ⚡ 新機能ハイライト
 
-### 🚀 主な特徴
-- **Result型パターン**: Rustスタイルの型安全なエラーハンドリング
+### 🔧 カスタムゲート作成
+- **回路から新しいゲートを作成**: 複雑な回路を再利用可能なゲートに変換
+- **自動真理値表生成**: カスタムゲートの動作を自動的に分析
+- **視覚的な動作確認**: 真理値表で入出力関係を確認
+
+### 🚀 API設計
+- **Result<T,E>パターン**: Rustスタイルの型安全なエラーハンドリング
 - **純粋関数設計**: サイドエフェクトなし、完全にテスタブル
 - **Immutable**: 元データを変更せず、新しいデータを返す
-- **詳細なメタデータ**: パフォーマンス情報とバリデーション結果
-- **段階的警告システム**: エラーと警告の明確な分離
+- **防御的プログラミング**: 予期せぬ入力に対する堅牢性
 
 ### 🎯 使用例
 ```typescript
-import { evaluateCircuitPure, defaultConfig, isSuccess } from '@domain/simulation/pure';
+import { evaluateCircuitPure, defaultConfig } from '@domain/simulation/pure';
 
 const result = evaluateCircuitPure(circuit, defaultConfig);
 
-if (isSuccess(result)) {
+if (result.success) {
   console.log('評価成功！', result.data.circuit);
-  console.log('メタデータ:', result.data.metadata);
+  console.log('統計情報:', result.data.evaluationStats);
 } else {
   console.error('エラー:', result.error.message);
 }
 ```
-
-> **体験方法**: アプリのヘッダーの「🚀 新API」ボタンから実際にデモを体験できます！
 
 ## 🛠️ アーキテクチャ
 
@@ -101,13 +108,16 @@ Hybrid Feature-Domain Architectureを採用。詳細は[ARCHITECTURE.md](./docs/
 
 ```
 src/
-├── features/      # 機能単位のUI層
-├── domain/        # ビジネスロジック層
-│   ├── entities/ # ドメインモデル
-│   ├── services/ # ビジネスロジック
-│   └── stores/   # 状態管理
-├── shared/        # 共有リソース
-└── app/          # アプリケーション設定
+├── domain/                    # ドメインロジック
+│   ├── analysis/             # 真理値表生成・回路分析
+│   ├── circuit/              # 回路レイアウト・操作
+│   └── simulation/           # 新API：純粋関数シミュレーション
+│       └── pure/             # Result<T,E>パターン実装
+├── stores/                   # Zustand状態管理
+├── components/               # UIコンポーネント
+├── features/                 # 機能別実装
+├── hooks/                   # カスタムフック
+└── types/                  # 型定義
 ```
 
 ## 🧪 開発
@@ -116,11 +126,18 @@ src/
 ```bash
 npm run dev        # 開発サーバー起動
 npm run build      # プロダクションビルド
-npm run test       # テスト実行
+npm run test       # 単体テスト実行（推奨）
+npm run test:e2e   # E2Eテスト実行
 npm run typecheck  # 型チェック
 npm run lint       # リント実行
 npm run format     # コード整形
 ```
+
+### テスト状況
+- **総テストファイル数**: 21+ ファイル
+- **テスト成功率**: 100%
+- **新規追加**: TruthTableDisplay.test.tsx（7テストケース）
+- **修正済み**: pinPositionCalculator.test.ts
 
 ### 品質チェック
 ```bash

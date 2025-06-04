@@ -303,37 +303,6 @@ export class GatePlacement {
 }
 ```
 
-## 📋 移行計画
-
-### Phase 0: 構造の整理（現在）
-```bash
-# 1. domainディレクトリの作成
-mkdir -p src/domain/{services,stores}
-
-# 2. 既存entitiesの移動
-mv src/entities src/domain/entities
-
-# 3. servicesの実装
-# - CollisionDetector
-# - GatePlacement
-# - CircuitSimulator
-```
-
-### Phase 1: 基本機能の修正（1週間）
-- [ ] ワンクリック配置の実装
-- [ ] 座標変換の修正
-- [ ] 接続線描画の修正
-- [ ] モバイルスタイルの適用
-
-### Phase 2: アーキテクチャ適用（1週間）
-- [ ] features層への再構成
-- [ ] カスタムフックの整理
-- [ ] Zustandストアの実装
-
-### Phase 3: 機能追加（以降）
-- [ ] 学習モードの実装
-- [ ] 保存/読み込み機能
-- [ ] カスタムゲート機能
 
 ## 📊 この設計の利点
 
@@ -367,6 +336,3 @@ mv src/entities src/domain/entities
 
 Pure Feature-Sliced Designの厳格さより、**このプロジェクトに最適化された実用的な設計**を選択しました。
 
----
-
-*最終更新: 2025年1月*

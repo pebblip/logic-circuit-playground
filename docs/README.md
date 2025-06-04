@@ -12,7 +12,7 @@
 
 ### 🏗️ 開発ドキュメント
 - **[development/ARCHITECTURE.md](./development/ARCHITECTURE.md)** - 技術アーキテクチャ
-  - Feature-Sliced Design採用の理由
+  - Hybrid Feature-Domain Architecture
   - ディレクトリ構造、状態管理
   - 技術的な設計判断
 
@@ -22,9 +22,8 @@
   - 品質基準、コーディング規約、緊急時対応
 
 - **[development/ROADMAP.md](./development/ROADMAP.md)** - 開発ロードマップ
-  - 5つのフェーズによる段階的開発
-  - 各フェーズの具体的なタスク
-  - スケジュール
+  - 完了したフェーズと現在の状況
+  - 次期開発予定の機能
 
 ### 🎨 デザインリソース
 - **[design/mockups/](./design/mockups/)** - UIモックアップ
@@ -56,14 +55,12 @@
 - コードとドキュメントの一致を確認
 - リンク切れがないか確認
 
-## 🚀 今後追加予定のドキュメント
+## 📄 その他のドキュメント
 
-- **CHANGELOG.md** - バージョン履歴と変更内容
+- **[CHANGELOG.md](./CHANGELOG.md)** - バージョン履歴と変更内容
+
+## 🚀 今後検討中のドキュメント
+
 - **API_REFERENCE.md** - コンポーネント・フックのAPI仕様
 - **TESTING.md** - テスト戦略とガイド
 - **DEPLOYMENT.md** - デプロイ手順
-- **TROUBLESHOOTING.md** - よくある問題と解決方法
-
----
-
-*最終更新: 2024年1月*

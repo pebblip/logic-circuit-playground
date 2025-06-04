@@ -4,10 +4,13 @@
 このプロジェクトは教育用の論理回路シミュレータです。ユーザーは様々な論理ゲートを配置・接続して回路を作成し、リアルタイムでシミュレーションできます。
 
 ### 主な特徴
-- ワンクリックでゲート配置
-- リアルタイムシミュレーション 
+- ドラッグ&ドロップによる直感的なゲート配置
+- リアルタイムシミュレーション（新API移行完了） 
 - 視覚的フィードバック（アクティブな信号の表示）
 - 特殊ゲート対応（CLOCK、D-FF、SR-LATCH、MUX）
+- **カスタムゲート作成機能**（回路から新しいゲートを作成）
+- **真理値表自動生成・表示機能**
+- レスポンシブデザイン対応（デスクトップ・タブレット・モバイル）
 
 ## 📚 ドキュメント構造
 
@@ -45,13 +48,19 @@ const gate: any = { ... };
 
 ### テスト実行
 ```bash
+# 単体テストの実行（推奨：高速で詳細）
+npm run test
+
+# 特定のテストファイルのみ実行
+npm run test -- tests/components/TruthTableDisplay.test.tsx
+
 # E2Eテストの実行（開発中によく使う）
 npm run test:e2e
 
-# 特定のテストファイルのみ実行
+# 特定のE2Eテストのみ実行
 npx cypress run --spec "cypress/e2e/特定のテスト.cy.js"
 
-# ヘッドレスモードでテスト
+# ヘッドレスモードでE2Eテスト
 npm run test:e2e:headless
 
 # TypeScriptのチェック
@@ -61,8 +70,10 @@ npm run typecheck
 npm run build
 ```
 
-### 重要：テストが長すぎる場合
-単体テストなどが長すぎる場合は失敗とみなし、中断して原因を分析してください。
+### 重要：テスト実行ガイドライン
+- 単体テストなどが長すぎる場合は失敗とみなし、中断して原因を分析する
+- 新機能追加時は必ず対応するテストケースを追加
+- カスタムゲート関連機能は`TruthTableDisplay.test.tsx`を参考にテスト作成
 
 ## 📝 コミットルール
 
@@ -93,42 +104,68 @@ test: 特殊ゲートの統合テストを追加
 ### Hybrid Feature-Domain Architecture
 ```
 src/
-├── domain/          # ビジネスロジック
-│   ├── services/    # GatePlacement, CollisionDetector等
-│   └── stores/      # Zustandストア
-├── entities/        # ドメインモデル（ゲート定義）
-├── features/        # 機能別のUI実装
-│   ├── circuit-editor/
-│   └── learning-mode/
-└── shared/          # 共通ユーティリティ
+├── domain/                    # ドメインロジック
+│   ├── analysis/             # 真理値表生成・回路分析
+│   ├── circuit/              # 回路レイアウト・操作
+│   └── simulation/           # 新API：純粋関数シミュレーション
+│       └── pure/             # Result<T,E>パターン実装
+├── stores/                   # Zustand状態管理
+│   └── slices/              # 機能別スライス
+├── components/               # UIコンポーネント
+│   ├── dialogs/             # モーダルダイアログ
+│   ├── gate/                # ゲート関連コンポーネント
+│   ├── layouts/             # レスポンシブレイアウト
+│   └── tool-palette/        # ツールパレット
+├── features/                 # 機能別実装
+│   ├── gallery/             # ギャラリーモード
+│   ├── learning-mode/       # 学習モード
+│   └── puzzle-mode/         # パズルモード
+├── hooks/                   # カスタムフック
+├── infrastructure/         # インフラ層
+└── types/                  # 型定義
 ```
 
 ### 重要ファイル
 - `src/stores/circuitStore.ts` - 中央状態管理
-- `src/utils/simulation.ts` - 回路シミュレーションロジック
-- `src/components/Gate.tsx` - ゲートの描画
-- `src/components/Wire.tsx` - ワイヤーの描画
+- `src/domain/simulation/pure/circuitEvaluation.ts` - 新API回路評価
+- `src/domain/simulation/pure/gateEvaluation.ts` - 新APIゲート評価
+- `src/components/TruthTableDisplay.tsx` - 真理値表表示
+- `src/components/ToolPalette.tsx` - カスタムゲート作成
+- `src/domain/analysis/pinPositionCalculator.ts` - ピン位置計算
 - `src/models/gates/GateFactory.ts` - ゲート生成ファクトリー
 
 ## 🔧 よくある問題と解決方法
 
 ### 1. ワイヤー接続がずれる
-**原因**: ピン位置の計算ミス
-**解決**: `Wire.tsx`の`getOutputPinPosition`/`getInputPinPosition`を確認
+**原因**: ピン位置の計算ミス（特にカスタムゲート）
+**解決**: `src/domain/analysis/pinPositionCalculator.ts`の計算式を確認
+**修正済み**: CustomGateRendererと計算式を統一済み
 
-### 2. ゲートがドラッグできない
-**原因**: ワイヤー描画中のロック
-**確認**: `Gate.tsx`の`handleMouseDown`でワイヤー描画中チェック
+### 2. 真理値表の出力ヘッダーが表示されない
+**原因**: `definition.outputs`の`name`プロパティが未定義
+**解決**: `TruthTableDisplay.tsx`の`safeOutputNames`でフォールバック
+**修正済み**: 防御的プログラミングで完全解決
 
-### 3. シミュレーションが動かない
-**原因**: CLOCKゲートがある場合の定期更新が必要
-**解決**: `Canvas.tsx`でCLOCKゲート存在時の`setInterval`実装
+### 3. カスタムゲート作成ダイアログが開かない
+**原因**: イベント伝播やprops受け渡しの問題
+**解決**: `useCustomGateDialog.ts`でカスタムイベントを確認
+**修正済み**: デバッグログ追加とイベント処理修正
 
-### 4. TypeScriptエラー
+### 4. 複数CLOCKゲートの同期問題
+**原因**: Canvas.tsxのuseEffect依存配列が不完全
+**解決**: CLOCKゲート数とisRunning状態の両方を監視
+**修正済み**: 依存配列を修正して正常に動作
+
+### 5. シミュレーションが動かない
+**原因**: 新API移行により評価方式が変更
+**解決**: `src/domain/simulation/pure/`の新APIを使用
+**修正済み**: Result<T,E>パターンで型安全に実装
+
+### 6. TypeScriptエラー
 **対策**: 
 - まず`npm run typecheck`で確認
 - 型定義は`src/types/`に集約
-- 不明な型は一時的に`any`でも可（後で修正）
+- 新APIでは`any`を避けて型安全に実装
 
 ## 💡 開発のコツ
 
@@ -146,10 +183,32 @@ const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
 - Zustandを使用（シンプルで高速）
 - Immerは使わない（プロキシ問題を避ける）
 - 更新は必ずimmutableに
+- 新APIではResult<T,E>パターンでエラーハンドリング
+
+### 新APIシミュレーション（推奨）
+```typescript
+// ✅ 良い例：新API使用
+const result = evaluateCircuitPure(circuit, config);
+if (result.success) {
+  const { circuit: updatedCircuit } = result.data;
+  // 成功時の処理
+} else {
+  console.error('Evaluation failed:', result.error.message);
+}
+
+// ❌ 旧API（非推奨）
+const updatedCircuit = evaluateCircuit(circuit); // エラーが見えない
+```
+
+### カスタムゲート開発
+- `definition.outputs`の`name`プロパティは必須
+- 真理値表は自動生成される
+- ピン位置計算は`pinPositionCalculator.ts`で統一
 
 ### パフォーマンス
 - 不要な再レンダリングを避ける
 - CLOCKゲートの更新は20Hz（50ms間隔）で十分
+- 真理値表は計算コストが高いため、キャッシュを活用
 
 ## 🚀 次のステップの検討方法
 
@@ -178,8 +237,10 @@ const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
 
 ### コミット前
 - [ ] `npm run typecheck`でエラーなし
+- [ ] `npm run test`で単体テストが通る
 - [ ] 関連するE2Eテストが通る
 - [ ] コミットメッセージが規約に従っている
+- [ ] カスタムゲート関連の変更は真理値表表示も確認
 
 ## 🎨 UI/UXの指針
 
@@ -201,5 +262,4 @@ const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
 
 ---
 
-最終更新: 2025年1月
 プロジェクトの進化に合わせて、このドキュメントも更新してください。
