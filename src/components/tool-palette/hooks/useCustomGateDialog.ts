@@ -1,0 +1,77 @@
+import React, { useState, useEffect } from 'react';
+import type { CustomGatePin, CustomGateDefinition } from '@/types/circuit';
+import type { TruthTableResult } from '@/domain/analysis';
+
+interface DialogInitialData {
+  initialInputs?: CustomGatePin[];
+  initialOutputs?: CustomGatePin[];
+  isFullCircuit?: boolean;
+}
+
+interface TruthTableData {
+  result: TruthTableResult;
+  inputNames: string[];
+  outputNames: string[];
+  gateName: string;
+}
+
+export const useCustomGateDialog = () => {
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [dialogInitialData, setDialogInitialData] = useState<DialogInitialData>({});
+  const [isTruthTableOpen, setIsTruthTableOpen] = useState(false);
+  const [currentTruthTable, setCurrentTruthTable] = useState<TruthTableData | null>(null);
+
+  // カスタムゲート作成ダイアログを開くイベントリスナー
+  useEffect(() => {
+    const handleOpenDialog = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        initialInputs: unknown;
+        initialOutputs: unknown;
+        isFullCircuit: boolean;
+      }>;
+      const { initialInputs, initialOutputs, isFullCircuit } = customEvent.detail;
+      setDialogInitialData({ 
+        initialInputs: initialInputs as CustomGatePin[] | undefined, 
+        initialOutputs: initialOutputs as CustomGatePin[] | undefined, 
+        isFullCircuit 
+      });
+      setIsCreateDialogOpen(true);
+    };
+
+    window.addEventListener('open-custom-gate-dialog', handleOpenDialog);
+
+    return () => {
+      window.removeEventListener('open-custom-gate-dialog', handleOpenDialog);
+    };
+  }, []);
+
+  const openCreateDialog = () => {
+    setIsCreateDialogOpen(true);
+  };
+
+  const closeCreateDialog = () => {
+    setIsCreateDialogOpen(false);
+    setDialogInitialData({});
+  };
+
+  const openTruthTable = (data: TruthTableData) => {
+    setCurrentTruthTable(data);
+    setIsTruthTableOpen(true);
+  };
+
+  const closeTruthTable = () => {
+    setIsTruthTableOpen(false);
+    setCurrentTruthTable(null);
+  };
+
+  return {
+    isCreateDialogOpen,
+    dialogInitialData,
+    isTruthTableOpen,
+    currentTruthTable,
+    openCreateDialog,
+    closeCreateDialog,
+    openTruthTable,
+    closeTruthTable,
+  };
+};

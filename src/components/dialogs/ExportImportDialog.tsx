@@ -43,6 +43,7 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
   const [isImporting, setImporting] = useState(false);
   const [importPreview, setImportPreview] = useState<{
     name: string;
+    description?: string;
     gateCount: number;
     wireCount: number;
     createdAt: number;

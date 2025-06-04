@@ -25,14 +25,17 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
 
   const handleSaveSuccess = () => {
     // 保存成功時の処理
+    console.log('✅ 回路が保存されました');
   };
 
   const handleLoadSuccess = () => {
     // 読み込み成功時の処理
+    console.log('✅ 回路が読み込まれました');
   };
 
   const handleExportSuccess = () => {
     // エクスポート成功時の処理
+    console.log('✅ 回路がエクスポートされました');
   };
 
   const _handleShare = () => {

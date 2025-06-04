@@ -88,12 +88,14 @@ export function getGateInputsAsBoolean(gate: {
  * @param context デバッグコンテキスト
  */
 export function debugSignal(signal: any, context: string): void {
-  console.log(`[Signal Debug] ${context}:`, {
-    value: signal,
-    type: typeof signal,
-    isBoolean: typeof signal === 'boolean',
-    isString: typeof signal === 'string',
-    booleanValue:
-      typeof signal === 'string' ? displayStateToBoolean(signal) : signal,
-  });
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+    console.debug(`[Signal Debug] ${context}:`, {
+      value: signal,
+      type: typeof signal,
+      isBoolean: typeof signal === 'boolean',
+      isString: typeof signal === 'string',
+      booleanValue:
+        typeof signal === 'string' ? displayStateToBoolean(signal) : signal,
+    });
+  }
 }

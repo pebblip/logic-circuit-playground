@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { evaluateGate, evaluateCircuit } from '@domain/simulation/circuitSimulation';
+import { evaluateGate, evaluateCircuit, createDeterministicTimeProvider, createFixedTimeProvider, TimeProvider } from '@domain/simulation/circuitSimulation';
 import { Gate, Wire, GateType } from '@/types/circuit';
 
 describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
@@ -302,6 +302,206 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
 
       const result = evaluateCircuit(gates, []);
       expect(result.gates[0].metadata?.startTime).toBeDefined();
+    });
+  });
+});
+
+describe('CLOCK Gate Deterministic Simulation - New Time Provider Tests', () => {
+  describe('Deterministic time provider functionality', () => {
+    it('should provide deterministic time progression', () => {
+      const timeProvider = createDeterministicTimeProvider(1000, 100);
+      
+      expect(timeProvider.getCurrentTime()).toBe(1000);
+      expect(timeProvider.getCurrentTime()).toBe(1100);
+      expect(timeProvider.getCurrentTime()).toBe(1200);
+    });
+
+    it('should work with CLOCK gate using deterministic time', () => {
+      const clockGate: Gate = {
+        id: 'clock1',
+        type: 'CLOCK',
+        position: { x: 100, y: 100 },
+        inputs: [],
+        output: false,
+        metadata: {
+          isRunning: true,
+          frequency: 1, // 1Hz = 1000ms period
+          startTime: 0
+        }
+      };
+
+      // At startTime (0ms) - 0 periods
+      const timeProvider0 = createFixedTimeProvider(0);
+      expect(evaluateGate(clockGate, [], timeProvider0)).toBe(false);
+      
+      // At 500ms - 0.5 periods
+      const timeProvider500 = createFixedTimeProvider(500);
+      expect(evaluateGate(clockGate, [], timeProvider500)).toBe(false);
+      
+      // At 1000ms - 1.0 periods (first toggle)
+      const timeProvider1000 = createFixedTimeProvider(1000);
+      expect(evaluateGate(clockGate, [], timeProvider1000)).toBe(true);
+      
+      // At 1500ms - 1.5 periods
+      const timeProvider1500 = createFixedTimeProvider(1500);
+      expect(evaluateGate(clockGate, [], timeProvider1500)).toBe(true);
+      
+      // At 2000ms - 2.0 periods (second toggle)
+      const timeProvider2000 = createFixedTimeProvider(2000);
+      expect(evaluateGate(clockGate, [], timeProvider2000)).toBe(false);
+    });
+
+    it('should work with circuit evaluation using deterministic time', () => {
+      const timeProvider = createDeterministicTimeProvider(0, 1000);
+      
+      const gates: Gate[] = [
+        {
+          id: 'clock1',
+          type: 'CLOCK',
+          position: { x: 100, y: 100 },
+          inputs: [],
+          output: false,
+          metadata: {
+            isRunning: true,
+            frequency: 1, // 1Hz
+            startTime: 0
+          }
+        },
+        {
+          id: 'not1',
+          type: 'NOT',
+          position: { x: 200, y: 100 },
+          inputs: [''],
+          output: false
+        }
+      ];
+
+      const wires: Wire[] = [
+        {
+          id: 'w1',
+          from: { gateId: 'clock1', pinIndex: -1 },
+          to: { gateId: 'not1', pinIndex: 0 },
+          isActive: false
+        }
+      ];
+
+      // Time 0: CLOCK=false, NOT=true
+      const result1 = evaluateCircuit(gates, wires, timeProvider);
+      expect(result1.gates[0].output).toBe(false);
+      expect(result1.gates[1].output).toBe(true);
+
+      // Time 1000: CLOCK=true, NOT=false
+      const result2 = evaluateCircuit(gates, wires, timeProvider);
+      expect(result2.gates[0].output).toBe(true);
+      expect(result2.gates[1].output).toBe(false);
+
+      // Time 2000: CLOCK=false, NOT=true
+      const result3 = evaluateCircuit(gates, wires, timeProvider);
+      expect(result3.gates[0].output).toBe(false);
+      expect(result3.gates[1].output).toBe(true);
+    });
+
+    it('should be reproducible with same starting conditions', () => {
+      const timeProvider1 = createDeterministicTimeProvider(1000, 500);
+      const timeProvider2 = createDeterministicTimeProvider(1000, 500);
+      
+      const clockGate1: Gate = {
+        id: 'clock1',
+        type: 'CLOCK',
+        position: { x: 100, y: 100 },
+        inputs: [],
+        output: false,
+        metadata: {
+          isRunning: true,
+          frequency: 2, // 2Hz = 500ms period
+          startTime: 1000
+        }
+      };
+      
+      const clockGate2: Gate = {
+        id: 'clock2', 
+        type: 'CLOCK',
+        position: { x: 100, y: 100 },
+        inputs: [],
+        output: false,
+        metadata: {
+          isRunning: true,
+          frequency: 2, // 2Hz = 500ms period  
+          startTime: 1000
+        }
+      };
+
+      // Both should produce identical sequences
+      for (let i = 0; i < 5; i++) {
+        const result1 = evaluateGate(clockGate1, [], timeProvider1);
+        const result2 = evaluateGate(clockGate2, [], timeProvider2);
+        expect(result1).toBe(result2);
+      }
+    });
+
+    it('should handle different frequencies deterministically', () => {
+      const clock1Hz: Gate = {
+        id: 'clock1',
+        type: 'CLOCK',
+        position: { x: 100, y: 100 },
+        inputs: [],
+        output: false,
+        metadata: {
+          isRunning: true,
+          frequency: 1, // 1000ms period
+          startTime: 0
+        }
+      };
+      
+      const clock4Hz: Gate = {
+        id: 'clock2',
+        type: 'CLOCK', 
+        position: { x: 200, y: 100 },
+        inputs: [],
+        output: false,
+        metadata: {
+          isRunning: true,
+          frequency: 4, // 250ms period
+          startTime: 0
+        }
+      };
+
+      // Test at specific time points
+      const testCases = [
+        { time: 0, expected1Hz: false, expected4Hz: false },    // 0 periods for both
+        { time: 250, expected1Hz: false, expected4Hz: true },   // 0.25p for 1Hz, 1.0p for 4Hz
+        { time: 500, expected1Hz: false, expected4Hz: false },  // 0.5p for 1Hz, 2.0p for 4Hz
+        { time: 750, expected1Hz: false, expected4Hz: true },   // 0.75p for 1Hz, 3.0p for 4Hz
+        { time: 1000, expected1Hz: true, expected4Hz: false },  // 1.0p for 1Hz, 4.0p for 4Hz
+      ];
+
+      testCases.forEach(({ time, expected1Hz, expected4Hz }) => {
+        const timeProvider = createFixedTimeProvider(time);
+        const result1Hz = evaluateGate(clock1Hz, [], timeProvider);
+        const result4Hz = evaluateGate(clock4Hz, [], timeProvider);
+        expect([result1Hz, result4Hz]).toEqual([expected1Hz, expected4Hz]);
+      });
+    });
+
+    it('should maintain backward compatibility with default time provider', () => {
+      const clockGate: Gate = {
+        id: 'clock1',
+        type: 'CLOCK',
+        position: { x: 100, y: 100 },
+        inputs: [],
+        output: false,
+        metadata: {
+          isRunning: true,
+          frequency: 1000, // Very high frequency for quick test
+        }
+      };
+
+      // Should work without time provider (uses real time)
+      const result1 = evaluateGate(clockGate, []);
+      const result2 = evaluateGate(clockGate, []);
+      
+      expect(typeof result1).toBe('boolean');
+      expect(typeof result2).toBe('boolean');
     });
   });
 });

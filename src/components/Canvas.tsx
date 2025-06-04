@@ -7,6 +7,7 @@ import { useCanvasPan } from '../hooks/useCanvasPan';
 import { useCanvasSelection } from '../hooks/useCanvasSelection';
 import { useCanvasZoom } from '../hooks/useCanvasZoom';
 import { reactEventToSVGCoordinates } from '@infrastructure/ui/svgCoordinates';
+import type { GateType, CustomGateDefinition } from '../types/gates';
 
 interface ViewBox {
   x: number;
@@ -332,8 +333,11 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
 
-    const draggedGate = (window as Window & { _draggedGate?: unknown })._draggedGate;
-    if (!draggedGate || !svgRef.current) return;
+    const draggedGateData = (window as Window & { _draggedGate?: unknown })._draggedGate;
+    if (!draggedGateData || !svgRef.current) return;
+
+    // 型アサーション
+    const draggedGate = draggedGateData as { type: GateType; customDefinition?: CustomGateDefinition };
 
     // SVG座標系でのドロップ位置を取得
     const svgPoint = reactEventToSVGCoordinates(event, svgRef.current);

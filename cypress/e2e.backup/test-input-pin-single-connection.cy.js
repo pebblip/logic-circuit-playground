@@ -16,23 +16,25 @@ describe('Input Pin Single Connection Validation', () => {
     cy.get('svg').click(300, 150);
     
     // Connect first input to AND gate's first input pin
-    cy.get('svg').within(() => {
-      // Click on first INPUT gate's output pin
-      cy.get('circle[data-testid*="output-pin"]').first().click();
-      // Click on AND gate's first input pin  
-      cy.get('circle[data-testid*="input-pin"]').first().click();
-    });
+    // First INPUT gate output pin
+    cy.get('svg g[data-gate-type="INPUT"]').first()
+      .find('circle.pin.output-pin').click();
+    
+    // AND gate's first input pin
+    cy.get('svg g[data-gate-type="AND"]')
+      .find('circle.pin.input-pin').first().click();
     
     // Verify first wire was created
     cy.get('path[stroke="#00ff88"]').should('have.length', 1);
     
     // Try to connect second input to the same AND gate input pin
-    cy.get('svg').within(() => {
-      // Click on second INPUT gate's output pin
-      cy.get('circle[data-testid*="output-pin"]').eq(1).click();
-      // Try to click on AND gate's SAME first input pin again
-      cy.get('circle[data-testid*="input-pin"]').first().click();
-    });
+    // Second INPUT gate output pin
+    cy.get('svg g[data-gate-type="INPUT"]').eq(1)
+      .find('circle.pin.output-pin').click();
+    
+    // Try to click on AND gate's SAME first input pin again
+    cy.get('svg g[data-gate-type="AND"]')
+      .find('circle.pin.input-pin').first().click();
     
     // Verify only one wire exists (second connection should be rejected)
     cy.get('path[stroke="#00ff88"]').should('have.length', 1);

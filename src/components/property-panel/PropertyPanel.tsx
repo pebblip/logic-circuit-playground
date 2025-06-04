@@ -19,6 +19,10 @@ export const PropertyPanel: React.FC = () => {
     gateId: string;
     gateType: string;
     truthTable: Record<string, string>;
+    result?: any;
+    inputNames?: string[];
+    outputNames?: string[];
+    gateName?: string;
   } | null>(null);
   const [clockWasRunning, setClockWasRunning] = useState(false);
 
@@ -137,12 +141,12 @@ export const PropertyPanel: React.FC = () => {
 
         // 入力列を追加
         definition.inputs.forEach((inputPin, index) => {
-          row[inputPin.name] = parseInt(inputs[index]);
+          row[inputPin.name] = inputs[index];
         });
 
         // 出力列を追加
         definition.outputs.forEach((outputPin, index) => {
-          row[`out_${outputPin.name}`] = parseInt(outputs[index]);
+          row[`out_${outputPin.name}`] = outputs[index];
         });
 
         return row;
@@ -243,6 +247,9 @@ export const PropertyPanel: React.FC = () => {
       };
 
       setTruthTableData({
+        gateId: selectedGate.id,
+        gateType: selectedGate.type,
+        truthTable: truthTable,
         result,
         inputNames,
         outputNames,
@@ -255,7 +262,7 @@ export const PropertyPanel: React.FC = () => {
       const gateName = `${selectedGate.type}ゲート`;
 
       // 基本ゲートの真理値表を生成
-      const truthTable = getTruthTable();
+      const truthTable = getTruthTable() as any[];
       if (truthTable.length > 0) {
         const table = truthTable.map(row => {
           const inputs =
@@ -273,6 +280,16 @@ export const PropertyPanel: React.FC = () => {
         });
 
         setTruthTableData({
+          gateId: selectedGate.id,
+          gateType: selectedGate.type,
+          truthTable: truthTable.reduce((acc, row: any, index) => {
+            const inputStr = selectedGate.type === 'NOT' 
+              ? booleanToDisplayState(!!row.a)
+              : `${booleanToDisplayState(!!row.a)}${booleanToDisplayState(!!(row.b || 0))}`;
+            const outputStr = booleanToDisplayState(!!row.out);
+            acc[inputStr] = outputStr;
+            return acc;
+          }, {} as Record<string, string>),
           result: {
             table,
             inputCount: inputNames.length,

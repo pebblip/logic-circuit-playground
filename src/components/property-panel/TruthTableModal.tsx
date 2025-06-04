@@ -7,6 +7,10 @@ interface TruthTableModalProps {
     gateId: string;
     gateType: string;
     truthTable: Record<string, string>;
+    result?: any;
+    inputNames?: string[];
+    outputNames?: string[];
+    gateName?: string;
   } | null;
   onClose: () => void;
 }
@@ -96,8 +100,8 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
         {/* 真理値表表示 */}
         <TruthTableDisplay
           result={truthTableData.result}
-          inputNames={truthTableData.inputNames}
-          outputNames={truthTableData.outputNames}
+          inputNames={truthTableData.inputNames || []}
+          outputNames={truthTableData.outputNames || []}
         />
       </div>
     </div>

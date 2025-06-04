@@ -1,5 +1,8 @@
 import type { Gate, CustomGateDefinition } from './circuit';
 
+// Re-export for convenience
+export type { GateType, CustomGateDefinition } from './circuit';
+
 // ゲートタイプの詳細定義
 export type BasicGateType = 'AND' | 'OR' | 'NOT' | 'XOR' | 'NAND' | 'NOR';
 export type IOGateType = 'INPUT' | 'OUTPUT';

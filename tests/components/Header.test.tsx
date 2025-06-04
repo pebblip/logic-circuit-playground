@@ -146,25 +146,11 @@ describe('Header Component', () => {
       expect(screen.queryByTestId('save-dialog')).not.toBeInTheDocument();
     });
 
-    it('should log success message when save is successful', async () => {
-      const consoleLogSpy = vi.spyOn(console, 'log');
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
-      
-      await userEvent.click(screen.getByTitle('回路を保存'));
-      await userEvent.click(screen.getByText('Save'));
-      
-      expect(consoleLogSpy).toHaveBeenCalledWith('✅ 回路が保存されました');
-    });
-
-    it('should log success message when load is successful', async () => {
-      const consoleLogSpy = vi.spyOn(console, 'log');
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
-      
-      await userEvent.click(screen.getByTitle('回路を読み込み'));
-      await userEvent.click(screen.getByText('Load'));
-      
-      expect(consoleLogSpy).toHaveBeenCalledWith('✅ 回路が読み込まれました');
-    });
+    // TODO: 意味のあるテストに置き換える
+    // - 実際にデータが保存/読み込みされるか
+    // - ダイアログが正しく閉じるか
+    // - エラー時のハンドリング
+    // console.logのテストは実装の詳細をテストしているため削除
   });
 
   describe('3. Disabled states', () => {
@@ -372,10 +358,7 @@ describe('Header Component', () => {
       // 3. 保存を実行
       await userEvent.click(screen.getByText('Save'));
       
-      // 4. 成功メッセージがログに出力される
-      expect(consoleLogSpy).toHaveBeenCalledWith('✅ 回路が保存されました');
-      
-      // 5. ダイアログが閉じる
+      // 4. ダイアログが閉じる
       expect(screen.queryByTestId('save-dialog')).not.toBeInTheDocument();
     });
 

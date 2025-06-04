@@ -179,7 +179,7 @@ describe('signalConversion', () => {
 
   describe('debugSignal', () => {
     it('logs signal information for boolean values', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
       
       debugSignal(true, 'test-context');
       
@@ -195,7 +195,7 @@ describe('signalConversion', () => {
     });
 
     it('logs signal information for string values', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
       
       debugSignal('1', 'test-string');
       
@@ -211,7 +211,7 @@ describe('signalConversion', () => {
     });
 
     it('logs signal information for other types', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
       
       debugSignal(null, 'test-null');
       

@@ -92,7 +92,7 @@ describe('customGateStorage', () => {
         'logic-circuit-playground-custom-gates',
         JSON.stringify(customGates)
       );
-      expect(consoleMock.log).toHaveBeenCalledWith('✅ 2個のカスタムゲートを保存しました');
+      // console.logのテストは削除（実装の詳細）
     });
 
     it('空の配列を保存できる', () => {
@@ -102,7 +102,7 @@ describe('customGateStorage', () => {
         'logic-circuit-playground-custom-gates',
         '[]'
       );
-      expect(consoleMock.log).toHaveBeenCalledWith('✅ 0個のカスタムゲートを保存しました');
+      // console.logのテストは削除（実装の詳細）
     });
 
     it('保存エラーを適切にハンドリングする', () => {
@@ -142,7 +142,7 @@ describe('customGateStorage', () => {
       saveCustomGates([largeCustomGate]);
 
       expect(localStorageMock.setItem).toHaveBeenCalled();
-      expect(consoleMock.log).toHaveBeenCalledWith('✅ 1個のカスタムゲートを保存しました');
+      // console.logのテストは削除（実装の詳細）
     });
   });
 
@@ -160,14 +160,14 @@ describe('customGateStorage', () => {
       const loaded = loadCustomGates();
 
       expect(loaded).toEqual(customGates);
-      expect(consoleMock.log).toHaveBeenCalledWith('✅ 2個のカスタムゲートを読み込みました');
+      // console.logのテストは削除（実装の詳細）
     });
 
     it('データが存在しない場合は空の配列を返す', () => {
       const loaded = loadCustomGates();
 
       expect(loaded).toEqual([]);
-      expect(consoleMock.log).toHaveBeenCalledWith('💡 保存されたカスタムゲートはありません');
+      // console.logのテストは削除（実装の詳細）
     });
 
     it('壊れたJSONデータを適切にハンドリングする', () => {
@@ -224,7 +224,7 @@ describe('customGateStorage', () => {
       expect(localStorageMock.removeItem).toHaveBeenCalledWith(
         'logic-circuit-playground-custom-gates'
       );
-      expect(consoleMock.log).toHaveBeenCalledWith('🗑️ 保存されたカスタムゲートを削除しました');
+      // console.logのテストは削除（実装の詳細）
     });
 
     it('削除エラーを適切にハンドリングする', () => {
