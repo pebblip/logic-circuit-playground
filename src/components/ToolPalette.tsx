@@ -63,7 +63,7 @@ const DEMO_CUSTOM_GATES: CustomGateDefinition[] = [
 ];
 
 export const ToolPalette: React.FC = () => {
-  const { customGates, addCustomGate, createCustomGateFromCurrentCircuit, allowedGates } = useCircuitStore();
+  const { customGates, addCustomGate, gates, wires, allowedGates } = useCircuitStore();
   
   const { startDrag, endDrag } = useDragGate();
   const {
@@ -71,10 +71,50 @@ export const ToolPalette: React.FC = () => {
     dialogInitialData,
     isTruthTableOpen,
     currentTruthTable,
+    openCreateDialog,
     closeCreateDialog,
     openTruthTable,
     closeTruthTable,
   } = useCustomGateDialog();
+
+  // 回路からカスタムゲート作成ダイアログを開く
+  const handleOpenCreateFromCircuit = () => {
+    const inputGates = gates.filter(g => g.type === 'INPUT');
+    const outputGates = gates.filter(g => g.type === 'OUTPUT');
+
+    if (inputGates.length === 0 || outputGates.length === 0) {
+      alert('回路にはINPUTゲートとOUTPUTゲートが必要です');
+      return;
+    }
+
+    // 回路から検出されたピン情報を作成
+    const initialInputs = inputGates.map((gate, index) => ({
+      name: `IN${index + 1}`,
+      index,
+      gateId: gate.id,
+    }));
+
+    const initialOutputs = outputGates.map((gate, index) => ({
+      name: `OUT${index + 1}`,
+      index,
+      gateId: gate.id,
+    }));
+
+    // デバッグ: 初期値を確認
+    console.log('=== Initial Values Debug ===');
+    console.log('initialInputs:', initialInputs);
+    console.log('initialOutputs:', initialOutputs);
+
+    // カスタムイベントを発火してダイアログを開く
+    const event = new CustomEvent('open-custom-gate-dialog', {
+      detail: {
+        initialInputs,
+        initialOutputs,
+        isFullCircuit: true,
+      },
+    });
+    window.dispatchEvent(event);
+  };
 
   const handleCreateCustomGate = (definition: CustomGateDefinition) => {
     const state = useCircuitStore.getState();
@@ -146,8 +186,30 @@ export const ToolPalette: React.FC = () => {
         definition.truthTable = truthTable;
 
         // 作成後に真理値表を表示
-        const inputNames = definition.inputs.map(input => input.name);
-        const outputNames = definition.outputs.map(output => output.name);
+        const inputNames = definition.inputs.map((input, index) => input.name || `IN${index + 1}`);
+        const outputNames = definition.outputs.map((output, index) => output.name || `OUT${index + 1}`);
+        
+        // デバッグ: 真理値表表示時のpropsを確認
+        console.log('=== ToolPalette Truth Table Debug (Create) ===');
+        console.log('CRITICAL: definition object:', definition);
+        console.log('CRITICAL: definition.inputs:', definition.inputs);
+        console.log('CRITICAL: definition.outputs:', definition.outputs);
+        console.log('CRITICAL: definition.outputs length:', definition.outputs?.length);
+        console.log('CRITICAL: definition.outputs structure:', JSON.stringify(definition.outputs, null, 2));
+        
+        // outputsの詳細を一つずつ確認
+        if (definition.outputs) {
+          definition.outputs.forEach((output, index) => {
+            console.log(`CRITICAL: output[${index}]:`, output);
+            console.log(`CRITICAL: output[${index}].name:`, output?.name);
+          });
+        } else {
+          console.log('CRITICAL: definition.outputs is null/undefined!');
+        }
+        
+        console.log('inputNames:', inputNames);
+        console.log('outputNames:', outputNames);
+        console.log('truthTableResult:', truthTableResult);
 
         openTruthTable({
           result: truthTableResult,
@@ -167,8 +229,28 @@ export const ToolPalette: React.FC = () => {
 
   const handleContextMenu = (definition: CustomGateDefinition) => {
     if (definition.internalCircuit && definition.truthTable) {
-      const inputNames = definition.inputs.map(input => input.name);
-      const outputNames = definition.outputs.map(output => output.name);
+      const inputNames = definition.inputs.map((input, index) => input.name || `IN${index + 1}`);
+      const outputNames = definition.outputs.map((output, index) => output.name || `OUT${index + 1}`);
+
+      // デバッグ: 右クリックメニューでの真理値表表示時のpropsを確認
+      console.log('=== ToolPalette Truth Table Debug (Context Menu) ===');
+      console.log('definition:', definition);
+      console.log('definition.inputs:', definition.inputs);
+      console.log('definition.outputs:', definition.outputs);
+      console.log('definition.outputs length:', definition.outputs?.length);
+      console.log('definition.outputs structure:', JSON.stringify(definition.outputs, null, 2));
+      
+      // outputsの詳細を一つずつ確認
+      if (definition.outputs) {
+        definition.outputs.forEach((output, index) => {
+          console.log(`output[${index}]:`, output);
+          console.log(`output[${index}].name:`, output?.name);
+        });
+      }
+      
+      console.log('inputNames:', inputNames);
+      console.log('outputNames:', outputNames);
+      console.log('definition.truthTable:', definition.truthTable);
 
       // 真理値表をTruthTableResult形式に変換
       const table = Object.entries(definition.truthTable).map(
@@ -191,6 +273,8 @@ export const ToolPalette: React.FC = () => {
         isSequential: false,
         recognizedPattern: undefined,
       };
+
+      console.log('Generated TruthTableResult:', result);
 
       openTruthTable({
         result,
@@ -236,7 +320,7 @@ export const ToolPalette: React.FC = () => {
         onDragStart={startDrag}
         onDragEnd={endDrag}
         onContextMenu={handleContextMenu}
-        onCreateFromCircuit={createCustomGateFromCurrentCircuit}
+        onCreateFromCircuit={handleOpenCreateFromCircuit}
       />
 
       {/* カスタムゲート作成ダイアログ */}

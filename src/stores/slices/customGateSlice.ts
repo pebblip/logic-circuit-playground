@@ -50,7 +50,6 @@ export const createCustomGateSlice: StateCreator<
     const outputGates = gates.filter(g => g.type === 'OUTPUT');
 
     if (inputGates.length === 0 || outputGates.length === 0) {
-      console.warn('Circuit must have at least one INPUT and one OUTPUT gate');
       alert('回路にはINPUTゲートとOUTPUTゲートが必要です');
       return;
     }
@@ -99,13 +98,18 @@ export const createCustomGateSlice: StateCreator<
         evaluatedGates = testGates;
       }
 
-      // 出力を読み取る
+      // 出力を読み取る  
       const outputBits = outputGates
         .map(outputGate => {
           const evaluatedGate = evaluatedGates.find(
             g => g.id === outputGate.id
           );
-          return evaluatedGate?.inputs[0] === '1' ? '1' : '0';
+          // OUTPUTゲートの場合、inputs[0]を文字列として比較
+          if (evaluatedGate?.inputs && evaluatedGate.inputs.length > 0) {
+            return evaluatedGate.inputs[0] === '1' ? '1' : '0';
+          }
+          // 新API対応: OUTPUTゲートのoutputプロパティもチェック
+          return evaluatedGate?.output ? '1' : '0';
         })
         .join('');
 
@@ -130,5 +134,6 @@ export const createCustomGateSlice: StateCreator<
 
     // カスタムゲートを追加
     get().addCustomGate(definition);
+    alert('カスタムゲートが作成されました！');
   },
 });

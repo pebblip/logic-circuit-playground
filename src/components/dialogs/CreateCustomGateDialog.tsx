@@ -23,6 +23,17 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
   initialOutputs,
   isReadOnly = false,
 }) => {
+  // デバッグ: CreateCustomGateDialog でのprops受け取りを確認
+  React.useEffect(() => {
+    if (isOpen) {
+      console.log('=== CreateCustomGateDialog Props Debug ===');
+      console.log('isOpen:', isOpen);
+      console.log('initialInputs props:', initialInputs);
+      console.log('initialOutputs props:', initialOutputs);
+      console.log('isReadOnly:', isReadOnly);
+    }
+  }, [isOpen, initialInputs, initialOutputs, isReadOnly]);
+
   const {
     formData,
     setters,
@@ -45,6 +56,13 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
       return;
     }
 
+    // デバッグ: 保存時のフォームデータを確認
+    console.log('=== CreateCustomGateDialog Save Debug ===');
+    console.log('formData:', formData);
+    console.log('formData.inputs:', formData.inputs);
+    console.log('formData.outputs:', formData.outputs);
+    console.log('formData.outputs structure:', JSON.stringify(formData.outputs, null, 2));
+
     const definition: CustomGateDefinition = {
       id: IdGenerator.generateGateId(),
       name: formData.gateName,
@@ -60,6 +78,9 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
+
+    console.log('Final definition created:', definition);
+    console.log('definition.outputs:', definition.outputs);
 
     onSave(definition);
     // 保存後に状態をリセット

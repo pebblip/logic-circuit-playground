@@ -66,7 +66,7 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                 color: 'rgba(255, 255, 255, 0.8)',
               }}
             >
-              内部名（必須・英数字）
+              内部名 <span style={{ color: '#ff4444' }}>*</span>（英数字）
             </label>
             <input
               type="text"

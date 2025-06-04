@@ -161,6 +161,8 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       };
     }
   }, [
+    // 依存配列を修正: CLOCKゲート数とisRunning状態の両方を監視
+    gates.filter(g => g.type === 'CLOCK').length,
     gates
       .filter(g => g.type === 'CLOCK')
       .map(g => g.metadata?.isRunning)

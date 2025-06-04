@@ -21,19 +21,20 @@ export function getInputPinPosition(gate: Gate, pinIndex: number): Position {
   // カスタムゲートの場合を最初に処理
   if (gate.type === 'CUSTOM' && gate.customGateDefinition) {
     const definition = gate.customGateDefinition;
-    const halfWidth = definition.width / 2;
-    const _halfHeight = definition.height / 2;
+    const width = definition.width || 100;
+    const height = definition.height || Math.max(60, Math.max(definition.inputs.length, definition.outputs.length) * 30 + 20);
+    const halfWidth = width / 2;
 
-    const pinCount = definition.inputs.length;
-    const availableHeight = Math.max(40, definition.height - 80);
-    const spacing =
-      pinCount === 1
-        ? 0
-        : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
-    const pinY =
-      pinCount === 1 ? 0 : -((pinCount - 1) * spacing) / 2 + pinIndex * spacing;
+    // CustomGateRendererと同じ計算式を使用
+    const getInputPinY = (index: number) => {
+      const inputCount = definition.inputs.length;
+      if (inputCount === 1) return 0;
+      const spacing = Math.min(30, (height - 20) / (inputCount - 1));
+      return -((inputCount - 1) * spacing) / 2 + index * spacing;
+    };
 
-    // Gate.tsx: cx={-halfWidth - 10} cy={y}
+    const pinY = getInputPinY(pinIndex);
+
     return {
       x: x - halfWidth - 10,
       y: y + pinY,
@@ -99,19 +100,20 @@ export function getOutputPinPosition(
   // カスタムゲートの場合を最初に処理
   if (gate.type === 'CUSTOM' && gate.customGateDefinition) {
     const definition = gate.customGateDefinition;
-    const halfWidth = definition.width / 2;
-    const _halfHeight = definition.height / 2;
+    const width = definition.width || 100;
+    const height = definition.height || Math.max(60, Math.max(definition.inputs.length, definition.outputs.length) * 30 + 20);
+    const halfWidth = width / 2;
 
-    const pinCount = definition.outputs.length;
-    const availableHeight = Math.max(40, definition.height - 80);
-    const spacing =
-      pinCount === 1
-        ? 0
-        : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
-    const pinY =
-      pinCount === 1 ? 0 : -((pinCount - 1) * spacing) / 2 + pinIndex * spacing;
+    // CustomGateRendererと同じ計算式を使用
+    const getOutputPinY = (index: number) => {
+      const outputCount = definition.outputs.length;
+      if (outputCount === 1) return 0;
+      const spacing = Math.min(30, (height - 20) / (outputCount - 1));
+      return -((outputCount - 1) * spacing) / 2 + index * spacing;
+    };
 
-    // Gate.tsx: cx={halfWidth + 10} cy={y}
+    const pinY = getOutputPinY(pinIndex);
+
     return {
       x: x + halfWidth + 10,
       y: y + pinY,

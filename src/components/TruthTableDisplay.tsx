@@ -23,6 +23,23 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
 }) => {
   const stats = calculateTruthTableStats(result);
 
+  // デバッグ: props の内容を確認
+  console.log('=== TruthTableDisplay Debug ===');
+  console.log('inputNames:', inputNames);
+  console.log('outputNames:', outputNames);
+  console.log('outputNames details:', {
+    length: outputNames.length,
+    content: outputNames.map((name, i) => ({ index: i, name, type: typeof name }))
+  });
+  console.log('result.table sample:', result.table[0]);
+
+  // outputNamesが空や不正な場合のフォールバック
+  const safeOutputNames = outputNames.length > 0 
+    ? outputNames.map((name, index) => name || `出力${index + 1}`)
+    : Array.from({ length: result.outputCount || 1 }, (_, i) => `出力${i + 1}`);
+  
+  console.log('safeOutputNames:', safeOutputNames);
+
   const handleExportCSV = () => {
     const csvContent = exportTruthTableAsCSV(result, inputNames, outputNames);
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -54,8 +71,8 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
     >
       <div
         style={{
-          width: '90vw',
-          maxWidth: '800px',
+          width: '95vw',
+          maxWidth: safeOutputNames.length > 3 ? '1200px' : '800px', // 複数出力対応
           maxHeight: '90vh',
           backgroundColor: '#0f1441',
           border: '1px solid rgba(0, 255, 136, 0.5)',
@@ -170,13 +187,15 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
             padding: '16px',
           }}
         >
-          <table
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              fontSize: '14px',
-            }}
-          >
+          <div style={{ overflowX: 'auto', minWidth: '100%' }}>
+            <table
+              style={{
+                width: '100%',
+                minWidth: `${Math.max(400, (inputNames.length + safeOutputNames.length + 1) * 80)}px`, // 動的最小幅
+                borderCollapse: 'collapse',
+                fontSize: safeOutputNames.length > 5 ? '12px' : '14px', // 多出力時は小さく
+              }}
+            >
             <thead>
               <tr
                 style={{
@@ -209,21 +228,40 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   }}
                 ></th>
-                {outputNames.map((name, index) => (
-                  <th
-                    key={`output-${index}`}
-                    style={{
-                      padding: '12px 8px',
-                      textAlign: 'center',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      color: '#ff6699',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                    }}
-                  >
-                    {name}
-                  </th>
-                ))}
+                {safeOutputNames.map((name, index) => {
+                  console.log(`=== Output Header ${index} Debug ===`);
+                  console.log(`Header ${index}:`, {
+                    name: name,
+                    nameType: typeof name,
+                    nameLength: name?.length,
+                    isEmpty: name === '',
+                    isNull: name === null,
+                    isUndefined: name === undefined,
+                    rawValue: JSON.stringify(name)
+                  });
+                  
+                  // name が空の場合のフォールバック
+                  const displayName = name || `出力${index + 1}`;
+                  console.log(`Display name for header ${index}: "${displayName}"`);
+                  
+                  return (
+                    <th
+                      key={`output-${index}`}
+                      style={{
+                        padding: safeOutputNames.length > 4 ? '8px 6px' : '12px 8px',
+                        textAlign: 'center',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        color: '#ff6699',
+                        fontSize: safeOutputNames.length > 6 ? '10px' : '12px',
+                        fontWeight: '600',
+                        minWidth: '40px',
+                        backgroundColor: index % 2 === 0 ? 'rgba(255, 102, 153, 0.1)' : 'rgba(255, 102, 153, 0.05)', // デバッグ用背景色
+                      }}
+                    >
+                      {displayName}
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>
@@ -267,15 +305,18 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
                     <td
                       key={`output-${rowIndex}-${colIndex}`}
                       style={{
-                        padding: '10px 8px',
+                        padding: safeOutputNames.length > 4 ? '8px 6px' : '10px 8px',
                         textAlign: 'center',
                         border: '1px solid rgba(255, 255, 255, 0.1)',
                         fontFamily: 'monospace',
-                        fontSize: '16px',
+                        fontSize: safeOutputNames.length > 6 ? '14px' : '16px',
                         fontWeight: '600',
                         color: displayStateToBoolean(output)
                           ? '#ff6699'
                           : 'rgba(255, 255, 255, 0.5)',
+                        // maxWidth制限を一時的に削除
+                        // maxWidth: outputNames.length > 4 ? '60px' : 'auto',
+                        minWidth: '40px', // 最小幅を保証
                       }}
                     >
                       {output}
@@ -285,6 +326,7 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* フッター */}

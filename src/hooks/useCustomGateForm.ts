@@ -40,8 +40,22 @@ export const useCustomGateForm = ({
   // ダイアログが開かれた時に初期値を設定
   useEffect(() => {
     if (isOpen) {
-      setInputs(initialInputs);
-      setOutputs(initialOutputs);
+      // デバッグ: useCustomGateForm での初期化を確認
+      console.log('=== useCustomGateForm Initialization Debug ===');
+      console.log('isOpen:', isOpen);
+      console.log('initialInputs received:', initialInputs);
+      console.log('initialOutputs received:', initialOutputs);
+      console.log('initialInputs type:', typeof initialInputs, Array.isArray(initialInputs));
+      console.log('initialOutputs type:', typeof initialOutputs, Array.isArray(initialOutputs));
+      
+      if (initialInputs) {
+        console.log('Setting inputs to:', initialInputs);
+        setInputs(initialInputs);
+      }
+      if (initialOutputs) {
+        console.log('Setting outputs to:', initialOutputs);
+        setOutputs(initialOutputs);
+      }
     }
   }, [isOpen, initialInputs, initialOutputs]);
 

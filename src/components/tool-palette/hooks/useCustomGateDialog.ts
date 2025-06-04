@@ -30,11 +30,23 @@ export const useCustomGateDialog = () => {
         isFullCircuit: boolean;
       }>;
       const { initialInputs, initialOutputs, isFullCircuit } = customEvent.detail;
-      setDialogInitialData({ 
+      
+      // デバッグ: イベントから受け取ったデータを確認
+      console.log('=== useCustomGateDialog Event Debug ===');
+      console.log('Raw event detail:', customEvent.detail);
+      console.log('initialInputs:', initialInputs);
+      console.log('initialOutputs:', initialOutputs);
+      console.log('isFullCircuit:', isFullCircuit);
+      
+      const processedData = { 
         initialInputs: initialInputs as CustomGatePin[] | undefined, 
         initialOutputs: initialOutputs as CustomGatePin[] | undefined, 
         isFullCircuit 
-      });
+      };
+      
+      console.log('Processed dialogInitialData:', processedData);
+      
+      setDialogInitialData(processedData);
       setIsCreateDialogOpen(true);
     };
 

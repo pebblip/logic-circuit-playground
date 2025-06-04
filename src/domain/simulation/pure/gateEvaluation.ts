@@ -216,6 +216,7 @@ function evaluateClockGate(
   
   // 周期的な切り替え
   const isHigh = Math.floor(elapsed / period) % 2 === 1;
+  
   return success([isHigh]);
 }
 

@@ -238,19 +238,34 @@ describe('Pin Position Calculator - Critical Bug Fix', () => {
         outputs: [false, false],
         customGateDefinition: {
           id: 'custom-def-1',
-          name: 'Half Adder',
+          name: 'HalfAdder',
+          displayName: 'Half Adder',
+          description: 'Test half adder',
+          icon: '➕',
+          category: 'arithmetic',
           width: 120,
           height: 100,
           inputs: [
-            { id: 'A', name: 'A' },
-            { id: 'B', name: 'B' },
-            { id: 'C', name: 'Cin' }
+            { name: 'A', index: 0 },    // ✅ 正しい型
+            { name: 'B', index: 1 },    // ✅ 正しい型
+            { name: 'Cin', index: 2 }   // ✅ 正しい型
           ],
           outputs: [
-            { id: 'S', name: 'Sum' },
-            { id: 'C', name: 'Cout' }
+            { name: 'Sum', index: 0 },  // ✅ 正しい型
+            { name: 'Cout', index: 1 }  // ✅ 正しい型
           ],
-          circuit: { gates: [], wires: [] }
+          truthTable: {
+            '000': '00',
+            '001': '10',
+            '010': '10',
+            '011': '01',
+            '100': '10',
+            '101': '01',
+            '110': '01',
+            '111': '11'
+          },
+          createdAt: Date.now(),
+          updatedAt: Date.now()
         }
       };
 
@@ -265,13 +280,13 @@ describe('Pin Position Calculator - Critical Bug Fix', () => {
       expect(input1.x).toBe(30);  // 同じX座標
       expect(input2.x).toBe(30);  // 同じX座標
       
-      // Y座標の計算検証（3入力の場合）
-      // availableHeight = max(40, 100 - 80) = 40
-      // spacing = max(30, 40 / 2) = 30
-      // y = -(2 * 30) / 2 + (index * 30) = -30 + (index * 30)
-      expect(input0.y).toBe(70);   // 100 + (-30) = 70
-      expect(input1.y).toBe(100);  // 100 + 0 = 100
-      expect(input2.y).toBe(130);  // 100 + 30 = 130
+      // Y座標の計算検証（3入力の場合）- 修正後の計算式
+      // height = 100, inputCount = 3
+      // spacing = Math.min(30, (100 - 20) / (3 - 1)) = Math.min(30, 40) = 30
+      // y = -((3 - 1) * 30) / 2 + (index * 30) = -30 + (index * 30)
+      expect(input0.y).toBe(70);   // 100 + (-30 + 0) = 70
+      expect(input1.y).toBe(100);  // 100 + (-30 + 30) = 100
+      expect(input2.y).toBe(130);  // 100 + (-30 + 60) = 130
       
       // 出力ピンテスト
       const output0 = getOutputPinPosition(customGate, 0);
@@ -281,12 +296,13 @@ describe('Pin Position Calculator - Critical Bug Fix', () => {
       expect(output0.x).toBe(170); // 100 + 60 + 10
       expect(output1.x).toBe(170); // 同じX座標
       
-      // Y座標（2出力の場合）
-      // pinCount = 2, availableHeight = max(40, 100-80) = 40
-      // spacing = max(30, 40/1) = 40
-      // y = -(1 * 40) / 2 + (index * 40) = -20 + (index * 40)
-      expect(output0.y).toBe(80);  // 100 + (-20 + 0) = 80
-      expect(output1.y).toBe(120); // 100 + (-20 + 40) = 120
+      // Y座標（2出力の場合）- 修正後の計算式に合わせて更新
+      // CustomGateRendererと同じ計算: spacing = Math.min(30, (height - 20) / (outputCount - 1))
+      // height = 100, outputCount = 2
+      // spacing = Math.min(30, (100 - 20) / (2 - 1)) = Math.min(30, 80) = 30
+      // y = -((2 - 1) * 30) / 2 + (index * 30) = -15 + (index * 30)
+      expect(output0.y).toBe(85);  // 100 + (-15 + 0) = 85 (修正後期待値)
+      expect(output1.y).toBe(115); // 100 + (-15 + 30) = 115 (修正後期待値)
     });
   });
 
