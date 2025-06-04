@@ -88,7 +88,7 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
       } else {
         setError(saveResult.message || '回路の準備に失敗しました');
       }
-    } catch (_error) {
+    } catch (error) {
       setError(
         error instanceof Error
           ? error.message
@@ -137,7 +137,7 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
         version: data.version,
         tags: data.metadata.tags || [],
       });
-    } catch (_error) {
+    } catch {
       setError('ファイルの読み込みに失敗しました');
       setImportPreview(null);
     }
@@ -166,7 +166,7 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
       } else {
         setError(result.message || 'インポートに失敗しました');
       }
-    } catch (_error) {
+    } catch (error) {
       setError(
         error instanceof Error
           ? error.message

@@ -14,7 +14,6 @@ export class GateFactory {
    */
   static createGate(type: GateType, position: Position): Gate {
     const id = IdGenerator.generateGateId();
-    const pinConfig = PIN_CONFIGS[type];
 
     // 基本的なゲート構造
     const baseGate: Gate = {
@@ -106,8 +105,6 @@ export class GateFactory {
    * ゲートタイプに応じた入力配列を作成
    */
   private static createInputArray(type: GateType): string[] {
-    const config = PIN_CONFIGS[type];
-
     if (type === 'INPUT' || type === 'CLOCK') {
       return []; // 入力ピンなし
     }

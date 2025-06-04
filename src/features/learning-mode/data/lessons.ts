@@ -1,5 +1,4 @@
 // ultrathink - シンプルで段階的な学習体験
-import React from 'react';
 
 export interface Lesson {
   id: string;

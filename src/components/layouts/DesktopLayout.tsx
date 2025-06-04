@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Header } from '../Header';
 import { ToolPalette } from '../ToolPalette';
 import { Canvas } from '../Canvas';
-import { PropertyPanel } from '../PropertyPanel';
+import { PropertyPanel } from '../property-panel';
 import { LearningPanel } from '../../features/learning-mode/ui/LearningPanel';
 import { CircuitVisualizerPanel } from '../CircuitVisualizerPanel';
 import { useCircuitStore } from '../../stores/circuitStore';

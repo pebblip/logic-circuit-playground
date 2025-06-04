@@ -94,9 +94,9 @@ export function useDialog<T = any>(
 ): DialogState<T> {
   const [isOpen, setIsOpen] = useState(false);
   const [data, setData] = useState<T | null>(options.initialData || null);
-  const [autoCloseTimer, setAutoCloseTimer] = useState<ReturnType<typeof setTimeout> | null>(
-    null
-  );
+  const [autoCloseTimer, setAutoCloseTimer] = useState<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   const open = useCallback(
     (initialData?: T) => {

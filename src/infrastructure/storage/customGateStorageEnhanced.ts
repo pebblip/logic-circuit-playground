@@ -37,7 +37,7 @@ function hasCircularReference(obj: any, seen = new WeakSet()): boolean {
   seen.add(obj);
 
   for (const key in obj) {
-    if (obj.hasOwnProperty(key) && hasCircularReference(obj[key], seen)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key) && hasCircularReference(obj[key], seen)) {
       return true;
     }
   }

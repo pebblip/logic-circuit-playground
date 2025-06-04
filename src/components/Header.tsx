@@ -16,7 +16,12 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
   const { gates } = useCircuitStore();
 
   // 統一ダイアログ管理
-  const dialogs = useMultipleDialogs({});
+  const dialogs = useMultipleDialogs({
+    save: {},
+    load: {},
+    export: {},
+    help: {},
+  });
 
   const handleSaveSuccess = () => {
     // 保存成功時の処理

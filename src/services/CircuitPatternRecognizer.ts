@@ -147,13 +147,13 @@ export class CircuitPatternRecognizer {
     return this.hasFeedbackLoop(gates, wires);
   }
 
-  private hasFeedbackLoop(gates: Gate[], wires: Wire[]): boolean {
+  private hasFeedbackLoop(_gates: Gate[], _wires: Wire[]): boolean {
     // 簡易的なフィードバックループ検出
     // 詳細な実装は必要に応じて後で
     return false;
   }
 
-  private hasSequentialPattern(outputGates: Gate[], wires: Wire[]): boolean {
+  private hasSequentialPattern(outputGates: Gate[], _wires: Wire[]): boolean {
     // OUTPUTゲートが順序立って配置されているかチェック
     if (outputGates.length < 2) return false;
 
