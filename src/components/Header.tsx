@@ -15,7 +15,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
-  const { gates, wires, addCustomGate } = useCircuitStore();
+  const { gates, wires, addCustomGate, isLearningMode } = useCircuitStore();
 
   // 統一ダイアログ管理
   const dialogs = useMultipleDialogs({
@@ -133,30 +133,39 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
         </div>
 
         <div className="header-actions">
-          <button
-            className="button"
-            onClick={() => dialogs.load.open()}
-            title="回路を読み込み"
-          >
-            <span>📂</span>
-            <span>開く</span>
-          </button>
-          <button
-            className="button"
-            onClick={() => dialogs.save.open()}
-            title="回路を保存"
-          >
-            <span>💾</span>
-            <span>保存</span>
-          </button>
-          <button
-            className="button"
-            onClick={handleCreateCustomGateFromCircuit}
-            title="現在の回路からカスタムゲートを作成"
-          >
-            <span>📦</span>
-            <span>回路→IC</span>
-          </button>
+          {!isLearningMode && (
+            <>
+              <button
+                className="button"
+                onClick={() => dialogs.load.open()}
+                title="回路を読み込み"
+              >
+                <span>📂</span>
+                <span>開く</span>
+              </button>
+              <button
+                className="button"
+                onClick={() => dialogs.save.open()}
+                title="回路を保存"
+              >
+                <span>💾</span>
+                <span>保存</span>
+              </button>
+              <button
+                className="button"
+                onClick={handleCreateCustomGateFromCircuit}
+                title="現在の回路からカスタムゲートを作成"
+              >
+                <span>📦</span>
+                <span>回路→IC</span>
+              </button>
+            </>
+          )}
+          {isLearningMode && (
+            <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '14px', marginRight: '12px' }}>
+              学習モード中
+            </span>
+          )}
           <button
             className="button help-button"
             onClick={() => dialogs.help.open()}

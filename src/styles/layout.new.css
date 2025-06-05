@@ -456,7 +456,7 @@
 .zoom-controls {
   position: absolute;
   bottom: var(--spacing-lg);
-  right: var(--spacing-lg);
+  left: var(--spacing-lg);
   background: var(--color-bg-secondary);
   backdrop-filter: blur(10px);
   border: 1px solid var(--color-border-subtle);

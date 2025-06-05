@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useCircuitStore } from '../stores/circuitStore';
 import { GateComponent } from './Gate';
 import { WireComponent } from './Wire';
+import { QuickTutorial } from './QuickTutorial';
 import { evaluateCircuitPure, defaultConfig, isSuccess } from '@domain/simulation/pure';
 import type { Circuit } from '@domain/simulation/pure/types';
 import type { Gate, Wire } from '../types/circuit';
@@ -38,6 +39,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   const [initialGatePositions, setInitialGatePositions] = useState<Map<string, { x: number; y: number }>>(new Map());
   const [initialSelectionRect, setInitialSelectionRect] = useState<SelectionRect | null>(null);
   const [selectionRectOffset, setSelectionRectOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [showQuickTutorial, setShowQuickTutorial] = useState(false);
 
   const {
     gates,
@@ -615,6 +617,32 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
           ＋
         </button>
       </div>
+
+      {/* 初めての方向けボタン */}
+      {gates.length === 0 && !showQuickTutorial && !localStorage.getItem('quickTutorialCompleted') && (
+        <div className="first-time-guide">
+          <button 
+            className="first-time-button"
+            onClick={() => setShowQuickTutorial(true)}
+          >
+            <span className="first-time-icon">🎯</span>
+            <span className="first-time-text">初めての方は？</span>
+            <span className="first-time-duration">3分で基本操作をマスター</span>
+          </button>
+        </div>
+      )}
+
+      {/* クイックチュートリアル */}
+      {showQuickTutorial && (
+        <QuickTutorial 
+          onClose={() => {
+            setShowQuickTutorial(false);
+            localStorage.setItem('quickTutorialCompleted', 'true');
+          }}
+          gates={gates}
+          wires={wires}
+        />
+      )}
     </div>
   );
 };

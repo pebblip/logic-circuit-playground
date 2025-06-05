@@ -41,6 +41,8 @@
   overflow-y: auto;
   height: 100%;
   display: flex;
+  position: relative;
+  z-index: 150; /* チュートリアルより上に */
   flex-direction: column;
 }
 

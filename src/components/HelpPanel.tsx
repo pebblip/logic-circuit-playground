@@ -7,7 +7,6 @@ interface HelpPanelProps {
 }
 
 type TabId =
-  | 'quickstart'
   | 'getting-started'
   | 'troubleshooting'
   | 'features'
@@ -19,38 +18,6 @@ interface HelpContent {
 }
 
 const helpContents: Record<TabId, HelpContent[]> = {
-  quickstart: [
-    {
-      question: '📌 ステップ 1: 基本操作を理解する',
-      answer:
-        '左のツールパレットからゲートをドラッグ&ドロップでキャンバスに配置します。ゲートは論理回路の基本構成要素で、入力に応じて出力を決定する「判断装置」です。まずはINPUT（スイッチ）とOUTPUT（LED）を配置してみましょう。',
-    },
-    {
-      question: '🔌 ステップ 2: 信号の流れを作る',
-      answer:
-        'ゲートのピン（接続点）をクリックして接続を開始し、別のピンをクリックして完了します。信号は必ず「出力ピン→入力ピン」の方向に流れます。右側が出力、左側が入力という基本ルールを覚えましょう。',
-    },
-    {
-      question: '🧪 ステップ 3: 論理動作を体験する',
-      answer:
-        'ANDゲート（論理積）を配置し、2つのINPUTを接続してみましょう。ANDは「すべての入力がONの時だけON」という厳格な判断をします。これは「条件A かつ 条件B」という日常的な判断と同じです。',
-    },
-    {
-      question: '🔄 ステップ 4: 組み合わせを試す',
-      answer:
-        'ORゲート（論理和）は「どれか一つでもONならON」という寛容な判断をします。NOTゲート（否定）は「逆転」の魔法です。これらを組み合わせることで、複雑な判断ロジックを構築できます。',
-    },
-    {
-      question: '⚡ ステップ 5: 特殊ゲートを活用する',
-      answer:
-        'CLOCKゲートは一定間隔でON/OFFを繰り返す「心臓」です。D-FFやSR-LATCHは「記憶」を持つゲートで、過去の状態を覚えています。これらを使うと、カウンタや信号機のような動的な回路が作れます。',
-    },
-    {
-      question: '🎯 次のステップへ',
-      answer:
-        '基本がわかったら、学習モードで体系的に学ぶか、自由制作モードで創造性を発揮しましょう。論理回路は現代のコンピュータの基礎です。ここから始まる冒険を楽しんでください！',
-    },
-  ],
   'getting-started': [
     {
       question: '🎓 論理回路とは何か？',
@@ -233,12 +200,6 @@ export const HelpPanel: React.FC<HelpPanelProps> = ({ isOpen, onClose }) => {
         {!searchQuery && (
           <div className="help-tabs">
             <button
-              className={`help-tab ${activeTab === 'quickstart' ? 'active' : ''}`}
-              onClick={() => setActiveTab('quickstart')}
-            >
-              🚀 クイックスタート
-            </button>
-            <button
               className={`help-tab ${activeTab === 'getting-started' ? 'active' : ''}`}
               onClick={() => setActiveTab('getting-started')}
             >
@@ -266,18 +227,6 @@ export const HelpPanel: React.FC<HelpPanelProps> = ({ isOpen, onClose }) => {
         )}
 
         <div className="help-content">
-          {/* クイックスタート専用の進行状況バー */}
-          {!searchQuery && activeTab === 'quickstart' && (
-            <div className="quickstart-progress">
-              <div
-                className="quickstart-progress-bar"
-                style={{
-                  width: `${(expandedItems.size / helpContents.quickstart.length) * 100}%`,
-                }}
-              />
-            </div>
-          )}
-
           {searchQuery && filteredContent.length === 0 && (
             <div className="no-results">
               「{searchQuery}」に関する項目が見つかりませんでした
@@ -287,12 +236,7 @@ export const HelpPanel: React.FC<HelpPanelProps> = ({ isOpen, onClose }) => {
           {filteredContent.map((item, index) => (
             <div
               key={index}
-              className={`help-item ${!searchQuery && activeTab === 'quickstart' ? 'quickstart-step' : ''}`}
-              data-step={
-                !searchQuery && activeTab === 'quickstart'
-                  ? index + 1
-                  : undefined
-              }
+              className="help-item"
             >
               <div
                 className="help-question"
@@ -309,15 +253,13 @@ export const HelpPanel: React.FC<HelpPanelProps> = ({ isOpen, onClose }) => {
                   {searchQuery && (
                     <div className="search-context">
                       (
-                      {item.tabId === 'quickstart'
-                        ? 'クイックスタート'
-                        : item.tabId === 'getting-started'
-                          ? '始め方'
-                          : item.tabId === 'troubleshooting'
-                            ? '困ったとき'
-                            : item.tabId === 'features'
-                              ? '便利機能'
-                              : 'モード'}
+                      {item.tabId === 'getting-started'
+                        ? '始め方'
+                        : item.tabId === 'troubleshooting'
+                          ? '困ったとき'
+                          : item.tabId === 'features'
+                            ? '便利機能'
+                            : 'モード'}
                       )
                     </div>
                   )}

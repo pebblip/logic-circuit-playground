@@ -20,6 +20,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
     new Set(JSON.parse(localStorage.getItem('completedLessons') || '[]'))
   );
   const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   const { gates, wires, clearAll, setAllowedGates } = useCircuitStore();
   
@@ -132,6 +133,35 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
 
   if (!isOpen) return null;
 
+  // 最小化時の表示
+  if (isMinimized) {
+    return (
+      <div className="learning-panel-minimized">
+        <div className="minimized-content">
+          <span className="minimized-icon">🎓</span>
+          <span className="minimized-title">
+            {selectedLesson ? selectedLesson.title : '学習モード'}
+          </span>
+          {selectedLesson && (
+            <div className="minimized-progress">
+              <div 
+                className="minimized-progress-bar"
+                style={{ width: `${(currentStepIndex / selectedLesson.steps.length) * 100}%` }}
+              />
+            </div>
+          )}
+          <button 
+            className="expand-button"
+            onClick={() => setIsMinimized(false)}
+            title="パネルを展開"
+          >
+            ▼
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`learning-panel ${selectedLesson ? 'lesson-active' : ''}`}>
       {!selectedLesson ? (
@@ -158,6 +188,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                   </span>
                 )}
               </p>
+              <button onClick={() => setIsMinimized(true)} className="minimize-button" title="最小化">―</button>
               <button onClick={onClose} className="close-button">×</button>
             </div>
 
@@ -245,6 +276,9 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
               <div className="lesson-progress">
                 <span>{currentStepIndex} / {selectedLesson.steps.length}</span>
               </div>
+            </div>
+            <div className="header-buttons">
+              <button onClick={() => setIsMinimized(true)} className="minimize-button" title="最小化">―</button>
             </div>
           </div>
 

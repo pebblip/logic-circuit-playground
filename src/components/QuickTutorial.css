@@ -1,0 +1,348 @@
+/* クイックチュートリアル */
+.quick-tutorial-overlay-transparent {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 10; /* 背景のみ、低いz-index */
+  pointer-events: none !important; /* 絶対に操作を妨げない */
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.quick-tutorial-panel {
+  position: fixed;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  animation: slideIn 0.3s ease-out;
+  z-index: 100; /* ツールパレットと同じレベルに */
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ポジション別配置 */
+.quick-tutorial-panel.center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.quick-tutorial-panel.top-left {
+  top: 80px;
+  left: 320px;
+  transform: none;
+  pointer-events: auto; /* パネル自体は操作可能 */
+}
+
+.quick-tutorial-panel.bottom {
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  top: auto;
+}
+
+/* ヘッダー */
+.tutorial-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.tutorial-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff88, #00aaff);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+
+.tutorial-close {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tutorial-close:hover {
+  background: rgba(255, 0, 0, 0.2);
+  border-color: rgba(255, 0, 0, 0.4);
+  color: #ff6666;
+}
+
+/* コンテンツ */
+.tutorial-content {
+  margin-bottom: 32px;
+}
+
+.tutorial-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.tutorial-text {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+/* アクション */
+.tutorial-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.tutorial-button {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.tutorial-button.primary {
+  background: rgba(0, 255, 136, 0.2);
+  border: 1px solid rgba(0, 255, 136, 0.4);
+  color: #00ff88;
+}
+
+.tutorial-button.primary:hover {
+  background: rgba(0, 255, 136, 0.3);
+  border-color: rgba(0, 255, 136, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+}
+
+.tutorial-button.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tutorial-button.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* スキップ */
+.tutorial-skip {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.tutorial-skip:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 成功メッセージ */
+.tutorial-success {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 8px;
+  color: #00ff88;
+  font-size: 14px;
+  text-align: center;
+  animation: successPop 0.3s ease-out;
+}
+
+@keyframes successPop {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ハイライト */
+.tutorial-highlight {
+  position: fixed;
+  pointer-events: none !important; /* 重要：ハイライトは操作を妨げない */
+  border: 3px dashed #00ff88;
+  border-radius: 12px;
+  background: transparent; /* 背景を完全に透明に */
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.4) inset; /* 内側の影に変更 */
+  animation: pulse 2s ease-in-out infinite;
+  z-index: 5; /* キャンバスより下に */
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 40px rgba(0, 255, 136, 0.6);
+  }
+}
+
+/* 初めての方向けボタン */
+.first-time-guide {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  animation: fadeInScale 0.5s ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.first-time-button {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 170, 255, 0.15) 100%);
+  border: 2px solid rgba(0, 255, 136, 0.4);
+  border-radius: 16px;
+  padding: 24px 32px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.first-time-button:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.25) 0%, rgba(0, 170, 255, 0.25) 100%);
+  border-color: rgba(0, 255, 136, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 255, 136, 0.3);
+}
+
+.first-time-icon {
+  font-size: 48px;
+  display: block;
+}
+
+.first-time-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.first-time-duration {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+  .quick-tutorial-panel {
+    padding: 20px;
+    max-width: 90%;
+  }
+
+  .quick-tutorial-panel.top-left {
+    left: 20px;
+    right: 20px;
+    width: auto;
+  }
+
+  .quick-tutorial-panel.bottom {
+    bottom: 20px;
+  }
+
+  .tutorial-title {
+    font-size: 16px;
+  }
+
+  .tutorial-text {
+    font-size: 14px;
+  }
+
+  .first-time-button {
+    padding: 20px 24px;
+  }
+
+  .first-time-icon {
+    font-size: 36px;
+  }
+
+  .first-time-text {
+    font-size: 18px;
+  }
+
+  .tutorial-highlight {
+    display: none; /* モバイルではハイライトを非表示 */
+  }
+}

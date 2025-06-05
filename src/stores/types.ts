@@ -40,6 +40,7 @@ export interface CircuitStoreState extends CircuitState {
   // アプリケーションモード
   appMode: AppMode;
   allowedGates: GateType[] | null; // null = 全て許可
+  isLearningMode: boolean;
 
   // 複数選択
   selectedGateIds: string[];
@@ -50,6 +51,7 @@ export interface CircuitStoreActions {
   // アプリケーションモード
   setAppMode: (mode: AppMode) => void;
   setAllowedGates: (gates: GateType[] | null) => void;
+  setIsLearningMode: (isLearning: boolean) => void;
 
   // 複数選択
   setSelectedGates: (gateIds: string[]) => void;

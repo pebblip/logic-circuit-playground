@@ -5,8 +5,10 @@ import type { GateType } from '@/types/circuit';
 export interface AppModeSlice {
   appMode: AppMode;
   allowedGates: GateType[] | null;
+  isLearningMode: boolean;
   setAppMode: (mode: AppMode) => void;
   setAllowedGates: (gates: GateType[] | null) => void;
+  setIsLearningMode: (isLearning: boolean) => void;
   clearAll: () => void;
 }
 
@@ -18,13 +20,21 @@ export const createAppModeSlice: StateCreator<
 > = (set, get) => ({
   appMode: '自由制作',
   allowedGates: null,
+  isLearningMode: false,
 
   setAppMode: (mode: AppMode) => {
-    set({ appMode: mode });
+    set({ 
+      appMode: mode,
+      isLearningMode: mode === '学習モード'
+    });
   },
 
   setAllowedGates: (gates: GateType[] | null) => {
     set({ allowedGates: gates });
+  },
+
+  setIsLearningMode: (isLearning: boolean) => {
+    set({ isLearningMode: isLearning });
   },
 
   clearAll: () => {
