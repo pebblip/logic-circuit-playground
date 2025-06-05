@@ -198,6 +198,75 @@
   position: relative;
 }
 
+/* 🆕 新フォーマットバッジ */
+.lesson-card.new-format {
+  position: relative;
+  overflow: visible;
+}
+
+.new-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff6b6b, #ff8787);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* 🎨 構造化コンテンツスタイル */
+.step-structured-content {
+  margin-top: 24px;
+}
+
+/* ゲート真理値表スタイル */
+.gate-truth-table {
+  margin: 16px 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gate-truth-table th {
+  background: rgba(0, 255, 136, 0.1);
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+  color: #00ff88;
+  border-bottom: 2px solid rgba(0, 255, 136, 0.2);
+}
+
+.gate-truth-table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.gate-truth-table tr:last-child td {
+  border-bottom: none;
+}
+
+.gate-truth-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* 見出しアイコン */
+.heading-icon {
+  margin-right: 8px;
+  filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.3));
+}
+
 .phase-title {
   font-size: 28px;
   font-weight: 700;

@@ -1,6 +1,9 @@
 // 🎓 論理回路マスターへの道 - 体系的学習カリキュラム
 // 初学者から実用レベルまで、27レッスンで完全習得
 
+import { andGateStructuredLesson } from './structured-lessons/and-gate-lesson';
+import { orGateStructuredLesson } from './structured-lessons/or-gate-lesson';
+
 export interface Lesson {
   id: string;
   title: string;
@@ -1526,7 +1529,11 @@ export const lessons: Lesson[] = [
         action: { type: 'explanation', content: 'デジタル世界の扉は今、あなたの前に大きく開かれています。未来を創造する準備は整いました！' }
       }
     ]
-  }
+  },
+
+  // 🆕 構造化レッスン（新アーキテクチャ）
+  andGateStructuredLesson as Lesson,
+  orGateStructuredLesson as Lesson
 ];
 
 // 📚 カテゴリー別整理
@@ -1535,7 +1542,7 @@ export const lessonCategories = {
     title: '🌟 Phase 1: デジタルの世界',
     description: '0と1の魔法を理解しよう',
     color: '#00ff88',
-    lessons: ['digital-basics', 'not-gate-master', 'and-gate-master', 'or-gate-master', 'xor-gate-detective']
+    lessons: ['digital-basics', 'not-gate-master', 'and-gate-master', 'or-gate-master', 'xor-gate-detective', 'and-gate-structured', 'or-gate-structured']
   },
   combinational: {
     title: '🔧 Phase 2: 組み合わせ回路',

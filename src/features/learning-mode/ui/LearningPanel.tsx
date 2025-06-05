@@ -3,6 +3,8 @@ import { useCircuitStore } from '../../../stores/circuitStore';
 import type { Lesson } from '../data/lessons';
 import { lessons, lessonCategories, getLearningStats } from '../data/lessons';
 import type { GateType } from '../../../types/circuit';
+import { ContentRenderer } from '../../../components/content-renderers/ContentRenderer';
+import { parseExistingStep } from '../utils/contentParser';
 import './LearningPanel.css';
 
 interface LearningPanelProps {
@@ -527,9 +529,6 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
             </button>
             <div className="lesson-info">
               <h2 className="lesson-title">{selectedLesson.title}</h2>
-              <div className="lesson-progress">
-                <span>{currentStepIndex} / {selectedLesson.steps.length}</span>
-              </div>
             </div>
             <div className="header-buttons">
               <button onClick={() => setIsMinimized(true)} className="minimize-button" title="最小化">―</button>
@@ -555,7 +554,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                     <div className="step-explanation">
                       <div className="explanation-icon">🧠</div>
                       <div className="explanation-content">
-                        {renderExplanationContent(currentStep.action.content)}
+                        <ContentRenderer content={parseExistingStep(currentStep)} />
                       </div>
                     </div>
                   )}
