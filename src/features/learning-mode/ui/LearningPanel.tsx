@@ -45,15 +45,15 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
 
   // 2進数表現をフォーマットする関数
   const formatBinaryExpression = (expr: string) => {
-    // 「0+0=0」のような表現を検出して整形
+    // 「0+0=0」のような表現を検出して整形（スペースを追加）
     const match = expr.match(/(\d)\s*\+\s*(\d)\s*=\s*(\d+)/);
     if (match) {
       return (
         <span className="binary-expression">
           <span className="input">{match[1]}</span>
-          <span className="operator">+</span>
+          <span className="operator"> + </span>
           <span className="input">{match[2]}</span>
-          <span className="equals">=</span>
+          <span className="equals"> = </span>
           <span className="output">{match[3]}</span>
         </span>
       );
@@ -140,16 +140,24 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                       {gateType}
                     </span>
                     <span className="gate-values">
-                      {values
-                        .split(',')
-                        .map(v => v.trim())
-                        .filter(v => v.length > 0) // Remove empty strings
-                        .map((v, vIdx, filteredArr) => (
-                          <span key={vIdx} className="value-item">
-                            {formatBinaryExpression(v)}
-                            {vIdx < filteredArr.length - 1 && <span className="separator">,</span>}
-                          </span>
-                        ))}
+                      {(() => {
+                        const items = values
+                          .split(',')
+                          .map(v => v.trim())
+                          .filter(v => v.length > 0); // Remove empty strings
+                        
+                        return items.map((v, vIdx) => {
+                          const isLast = vIdx === items.length - 1;
+                          return (
+                            <React.Fragment key={vIdx}>
+                              <span className="value-item">
+                                {formatBinaryExpression(v)}
+                              </span>
+                              {!isLast && <span className="separator">, </span>}
+                            </React.Fragment>
+                          );
+                        });
+                      })()}
                     </span>
                   </div>
                 );
