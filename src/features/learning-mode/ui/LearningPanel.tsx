@@ -44,17 +44,23 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
   const stats = getLearningStats(completedLessons);
 
   // 2進数表現をフォーマットする関数
-  const formatBinaryExpression = (expr: string) => {
-    // 「0+0=0」のような表現を検出して整形（スペースを追加）
+  const formatBinaryExpression = (expr: string, isExperimentResult: boolean = false) => {
+    // 「0+0=0」のような表現を検出して整形
     const match = expr.match(/(\d)\s*\+\s*(\d)\s*=\s*(\d+)/);
     if (match) {
+      const className = isExperimentResult ? "experiment-result" : "binary-expression";
+      const inputClass = isExperimentResult ? "exp-input" : "input";
+      const operatorClass = isExperimentResult ? "exp-operator" : "operator";
+      const equalsClass = isExperimentResult ? "exp-equals" : "equals";
+      const outputClass = isExperimentResult ? "exp-output" : "output";
+      
       return (
-        <span className="binary-expression">
-          <span className="input">{match[1]}</span>
-          <span className="operator"> + </span>
-          <span className="input">{match[2]}</span>
-          <span className="equals"> = </span>
-          <span className="output">{match[3]}</span>
+        <span className={className}>
+          <span className={inputClass}>{match[1]}</span>
+          <span className={operatorClass}> + </span>
+          <span className={inputClass}>{match[2]}</span>
+          <span className={equalsClass}> = </span>
+          <span className={outputClass}>{match[3]}</span>
         </span>
       );
     }
@@ -233,20 +239,49 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
       }
       
       // 通常の段落
-      // 「+」記号を含む行の場合は特別な処理
+      // 実験結果まとめの場合は特別な処理
+      if (line.includes('実験結果') && line.includes('🔬')) {
+        // アイコンを分離して処理
+        const parts = line.split('：');
+        if (parts.length >= 2) {
+          const title = parts[0].trim();
+          const content = parts.slice(1).join('：').trim();
+          
+          // 実験結果を分割
+          const results = content.split(/[\u3001,]/).map(r => r.trim()).filter(r => r);
+          
+          elements.push(
+            <div key={`exp-${i}`} className="experiment-results-section">
+              <h4 className="explanation-heading">{title}：</h4>
+              <div className="experiment-results-grid">
+                {results.map((result, idx) => (
+                  <div key={idx}>{formatBinaryExpression(result, true)}</div>
+                ))}
+              </div>
+              {i === 0 && (
+                <div className="expression-note">
+                  <span className="note-icon">💡</span>
+                  <span>ここでの「+」は論理演算を表します。入力1 + 入力2 = 出力 という意味です。</span>
+                </div>
+              )}
+            </div>
+          );
+          i++;
+          continue;
+        }
+      }
+      
+      // 「+」記号を含む行の場合
       if (line.includes('+') && line.match(/\d\s*\+\s*\d/)) {
-        const processedLine = line.replace(/(\d\s*\+\s*\d\s*=\s*\d+)/g, (match) => {
-          return `<span class="inline-expression">${match}</span>`;
-        });
+        const parts = line.split(/[\u3001,]/).map(p => p.trim()).filter(p => p);
         elements.push(
           <div key={`p-${i}`} className="explanation-paragraph">
-            <div dangerouslySetInnerHTML={{ __html: processedLine }} />
-            {i === 0 && line.includes('実験結果') && (
-              <div className="expression-note">
-                <span className="note-icon">💡</span>
-                <span>ここでの「+」は論理演算を表します。入力1 + 入力2 = 出力 という意味です。</span>
-              </div>
-            )}
+            {parts.map((part, idx) => (
+              <span key={idx}>
+                {part.match(/\d\s*\+\s*\d\s*=\s*\d+/) ? formatBinaryExpression(part, false) : part}
+                {idx < parts.length - 1 && '、'}
+              </span>
+            ))}
           </div>
         );
       } else {

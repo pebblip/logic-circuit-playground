@@ -1194,6 +1194,75 @@
   color: #00ff88;
 }
 
+/* 🧪 実験結果まとめセクション */
+.experiment-results-section {
+  margin: 16px 0;
+}
+
+.experiment-results-section .explanation-heading {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.experiment-results-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* 実験結果の各項目 */
+.experiment-result {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 16px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.experiment-result:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.2);
+}
+
+.experiment-result .exp-input {
+  color: #00ff88;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.experiment-result .exp-operator {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+  margin: 0 6px;
+}
+
+.experiment-result .exp-equals {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+  margin: 0 6px;
+}
+
+.experiment-result .exp-output {
+  color: #ffcc00;
+  font-weight: 700;
+  font-size: 18px;
+  text-shadow: 0 0 8px rgba(255, 204, 0, 0.5);
+}
+
+.experiment-result .exp-note {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin-left: 12px;
+}
+
 /* 🎯 最小化パネル */
 .learning-panel-minimized {
   position: fixed;
