@@ -43,6 +43,217 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
   const currentStep = selectedLesson?.steps[currentStepIndex];
   const stats = getLearningStats(completedLessons);
 
+  // 2進数表現をフォーマットする関数
+  const formatBinaryExpression = (expr: string) => {
+    // 「0+0=0」のような表現を検出して整形
+    const match = expr.match(/(\d)\s*\+\s*(\d)\s*=\s*(\d+)/);
+    if (match) {
+      return (
+        <span className="binary-expression">
+          <span className="input">{match[1]}</span>
+          <span className="operator">+</span>
+          <span className="input">{match[2]}</span>
+          <span className="equals">=</span>
+          <span className="output">{match[3]}</span>
+        </span>
+      );
+    }
+    return expr;
+  };
+
+  // Explanation内容をレンダリングする関数
+  const renderExplanationContent = (content: string) => {
+    // 改行で分割
+    const lines = content.split('\n');
+    const elements: React.ReactNode[] = [];
+    let i = 0;
+
+    while (i < lines.length) {
+      const line = lines[i];
+      
+      // 真理値表のヘッダーを検出（パイプ記号を含む行）
+      if (line.includes('|') && i + 1 < lines.length && lines[i + 1].includes('---')) {
+        // 真理値表を構築
+        const tableLines = [];
+        let j = i;
+        
+        // ヘッダー行から開始して、パイプを含む行を収集
+        while (j < lines.length && (lines[j].includes('|') || lines[j].includes('---'))) {
+          tableLines.push(lines[j]);
+          j++;
+        }
+        
+        if (tableLines.length >= 2) {
+          // 真理値表をレンダリング
+          const headerLine = tableLines[0];
+          const headers = headerLine.split('|').map(h => h.trim()).filter(h => h);
+          const dataLines = tableLines.slice(2); // セパレータ行をスキップ
+          
+          elements.push(
+            <table key={`table-${i}`} className="truth-table">
+              <thead>
+                <tr>
+                  {headers.map((header, idx) => (
+                    <th key={idx}>{header}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {dataLines.map((dataLine, rowIdx) => {
+                  const cells = dataLine.split('|').map(c => c.trim()).filter(c => c);
+                  return (
+                    <tr key={rowIdx}>
+                      {cells.map((cell, cellIdx) => (
+                        <td key={cellIdx}>{cell}</td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          );
+          
+          i = j;
+          continue;
+        }
+      }
+      
+      // 比較表の検出（AND: OR: などのパターン）
+      if (line.includes('AND:') || line.includes('OR:') || line.includes('XOR:') || line.includes('NOT:')) {
+        const comparisonLines = [];
+        let j = i;
+        
+        // 比較行を収集
+        while (j < lines.length && (lines[j].includes(':') && (lines[j].includes('AND') || lines[j].includes('OR') || lines[j].includes('XOR') || lines[j].includes('NOT')))) {
+          comparisonLines.push(lines[j]);
+          j++;
+        }
+        
+        if (comparisonLines.length > 0) {
+          elements.push(
+            <div key={`comparison-${i}`} className="comparison-table">
+              {comparisonLines.map((compLine, idx) => {
+                const [gateType, values] = compLine.split(':').map(s => s.trim());
+                return (
+                  <div key={idx} className="comparison-row">
+                    <span className={`gate-label gate-label-${gateType.toLowerCase()}`}>
+                      {gateType}
+                    </span>
+                    <span className="gate-values">
+                      {values
+                        .split(',')
+                        .map(v => v.trim())
+                        .filter(v => v.length > 0) // Remove empty strings
+                        .map((v, vIdx, filteredArr) => (
+                          <span key={vIdx} className="value-item">
+                            {formatBinaryExpression(v)}
+                            {vIdx < filteredArr.length - 1 && <span className="separator">,</span>}
+                          </span>
+                        ))}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+          
+          i = j;
+          continue;
+        }
+      }
+      
+      // 箇条書きの検出
+      if (line.trim().startsWith('・') || line.trim().startsWith('•')) {
+        const listItems = [];
+        let j = i;
+        
+        while (j < lines.length && (lines[j].trim().startsWith('・') || lines[j].trim().startsWith('•'))) {
+          listItems.push(lines[j].trim().substring(1).trim());
+          j++;
+        }
+        
+        elements.push(
+          <ul key={`list-${i}`} className="explanation-list">
+            {listItems.map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ul>
+        );
+        
+        i = j;
+        continue;
+      }
+      
+      // 番号付きリストの検出
+      if (/^\d+\./.test(line.trim())) {
+        const listItems = [];
+        let j = i;
+        
+        while (j < lines.length && /^\d+\./.test(lines[j].trim())) {
+          listItems.push(lines[j].trim().replace(/^\d+\.\s*/, ''));
+          j++;
+        }
+        
+        elements.push(
+          <ol key={`ol-${i}`} className="explanation-ordered-list">
+            {listItems.map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ol>
+        );
+        
+        i = j;
+        continue;
+      }
+      
+      // 見出しの検出（絵文字で始まる行）
+      if (line.trim() && /^[🔧🎯📊💡🤔🔍🌟📝🔗🧮📐💻🚗🏠🛑💳🚨🚪🔄🔐✅➕🎮]/u.test(line.trim())) {
+        elements.push(
+          <h4 key={`heading-${i}`} className="explanation-heading">
+            {line.trim()}
+          </h4>
+        );
+        i++;
+        continue;
+      }
+      
+      // 空行
+      if (!line.trim()) {
+        elements.push(<br key={`br-${i}`} />);
+        i++;
+        continue;
+      }
+      
+      // 通常の段落
+      // 「+」記号を含む行の場合は特別な処理
+      if (line.includes('+') && line.match(/\d\s*\+\s*\d/)) {
+        const processedLine = line.replace(/(\d\s*\+\s*\d\s*=\s*\d+)/g, (match) => {
+          return `<span class="inline-expression">${match}</span>`;
+        });
+        elements.push(
+          <div key={`p-${i}`} className="explanation-paragraph">
+            <div dangerouslySetInnerHTML={{ __html: processedLine }} />
+            {i === 0 && line.includes('実験結果') && (
+              <div className="expression-note">
+                <span className="note-icon">💡</span>
+                <span>ここでの「+」は論理演算を表します。入力1 + 入力2 = 出力 という意味です。</span>
+              </div>
+            )}
+          </div>
+        );
+      } else {
+        elements.push(
+          <p key={`p-${i}`} className="explanation-paragraph">
+            {line}
+          </p>
+        );
+      }
+      i++;
+    }
+    
+    return elements;
+  };
+
   // ゲート制限の設定
   useEffect(() => {
     if (!selectedLesson) {
@@ -300,7 +511,9 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                   {currentStep?.action.type === 'explanation' && (
                     <div className="step-explanation">
                       <div className="explanation-icon">🧠</div>
-                      <p>{currentStep.action.content}</p>
+                      <div className="explanation-content">
+                        {renderExplanationContent(currentStep.action.content)}
+                      </div>
                     </div>
                   )}
 
@@ -340,23 +553,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                   />
                 </div>
 
-                {/* ナビゲーション */}
-                <div className="step-navigation">
-                  <button
-                    onClick={handlePreviousStep}
-                    disabled={currentStepIndex === 0}
-                    className="nav-button prev"
-                  >
-                    前へ
-                  </button>
-                  <button
-                    onClick={handleNextStep}
-                    disabled={currentStep?.action.type === 'quiz' && quizAnswer !== currentStep.action.correct}
-                    className="nav-button next"
-                  >
-                    {currentStepIndex === selectedLesson.steps.length - 1 ? '完了' : '次へ'}
-                  </button>
-                </div>
+                {/* ナビゲーションはlesson-player-contentの外に移動 */}
               </>
             ) : (
               // レッスン完了画面
@@ -377,6 +574,35 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
               </div>
             )}
           </div>
+
+          {/* フローティングナビゲーション */}
+          {selectedLesson && currentStepIndex < selectedLesson.steps.length && (
+            <div className="floating-navigation">
+              <button
+                onClick={handlePreviousStep}
+                disabled={currentStepIndex === 0}
+                className="nav-button prev"
+                title="前のステップ"
+              >
+                <span className="nav-icon">◀</span>
+                <span className="nav-text">前へ</span>
+              </button>
+              <div className="nav-indicator">
+                <span className="current-step">{currentStepIndex + 1}</span>
+                <span className="separator">/</span>
+                <span className="total-steps">{selectedLesson.steps.length}</span>
+              </div>
+              <button
+                onClick={handleNextStep}
+                disabled={currentStep?.action.type === 'quiz' && quizAnswer !== currentStep.action.correct}
+                className="nav-button next"
+                title="次のステップ"
+              >
+                <span className="nav-text">{currentStepIndex === selectedLesson.steps.length - 1 ? '完了' : '次へ'}</span>
+                <span className="nav-icon">▶</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
