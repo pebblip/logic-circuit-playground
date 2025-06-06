@@ -1,4 +1,5 @@
 /* 🎓 論理回路マスターへの道 - 楽しい学習UI */
+@import './AsciiArt.css';
 
 .learning-panel {
   position: fixed;
