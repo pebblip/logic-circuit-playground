@@ -134,7 +134,7 @@ export const gateDescriptions: Record<string, GateDescription> = {
   },
 
   INPUT: {
-    title: 'INPUTゲート（入力制御）',
+    title: '入力（入力制御）',
     icon: '🎮',
     basicOperation:
       'ダブルクリックでON（1）/OFF（0）を切り替え。シングルクリックでは選択のみ。この直感的な操作で回路に生命を吹き込みます。',
@@ -154,7 +154,7 @@ export const gateDescriptions: Record<string, GateDescription> = {
   },
 
   OUTPUT: {
-    title: 'OUTPUTゲート（出力表示）',
+    title: '出力（出力表示）',
     icon: '💡',
     basicOperation:
       '接続された信号の状態を💡ライトで視覚化。ON（1）の時は明るく光り、OFF（0）の時は暗くなります。',
@@ -174,7 +174,7 @@ export const gateDescriptions: Record<string, GateDescription> = {
   },
 
   CLOCK: {
-    title: 'CLOCKゲート（クロック信号）',
+    title: 'クロック（クロック信号）',
     icon: '⏰',
     basicOperation:
       '一定の間隔で0→1→0を繰り返す周期的な信号を生成。この「鼓動」がデジタル回路に時間の概念をもたらします。',
@@ -258,7 +258,7 @@ export const gateDescriptions: Record<string, GateDescription> = {
 export function getGateDescription(gateType: string): GateDescription {
   return (
     gateDescriptions[gateType] || {
-      title: `${gateType}ゲート`,
+      title: `${gateType}${gateType.match(/^(INPUT|OUTPUT|CLOCK)$/) ? '' : 'ゲート'}`,
       icon: '⚙️',
       basicOperation:
         'このゲートの詳細説明は準備中です。基本的な論理演算や特殊機能を提供します。',

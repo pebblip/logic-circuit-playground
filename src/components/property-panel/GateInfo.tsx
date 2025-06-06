@@ -1,10 +1,24 @@
 import React from 'react';
-import type { Gate } from '@/types/circuit';
+import type { Gate, GateType } from '@/types/circuit';
 import { isCustomGate } from '@/types/gates';
 import {
   booleanToDisplayState,
   getGateInputsAsBoolean,
 } from '@domain/simulation';
+
+// ゲートタイプの表示名を取得
+const getGateDisplayName = (type: GateType): string => {
+  switch (type) {
+    case 'INPUT':
+      return '入力';
+    case 'OUTPUT':
+      return '出力';
+    case 'CLOCK':
+      return 'クロック';
+    default:
+      return `${type}ゲート`;
+  }
+};
 
 interface GateInfoProps {
   selectedGate: Gate;
@@ -21,7 +35,7 @@ export const GateInfo: React.FC<GateInfoProps> = ({ selectedGate }) => {
             選択中:{' '}
             {isCustomGate(selectedGate) && selectedGate.customGateDefinition
               ? selectedGate.customGateDefinition.displayName
-              : `${selectedGate.type}ゲート`}
+              : getGateDisplayName(selectedGate.type)}
           </span>
         </div>
       </div>
