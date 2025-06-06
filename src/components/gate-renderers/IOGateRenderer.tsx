@@ -7,7 +7,11 @@ interface IOGateRendererProps {
   isSelected: boolean;
   handleMouseDown: (event: React.MouseEvent) => void;
   handleTouchStart: (event: React.TouchEvent) => void;
-  handlePinClick: (event: React.MouseEvent, pinIndex: number, isOutput: boolean) => void;
+  handlePinClick: (
+    event: React.MouseEvent,
+    pinIndex: number,
+    isOutput: boolean
+  ) => void;
   handleGateClick: (event: React.MouseEvent) => void;
   handleInputClick: (event: React.MouseEvent) => void;
   handleInputDoubleClick: (event: React.MouseEvent) => void;
@@ -106,12 +110,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
             r="15"
             fill={getGateInputValue(gate, 0) ? '#00ff88' : '#333'}
           />
-          <text
-            x="0"
-            y="5"
-            className="gate-text"
-            style={{ fontSize: '20px' }}
-          >
+          <text x="0" y="5" className="gate-text" style={{ fontSize: '20px' }}>
             💡
           </text>
         </g>

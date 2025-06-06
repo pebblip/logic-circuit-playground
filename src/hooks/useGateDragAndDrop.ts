@@ -5,7 +5,7 @@ import {
   reactEventToSVGCoordinates,
   touchToSVGCoordinates,
 } from '@/infrastructure/ui/svgCoordinates';
-import type { Gate, Position } from '@/types/circuit';
+import type { Gate } from '@/types/circuit';
 
 interface UseDragAndDropResult {
   isDragging: boolean;

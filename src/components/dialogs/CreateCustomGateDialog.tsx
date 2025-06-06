@@ -5,7 +5,6 @@ import { useCustomGateForm } from '@/hooks/useCustomGateForm';
 import { BasicInfoForm } from './custom-gate-dialog/BasicInfoForm';
 import { PinEditor } from './custom-gate-dialog/PinEditor';
 import { GatePreview } from './custom-gate-dialog/GatePreview';
-import { useCircuitStore } from '@/stores/circuitStore';
 
 interface CreateCustomGateDialogProps {
   isOpen: boolean;
@@ -35,12 +34,7 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
     }
   }, [isOpen, initialInputs, initialOutputs, isReadOnly]);
 
-  const {
-    formData,
-    setters,
-    handlers,
-    utils,
-  } = useCustomGateForm({
+  const { formData, setters, handlers, utils } = useCustomGateForm({
     initialInputs,
     initialOutputs,
     isOpen,
@@ -62,7 +56,10 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
     console.log('formData:', formData);
     console.log('formData.inputs:', formData.inputs);
     console.log('formData.outputs:', formData.outputs);
-    console.log('formData.outputs structure:', JSON.stringify(formData.outputs, null, 2));
+    console.log(
+      'formData.outputs structure:',
+      JSON.stringify(formData.outputs, null, 2)
+    );
 
     const definition: CustomGateDefinition = {
       id: IdGenerator.generateGateId(),

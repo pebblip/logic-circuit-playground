@@ -3,15 +3,23 @@ import { useCircuitStore } from '../stores/circuitStore';
 import { GateComponent } from './Gate';
 import { WireComponent } from './Wire';
 import { QuickTutorial } from './QuickTutorial';
-import { evaluateCircuitPure, defaultConfig, isSuccess } from '@domain/simulation/pure';
-import type { Circuit } from '@domain/simulation/pure/types';
-import type { Gate, Wire } from '../types/circuit';
+import {
+  evaluateCircuit,
+  defaultConfig,
+  isSuccess,
+} from '@domain/simulation/core';
+import type { Circuit } from '@domain/simulation/core/types';
 import { useCanvasPan } from '../hooks/useCanvasPan';
-import { useCanvasSelection, type SelectionRect } from '../hooks/useCanvasSelection';
+import {
+  useCanvasSelection,
+  type SelectionRect,
+} from '../hooks/useCanvasSelection';
 import { useCanvasZoom } from '../hooks/useCanvasZoom';
-import { reactEventToSVGCoordinates, mouseEventToSVGCoordinates } from '@infrastructure/ui/svgCoordinates';
+import {
+  reactEventToSVGCoordinates,
+  mouseEventToSVGCoordinates,
+} from '@infrastructure/ui/svgCoordinates';
 import type { GateType, CustomGateDefinition } from '../types/gates';
-
 
 interface ViewBox {
   x: number;
@@ -35,10 +43,18 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   });
   const [isSpacePressed, setIsSpacePressed] = useState(false);
   const [isDraggingSelection, setIsDraggingSelection] = useState(false);
-  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
-  const [initialGatePositions, setInitialGatePositions] = useState<Map<string, { x: number; y: number }>>(new Map());
-  const [initialSelectionRect, setInitialSelectionRect] = useState<SelectionRect | null>(null);
-  const [selectionRectOffset, setSelectionRectOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(
+    null
+  );
+  const [initialGatePositions, setInitialGatePositions] = useState<
+    Map<string, { x: number; y: number }>
+  >(new Map());
+  const [initialSelectionRect, setInitialSelectionRect] =
+    useState<SelectionRect | null>(null);
+  const [_selectionRectOffset, _setSelectionRectOffset] = useState<{
+    x: number;
+    y: number;
+  }>({ x: 0, y: 0 });
   const [showQuickTutorial, setShowQuickTutorial] = useState(false);
 
   const {
@@ -52,7 +68,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     clearSelection,
     addGate,
     addCustomGateInstance,
-    moveMultipleGates,
+    moveMultipleGates: _moveMultipleGates,
   } = useCircuitStore();
 
   // カスタムフックの使用
@@ -75,7 +91,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     updateSelection,
     endSelection,
     clearSelection: clearSelectionRect,
-    moveSelectionRect,
+    moveSelectionRect: _moveSelectionRect,
     setSelectionRect,
   } = useCanvasSelection(gates, setSelectedGates, selectedGateIds);
 
@@ -148,28 +164,30 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       gate => gate.type === 'CLOCK' && gate.metadata?.isRunning
     );
 
-    if (hasRunningClockGate) {
-      const interval = setInterval(() => {
-        // 現在の状態を直接取得
-        const currentState = useCircuitStore.getState();
-        const circuit: Circuit = { 
-          gates: currentState.gates, 
-          wires: currentState.wires 
-        };
-        const result = evaluateCircuitPure(circuit, defaultConfig);
-        
-        if (isSuccess(result)) {
-          useCircuitStore.setState({ 
-            gates: [...result.data.circuit.gates], 
-            wires: [...result.data.circuit.wires] 
-          });
-        }
-      }, 50); // 20Hz更新
-
-      return () => {
-        clearInterval(interval);
-      };
+    if (!hasRunningClockGate) {
+      return; // 早期リターン
     }
+
+    const interval = setInterval(() => {
+      // 現在の状態を直接取得
+      const currentState = useCircuitStore.getState();
+      const circuit: Circuit = {
+        gates: currentState.gates,
+        wires: currentState.wires,
+      };
+      const result = evaluateCircuit(circuit, defaultConfig);
+
+      if (isSuccess(result)) {
+        useCircuitStore.setState({
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+        });
+      }
+    }, 50); // 20Hz更新
+
+    return () => {
+      clearInterval(interval);
+    };
   }, [
     // 依存配列を修正: CLOCKゲート数とisRunning状態の両方を監視
     gates.filter(g => g.type === 'CLOCK').length,
@@ -208,7 +226,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     if (isDraggingSelection) {
       return;
     }
-    
+
     // 矩形選択直後のクリックは無視（ドラッグによる選択の場合）
     if (selectionJustFinished.current) {
       selectionJustFinished.current = false;
@@ -274,19 +292,19 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   // クリック位置が選択されたゲート上にあるかを判定
   const isClickOnSelectedGate = (x: number, y: number): boolean => {
     if (selectedGateIds.length === 0) return false;
-    
+
     // ゲートのヒットボックスサイズ（大まかな判定用）
     const GATE_WIDTH = 70;
     const GATE_HEIGHT = 50;
-    
+
     return gates.some(gate => {
       if (!selectedGateIds.includes(gate.id)) return false;
-      
+
       const left = gate.position.x - GATE_WIDTH / 2;
       const right = gate.position.x + GATE_WIDTH / 2;
       const top = gate.position.y - GATE_HEIGHT / 2;
       const bottom = gate.position.y + GATE_HEIGHT / 2;
-      
+
       return x >= left && x <= right && y >= top && y <= bottom;
     });
   };
@@ -294,10 +312,14 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   // クリック位置が選択矩形内にあるかを判定
   const isClickInSelectionRect = (x: number, y: number): boolean => {
     if (!selectionRect || selectedGateIds.length === 0) return false;
-    
+
     // selectionRectは既に正規化されているので直接使用
-    return x >= selectionRect.startX && x <= selectionRect.endX && 
-           y >= selectionRect.startY && y <= selectionRect.endY;
+    return (
+      x >= selectionRect.startX &&
+      x <= selectionRect.endX &&
+      y >= selectionRect.startY &&
+      y <= selectionRect.endY
+    );
   };
 
   // タッチイベント（モバイル用）
@@ -343,11 +365,12 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     if (
       event.button === 0 &&
       selectedGateIds.length > 0 &&
-      (isClickOnSelectedGate(svgPoint.x, svgPoint.y) || isClickInSelectionRect(svgPoint.x, svgPoint.y))
+      (isClickOnSelectedGate(svgPoint.x, svgPoint.y) ||
+        isClickInSelectionRect(svgPoint.x, svgPoint.y))
     ) {
       setIsDraggingSelection(true);
       setDragStart({ x: svgPoint.x, y: svgPoint.y });
-      
+
       // 初期ゲート位置を記録
       const positions = new Map<string, { x: number; y: number }>();
       gates.forEach(gate => {
@@ -356,12 +379,12 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         }
       });
       setInitialGatePositions(positions);
-      
+
       // 初期選択矩形位置を記録（そのまま記録）
       if (selectionRect) {
         setInitialSelectionRect({ ...selectionRect });
       }
-      
+
       return;
     }
 
@@ -406,16 +429,20 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       if (isPanning) {
         handlePan(event.clientX, event.clientY);
       }
-      
+
       // 選択されたゲート群のドラッグ中の処理
-      if (isDraggingSelection && dragStart && svgRef.current && initialGatePositions.size > 0) {
+      if (
+        isDraggingSelection &&
+        dragStart &&
+        svgRef.current &&
+        initialGatePositions.size > 0
+      ) {
         const svgPoint = mouseEventToSVGCoordinates(event, svgRef.current);
         if (!svgPoint) return;
-        
+
         const deltaX = svgPoint.x - dragStart.x;
         const deltaY = svgPoint.y - dragStart.y;
-        
-        
+
         // 初期位置からの絶対的な移動を計算
         const newGates = gates.map(gate => {
           const initialPos = initialGatePositions.get(gate.id);
@@ -430,10 +457,10 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
           }
           return gate;
         });
-        
+
         // 状態を更新
         useCircuitStore.setState({ gates: newGates });
-        
+
         // 選択矩形も移動（正規化された状態を維持）
         if (initialSelectionRect) {
           const newRect = {
@@ -451,7 +478,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       if (isPanning) {
         handlePanEnd();
       }
-      
+
       // 選択されたゲート群のドラッグ終了
       if (isDraggingSelection) {
         setIsDraggingSelection(false);
@@ -471,17 +498,32 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       document.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [isPanning, handlePan, handlePanEnd, isDraggingSelection, dragStart, selectedGateIds, gates, initialGatePositions, initialSelectionRect, setSelectionRect]);
+  }, [
+    isPanning,
+    handlePan,
+    handlePanEnd,
+    isDraggingSelection,
+    dragStart,
+    selectedGateIds,
+    gates,
+    initialGatePositions,
+    initialSelectionRect,
+    setSelectionRect,
+  ]);
 
   // ドロップハンドラ
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
 
-    const draggedGateData = (window as Window & { _draggedGate?: unknown })._draggedGate;
+    const draggedGateData = (window as Window & { _draggedGate?: unknown })
+      ._draggedGate;
     if (!draggedGateData || !svgRef.current) return;
 
     // 型アサーション
-    const draggedGate = draggedGateData as { type: GateType; customDefinition?: CustomGateDefinition };
+    const draggedGate = draggedGateData as {
+      type: GateType;
+      customDefinition?: CustomGateDefinition;
+    };
 
     // SVG座標系でのドロップ位置を取得
     const svgPoint = reactEventToSVGCoordinates(event, svgRef.current);
@@ -592,8 +634,16 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         {/* 選択矩形 */}
         {selectionRect && (
           <rect
-            x={isSelecting ? Math.min(selectionRect.startX, selectionRect.endX) : selectionRect.startX}
-            y={isSelecting ? Math.min(selectionRect.startY, selectionRect.endY) : selectionRect.startY}
+            x={
+              isSelecting
+                ? Math.min(selectionRect.startX, selectionRect.endX)
+                : selectionRect.startX
+            }
+            y={
+              isSelecting
+                ? Math.min(selectionRect.startY, selectionRect.endY)
+                : selectionRect.startY
+            }
             width={Math.abs(selectionRect.endX - selectionRect.startX)}
             height={Math.abs(selectionRect.endY - selectionRect.startY)}
             fill="rgba(0, 255, 136, 0.1)"
@@ -619,22 +669,26 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       </div>
 
       {/* 初めての方向けボタン */}
-      {gates.length === 0 && !showQuickTutorial && !localStorage.getItem('quickTutorialCompleted') && (
-        <div className="first-time-guide">
-          <button 
-            className="first-time-button"
-            onClick={() => setShowQuickTutorial(true)}
-          >
-            <span className="first-time-icon">🎯</span>
-            <span className="first-time-text">初めての方は？</span>
-            <span className="first-time-duration">3分で基本操作をマスター</span>
-          </button>
-        </div>
-      )}
+      {gates.length === 0 &&
+        !showQuickTutorial &&
+        !localStorage.getItem('quickTutorialCompleted') && (
+          <div className="first-time-guide">
+            <button
+              className="first-time-button"
+              onClick={() => setShowQuickTutorial(true)}
+            >
+              <span className="first-time-icon">🎯</span>
+              <span className="first-time-text">初めての方は？</span>
+              <span className="first-time-duration">
+                3分で基本操作をマスター
+              </span>
+            </button>
+          </div>
+        )}
 
       {/* クイックチュートリアル */}
       {showQuickTutorial && (
-        <QuickTutorial 
+        <QuickTutorial
           onClose={() => {
             setShowQuickTutorial(false);
             localStorage.setItem('quickTutorialCompleted', 'true');

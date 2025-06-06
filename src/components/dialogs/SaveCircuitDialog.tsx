@@ -33,7 +33,6 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
   const [isLoading, setSaving] = useState(false);
   const [error, setError] = useState<string>('');
 
-
   // フォームリセット
   useEffect(() => {
     if (isOpen) {
@@ -46,7 +45,6 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
       setError('');
     }
   }, [isOpen, defaultName]);
-
 
   /**
    * タグ追加

@@ -1,6 +1,6 @@
 import type { Gate, Wire } from '../../types/circuit';
-import { evaluateCircuitPure, defaultConfig, isSuccess } from '../simulation/pure';
-import type { Circuit } from '../simulation/pure/types';
+import { evaluateCircuit, defaultConfig, isSuccess } from '../simulation/core';
+import type { Circuit } from '../simulation/core/types';
 
 export interface TruthTableRow {
   inputs: string;
@@ -51,20 +51,22 @@ export function generateTruthTable(
     });
 
     // 回路を評価（新API使用）
-    const circuit: Circuit = { 
+    const circuit: Circuit = {
       gates: testGates,
-      wires: [...wires] 
+      wires: [...wires],
     };
-    
-    const evaluationResult = evaluateCircuitPure(circuit, defaultConfig);
-    
+
+    const evaluationResult = evaluateCircuit(circuit, defaultConfig);
+
     let evaluatedGates: Gate[];
     if (isSuccess(evaluationResult)) {
       evaluatedGates = [...evaluationResult.data.circuit.gates];
     } else {
       // エラー時は元のゲート状態を使用（フォールバック）
-      console.warn(`Truth table generation: Circuit evaluation failed for pattern ${inputPattern}:`, 
-                   evaluationResult.error.message);
+      console.warn(
+        `Truth table generation: Circuit evaluation failed for pattern ${inputPattern}:`,
+        evaluationResult.error.message
+      );
       evaluatedGates = testGates;
       hasSequentialBehavior = true; // エラーが発生した場合は複雑な回路とみなす
     }

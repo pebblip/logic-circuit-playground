@@ -23,9 +23,9 @@ export const createAppModeSlice: StateCreator<
   isLearningMode: false,
 
   setAppMode: (mode: AppMode) => {
-    set({ 
+    set({
       appMode: mode,
-      isLearningMode: mode === '学習モード'
+      isLearningMode: mode === '学習モード',
     });
   },
 

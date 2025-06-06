@@ -15,7 +15,12 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
-  const { gates, wires, addCustomGate, isLearningMode } = useCircuitStore();
+  const {
+    gates,
+    wires: _wires,
+    addCustomGate,
+    isLearningMode,
+  } = useCircuitStore();
 
   // 統一ダイアログ管理
   const dialogs = useMultipleDialogs({
@@ -91,10 +96,10 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
       initialOutputs,
       isReadOnly: true, // 回路から作成する場合はピン編集を無効化
     };
-    
+
     console.log('=== Header: Setting customGateDialogData ===');
     console.log('newData:', newData);
-    
+
     setCustomGateDialogData(newData);
     dialogs.customGate.open();
   };
@@ -103,7 +108,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
     addCustomGate(definition);
     dialogs.customGate.close();
     console.log('✅ カスタムゲートが作成されました');
-    
+
     // ダイアログを閉じる際にデータをリセット
     setCustomGateDialogData({
       initialInputs: [],
@@ -162,7 +167,13 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
             </>
           )}
           {isLearningMode && (
-            <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '14px', marginRight: '12px' }}>
+            <span
+              style={{
+                color: 'rgba(255, 255, 255, 0.6)',
+                fontSize: '14px',
+                marginRight: '12px',
+              }}
+            >
               学習モード中
             </span>
           )}

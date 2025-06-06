@@ -16,7 +16,7 @@ import {
   type ValidationError,
   type EvaluationError,
   type DependencyError
-} from '@domain/simulation/pure/types';
+} from '@domain/simulation/core/types';
 
 describe('Pure API Types', () => {
   describe('Result型パターン', () => {

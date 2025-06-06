@@ -1,5 +1,5 @@
 import React from 'react';
-import type { TableContent } from '../../types/lesson-content';
+import type { TableContent } from '../../../../types/lesson-content';
 
 interface TableRendererProps {
   content: TableContent;

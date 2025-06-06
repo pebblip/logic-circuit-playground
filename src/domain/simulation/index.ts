@@ -8,4 +8,4 @@
 export * from './signalConversion';
 
 // 新APIのエクスポート（推奨）
-export * from './pure';
+export * from './core';

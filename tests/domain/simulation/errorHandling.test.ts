@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { evaluateCircuitPure, evaluateGateUnified, isFailure, isSuccess, defaultConfig, createFixedTimeProvider } from '@domain/simulation/pure';
+import { evaluateCircuit, evaluateGateUnified, isFailure, isSuccess, defaultConfig, createFixedTimeProvider } from '@domain/simulation/core';
 import { Gate, Wire } from '@/types/circuit';
 
 describe('Circuit Simulation Error Handling - New API', () => {
@@ -18,7 +18,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates, wires: [] }, config);
+      const result = evaluateCircuit({ gates, wires: [] }, config);
       
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
@@ -39,7 +39,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates, wires: [] }, config);
+      const result = evaluateCircuit({ gates, wires: [] }, config);
       
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
@@ -58,7 +58,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates: [], wires }, config);
+      const result = evaluateCircuit({ gates: [], wires }, config);
       
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
@@ -80,7 +80,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates: [], wires }, config);
+      const result = evaluateCircuit({ gates: [], wires }, config);
       
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
@@ -109,7 +109,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates, wires: [] }, config);
+      const result = evaluateCircuit({ gates, wires: [] }, config);
       
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
@@ -151,7 +151,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates, wires }, config);
+      const result = evaluateCircuit({ gates, wires }, config);
       
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
@@ -182,7 +182,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates, wires }, config);
+      const result = evaluateCircuit({ gates, wires }, config);
       
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
@@ -211,7 +211,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates, wires }, config);
+      const result = evaluateCircuit({ gates, wires }, config);
       
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
@@ -255,7 +255,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates, wires }, config);
+      const result = evaluateCircuit({ gates, wires }, config);
       
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
@@ -311,7 +311,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates, wires }, config);
+      const result = evaluateCircuit({ gates, wires }, config);
       
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
@@ -335,7 +335,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates, wires: [] }, config);
+      const result = evaluateCircuit({ gates, wires: [] }, config);
       
       // The new API should handle this as a validation error
       expect(isFailure(result)).toBe(true);
@@ -392,7 +392,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates, wires }, config);
+      const result = evaluateCircuit({ gates, wires }, config);
       
       // The new API should validate wire connections properly
       expect(isFailure(result)).toBe(true);
@@ -431,7 +431,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates, wires }, config);
+      const result = evaluateCircuit({ gates, wires }, config);
       
       expect(isSuccess(result)).toBe(true);
       if (isSuccess(result)) {
@@ -496,7 +496,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
         }
       ];
 
-      const result = evaluateCircuitPure({ gates, wires }, config);
+      const result = evaluateCircuit({ gates, wires }, config);
       
       expect(isSuccess(result)).toBe(true);
       if (isSuccess(result)) {
@@ -541,7 +541,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       }
 
       const startTime = performance.now();
-      const result = evaluateCircuitPure({ gates, wires }, config);
+      const result = evaluateCircuit({ gates, wires }, config);
       const endTime = performance.now();
       
       const executionTime = endTime - startTime;
@@ -584,7 +584,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       ];
 
       const debugConfig = { ...config, enableDebug: true };
-      const result = evaluateCircuitPure({ gates, wires }, debugConfig);
+      const result = evaluateCircuit({ gates, wires }, debugConfig);
       
       expect(isSuccess(result)).toBe(true);
       if (isSuccess(result)) {

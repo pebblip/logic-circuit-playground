@@ -1,14 +1,17 @@
 import type { StateCreator } from 'zustand';
 import type { CircuitStore } from '../types';
-import type { Gate, Wire } from '@/types/circuit';
+import type { Wire } from '@/types/circuit';
 import { IdGenerator } from '@shared/id';
-import { evaluateCircuitPure, defaultConfig, isSuccess } from '@domain/simulation/pure';
-import type { Circuit } from '@domain/simulation/pure/types';
+import {
+  evaluateCircuit,
+  defaultConfig,
+  isSuccess,
+} from '@domain/simulation/core';
+import type { Circuit } from '@domain/simulation/core/types';
 import {
   getInputPinPosition,
   getOutputPinPosition,
 } from '@domain/analysis/pinPositionCalculator';
-
 
 export interface WireOperationsSlice {
   startWireDrawing: (gateId: string, pinIndex: number) => void;
@@ -109,8 +112,8 @@ export const createWireOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: state.gates, wires: updatedWires };
-      const result = evaluateCircuitPure(circuit, defaultConfig);
-      
+      const result = evaluateCircuit(circuit, defaultConfig);
+
       if (isSuccess(result)) {
         return {
           gates: [...result.data.circuit.gates],
@@ -146,8 +149,8 @@ export const createWireOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: state.gates, wires: newWires };
-      const result = evaluateCircuitPure(circuit, defaultConfig);
-      
+      const result = evaluateCircuit(circuit, defaultConfig);
+
       if (isSuccess(result)) {
         return {
           gates: [...result.data.circuit.gates],

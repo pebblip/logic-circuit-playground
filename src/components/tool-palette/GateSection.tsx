@@ -27,7 +27,8 @@ export const GateSection: React.FC<GateSectionProps> = ({
       </div>
       <div className="tools-grid">
         {gates.map(({ type, label }) => {
-          const isDisabled = allowedGates !== null && !allowedGates.includes(type);
+          const isDisabled =
+            allowedGates !== null && !allowedGates.includes(type);
           return (
             <GateCard
               key={type}

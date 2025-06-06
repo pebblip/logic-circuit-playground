@@ -1,9 +1,8 @@
 // 論理回路シミュレーションの単体テスト
-// 最重要機能の確実な品質保証
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { evaluateGateUnified, evaluateCircuitPure, isSuccess, defaultConfig } from '@domain/simulation/pure';
-import type { Circuit } from '@domain/simulation/pure/types';
+import { evaluateGateUnified, evaluateCircuit, isSuccess, defaultConfig } from '@domain/simulation/core';
+import type { Circuit } from '@domain/simulation/core/types';
 import { Gate, Wire, GateType } from '@/types/circuit';
 
 describe('Logic Gate Evaluation', () => {
@@ -420,7 +419,7 @@ describe('Circuit Evaluation', () => {
     ];
 
     const circuit: Circuit = { gates, wires };
-    const result = evaluateCircuitPure(circuit, defaultConfig);
+    const result = evaluateCircuit(circuit, defaultConfig);
     
     expect(isSuccess(result)).toBe(true);
     if (isSuccess(result)) {
@@ -502,7 +501,7 @@ describe('Circuit Evaluation', () => {
     ];
 
     const circuit: Circuit = { gates, wires };
-    const result = evaluateCircuitPure(circuit, defaultConfig);
+    const result = evaluateCircuit(circuit, defaultConfig);
     
     expect(isSuccess(result)).toBe(true);
     if (isSuccess(result)) {

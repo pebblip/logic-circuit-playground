@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { evaluateGateUnified, evaluateCircuitPure, createDeterministicTimeProvider, createFixedTimeProvider, TimeProvider, isSuccess, defaultConfig } from '@domain/simulation/pure';
+import { evaluateGateUnified, evaluateCircuit, createDeterministicTimeProvider, createFixedTimeProvider, TimeProvider, isSuccess, defaultConfig } from '@domain/simulation/core';
 import { Gate, Wire, GateType } from '@/types/circuit';
 
 describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
@@ -198,7 +198,7 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
       ];
 
       // Initial evaluation
-      const result1 = evaluateCircuitPure({ gates, wires }, defaultConfig);
+      const result1 = evaluateCircuit({ gates, wires }, defaultConfig);
       expect(isSuccess(result1)).toBe(true);
       if (isSuccess(result1)) {
         expect(result1.data.circuit.gates[0].output).toBe(false); // CLOCK
@@ -207,7 +207,7 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
 
       // After 1 period
       vi.setSystemTime(startTime + 1000);
-      const result2 = evaluateCircuitPure({ gates, wires }, defaultConfig);
+      const result2 = evaluateCircuit({ gates, wires }, defaultConfig);
       expect(isSuccess(result2)).toBe(true);
       if (isSuccess(result2)) {
         expect(result2.data.circuit.gates[0].output).toBe(true);  // CLOCK toggled
@@ -236,7 +236,7 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
       }));
 
       const start = performance.now();
-      const result = evaluateCircuitPure({ gates, wires: [] }, defaultConfig);
+      const result = evaluateCircuit({ gates, wires: [] }, defaultConfig);
       const end = performance.now();
 
       expect(end - start).toBeLessThan(10);
@@ -268,14 +268,14 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
         }
       ];
 
-      const result1 = evaluateCircuitPure({ gates, wires: [] }, defaultConfig);
+      const result1 = evaluateCircuit({ gates, wires: [] }, defaultConfig);
       expect(isSuccess(result1)).toBe(true);
       if (isSuccess(result1)) {
         expect(result1.data.circuit.gates.length).toBe(1);
       }
 
       // Remove CLOCK gate
-      const result2 = evaluateCircuitPure({ gates: [], wires: [] }, defaultConfig);
+      const result2 = evaluateCircuit({ gates: [], wires: [] }, defaultConfig);
       expect(isSuccess(result2)).toBe(true);
       if (isSuccess(result2)) {
         expect(result2.data.circuit.gates.length).toBe(0);
@@ -329,7 +329,7 @@ describe('CLOCK Gate Real-time Simulation - Essential Tests', () => {
         }
       }];
 
-      const result = evaluateCircuitPure({ gates, wires: [] }, defaultConfig);
+      const result = evaluateCircuit({ gates, wires: [] }, defaultConfig);
       expect(isSuccess(result)).toBe(true);
       if (isSuccess(result)) {
         expect(result.data.circuit.gates[0].metadata?.startTime).toBeDefined();
@@ -429,7 +429,7 @@ describe('CLOCK Gate Deterministic Simulation - New Time Provider Tests', () => 
 
       // Time 0: CLOCK=false, NOT=true
       const config = { ...defaultConfig, timeProvider };
-      const result1 = evaluateCircuitPure({ gates, wires }, config);
+      const result1 = evaluateCircuit({ gates, wires }, config);
       expect(isSuccess(result1)).toBe(true);
       if (isSuccess(result1)) {
         expect(result1.data.circuit.gates[0].output).toBe(false);
@@ -437,7 +437,7 @@ describe('CLOCK Gate Deterministic Simulation - New Time Provider Tests', () => 
       }
 
       // Time 1000: CLOCK=true, NOT=false
-      const result2 = evaluateCircuitPure({ gates, wires }, config);
+      const result2 = evaluateCircuit({ gates, wires }, config);
       expect(isSuccess(result2)).toBe(true);
       if (isSuccess(result2)) {
         expect(result2.data.circuit.gates[0].output).toBe(true);
@@ -445,7 +445,7 @@ describe('CLOCK Gate Deterministic Simulation - New Time Provider Tests', () => 
       }
 
       // Time 2000: CLOCK=false, NOT=true
-      const result3 = evaluateCircuitPure({ gates, wires }, config);
+      const result3 = evaluateCircuit({ gates, wires }, config);
       expect(isSuccess(result3)).toBe(true);
       if (isSuccess(result3)) {
         expect(result3.data.circuit.gates[0].output).toBe(false);

@@ -12,7 +12,7 @@ import {
   validateCircuit,
   validateCircuitLight,
   type Circuit
-} from '@domain/simulation/pure/validation';
+} from '@domain/simulation/core/validation';
 
 describe('Pure API Validation', () => {
   describe('基本バリデーション', () => {

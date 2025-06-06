@@ -24,7 +24,7 @@ export const GatePreview: React.FC<GatePreviewProps> = ({
   isFromCircuit = false,
 }) => {
   const { gates, wires } = useCircuitStore();
-  
+
   return (
     <div style={{ marginBottom: '24px' }}>
       <h3
@@ -128,10 +128,7 @@ export const GatePreview: React.FC<GatePreviewProps> = ({
                 const spacing =
                   pinCount === 1
                     ? 0
-                    : Math.max(
-                        30,
-                        availableHeight / Math.max(1, pinCount - 1)
-                      );
+                    : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
                 const y =
                   pinCount === 1
                     ? 0
@@ -175,10 +172,7 @@ export const GatePreview: React.FC<GatePreviewProps> = ({
                 const spacing =
                   pinCount === 1
                     ? 0
-                    : Math.max(
-                        30,
-                        availableHeight / Math.max(1, pinCount - 1)
-                      );
+                    : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
                 const y =
                   pinCount === 1
                     ? 0

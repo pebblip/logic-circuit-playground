@@ -1,6 +1,6 @@
 /**
  * 新API純粋関数シミュレーション - メインエクスポート
- * 
+ *
  * 完全な型安全性とimmutabilityを提供する新しいAPI。
  * 既存のレガシーAPIと並行して使用可能。
  */
@@ -44,9 +44,9 @@ export type {
   // バリデーション型
   ValidationResult,
   ValidationViolation,
-  
+
   // 時間プロバイダー
-  TimeProvider
+  TimeProvider,
 } from './types';
 
 // ===============================
@@ -70,11 +70,11 @@ export {
 
   // デフォルト設定
   defaultConfig,
-  
+
   // 時間プロバイダー
   realTimeProvider,
   createDeterministicTimeProvider,
-  createFixedTimeProvider
+  createFixedTimeProvider,
 } from './types';
 
 // ===============================
@@ -95,7 +95,7 @@ export {
 
   // 回路バリデーション
   validateCircuit,
-  validateCircuitLight
+  validateCircuitLight,
 } from './validation';
 
 // ===============================
@@ -112,7 +112,7 @@ export {
   convertToLegacyFormat,
 
   // カスタムゲート評価器
-  defaultCustomGateEvaluator
+  defaultCustomGateEvaluator,
 } from './gateEvaluation';
 
 // ===============================
@@ -121,7 +121,7 @@ export {
 
 export {
   // メイン回路評価関数
-  evaluateCircuitPure,
+  evaluateCircuit,
 
   // 将来拡張機能（現在は未実装）
   evaluateCircuitIncremental,
@@ -129,7 +129,7 @@ export {
 
   // デバッグユーティリティ
   visualizeDependencyGraph,
-  formatEvaluationStats
+  formatEvaluationStats,
 } from './circuitEvaluation';
 
 // ===============================
@@ -138,7 +138,7 @@ export {
 
 /**
  * 新API - ゲート評価
- * 
+ *
  * 推奨: この関数を使用してください
  * @see evaluateGateUnified
  */
@@ -146,15 +146,15 @@ export { evaluateGateUnified as evaluateGate_v2 } from './gateEvaluation';
 
 /**
  * 新API - 回路評価
- * 
+ *
  * 推奨: この関数を使用してください
- * @see evaluateCircuitPure
+ * @see evaluateCircuit
  */
-export { evaluateCircuitPure as evaluateCircuit_v2 } from './circuitEvaluation';
+export { evaluateCircuit as evaluateCircuit_v2 } from './circuitEvaluation';
 
 /**
  * 新API - 回路検証
- * 
+ *
  * 推奨: この関数を使用してください
  * @see validateCircuit
  */
@@ -168,7 +168,7 @@ export { validateCircuit as validateCircuit_v2 } from './validation';
  * @example 基本的なゲート評価
  * ```typescript
  * import { evaluateGateUnified, defaultConfig } from './pure';
- * 
+ *
  * const andGate: Gate = {
  *   id: 'and1',
  *   type: 'AND',
@@ -176,7 +176,7 @@ export { validateCircuit as validateCircuit_v2 } from './validation';
  *   inputs: ['', ''],
  *   output: false
  * };
- * 
+ *
  * const result = evaluateGateUnified(andGate, [true, false], defaultConfig);
  * if (result.success) {
  *   console.log('Output:', result.data.primaryOutput); // false
@@ -190,8 +190,8 @@ export { validateCircuit as validateCircuit_v2 } from './validation';
 /**
  * @example 基本的な回路評価
  * ```typescript
- * import { evaluateCircuitPure, defaultConfig } from './pure';
- * 
+ * import { evaluateCircuit, defaultConfig } from './core';
+ *
  * const circuit: Circuit = {
  *   gates: [
  *     { id: 'input1', type: 'INPUT', position: { x: 0, y: 0 }, inputs: [], output: true },
@@ -201,8 +201,8 @@ export { validateCircuit as validateCircuit_v2 } from './validation';
  *     { id: 'wire1', from: { gateId: 'input1', pinIndex: -1 }, to: { gateId: 'not1', pinIndex: 0 }, isActive: false }
  *   ]
  * };
- * 
- * const result = evaluateCircuitPure(circuit, defaultConfig);
+ *
+ * const result = evaluateCircuit(circuit, defaultConfig);
  * if (result.success) {
  *   const updatedCircuit = result.data.circuit;
  *   const stats = result.data.evaluationStats;
@@ -217,9 +217,9 @@ export { validateCircuit as validateCircuit_v2 } from './validation';
 /**
  * @example エラーハンドリング
  * ```typescript
- * import { evaluateCircuitPure, isFailure } from './pure';
- * 
- * const result = evaluateCircuitPure(invalidCircuit);
+ * import { evaluateCircuit, isFailure } from './core';
+ *
+ * const result = evaluateCircuit(invalidCircuit);
  * if (isFailure(result)) {
  *   switch (result.error.type) {
  *     case 'VALIDATION_ERROR':
@@ -239,16 +239,16 @@ export { validateCircuit as validateCircuit_v2 } from './validation';
 /**
  * @example カスタム設定
  * ```typescript
- * import { evaluateCircuitPure, defaultConfig } from './pure';
- * 
+ * import { evaluateCircuit, defaultConfig } from './core';
+ *
  * const customConfig: EvaluationConfig = {
  *   ...defaultConfig,
  *   enableDebug: true,
  *   strictValidation: false,
  *   maxRecursionDepth: 50
  * };
- * 
- * const result = evaluateCircuitPure(circuit, customConfig);
+ *
+ * const result = evaluateCircuit(circuit, customConfig);
  * if (result.success && result.data.debugTrace) {
  *   console.log('Debug trace:', result.data.debugTrace);
  * }
@@ -261,7 +261,7 @@ export { validateCircuit as validateCircuit_v2 } from './validation';
 
 /**
  * 新旧API比較:
- * 
+ *
  * | 機能 | 旧API | 新API |
  * |------|-------|-------|
  * | ゲート評価 | `evaluateGate(gate, inputs)` | `evaluateGateUnified(gate, inputs, config)` |
@@ -272,7 +272,7 @@ export { validateCircuit as validateCircuit_v2 } from './validation';
  * | テスタビリティ | 低い | 高い |
  * | デバッグ情報 | なし | 詳細情報 |
  * | カスタム設定 | 限定的 | 包括的 |
- * 
+ *
  * 移行ガイド:
  * 1. 新しいコードでは新APIを使用
  * 2. 既存コードは段階的に移行

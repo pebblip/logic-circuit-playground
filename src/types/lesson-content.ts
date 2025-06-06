@@ -1,7 +1,7 @@
 // 学習コンテンツの構造化された型定義
 
 // 基本的なコンテンツタイプ
-export type ContentType = 
+export type ContentType =
   | 'text'
   | 'heading'
   | 'list'
@@ -22,6 +22,7 @@ export interface BaseContent {
 export interface TextContent extends BaseContent {
   type: 'text';
   text: string;
+  className?: string;
 }
 
 // 見出しコンテンツ
@@ -44,20 +45,21 @@ export interface TableContent extends BaseContent {
   type: 'table';
   headers: string[];
   rows: string[][];
+  className?: string;
 }
 
 // 2進数式（0+1=1など）
 export interface BinaryExpression {
-  input1: string;
+  left: string;
   operator: string;
-  input2: string;
-  output: string;
+  right: string;
+  result: string;
 }
 
 // 2進数式コンテンツ
 export interface BinaryExpressionContent extends BaseContent {
   type: 'binary-expression';
-  expression: BinaryExpression;
+  expressions: BinaryExpression[];
 }
 
 // 比較コンテンツ（AND vs ORなど）
@@ -65,7 +67,7 @@ export interface ComparisonContent extends BaseContent {
   type: 'comparison';
   items: {
     gateType: 'AND' | 'OR' | 'XOR' | 'NOT';
-    expressions: BinaryExpression[];
+    values: BinaryExpression[];
   }[];
 }
 
@@ -82,7 +84,7 @@ export interface QuizContent extends BaseContent {
   type: 'quiz';
   question: string;
   options: string[];
-  correct: number;
+  correctIndex: number;
 }
 
 // ノートコンテンツ（💡ヒントなど）
@@ -94,7 +96,7 @@ export interface NoteContent extends BaseContent {
 }
 
 // すべてのコンテンツタイプのユニオン
-export type Content = 
+export type Content =
   | TextContent
   | HeadingContent
   | ListContent
@@ -122,6 +124,9 @@ export interface StructuredLesson {
   id: string;
   title: string;
   description: string;
+  objective?: string;
+  category?: string;
+  lessonType?: string;
   icon: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   prerequisites: string[];

@@ -10,9 +10,9 @@ export const BASIC_GATES: { type: GateType; label: string }[] = [
 ];
 
 export const IO_GATES: { type: GateType; label: string }[] = [
-  { type: 'INPUT', label: 'INPUT' },
-  { type: 'OUTPUT', label: 'OUTPUT' },
-  { type: 'CLOCK', label: 'CLOCK' },
+  { type: 'INPUT', label: '入力' },
+  { type: 'OUTPUT', label: '出力' },
+  { type: 'CLOCK', label: 'クロック' },
 ];
 
 // 特殊ゲート

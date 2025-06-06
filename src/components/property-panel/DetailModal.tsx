@@ -37,7 +37,8 @@ export const DetailModal: React.FC<DetailModalProps> = ({
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a1f2e 100%)',
+          background:
+            'linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a1f2e 100%)',
           borderRadius: '20px',
           width: '100%',
           maxWidth: '700px',
@@ -46,7 +47,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           flexDirection: 'column',
           overflow: 'hidden',
           border: '1px solid rgba(0, 255, 136, 0.3)',
-          boxShadow: 
+          boxShadow:
             '0 25px 80px rgba(0, 0, 0, 0.6), ' +
             '0 0 0 1px rgba(0, 255, 136, 0.2), ' +
             'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
@@ -60,7 +61,8 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             justifyContent: 'space-between',
             alignItems: 'center',
             padding: '24px 32px',
-            background: 'linear-gradient(90deg, rgba(0, 255, 136, 0.08) 0%, transparent 100%)',
+            background:
+              'linear-gradient(90deg, rgba(0, 255, 136, 0.08) 0%, transparent 100%)',
             borderBottom: '1px solid rgba(0, 255, 136, 0.2)',
             borderRadius: '20px 20px 0 0',
             flexShrink: 0,
@@ -114,7 +116,8 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               e.currentTarget.style.borderColor = 'rgba(255, 0, 100, 0.3)';
               e.currentTarget.style.color = '#ff0064';
               e.currentTarget.style.transform = 'scale(1.05)';
-              e.currentTarget.style.boxShadow = '0 4px 20px rgba(255, 0, 100, 0.2)';
+              e.currentTarget.style.boxShadow =
+                '0 4px 20px rgba(255, 0, 100, 0.2)';
             }}
             onMouseLeave={e => {
               e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';

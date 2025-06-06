@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import type { CustomGatePin, CustomGateDefinition } from '@/types/circuit';
+import { useState, useEffect } from 'react';
+import type { CustomGatePin } from '@/types/circuit';
 import type { TruthTableResult } from '@/domain/analysis';
 
 interface DialogInitialData {
@@ -17,9 +17,12 @@ interface TruthTableData {
 
 export const useCustomGateDialog = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [dialogInitialData, setDialogInitialData] = useState<DialogInitialData>({});
+  const [dialogInitialData, setDialogInitialData] = useState<DialogInitialData>(
+    {}
+  );
   const [isTruthTableOpen, setIsTruthTableOpen] = useState(false);
-  const [currentTruthTable, setCurrentTruthTable] = useState<TruthTableData | null>(null);
+  const [currentTruthTable, setCurrentTruthTable] =
+    useState<TruthTableData | null>(null);
 
   // カスタムゲート作成ダイアログを開くイベントリスナー
   useEffect(() => {
@@ -29,23 +32,24 @@ export const useCustomGateDialog = () => {
         initialOutputs: unknown;
         isFullCircuit: boolean;
       }>;
-      const { initialInputs, initialOutputs, isFullCircuit } = customEvent.detail;
-      
+      const { initialInputs, initialOutputs, isFullCircuit } =
+        customEvent.detail;
+
       // デバッグ: イベントから受け取ったデータを確認
       console.log('=== useCustomGateDialog Event Debug ===');
       console.log('Raw event detail:', customEvent.detail);
       console.log('initialInputs:', initialInputs);
       console.log('initialOutputs:', initialOutputs);
       console.log('isFullCircuit:', isFullCircuit);
-      
-      const processedData = { 
-        initialInputs: initialInputs as CustomGatePin[] | undefined, 
-        initialOutputs: initialOutputs as CustomGatePin[] | undefined, 
-        isFullCircuit 
+
+      const processedData = {
+        initialInputs: initialInputs as CustomGatePin[] | undefined,
+        initialOutputs: initialOutputs as CustomGatePin[] | undefined,
+        isFullCircuit,
       };
-      
+
       console.log('Processed dialogInitialData:', processedData);
-      
+
       setDialogInitialData(processedData);
       setIsCreateDialogOpen(true);
     };

@@ -23,11 +23,14 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
 }) => {
   const stats = calculateTruthTableStats(result);
 
-
   // outputNamesが空や不正な場合のフォールバック
-  const safeOutputNames = outputNames.length > 0 
-    ? outputNames.map((name, index) => name || `出力${index + 1}`)
-    : Array.from({ length: result.outputCount || 1 }, (_, i) => `出力${i + 1}`);
+  const safeOutputNames =
+    outputNames.length > 0
+      ? outputNames.map((name, index) => name || `出力${index + 1}`)
+      : Array.from(
+          { length: result.outputCount || 1 },
+          (_, i) => `出力${i + 1}`
+        );
 
   const handleExportCSV = () => {
     const csvContent = exportTruthTableAsCSV(result, inputNames, outputNames);
@@ -187,123 +190,127 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
                 tableLayout: 'fixed', // 固定レイアウトで列幅を制御
               }}
             >
-            <thead>
-              <tr
-                style={{
-                  backgroundColor: 'rgba(0, 255, 136, 0.1)',
-                  position: 'sticky',
-                  top: 0,
-                  zIndex: 1,
-                }}
-              >
-                {inputNames.map((name, index) => (
-                  <th
-                    key={`input-${index}`}
-                    style={{
-                      padding: '12px 8px',
-                      textAlign: 'center',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      color: '#00ff88',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      width: '80px', // 固定幅
-                    }}
-                  >
-                    {name}
-                  </th>
-                ))}
-                <th
-                  style={{
-                    padding: '0',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    width: '20px', // セパレータ列の幅
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  }}
-                ></th>
-                {safeOutputNames.map((name, index) => {
-                  // name が空の場合のフォールバック
-                  const displayName = name || `出力${index + 1}`;
-                  
-                  return (
-                    <th
-                      key={`output-${index}`}
-                      style={{
-                        padding: safeOutputNames.length > 4 ? '8px 6px' : '12px 8px',
-                        textAlign: 'center',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        color: '#ff6699',
-                        fontSize: safeOutputNames.length > 6 ? '10px' : '12px',
-                        fontWeight: '600',
-                        width: '80px', // 固定幅
-                      }}
-                    >
-                      {displayName}
-                    </th>
-                  );
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              {result.table.map((row, rowIndex) => (
+              <thead>
                 <tr
-                  key={rowIndex}
                   style={{
-                    backgroundColor:
-                      rowIndex % 2 === 0
-                        ? 'rgba(255, 255, 255, 0.02)'
-                        : 'transparent',
+                    backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1,
                   }}
                 >
-                  {row.inputs.split('').map((input, colIndex) => (
-                    <td
-                      key={`input-${rowIndex}-${colIndex}`}
+                  {inputNames.map((name, index) => (
+                    <th
+                      key={`input-${index}`}
                       style={{
-                        padding: '10px 8px',
+                        padding: '12px 8px',
                         textAlign: 'center',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        fontFamily: 'monospace',
-                        fontSize: '16px',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        color: '#00ff88',
+                        fontSize: '12px',
                         fontWeight: '600',
-                        color: displayStateToBoolean(input)
-                          ? '#00ff88'
-                          : 'rgba(255, 255, 255, 0.5)',
                         width: '80px', // 固定幅
                       }}
                     >
-                      {input}
-                    </td>
+                      {name}
+                    </th>
                   ))}
-                  <td
+                  <th
                     style={{
                       padding: '0',
                       border: '1px solid rgba(255, 255, 255, 0.2)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
                       width: '20px', // セパレータ列の幅
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
                     }}
-                  ></td>
-                  {row.outputs.split('').map((output, colIndex) => (
-                    <td
-                      key={`output-${rowIndex}-${colIndex}`}
-                      style={{
-                        padding: safeOutputNames.length > 4 ? '8px 6px' : '10px 8px',
-                        textAlign: 'center',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        fontFamily: 'monospace',
-                        fontSize: safeOutputNames.length > 6 ? '14px' : '16px',
-                        fontWeight: '600',
-                        color: displayStateToBoolean(output)
-                          ? '#ff6699'
-                          : 'rgba(255, 255, 255, 0.5)',
-                        width: '80px', // 固定幅
-                      }}
-                    >
-                      {output}
-                    </td>
-                  ))}
+                  ></th>
+                  {safeOutputNames.map((name, index) => {
+                    // name が空の場合のフォールバック
+                    const displayName = name || `出力${index + 1}`;
+
+                    return (
+                      <th
+                        key={`output-${index}`}
+                        style={{
+                          padding:
+                            safeOutputNames.length > 4 ? '8px 6px' : '12px 8px',
+                          textAlign: 'center',
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          color: '#ff6699',
+                          fontSize:
+                            safeOutputNames.length > 6 ? '10px' : '12px',
+                          fontWeight: '600',
+                          width: '80px', // 固定幅
+                        }}
+                      >
+                        {displayName}
+                      </th>
+                    );
+                  })}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {result.table.map((row, rowIndex) => (
+                  <tr
+                    key={rowIndex}
+                    style={{
+                      backgroundColor:
+                        rowIndex % 2 === 0
+                          ? 'rgba(255, 255, 255, 0.02)'
+                          : 'transparent',
+                    }}
+                  >
+                    {row.inputs.split('').map((input, colIndex) => (
+                      <td
+                        key={`input-${rowIndex}-${colIndex}`}
+                        style={{
+                          padding: '10px 8px',
+                          textAlign: 'center',
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          fontFamily: 'monospace',
+                          fontSize: '16px',
+                          fontWeight: '600',
+                          color: displayStateToBoolean(input)
+                            ? '#00ff88'
+                            : 'rgba(255, 255, 255, 0.5)',
+                          width: '80px', // 固定幅
+                        }}
+                      >
+                        {input}
+                      </td>
+                    ))}
+                    <td
+                      style={{
+                        padding: '0',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        width: '20px', // セパレータ列の幅
+                      }}
+                    ></td>
+                    {row.outputs.split('').map((output, colIndex) => (
+                      <td
+                        key={`output-${rowIndex}-${colIndex}`}
+                        style={{
+                          padding:
+                            safeOutputNames.length > 4 ? '8px 6px' : '10px 8px',
+                          textAlign: 'center',
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          fontFamily: 'monospace',
+                          fontSize:
+                            safeOutputNames.length > 6 ? '14px' : '16px',
+                          fontWeight: '600',
+                          color: displayStateToBoolean(output)
+                            ? '#ff6699'
+                            : 'rgba(255, 255, 255, 0.5)',
+                          width: '80px', // 固定幅
+                        }}
+                      >
+                        {output}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 

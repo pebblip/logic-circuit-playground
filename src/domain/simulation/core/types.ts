@@ -1,6 +1,6 @@
 /**
  * 新API用の型定義 - 完全な型安全性とエラーハンドリングを提供
- * 
+ *
  * 主な特徴:
  * - Result型パターンによる統一エラーハンドリング
  * - Immutableな型定義（Readonly）
@@ -41,19 +41,25 @@ export interface Failure<E> {
 /**
  * 成功結果を作成
  */
-export const success = <T>(data: T, warnings: readonly string[] = []): Success<T> => ({
+export const success = <T>(
+  data: T,
+  warnings: readonly string[] = []
+): Success<T> => ({
   success: true,
   data,
-  warnings
+  warnings,
 });
 
 /**
  * 失敗結果を作成
  */
-export const failure = <E>(error: E, warnings: readonly string[] = []): Failure<E> => ({
+export const failure = <E>(
+  error: E,
+  warnings: readonly string[] = []
+): Failure<E> => ({
   success: false,
   error,
-  warnings
+  warnings,
 });
 
 // ===============================
@@ -64,7 +70,11 @@ export const failure = <E>(error: E, warnings: readonly string[] = []): Failure<
  * API共通エラーベース
  */
 export interface ApiError {
-  readonly type: 'VALIDATION_ERROR' | 'EVALUATION_ERROR' | 'DEPENDENCY_ERROR' | 'CONFIGURATION_ERROR';
+  readonly type:
+    | 'VALIDATION_ERROR'
+    | 'EVALUATION_ERROR'
+    | 'DEPENDENCY_ERROR'
+    | 'CONFIGURATION_ERROR';
   readonly message: string;
   readonly context?: {
     readonly gateId?: string;
@@ -87,7 +97,11 @@ export interface ValidationError extends ApiError {
  */
 export interface EvaluationError extends ApiError {
   readonly type: 'EVALUATION_ERROR';
-  readonly stage: 'INPUT_COLLECTION' | 'GATE_LOGIC' | 'OUTPUT_ASSIGNMENT' | 'CIRCUIT_TRAVERSAL';
+  readonly stage:
+    | 'INPUT_COLLECTION'
+    | 'GATE_LOGIC'
+    | 'OUTPUT_ASSIGNMENT'
+    | 'CIRCUIT_TRAVERSAL';
   readonly originalError?: unknown;
 }
 
@@ -123,23 +137,26 @@ export interface TimeProvider {
 }
 
 export const realTimeProvider: TimeProvider = {
-  getCurrentTime: () => Date.now()
+  getCurrentTime: () => Date.now(),
 };
 
-export const createDeterministicTimeProvider = (baseTime: number = 0, incrementMs: number = 100): TimeProvider => {
+export const createDeterministicTimeProvider = (
+  baseTime: number = 0,
+  incrementMs: number = 100
+): TimeProvider => {
   let currentTime = baseTime;
   return {
     getCurrentTime: () => {
       const time = currentTime;
       currentTime += incrementMs;
       return time;
-    }
+    },
   };
 };
 
 export const createFixedTimeProvider = (fixedTime: number): TimeProvider => {
   return {
-    getCurrentTime: () => fixedTime
+    getCurrentTime: () => fixedTime,
   };
 };
 
@@ -202,7 +219,7 @@ export interface GateEvaluationResult {
   readonly outputs: readonly boolean[]; // 常に配列、単一出力でも[boolean]
   readonly metadata?: Readonly<GateMetadata>;
   readonly debugInfo?: Readonly<DebugInfo>;
-  
+
   // 便利プロパティ（後方互換性用）
   readonly primaryOutput: boolean; // outputs[0] のエイリアス
   readonly isSingleOutput: boolean; // outputs.length === 1
@@ -286,7 +303,11 @@ export interface DependencyEdge {
 export interface DebugTraceEntry {
   readonly timestamp: number;
   readonly gateId: string;
-  readonly action: 'START_EVALUATION' | 'END_EVALUATION' | 'INPUT_COLLECTION' | 'OUTPUT_ASSIGNMENT';
+  readonly action:
+    | 'START_EVALUATION'
+    | 'END_EVALUATION'
+    | 'INPUT_COLLECTION'
+    | 'OUTPUT_ASSIGNMENT';
   readonly data?: Record<string, unknown>;
 }
 
@@ -314,7 +335,7 @@ export interface CustomGateEvaluator {
     definition: Readonly<CustomGateDefinition>,
     inputs: readonly boolean[]
   ): Result<readonly boolean[], EvaluationError>;
-  
+
   evaluateByInternalCircuit(
     definition: Readonly<CustomGateDefinition>,
     inputs: readonly boolean[],
@@ -397,9 +418,15 @@ export function flatMapResult<T, U, E>(
   if (isSuccess(result)) {
     const mappedResult = mapper(result.data);
     if (isSuccess(mappedResult)) {
-      return success(mappedResult.data, [...result.warnings, ...mappedResult.warnings]);
+      return success(mappedResult.data, [
+        ...result.warnings,
+        ...mappedResult.warnings,
+      ]);
     } else {
-      return failure(mappedResult.error, [...result.warnings, ...mappedResult.warnings]);
+      return failure(mappedResult.error, [
+        ...result.warnings,
+        ...mappedResult.warnings,
+      ]);
     }
   } else {
     return result;
@@ -419,7 +446,7 @@ export function createGateResult(
     metadata,
     debugInfo,
     primaryOutput: outputs[0] || false,
-    isSingleOutput: outputs.length === 1
+    isSingleOutput: outputs.length === 1,
   };
 }
 
@@ -435,7 +462,7 @@ export function createValidationError(
     type: 'VALIDATION_ERROR',
     message,
     violations,
-    context
+    context,
   };
 }
 
@@ -450,7 +477,7 @@ export function createEvaluationError(
     message,
     stage,
     context,
-    originalError
+    originalError,
   };
 }
 
@@ -465,6 +492,6 @@ export function createDependencyError(
     message,
     missingDependencies,
     circularDependencies,
-    context
+    context,
   };
 }

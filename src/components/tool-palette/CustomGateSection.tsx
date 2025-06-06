@@ -5,7 +5,10 @@ import { GateCard } from './GateCard';
 interface CustomGateSectionProps {
   demoCustomGates: CustomGateDefinition[];
   userCustomGates: CustomGateDefinition[];
-  onDragStart: (type: GateType | 'CUSTOM', customDefinition?: CustomGateDefinition) => void;
+  onDragStart: (
+    type: GateType | 'CUSTOM',
+    customDefinition?: CustomGateDefinition
+  ) => void;
   onDragEnd: () => void;
   onContextMenu: (definition: CustomGateDefinition) => void;
 }
@@ -51,7 +54,6 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
             }}
           />
         ))}
-
       </div>
     </>
   );

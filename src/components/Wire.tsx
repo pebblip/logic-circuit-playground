@@ -22,7 +22,7 @@ export const WireComponent: React.FC<WireComponentProps> = ({ wire }) => {
   // ピン位置計算を統一化されたユーティリティから取得
   // wire.from.pinIndex は負の値（出力ピン）：-1 = 出力0、-2 = 出力1、...
   // wire.to.pinIndex は 0以上の入力ピン番号
-  
+
   // 負のpinIndexから実際の出力ピンインデックスを計算
   const outputPinIndex = Math.abs(wire.from.pinIndex) - 1;
   const from = getOutputPinPosition(fromGate, outputPinIndex);

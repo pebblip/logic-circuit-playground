@@ -1,9 +1,9 @@
 /**
- * 新API用回路評価機能
- * 
+ * Core API 回路評価機能
+ *
  * 特徴:
  * - 完全にimmutable（元の回路を変更せず新しい回路を返す）
- * - 包括的エラーハンドリングと依存関係解決
+ * - エラーハンドリングと依存関係解決
  * - 詳細な統計情報とデバッグトレース
  * - 最適化されたアルゴリズム（O(n)）
  * - 循環依存検出
@@ -28,7 +28,7 @@ import {
   failure,
   createEvaluationError,
   createDependencyError,
-  createValidationError
+  createValidationError,
 } from './types';
 import { validateCircuit, validateCircuitLight } from './validation';
 import { evaluateGateUnified } from './gateEvaluation';
@@ -39,15 +39,18 @@ import { evaluateGateUnified } from './gateEvaluation';
 
 /**
  * 純粋関数による回路評価 - 新APIのメイン関数
- * 
+ *
  * @param circuit 評価対象の回路（Readonly）
  * @param config 評価設定（Readonly）
  * @returns 完全に新しい回路オブジェクトとメタデータ
  */
-export function evaluateCircuitPure(
+export function evaluateCircuit(
   circuit: Readonly<Circuit>,
   config: Readonly<EvaluationConfig> = defaultConfig
-): Result<CircuitEvaluationResult, ValidationError | DependencyError | EvaluationError> {
+): Result<
+  CircuitEvaluationResult,
+  ValidationError | DependencyError | EvaluationError
+> {
   const startTime = performance.now();
   const debugTrace: DebugTraceEntry[] = [];
 
@@ -56,28 +59,36 @@ export function evaluateCircuitPure(
     if (config.strictValidation) {
       const validation = validateCircuit(circuit);
       if (!validation.success) {
-        return failure(createValidationError(
-          `Circuit validation failed: ${validation.error.message}`,
-          [],
-          validation.error.context
-        ));
+        return failure(
+          createValidationError(
+            `Circuit validation failed: ${validation.error.message}`,
+            [],
+            validation.error.context
+          )
+        );
       }
       if (!validation.data.isValid) {
-        const errors = validation.data.violations.filter(v => v.severity === 'ERROR');
-        return failure(createValidationError(
-          `Circuit contains validation errors: ${errors.map(e => e.message).join(', ')}`,
-          errors
-        ));
+        const errors = validation.data.violations.filter(
+          v => v.severity === 'ERROR'
+        );
+        return failure(
+          createValidationError(
+            `Circuit contains validation errors: ${errors.map(e => e.message).join(', ')}`,
+            errors
+          )
+        );
       }
     } else {
       // 軽量バリデーション
       const lightValidation = validateCircuitLight(circuit);
       if (!lightValidation.success) {
-        return failure(createValidationError(
-          `Basic circuit validation failed: ${lightValidation.error.message}`,
-          [],
-          lightValidation.error.context
-        ));
+        return failure(
+          createValidationError(
+            `Basic circuit validation failed: ${lightValidation.error.message}`,
+            [],
+            lightValidation.error.context
+          )
+        );
       }
     }
 
@@ -86,7 +97,10 @@ export function evaluateCircuitPure(
         timestamp: performance.now(),
         gateId: 'CIRCUIT',
         action: 'START_EVALUATION',
-        data: { gateCount: circuit.gates.length, wireCount: circuit.wires.length }
+        data: {
+          gateCount: circuit.gates.length,
+          wireCount: circuit.wires.length,
+        },
       });
     }
 
@@ -101,19 +115,26 @@ export function evaluateCircuitPure(
 
     // 3. 循環依存チェック
     if (dependencyGraph.hasCycles) {
-      return failure(createValidationError(
-        'Circuit contains circular dependencies',
-        dependencyGraph.cycles.map(cycle => ({
-          severity: 'ERROR' as const,
-          code: 'CIRCULAR_DEPENDENCY',
-          message: `Circular dependency detected: ${cycle.join(' -> ')}`,
-          location: {}
-        }))
-      ));
+      return failure(
+        createValidationError(
+          'Circuit contains circular dependencies',
+          dependencyGraph.cycles.map(cycle => ({
+            severity: 'ERROR' as const,
+            code: 'CIRCULAR_DEPENDENCY',
+            message: `Circular dependency detected: ${cycle.join(' -> ')}`,
+            location: {},
+          }))
+        )
+      );
     }
 
     // 4. 回路評価実行
-    const evaluationResult = evaluateCircuitStep(circuit, dependencyGraph, config, debugTrace);
+    const evaluationResult = evaluateCircuitStep(
+      circuit,
+      dependencyGraph,
+      config,
+      debugTrace
+    );
     if (!evaluationResult.success) {
       return evaluationResult;
     }
@@ -125,11 +146,12 @@ export function evaluateCircuitPure(
     const stats: EvaluationStats = {
       totalGates: circuit.gates.length,
       evaluatedGates: dependencyGraph.evaluationOrder.length,
-      skippedGates: circuit.gates.length - dependencyGraph.evaluationOrder.length,
+      skippedGates:
+        circuit.gates.length - dependencyGraph.evaluationOrder.length,
       evaluationTimeMs: endTime - startTime,
       dependencyResolutionTimeMs: dependencyEnd - dependencyStart,
       gateEvaluationTimes,
-      memoryUsage: getMemoryUsage()
+      memoryUsage: getMemoryUsage(),
     };
 
     if (config.enableDebug) {
@@ -137,7 +159,7 @@ export function evaluateCircuitPure(
         timestamp: performance.now(),
         gateId: 'CIRCUIT',
         action: 'END_EVALUATION',
-        data: { stats }
+        data: { stats },
       });
     }
 
@@ -146,18 +168,19 @@ export function evaluateCircuitPure(
       circuit: updatedCircuit,
       evaluationStats: stats,
       dependencyGraph,
-      debugTrace: config.enableDebug ? debugTrace : undefined
+      debugTrace: config.enableDebug ? debugTrace : undefined,
     };
 
     return success(result);
-
   } catch (error) {
-    return failure(createEvaluationError(
-      `Unexpected error during circuit evaluation: ${error}`,
-      'CIRCUIT_TRAVERSAL',
-      undefined,
-      error
-    ));
+    return failure(
+      createEvaluationError(
+        `Unexpected error during circuit evaluation: ${error}`,
+        'CIRCUIT_TRAVERSAL',
+        undefined,
+        error
+      )
+    );
   }
 }
 
@@ -175,19 +198,24 @@ function buildDependencyGraph(
     // ゲートIDマップの作成
     const gateMap = new Map<string, Gate>();
     const gateIds = new Set<string>();
-    
+
     for (const gate of circuit.gates) {
       if (gateIds.has(gate.id)) {
-        return failure(createValidationError(
-          `Duplicate gate ID: ${gate.id}`,
-          [{
-            severity: 'ERROR',
-            message: `Duplicate gate ID: ${gate.id}`,
-            path: `gates`,
-            location: { gateId: gate.id }
-          }],
-          { gateId: gate.id }
-        ));
+        return failure(
+          createValidationError(
+            `Duplicate gate ID: ${gate.id}`,
+            [
+              {
+                severity: 'ERROR',
+                code: 'DUPLICATE_GATE_ID',
+                message: `Duplicate gate ID: ${gate.id}`,
+                location: { gateId: gate.id },
+                suggestion: 'Ensure all gate IDs are unique',
+              },
+            ],
+            { gateId: gate.id }
+          )
+        );
       }
       gateIds.add(gate.id);
       gateMap.set(gate.id, gate);
@@ -195,7 +223,7 @@ function buildDependencyGraph(
 
     // 依存関係の構築
     const dependencies = new Map<string, string[]>(); // gateId -> dependencies
-    const dependents = new Map<string, string[]>();   // gateId -> dependents
+    const dependents = new Map<string, string[]>(); // gateId -> dependents
     const edges: DependencyEdge[] = [];
 
     // 初期化
@@ -208,16 +236,21 @@ function buildDependencyGraph(
     const wireIds = new Set<string>();
     for (const wire of circuit.wires) {
       if (wireIds.has(wire.id)) {
-        return failure(createValidationError(
-          `Duplicate wire ID: ${wire.id}`,
-          [{
-            severity: 'ERROR',
-            message: `Duplicate wire ID: ${wire.id}`,
-            path: `wires`,
-            location: { wireId: wire.id }
-          }],
-          { wireId: wire.id }
-        ));
+        return failure(
+          createValidationError(
+            `Duplicate wire ID: ${wire.id}`,
+            [
+              {
+                severity: 'ERROR',
+                code: 'DUPLICATE_WIRE_ID',
+                message: `Duplicate wire ID: ${wire.id}`,
+                location: { wireId: wire.id },
+                suggestion: 'Ensure all wire IDs are unique',
+              },
+            ],
+            { wireId: wire.id }
+          )
+        );
       }
       wireIds.add(wire.id);
     }
@@ -229,29 +262,37 @@ function buildDependencyGraph(
 
       // 存在チェック
       if (!gateMap.has(fromGateId)) {
-        return failure(createValidationError(
-          `Wire ${wire.id} references non-existent source gate: ${fromGateId}`,
-          [{
-            severity: 'ERROR',
-            code: 'MISSING_SOURCE_GATE',
-            message: `Wire ${wire.id} references non-existent source gate: ${fromGateId}`,
-            location: { wireId: wire.id, gateId: fromGateId }
-          }],
-          { wireId: wire.id, gateId: fromGateId }
-        ));
+        return failure(
+          createValidationError(
+            `Wire ${wire.id} references non-existent source gate: ${fromGateId}`,
+            [
+              {
+                severity: 'ERROR',
+                code: 'MISSING_SOURCE_GATE',
+                message: `Wire ${wire.id} references non-existent source gate: ${fromGateId}`,
+                location: { wireId: wire.id, gateId: fromGateId },
+              },
+            ],
+            { wireId: wire.id, gateId: fromGateId }
+          )
+        );
       }
 
       if (!gateMap.has(toGateId)) {
-        return failure(createValidationError(
-          `Wire ${wire.id} references non-existent target gate: ${toGateId}`,
-          [{
-            severity: 'ERROR', 
-            code: 'MISSING_TARGET_GATE',
-            message: `Wire ${wire.id} references non-existent target gate: ${toGateId}`,
-            location: { wireId: wire.id, gateId: toGateId }
-          }],
-          { wireId: wire.id, gateId: toGateId }
-        ));
+        return failure(
+          createValidationError(
+            `Wire ${wire.id} references non-existent target gate: ${toGateId}`,
+            [
+              {
+                severity: 'ERROR',
+                code: 'MISSING_TARGET_GATE',
+                message: `Wire ${wire.id} references non-existent target gate: ${toGateId}`,
+                location: { wireId: wire.id, gateId: toGateId },
+              },
+            ],
+            { wireId: wire.id, gateId: toGateId }
+          )
+        );
       }
 
       // 依存関係追加
@@ -272,7 +313,7 @@ function buildDependencyGraph(
         from: fromGateId,
         to: toGateId,
         wireId: wire.id,
-        pinIndex: wire.to.pinIndex
+        pinIndex: wire.to.pinIndex,
       });
     }
 
@@ -291,7 +332,7 @@ function buildDependencyGraph(
     for (const gateId of circuit.gates.map(g => g.id)) {
       const gateDeps = dependencies.get(gateId) || [];
       const gateDents = dependents.get(gateId) || [];
-      
+
       // 深度計算
       const depth = calculateNodeDepth(gateId, dependencies, new Set());
       maxDepth = Math.max(maxDepth, depth);
@@ -300,7 +341,7 @@ function buildDependencyGraph(
         gateId,
         dependencies: gateDeps,
         dependents: gateDents,
-        depth
+        depth,
       });
     }
 
@@ -309,18 +350,19 @@ function buildDependencyGraph(
       edges,
       evaluationOrder,
       hasCycles: cycles.length > 0,
-      cycles
+      cycles,
     };
 
     return success(dependencyGraph);
-
   } catch (error) {
-    return failure(createDependencyError(
-      `Error building dependency graph: ${error}`,
-      [],
-      [],
-      undefined
-    ));
+    return failure(
+      createDependencyError(
+        `Error building dependency graph: ${error}`,
+        [],
+        [],
+        undefined
+      )
+    );
   }
 }
 
@@ -377,15 +419,9 @@ function topologicalSort(
   }
 
   if (cycles.length > 0) {
-    return failure(createValidationError(
-      'Circular dependencies detected',
-      cycles.map(cycle => ({
-        severity: 'ERROR' as const,
-        code: 'CIRCULAR_DEPENDENCY',
-        message: `Circular dependency detected: ${cycle.join(' -> ')}`,
-        location: {}
-      }))
-    ));
+    return failure(
+      createDependencyError('Circular dependencies detected', [], cycles)
+    );
   }
 
   return success({ evaluationOrder, cycles });
@@ -405,7 +441,7 @@ function calculateNodeDepth(
 
   visited.add(gateId);
   const deps = dependencies.get(gateId) || [];
-  
+
   if (deps.length === 0) {
     visited.delete(gateId);
     return 0;
@@ -433,7 +469,10 @@ function evaluateCircuitStep(
   dependencyGraph: Readonly<DependencyGraph>,
   config: Readonly<EvaluationConfig>,
   debugTrace: DebugTraceEntry[]
-): Result<{ updatedCircuit: Circuit; gateEvaluationTimes: ReadonlyMap<string, number> }, EvaluationError> {
+): Result<
+  { updatedCircuit: Circuit; gateEvaluationTimes: ReadonlyMap<string, number> },
+  EvaluationError
+> {
   try {
     // 更新されたゲートとワイヤーのコピーを作成
     const updatedGates = circuit.gates.map(gate => ({ ...gate }));
@@ -441,10 +480,14 @@ function evaluateCircuitStep(
 
     // CLOCKゲートのstartTime初期化
     updatedGates.forEach(gate => {
-      if (gate.type === 'CLOCK' && gate.metadata?.isRunning && gate.metadata.startTime === undefined) {
+      if (
+        gate.type === 'CLOCK' &&
+        gate.metadata?.isRunning &&
+        gate.metadata.startTime === undefined
+      ) {
         gate.metadata = {
           ...gate.metadata,
-          startTime: config.timeProvider.getCurrentTime()
+          startTime: config.timeProvider.getCurrentTime(),
         };
       }
     });
@@ -482,11 +525,13 @@ function evaluateCircuitStep(
     for (const gateId of dependencyGraph.evaluationOrder) {
       const gate = gateMap.get(gateId);
       if (!gate) {
-        return failure(createEvaluationError(
-          `Gate ${gateId} not found during evaluation`,
-          'CIRCUIT_TRAVERSAL',
-          { gateId }
-        ));
+        return failure(
+          createEvaluationError(
+            `Gate ${gateId} not found during evaluation`,
+            'CIRCUIT_TRAVERSAL',
+            { gateId }
+          )
+        );
       }
 
       if (config.enableDebug) {
@@ -494,7 +539,7 @@ function evaluateCircuitStep(
           timestamp: performance.now(),
           gateId: gate.id,
           action: 'START_EVALUATION',
-          data: { gateType: gate.type }
+          data: { gateType: gate.type },
         });
       }
 
@@ -506,13 +551,15 @@ function evaluateCircuitStep(
       // ゲート評価実行
       if (gate.type !== 'INPUT') {
         const evaluationResult = evaluateGateUnified(gate, inputs, config);
-        
+
         if (!evaluationResult.success) {
-          return failure(createEvaluationError(
-            `Failed to evaluate gate ${gateId}: ${evaluationResult.error.message}`,
-            'GATE_LOGIC',
-            { gateId }
-          ));
+          return failure(
+            createEvaluationError(
+              `Failed to evaluate gate ${gateId}: ${evaluationResult.error.message}`,
+              'GATE_LOGIC',
+              { gateId }
+            )
+          );
         }
 
         const result = evaluationResult.data;
@@ -527,8 +574,8 @@ function evaluateCircuitStep(
         }
 
         // 入力状態の保存（表示用）
-        gate.inputs = inputs.map(input => input ? '1' : '');
-        
+        gate.inputs = inputs.map(input => (input ? '1' : ''));
+
         // 特殊ゲートのメタデータ更新
         updateGateMetadata(gate, inputs);
       }
@@ -544,11 +591,11 @@ function evaluateCircuitStep(
           timestamp: performance.now(),
           gateId: gate.id,
           action: 'END_EVALUATION',
-          data: { 
-            output: gate.output, 
+          data: {
+            output: gate.output,
             outputs: gate.outputs,
-            evaluationTimeMs: gateEndTime - gateStartTime
-          }
+            evaluationTimeMs: gateEndTime - gateStartTime,
+          },
         });
       }
     }
@@ -556,18 +603,19 @@ function evaluateCircuitStep(
     const updatedCircuit: Circuit = {
       gates: updatedGates,
       wires: updatedWires,
-      metadata: circuit.metadata
+      metadata: circuit.metadata,
     };
 
     return success({ updatedCircuit, gateEvaluationTimes });
-
   } catch (error) {
-    return failure(createEvaluationError(
-      `Error during circuit step evaluation: ${error}`,
-      'CIRCUIT_TRAVERSAL',
-      undefined,
-      error
-    ));
+    return failure(
+      createEvaluationError(
+        `Error during circuit step evaluation: ${error}`,
+        'CIRCUIT_TRAVERSAL',
+        undefined,
+        error
+      )
+    );
   }
 }
 
@@ -616,7 +664,11 @@ function collectGateInputs(
   inputWires.forEach(({ wire, fromGate }) => {
     if (wire.to.pinIndex < inputs.length) {
       // カスタムゲートの複数出力チェック
-      if (fromGate.type === 'CUSTOM' && fromGate.outputs && wire.from.pinIndex < 0) {
+      if (
+        fromGate.type === 'CUSTOM' &&
+        fromGate.outputs &&
+        wire.from.pinIndex < 0
+      ) {
         const outputIndex = -wire.from.pinIndex - 1;
         if (outputIndex >= 0 && outputIndex < fromGate.outputs.length) {
           inputs[wire.to.pinIndex] = fromGate.outputs[outputIndex];
@@ -641,31 +693,31 @@ function updateGateMetadata(gate: Gate, inputs: boolean[]): void {
         const d = inputs[0];
         const clk = inputs[1];
         const prevClk = gate.metadata?.previousClockState || false;
-        
+
         // 立ち上がりエッジ検出
         if (!prevClk && clk) {
           gate.metadata = {
             ...gate.metadata,
             qOutput: d,
             qBarOutput: !d,
-            previousClockState: clk
+            previousClockState: clk,
           };
         } else {
           gate.metadata = {
             ...gate.metadata,
-            previousClockState: clk
+            previousClockState: clk,
           };
         }
       }
       break;
-      
+
     case 'SR-LATCH':
       // SR-ラッチのメタデータ更新
       if (inputs.length >= 2) {
         const s = inputs[0];
         const r = inputs[1];
         let qOutput = gate.metadata?.qOutput || false;
-        
+
         // S=1, R=0 => Q=1
         if (s && !r) {
           qOutput = true;
@@ -676,21 +728,21 @@ function updateGateMetadata(gate: Gate, inputs: boolean[]): void {
         }
         // S=0, R=0 => 状態保持
         // S=1, R=1 => 不定状態（現在の状態を保持）
-        
+
         gate.metadata = {
           ...gate.metadata,
           qOutput,
-          qBarOutput: !qOutput
+          qBarOutput: !qOutput,
         };
       }
       break;
-      
+
     case 'CLOCK':
       // CLOCKゲートのstartTimeが未設定の場合は初期化
       if (gate.metadata && gate.metadata.startTime === undefined) {
         gate.metadata = {
           ...gate.metadata,
-          startTime: Date.now()
+          startTime: Date.now(),
         };
       }
       break;
@@ -735,7 +787,7 @@ function getMemoryUsage(): { heapUsed: number; heapTotal: number } | undefined {
     const usage = process.memoryUsage();
     return {
       heapUsed: usage.heapUsed,
-      heapTotal: usage.heapTotal
+      heapTotal: usage.heapTotal,
     };
   }
   return undefined;
@@ -756,11 +808,13 @@ export function evaluateCircuitIncremental(
 ): Result<CircuitEvaluationResult, EvaluationError> {
   // TODO: 将来実装
   // 変更されたゲートとその依存関係のみを再評価
-  
-  return failure(createEvaluationError(
-    'Incremental evaluation not yet implemented',
-    'CIRCUIT_TRAVERSAL'
-  ));
+
+  return failure(
+    createEvaluationError(
+      'Incremental evaluation not yet implemented',
+      'CIRCUIT_TRAVERSAL'
+    )
+  );
 }
 
 /**
@@ -772,11 +826,13 @@ export function evaluateCircuitParallel(
 ): Result<CircuitEvaluationResult, EvaluationError> {
   // TODO: 将来実装
   // 依存関係のないゲートを並列評価
-  
-  return failure(createEvaluationError(
-    'Parallel evaluation not yet implemented',
-    'CIRCUIT_TRAVERSAL'
-  ));
+
+  return failure(
+    createEvaluationError(
+      'Parallel evaluation not yet implemented',
+      'CIRCUIT_TRAVERSAL'
+    )
+  );
 }
 
 // ===============================
@@ -786,52 +842,62 @@ export function evaluateCircuitParallel(
 /**
  * 依存関係グラフの可視化（デバッグ用）
  */
-export function visualizeDependencyGraph(graph: Readonly<DependencyGraph>): string {
+export function visualizeDependencyGraph(
+  graph: Readonly<DependencyGraph>
+): string {
   const lines: string[] = ['Dependency Graph:'];
   lines.push(`Nodes: ${graph.nodes.size}`);
   lines.push(`Edges: ${graph.edges.length}`);
   lines.push(`Has Cycles: ${graph.hasCycles}`);
-  
+
   if (graph.hasCycles) {
     lines.push('Cycles:');
     graph.cycles.forEach(cycle => {
       lines.push(`  ${cycle.join(' -> ')}`);
     });
   }
-  
+
   lines.push('Evaluation Order:');
   graph.evaluationOrder.forEach((gateId, index) => {
     const node = graph.nodes.get(gateId);
     lines.push(`  ${index + 1}. ${gateId} (depth: ${node?.depth || 0})`);
   });
-  
+
   return lines.join('\n');
 }
 
 /**
  * 評価統計の詳細表示（デバッグ用）
  */
-export function formatEvaluationStats(stats: Readonly<EvaluationStats>): string {
+export function formatEvaluationStats(
+  stats: Readonly<EvaluationStats>
+): string {
   const lines: string[] = ['Evaluation Statistics:'];
   lines.push(`Total Gates: ${stats.totalGates}`);
   lines.push(`Evaluated Gates: ${stats.evaluatedGates}`);
   lines.push(`Skipped Gates: ${stats.skippedGates}`);
   lines.push(`Total Time: ${stats.evaluationTimeMs.toFixed(2)}ms`);
-  lines.push(`Dependency Resolution: ${stats.dependencyResolutionTimeMs.toFixed(2)}ms`);
-  
+  lines.push(
+    `Dependency Resolution: ${stats.dependencyResolutionTimeMs.toFixed(2)}ms`
+  );
+
   if (stats.memoryUsage) {
-    lines.push(`Heap Used: ${(stats.memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`);
-    lines.push(`Heap Total: ${(stats.memoryUsage.heapTotal / 1024 / 1024).toFixed(2)}MB`);
+    lines.push(
+      `Heap Used: ${(stats.memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`
+    );
+    lines.push(
+      `Heap Total: ${(stats.memoryUsage.heapTotal / 1024 / 1024).toFixed(2)}MB`
+    );
   }
-  
+
   lines.push('Gate Evaluation Times:');
   const sortedTimes = [...stats.gateEvaluationTimes.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10); // Top 10 slowest gates
-  
+
   sortedTimes.forEach(([gateId, time]) => {
     lines.push(`  ${gateId}: ${time.toFixed(2)}ms`);
   });
-  
+
   return lines.join('\n');
 }

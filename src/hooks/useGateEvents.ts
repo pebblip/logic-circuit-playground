@@ -5,7 +5,10 @@ interface UseGateEventsResult {
   isSelected: boolean;
   handleGateClick: (event: React.MouseEvent, hasDragged: boolean) => void;
   handleInputClick: (event: React.MouseEvent, hasDragged: boolean) => void;
-  handleInputDoubleClick: (event: React.MouseEvent, hasDragged: boolean) => void;
+  handleInputDoubleClick: (
+    event: React.MouseEvent,
+    hasDragged: boolean
+  ) => void;
 }
 
 export function useGateEvents(gate: Gate): UseGateEventsResult {

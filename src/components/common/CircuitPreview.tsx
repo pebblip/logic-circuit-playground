@@ -122,9 +122,9 @@ export const CircuitPreview: React.FC<CircuitPreviewProps> = ({
 
   return (
     <div className={`circuit-preview-container ${className}`}>
-      <div 
+      <div
         className="circuit-preview"
-        dangerouslySetInnerHTML={{ __html: previewSvg }} 
+        dangerouslySetInnerHTML={{ __html: previewSvg }}
       />
       {showStats && (
         <div className="circuit-stats">

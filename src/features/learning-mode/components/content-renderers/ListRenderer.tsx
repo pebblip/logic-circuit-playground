@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ListContent } from '../../types/lesson-content';
+import type { ListContent } from '../../../../types/lesson-content';
 
 interface ListRendererProps {
   content: ListContent;
@@ -7,8 +7,10 @@ interface ListRendererProps {
 
 export const ListRenderer: React.FC<ListRendererProps> = ({ content }) => {
   const Tag = content.ordered ? 'ol' : 'ul';
-  const className = content.ordered ? 'explanation-ordered-list' : 'explanation-list';
-  
+  const className = content.ordered
+    ? 'explanation-ordered-list'
+    : 'explanation-list';
+
   return (
     <Tag className={className}>
       {content.items.map((item, index) => (

@@ -2,20 +2,22 @@ import type { StateCreator } from 'zustand';
 import type { CircuitStore } from '../types';
 import type {
   Gate,
-  Wire,
   GateType,
   Position,
   CustomGateDefinition,
 } from '@/types/circuit';
 import { GateFactory } from '@/models/gates/GateFactory';
-import { evaluateCircuitPure, defaultConfig, isSuccess } from '@domain/simulation/pure';
-import type { Circuit } from '@domain/simulation/pure/types';
+import {
+  evaluateCircuit,
+  defaultConfig,
+  isSuccess,
+} from '@domain/simulation/core';
+import type { Circuit } from '@domain/simulation/core/types';
 import { booleanToDisplayState } from '@domain/simulation';
 import {
   getInputPinPosition,
   getOutputPinPosition,
 } from '@domain/analysis/pinPositionCalculator';
-
 
 export interface GateOperationsSlice {
   addGate: (type: GateType, position: Position) => Gate;
@@ -60,8 +62,8 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuitPure(circuit, defaultConfig);
-      
+      const result = evaluateCircuit(circuit, defaultConfig);
+
       if (isSuccess(result)) {
         return {
           gates: [...result.data.circuit.gates],
@@ -97,8 +99,8 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuitPure(circuit, defaultConfig);
-      
+      const result = evaluateCircuit(circuit, defaultConfig);
+
       if (isSuccess(result)) {
         return {
           gates: [...result.data.circuit.gates],
@@ -148,8 +150,8 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuitPure(circuit, defaultConfig);
-      
+      const result = evaluateCircuit(circuit, defaultConfig);
+
       if (isSuccess(result)) {
         return {
           gates: [...result.data.circuit.gates],
@@ -211,8 +213,8 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuitPure(circuit, defaultConfig);
-      
+      const result = evaluateCircuit(circuit, defaultConfig);
+
       if (isSuccess(result)) {
         return {
           gates: [...result.data.circuit.gates],
@@ -253,8 +255,8 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: newWires };
-      const result = evaluateCircuitPure(circuit, defaultConfig);
-      
+      const result = evaluateCircuit(circuit, defaultConfig);
+
       if (isSuccess(result)) {
         return {
           gates: [...result.data.circuit.gates],
@@ -285,8 +287,8 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuitPure(circuit, defaultConfig);
-      
+      const result = evaluateCircuit(circuit, defaultConfig);
+
       if (isSuccess(result)) {
         return {
           gates: [...result.data.circuit.gates],

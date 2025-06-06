@@ -274,10 +274,12 @@ export function useModalDialog<T = any>(
 
   // ESCキーのイベントリスナーを設定
   React.useEffect(() => {
-    if (dialog.isOpen && options.closeOnEscape !== false) {
-      document.addEventListener('keydown', handleEscapeKey);
-      return () => document.removeEventListener('keydown', handleEscapeKey);
+    if (!dialog.isOpen || options.closeOnEscape === false) {
+      return; // 早期リターン
     }
+
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => document.removeEventListener('keydown', handleEscapeKey);
   }, [dialog.isOpen, handleEscapeKey, options.closeOnEscape]);
 
   return {

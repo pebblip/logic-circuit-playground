@@ -8,7 +8,11 @@ interface CustomGateRendererProps {
   isSelected: boolean;
   handleMouseDown: (event: React.MouseEvent) => void;
   handleTouchStart: (event: React.TouchEvent) => void;
-  handlePinClick: (event: React.MouseEvent, pinIndex: number, isOutput: boolean) => void;
+  handlePinClick: (
+    event: React.MouseEvent,
+    pinIndex: number,
+    isOutput: boolean
+  ) => void;
   handleGateClick: (event: React.MouseEvent) => void;
 }
 
@@ -26,7 +30,12 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
 
   const definition = gate.customGateDefinition;
   const width = definition.width || 100;
-  const height = definition.height || Math.max(60, Math.max(definition.inputs.length, definition.outputs.length) * 30 + 20);
+  const height =
+    definition.height ||
+    Math.max(
+      60,
+      Math.max(definition.inputs.length, definition.outputs.length) * 30 + 20
+    );
 
   // ピン位置の計算
   const getInputPinY = (index: number) => {
@@ -75,9 +84,14 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
           stroke={isSelected ? '#00aaff' : '#6633cc'}
           strokeWidth={isSelected ? '3' : '2'}
         />
-        <text className="gate-text custom-gate-name" x="0" y="-5" fill="#00ff88">
-          {definition.displayName && definition.displayName.length > 15 
-            ? definition.displayName.substring(0, 12) + '...' 
+        <text
+          className="gate-text custom-gate-name"
+          x="0"
+          y="-5"
+          fill="#00ff88"
+        >
+          {definition.displayName && definition.displayName.length > 15
+            ? definition.displayName.substring(0, 12) + '...'
             : definition.displayName || definition.name}
         </text>
         <text className="gate-text custom-gate-icon" x="0" y="10" fontSize="14">
@@ -89,7 +103,7 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
       {definition.inputs.map((input, index) => {
         const y = getInputPinY(index);
         const x = -width / 2 - 10;
-        
+
         return (
           <g key={`input-${index}`}>
             <circle
@@ -132,7 +146,7 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
       {definition.outputs.map((output, index) => {
         const y = getOutputPinY(index);
         const x = width / 2 + 10;
-        
+
         return (
           <g key={`output-${index}`}>
             <circle

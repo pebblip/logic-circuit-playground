@@ -22,9 +22,19 @@ export const GateComponent: React.FC<GateComponentProps> = ({
   const scaleFactor = isMobile ? 2 : 1;
 
   // カスタムフックを使用
-  const { isDragging, handleMouseDown, handleTouchStart, hasDragged } = useGateDragAndDrop(gate);
+  const {
+    isDragging: _isDragging,
+    handleMouseDown,
+    handleTouchStart,
+    hasDragged,
+  } = useGateDragAndDrop(gate);
   const { handlePinClick } = useGateWireConnection(gate);
-  const { isSelected, handleGateClick, handleInputClick, handleInputDoubleClick } = useGateEvents(gate);
+  const {
+    isSelected,
+    handleGateClick,
+    handleInputClick,
+    handleInputDoubleClick,
+  } = useGateEvents(gate);
 
   // クリックハンドラーにドラッグ状態を渡す
   const wrappedHandleGateClick = (event: React.MouseEvent) => {
@@ -51,7 +61,12 @@ export const GateComponent: React.FC<GateComponentProps> = ({
 
     // 基本ゲート (AND, OR, NOT, XOR, NAND, NOR)
     if (['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'].includes(gate.type)) {
-      return <BasicGateRenderer {...baseProps} handleGateClick={wrappedHandleGateClick} />;
+      return (
+        <BasicGateRenderer
+          {...baseProps}
+          handleGateClick={wrappedHandleGateClick}
+        />
+      );
     }
 
     // 入出力ゲート
@@ -68,12 +83,22 @@ export const GateComponent: React.FC<GateComponentProps> = ({
 
     // 特殊ゲート
     if (['CLOCK', 'D-FF', 'SR-LATCH', 'MUX'].includes(gate.type)) {
-      return <SpecialGateRenderer {...baseProps} handleGateClick={wrappedHandleGateClick} />;
+      return (
+        <SpecialGateRenderer
+          {...baseProps}
+          handleGateClick={wrappedHandleGateClick}
+        />
+      );
     }
 
     // カスタムゲート
     if (gate.type === 'CUSTOM') {
-      return <CustomGateRenderer {...baseProps} handleGateClick={wrappedHandleGateClick} />;
+      return (
+        <CustomGateRenderer
+          {...baseProps}
+          handleGateClick={wrappedHandleGateClick}
+        />
+      );
     }
 
     return null;

@@ -8,9 +8,9 @@ import {
   convertToLegacyFormat,
   defaultCustomGateEvaluator,
   type EvaluationConfig
-} from '@domain/simulation/pure/gateEvaluation';
-import { defaultConfig, success, failure, createEvaluationError } from '@domain/simulation/pure/types';
-import { createFixedTimeProvider } from '@domain/simulation/pure';
+} from '@domain/simulation/core/gateEvaluation';
+import { defaultConfig, success, failure, createEvaluationError } from '@domain/simulation/core/types';
+import { createFixedTimeProvider } from '@domain/simulation/core';
 
 describe('Pure API Gate Evaluation', () => {
   describe('基本ゲート評価', () => {

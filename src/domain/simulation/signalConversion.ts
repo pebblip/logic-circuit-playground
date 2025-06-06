@@ -88,7 +88,10 @@ export function getGateInputsAsBoolean(gate: {
  * @param context デバッグコンテキスト
  */
 export function debugSignal(signal: any, context: string): void {
-  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+  if (
+    process.env.NODE_ENV === 'development' ||
+    process.env.NODE_ENV === 'test'
+  ) {
     console.debug(`[Signal Debug] ${context}:`, {
       value: signal,
       type: typeof signal,

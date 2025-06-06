@@ -7,7 +7,10 @@ interface GateCardProps {
   label: string;
   customDefinition?: CustomGateDefinition;
   isDisabled?: boolean;
-  onDragStart: (type: GateType | 'CUSTOM', customDefinition?: CustomGateDefinition) => void;
+  onDragStart: (
+    type: GateType | 'CUSTOM',
+    customDefinition?: CustomGateDefinition
+  ) => void;
   onDragEnd: () => void;
   onContextMenu?: (e: React.MouseEvent) => void;
   testId?: string;
@@ -34,8 +37,8 @@ export const GateCard: React.FC<GateCardProps> = ({
   const title = isDisabled
     ? '学習モードではこのゲートは使用できません'
     : type === 'CUSTOM'
-    ? '左クリック: 配置 | 右クリック: 真理値表表示'
-    : 'ドラッグしてキャンバスに配置';
+      ? '左クリック: 配置 | 右クリック: 真理値表表示'
+      : 'ドラッグしてキャンバスに配置';
 
   return (
     <div

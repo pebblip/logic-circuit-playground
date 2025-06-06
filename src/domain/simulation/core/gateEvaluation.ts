@@ -1,10 +1,10 @@
 /**
- * 新API用ゲート評価機能
- * 
+ * Core API ゲート評価機能
+ *
  * 特徴:
  * - 完全にimmutable（副作用なし）
  * - 型安全（boolean | boolean[] 問題を解決）
- * - 包括的エラーハンドリング
+ * - エラーハンドリング
  * - 詳細なデバッグ情報
  * - カスタムゲート対応
  */
@@ -24,7 +24,7 @@ import {
   success,
   failure,
   createGateResult,
-  createEvaluationError
+  createEvaluationError,
 } from './types';
 import { validateGate, validateGateInputs } from './validation';
 
@@ -34,7 +34,7 @@ import { validateGate, validateGateInputs } from './validation';
 
 /**
  * 統合ゲート評価関数 - 新APIのメイン関数
- * 
+ *
  * @param gate 評価対象のゲート（Readonly）
  * @param inputs 入力値配列（Readonly）
  * @param config 評価設定（Readonly）
@@ -52,20 +52,24 @@ export function evaluateGateUnified(
     if (config.strictValidation) {
       const gateValidation = validateGate(gate);
       if (!gateValidation.success) {
-        return failure(createEvaluationError(
-          `Gate validation failed: ${gateValidation.error.message}`,
-          'INPUT_COLLECTION',
-          { gateId: gate.id }
-        ));
+        return failure(
+          createEvaluationError(
+            `Gate validation failed: ${gateValidation.error.message}`,
+            'INPUT_COLLECTION',
+            { gateId: gate.id }
+          )
+        );
       }
 
       const inputValidation = validateGateInputs(gate, inputs);
       if (!inputValidation.success) {
-        return failure(createEvaluationError(
-          `Input validation failed: ${inputValidation.error.message}`,
-          'INPUT_COLLECTION',
-          { gateId: gate.id }
-        ));
+        return failure(
+          createEvaluationError(
+            `Input validation failed: ${inputValidation.error.message}`,
+            'INPUT_COLLECTION',
+            { gateId: gate.id }
+          )
+        );
       }
     }
 
@@ -84,15 +88,19 @@ export function evaluateGateUnified(
       inputValidation: {
         expectedInputCount: getExpectedInputCount(gate),
         actualInputCount: inputs.length,
-        isValid: inputs.length === getExpectedInputCount(gate)
+        isValid: inputs.length === getExpectedInputCount(gate),
       },
       // カスタムゲート追加情報（条件付き）
-      ...(gate.type === 'CUSTOM' && isCustomGate(gate) && gate.customGateDefinition && {
-        customGateInfo: {
-          definitionId: gate.customGateDefinition.id,
-          evaluationMethod: gate.customGateDefinition.internalCircuit ? 'INTERNAL_CIRCUIT' : 'TRUTH_TABLE'
-        }
-      })
+      ...(gate.type === 'CUSTOM' &&
+        isCustomGate(gate) &&
+        gate.customGateDefinition && {
+          customGateInfo: {
+            definitionId: gate.customGateDefinition.id,
+            evaluationMethod: gate.customGateDefinition.internalCircuit
+              ? 'INTERNAL_CIRCUIT'
+              : 'TRUTH_TABLE',
+          },
+        }),
     };
 
     // 4. デバッグ情報作成（enableDebugが有効な場合）
@@ -103,21 +111,22 @@ export function evaluateGateUnified(
         gateType: gate.type,
         inputs: [...inputs],
         evaluationTimeMs: endTime - startTime,
-        intermediateValues: createIntermediateValues(gate, inputs, outputs)
+        intermediateValues: createIntermediateValues(gate, inputs, outputs),
       };
     }
 
     // 5. 結果作成
     const result = createGateResult(outputs, metadata, debugInfo);
     return success(result);
-
   } catch (error) {
-    return failure(createEvaluationError(
-      `Unexpected error during gate evaluation: ${error}`,
-      'GATE_LOGIC',
-      { gateId: gate.id },
-      error
-    ));
+    return failure(
+      createEvaluationError(
+        `Unexpected error during gate evaluation: ${error}`,
+        'GATE_LOGIC',
+        { gateId: gate.id },
+        error
+      )
+    );
   }
 }
 
@@ -175,19 +184,23 @@ function evaluateGateLogic(
         return evaluateCustomGate(gate, inputs, config);
 
       default:
-        return failure(createEvaluationError(
-          `Unknown gate type: ${(gate as any).type}`,
-          'GATE_LOGIC',
-          { gateId: gate.id }
-        ));
+        return failure(
+          createEvaluationError(
+            `Unknown gate type: ${(gate as any).type}`,
+            'GATE_LOGIC',
+            { gateId: gate.id }
+          )
+        );
     }
   } catch (error) {
-    return failure(createEvaluationError(
-      `Error evaluating ${gate.type} gate: ${error}`,
-      'GATE_LOGIC',
-      { gateId: gate.id },
-      error
-    ));
+    return failure(
+      createEvaluationError(
+        `Error evaluating ${gate.type} gate: ${error}`,
+        'GATE_LOGIC',
+        { gateId: gate.id },
+        error
+      )
+    );
   }
 }
 
@@ -209,14 +222,15 @@ function evaluateClockGate(
   const frequency = gate.metadata.frequency || 1;
   const period = 1000 / frequency;
   const now = config.timeProvider.getCurrentTime();
-  
+
   // startTimeの取得（undefined チェック修正）
-  const startTime = gate.metadata.startTime !== undefined ? gate.metadata.startTime : now;
+  const startTime =
+    gate.metadata.startTime !== undefined ? gate.metadata.startTime : now;
   const elapsed = now - startTime;
-  
+
   // 周期的な切り替え
   const isHigh = Math.floor(elapsed / period) % 2 === 1;
-  
+
   return success([isHigh]);
 }
 
@@ -228,16 +242,18 @@ function evaluateDFlipFlopGate(
   inputs: readonly boolean[]
 ): Result<readonly boolean[], EvaluationError> {
   if (inputs.length < 2) {
-    return failure(createEvaluationError(
-      'D-FF gate requires 2 inputs (D and CLK)',
-      'INPUT_COLLECTION',
-      { gateId: gate.id }
-    ));
+    return failure(
+      createEvaluationError(
+        'D-FF gate requires 2 inputs (D and CLK)',
+        'INPUT_COLLECTION',
+        { gateId: gate.id }
+      )
+    );
   }
 
   const d = inputs[0];
   const clk = inputs[1];
-  
+
   // メタデータから現在の状態を取得（immutableアプローチのため、新しい状態は戻り値で表現）
   const prevClk = gate.metadata?.previousClockState || false;
   let qOutput = gate.metadata?.qOutput || false;
@@ -260,16 +276,18 @@ function evaluateSRLatchGate(
   inputs: readonly boolean[]
 ): Result<readonly boolean[], EvaluationError> {
   if (inputs.length < 2) {
-    return failure(createEvaluationError(
-      'SR-LATCH gate requires 2 inputs (S and R)',
-      'INPUT_COLLECTION',
-      { gateId: gate.id }
-    ));
+    return failure(
+      createEvaluationError(
+        'SR-LATCH gate requires 2 inputs (S and R)',
+        'INPUT_COLLECTION',
+        { gateId: gate.id }
+      )
+    );
   }
 
   const s = inputs[0]; // Set
   const r = inputs[1]; // Reset
-  
+
   let qOutput = gate.metadata?.qOutput || false;
 
   // S=1, R=0 => Q=1
@@ -289,16 +307,20 @@ function evaluateSRLatchGate(
 /**
  * MUXゲート評価
  */
-function evaluateMuxGate(inputs: readonly boolean[]): Result<readonly boolean[], EvaluationError> {
+function evaluateMuxGate(
+  inputs: readonly boolean[]
+): Result<readonly boolean[], EvaluationError> {
   if (inputs.length < 3) {
-    return failure(createEvaluationError(
-      'MUX gate requires 3 inputs (I0, I1, SELECT)',
-      'INPUT_COLLECTION'
-    ));
+    return failure(
+      createEvaluationError(
+        'MUX gate requires 3 inputs (I0, I1, SELECT)',
+        'INPUT_COLLECTION'
+      )
+    );
   }
 
-  const i0 = inputs[0];     // Input 0
-  const i1 = inputs[1];     // Input 1
+  const i0 = inputs[0]; // Input 0
+  const i1 = inputs[1]; // Input 1
   const select = inputs[2]; // Select
 
   // S=0 => Y=I0, S=1 => Y=I1
@@ -319,11 +341,13 @@ function evaluateCustomGate(
   config: Readonly<EvaluationConfig>
 ): Result<readonly boolean[], EvaluationError> {
   if (!isCustomGate(gate) || !gate.customGateDefinition) {
-    return failure(createEvaluationError(
-      'Custom gate must have customGateDefinition',
-      'GATE_LOGIC',
-      { gateId: gate.id }
-    ));
+    return failure(
+      createEvaluationError(
+        'Custom gate must have customGateDefinition',
+        'GATE_LOGIC',
+        { gateId: gate.id }
+      )
+    );
   }
 
   const definition = gate.customGateDefinition;
@@ -357,10 +381,12 @@ function evaluateWithCustomEvaluator(
     return evaluator.evaluateByTruthTable(definition, inputs);
   }
 
-  return failure(createEvaluationError(
-    'Custom gate has neither internal circuit nor truth table',
-    'GATE_LOGIC'
-  ));
+  return failure(
+    createEvaluationError(
+      'Custom gate has neither internal circuit nor truth table',
+      'GATE_LOGIC'
+    )
+  );
 }
 
 /**
@@ -378,16 +404,20 @@ function evaluateCustomGateDefault(
 
   // 内部回路評価はより複雑なため、将来的には別関数で実装
   if (definition.internalCircuit) {
-    return failure(createEvaluationError(
-      'Internal circuit evaluation not yet implemented in default evaluator',
-      'GATE_LOGIC'
-    ));
+    return failure(
+      createEvaluationError(
+        'Internal circuit evaluation not yet implemented in default evaluator',
+        'GATE_LOGIC'
+      )
+    );
   }
 
-  return failure(createEvaluationError(
-    'Custom gate has no valid evaluation method',
-    'GATE_LOGIC'
-  ));
+  return failure(
+    createEvaluationError(
+      'Custom gate has no valid evaluation method',
+      'GATE_LOGIC'
+    )
+  );
 }
 
 /**
@@ -398,32 +428,35 @@ function evaluateByTruthTable(
   inputs: readonly boolean[]
 ): Result<readonly boolean[], EvaluationError> {
   if (!definition.truthTable) {
-    return failure(createEvaluationError(
-      'Truth table not available',
-      'GATE_LOGIC'
-    ));
+    return failure(
+      createEvaluationError('Truth table not available', 'GATE_LOGIC')
+    );
   }
 
   // 入力パターンを文字列に変換
-  const inputPattern = inputs.map(input => input ? '1' : '0').join('');
+  const inputPattern = inputs.map(input => (input ? '1' : '0')).join('');
   const outputPattern = definition.truthTable[inputPattern];
 
   if (!outputPattern) {
-    return failure(createEvaluationError(
-      `No truth table entry for input pattern: ${inputPattern}`,
-      'GATE_LOGIC'
-    ));
+    return failure(
+      createEvaluationError(
+        `No truth table entry for input pattern: ${inputPattern}`,
+        'GATE_LOGIC'
+      )
+    );
   }
 
   // 出力パターンをboolean配列に変換
   const outputs = outputPattern.split('').map(bit => bit === '1');
-  
+
   // 出力数の検証
   if (outputs.length !== definition.outputs.length) {
-    return failure(createEvaluationError(
-      `Truth table output length mismatch: expected ${definition.outputs.length}, got ${outputs.length}`,
-      'GATE_LOGIC'
-    ));
+    return failure(
+      createEvaluationError(
+        `Truth table output length mismatch: expected ${definition.outputs.length}, got ${outputs.length}`,
+        'GATE_LOGIC'
+      )
+    );
   }
 
   return success(outputs);
@@ -477,7 +510,7 @@ function createIntermediateValues(
     inputCount: inputs.length,
     outputCount: outputs.length,
     inputValues: [...inputs],
-    outputValues: [...outputs]
+    outputValues: [...outputs],
   };
 
   // ゲートタイプ別の追加情報
@@ -487,7 +520,7 @@ function createIntermediateValues(
         values.clockMetadata = {
           isRunning: gate.metadata.isRunning,
           frequency: gate.metadata.frequency,
-          startTime: gate.metadata.startTime
+          startTime: gate.metadata.startTime,
         };
       }
       break;
@@ -497,7 +530,7 @@ function createIntermediateValues(
         values.flipFlopState = {
           previousClockState: gate.metadata.previousClockState,
           qOutput: gate.metadata.qOutput,
-          qBarOutput: gate.metadata.qBarOutput
+          qBarOutput: gate.metadata.qBarOutput,
         };
       }
       break;
@@ -506,7 +539,7 @@ function createIntermediateValues(
       if (gate.metadata) {
         values.latchState = {
           qOutput: gate.metadata.qOutput,
-          qBarOutput: gate.metadata.qBarOutput
+          qBarOutput: gate.metadata.qBarOutput,
         };
       }
       break;
@@ -517,7 +550,7 @@ function createIntermediateValues(
           definitionId: gate.customGateDefinition.id,
           definitionName: gate.customGateDefinition.name,
           inputNames: gate.customGateDefinition.inputs.map(i => i.name),
-          outputNames: gate.customGateDefinition.outputs.map(o => o.name)
+          outputNames: gate.customGateDefinition.outputs.map(o => o.name),
         };
       }
       break;
@@ -541,11 +574,13 @@ export const defaultCustomGateEvaluator: CustomGateEvaluator = {
   evaluateByInternalCircuit: (definition, inputs, config) => {
     // 内部回路評価は複雑なため、現在は未実装
     // 将来的にはcircuitEvaluation.tsで実装予定
-    return failure(createEvaluationError(
-      'Internal circuit evaluation not yet implemented',
-      'GATE_LOGIC'
-    ));
-  }
+    return failure(
+      createEvaluationError(
+        'Internal circuit evaluation not yet implemented',
+        'GATE_LOGIC'
+      )
+    );
+  },
 };
 
 // ===============================
@@ -554,10 +589,12 @@ export const defaultCustomGateEvaluator: CustomGateEvaluator = {
 
 /**
  * 旧APIとの互換性のため、boolean | boolean[] 形式に変換
- * 
+ *
  * @deprecated 新しいコードでは使用しないでください
  */
-export function convertToLegacyFormat(result: GateEvaluationResult): boolean | boolean[] {
+export function convertToLegacyFormat(
+  result: GateEvaluationResult
+): boolean | boolean[] {
   if (result.isSingleOutput) {
     return result.primaryOutput;
   } else {
@@ -567,7 +604,7 @@ export function convertToLegacyFormat(result: GateEvaluationResult): boolean | b
 
 /**
  * 単一出力ゲート評価（後方互換性用）
- * 
+ *
  * @deprecated evaluateGateUnified を使用してください
  */
 export function evaluateGateSingle(
@@ -576,7 +613,7 @@ export function evaluateGateSingle(
   config: Readonly<EvaluationConfig> = defaultConfig
 ): Result<boolean, EvaluationError> {
   const result = evaluateGateUnified(gate, inputs, config);
-  
+
   if (result.success) {
     return success(result.data.primaryOutput, result.warnings);
   } else {
@@ -586,7 +623,7 @@ export function evaluateGateSingle(
 
 /**
  * 複数出力ゲート評価（後方互換性用）
- * 
+ *
  * @deprecated evaluateGateUnified を使用してください
  */
 export function evaluateGateMulti(
@@ -595,7 +632,7 @@ export function evaluateGateMulti(
   config: Readonly<EvaluationConfig> = defaultConfig
 ): Result<readonly boolean[], EvaluationError> {
   const result = evaluateGateUnified(gate, inputs, config);
-  
+
   if (result.success) {
     return success(result.data.outputs, result.warnings);
   } else {

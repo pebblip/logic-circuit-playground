@@ -5,6 +5,7 @@ import type {
   CircuitMetadata,
   CircuitStorageResult,
 } from '../../types/circuitStorage';
+import type { Gate, Wire } from '../../types/circuit';
 import './LoadCircuitDialog.css';
 
 interface LoadCircuitDialogProps {
@@ -169,13 +170,13 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
         const circuit = result.data.circuit;
 
         // ゲートを追加
-        circuit.gates.forEach(gateData => {
+        circuit.gates.forEach((gateData: Gate) => {
           store.addGate(gateData.type, gateData.position);
         });
 
         // ワイヤーを復元（少し複雑）
         setTimeout(() => {
-          circuit.wires.forEach(wireData => {
+          circuit.wires.forEach((wireData: Wire) => {
             // ワイヤーの接続を再現
             store.startWireDrawing(
               wireData.from.gateId,

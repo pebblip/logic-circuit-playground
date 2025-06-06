@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ **Type-safe simulation**: Result<T,E> pattern implementation
 - ✅ **Custom gate creation**: Create new gates from circuits
 - ✅ **Truth table display**: Visualize custom gate behavior
-- ✅ **Comprehensive test suite**: TruthTableDisplay.test.tsx (7 test cases)
+- ✅ **Test suite**: TruthTableDisplay.test.tsx (7 test cases)
 - ✅ **Defensive programming**: Fallback with safeOutputNames
 - ✅ **Required field indicators**: Red asterisk for UI improvement
 - ✅ Zustand store implementation for global state management
@@ -59,15 +59,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🐛 Custom gate creation dialog validation and UI issues
 
 ### Known Issues - Priority High 🔴
-- ✅ **問題なし**: 全ての重要機能が正常動作
-- ✅ **新API移行完了**: 技術的負債完全返済
-- ✅ **テスト完全通過**: 全テストケース成功
+- 主要機能が正常動作
+- coreAPI移行完了により技術的負債を削減
+- テストが通過
 
 ### Technical Debt
-- ✅ **返済完了**: 新API移行によりResult<T,E>パターン導入
-- ✅ **返済完了**: 型安全性の大幅向上（anyタイプ削減）
-- ✅ **返済完了**: 防御的プログラミングによる堅牢性向上
-- 🏚️ src_old directory needs to be cleaned up（参考用として残存）
+- ✅ **改善完了**: coreAPI移行によりResult<T,E>パターン導入
+- ✅ **改善完了**: 型安全性の向上（anyタイプ削減）
+- ✅ **改善完了**: 防御的プログラミングによる安定性向上
 - 🏚️ Multiple architectural patterns coexist
 
 

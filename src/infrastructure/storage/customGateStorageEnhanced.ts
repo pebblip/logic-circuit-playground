@@ -37,7 +37,10 @@ function hasCircularReference(obj: any, seen = new WeakSet()): boolean {
   seen.add(obj);
 
   for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key) && hasCircularReference(obj[key], seen)) {
+    if (
+      Object.prototype.hasOwnProperty.call(obj, key) &&
+      hasCircularReference(obj[key], seen)
+    ) {
       return true;
     }
   }
@@ -191,7 +194,9 @@ export function loadCustomGatesEnhanced(
     }
 
     // null/undefined を除去
-    customGates = customGates.filter(gate => gate != null);
+    customGates = customGates.filter(
+      (gate: any): gate is CustomGateDefinition => gate != null
+    );
 
     // 検証
     if (validate) {

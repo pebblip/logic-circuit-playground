@@ -22,7 +22,12 @@ export function getInputPinPosition(gate: Gate, pinIndex: number): Position {
   if (gate.type === 'CUSTOM' && gate.customGateDefinition) {
     const definition = gate.customGateDefinition;
     const width = definition.width || 100;
-    const height = definition.height || Math.max(60, Math.max(definition.inputs.length, definition.outputs.length) * 30 + 20);
+    const height =
+      definition.height ||
+      Math.max(
+        60,
+        Math.max(definition.inputs.length, definition.outputs.length) * 30 + 20
+      );
     const halfWidth = width / 2;
 
     // CustomGateRendererと同じ計算式を使用
@@ -101,7 +106,12 @@ export function getOutputPinPosition(
   if (gate.type === 'CUSTOM' && gate.customGateDefinition) {
     const definition = gate.customGateDefinition;
     const width = definition.width || 100;
-    const height = definition.height || Math.max(60, Math.max(definition.inputs.length, definition.outputs.length) * 30 + 20);
+    const height =
+      definition.height ||
+      Math.max(
+        60,
+        Math.max(definition.inputs.length, definition.outputs.length) * 30 + 20
+      );
     const halfWidth = width / 2;
 
     // CustomGateRendererと同じ計算式を使用

@@ -43,14 +43,17 @@ export const GateDescription: React.FC<GateDescriptionProps> = ({
       </div>
 
       {/* 基本動作 */}
-      <div style={{ 
-        marginBottom: '32px',
-        padding: '20px',
-        background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)',
-        border: '1px solid rgba(0, 255, 136, 0.1)',
-        borderRadius: '12px',
-        backdropFilter: 'blur(5px)'
-      }}>
+      <div
+        style={{
+          marginBottom: '32px',
+          padding: '20px',
+          background:
+            'linear-gradient(135deg, rgba(0, 255, 136, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)',
+          border: '1px solid rgba(0, 255, 136, 0.1)',
+          borderRadius: '12px',
+          backdropFilter: 'blur(5px)',
+        }}
+      >
         <h3
           style={{
             color: '#00ff88',
@@ -62,38 +65,49 @@ export const GateDescription: React.FC<GateDescriptionProps> = ({
             gap: '12px',
           }}
         >
-          <span style={{ 
-            background: 'rgba(0, 255, 136, 0.1)',
-            borderRadius: '8px',
-            padding: '8px',
-            fontSize: '16px'
-          }}>⚡</span>
+          <span
+            style={{
+              background: 'rgba(0, 255, 136, 0.1)',
+              borderRadius: '8px',
+              padding: '8px',
+              fontSize: '16px',
+            }}
+          >
+            ⚡
+          </span>
           基本動作
         </h3>
-        <p style={{ margin: 0, lineHeight: '1.7', fontSize: '15px' }}>{data.basicOperation}</p>
+        <p style={{ margin: 0, lineHeight: '1.7', fontSize: '15px' }}>
+          {data.basicOperation}
+        </p>
         {data.truthTableNote && (
           <div
             style={{
               margin: '16px 0 0 0',
               padding: '16px',
-              background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.08) 0%, rgba(0, 255, 200, 0.05) 100%)',
+              background:
+                'linear-gradient(135deg, rgba(0, 255, 136, 0.08) 0%, rgba(0, 255, 200, 0.05) 100%)',
               border: '1px solid rgba(0, 255, 136, 0.25)',
               borderRadius: '12px',
               fontSize: '14px',
               lineHeight: '1.6',
               position: 'relative',
-              overflow: 'hidden'
+              overflow: 'hidden',
             }}
           >
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '4px',
-              height: '100%',
-              background: 'linear-gradient(to bottom, #00ff88, #00ffdd)',
-            }} />
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '4px',
+                height: '100%',
+                background: 'linear-gradient(to bottom, #00ff88, #00ffdd)',
+              }}
+            />
+            <div
+              style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}
+            >
               <span style={{ fontSize: '16px', flexShrink: 0 }}>💡</span>
               <span>{data.truthTableNote}</span>
             </div>

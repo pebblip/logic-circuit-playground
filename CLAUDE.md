@@ -5,11 +5,13 @@
 
 ### 主な特徴
 - ドラッグ&ドロップによる直感的なゲート配置
-- リアルタイムシミュレーション（新API移行完了） 
+- リアルタイムシミュレーション（coreAPI移行完了）
 - 視覚的フィードバック（アクティブな信号の表示）
 - 特殊ゲート対応（CLOCK、D-FF、SR-LATCH、MUX）
 - **カスタムゲート作成機能**（回路から新しいゲートを作成）
 - **真理値表自動生成・表示機能**
+- **学習モード**（21レッスン、構造化コンテンツ）
+- **整備されたコード基盤**（ESLint準拠、型安全性）
 - レスポンシブデザイン対応（デスクトップ・タブレット・モバイル）
 
 ## 📚 ドキュメント構造
@@ -107,8 +109,8 @@ src/
 ├── domain/                    # ドメインロジック
 │   ├── analysis/             # 真理値表生成・回路分析
 │   ├── circuit/              # 回路レイアウト・操作
-│   └── simulation/           # 新API：純粋関数シミュレーション
-│       └── pure/             # Result<T,E>パターン実装
+│   └── simulation/           # coreAPI：純粋関数シミュレーション
+│       └── core/             # Result<T,E>パターン実装
 ├── stores/                   # Zustand状態管理
 │   └── slices/              # 機能別スライス
 ├── components/               # UIコンポーネント
@@ -127,12 +129,13 @@ src/
 
 ### 重要ファイル
 - `src/stores/circuitStore.ts` - 中央状態管理
-- `src/domain/simulation/pure/circuitEvaluation.ts` - 新API回路評価
-- `src/domain/simulation/pure/gateEvaluation.ts` - 新APIゲート評価
+- `src/domain/simulation/core/circuitEvaluation.ts` - coreAPI回路評価
+- `src/domain/simulation/core/gateEvaluation.ts` - coreAPIゲート評価
 - `src/components/TruthTableDisplay.tsx` - 真理値表表示
 - `src/components/ToolPalette.tsx` - カスタムゲート作成
 - `src/domain/analysis/pinPositionCalculator.ts` - ピン位置計算
 - `src/models/gates/GateFactory.ts` - ゲート生成ファクトリー
+- `src/features/learning-mode/` - 学習モード（21レッスン）
 
 ## 🔧 よくある問題と解決方法
 
@@ -144,7 +147,7 @@ src/
 ### 2. 真理値表の出力ヘッダーが表示されない
 **原因**: `definition.outputs`の`name`プロパティが未定義
 **解決**: `TruthTableDisplay.tsx`の`safeOutputNames`でフォールバック
-**修正済み**: 防御的プログラミングで完全解決
+**修正済み**: 防御的プログラミングで解決
 
 ### 3. カスタムゲート作成ダイアログが開かない
 **原因**: イベント伝播やprops受け渡しの問題
@@ -157,15 +160,17 @@ src/
 **修正済み**: 依存配列を修正して正常に動作
 
 ### 5. シミュレーションが動かない
-**原因**: 新API移行により評価方式が変更
-**解決**: `src/domain/simulation/pure/`の新APIを使用
-**修正済み**: Result<T,E>パターンで型安全に実装
+**原因**: coreAPI移行により評価方式が変更
+**解決**: `src/domain/simulation/core/`のcoreAPIを使用
+**修正済み**: Result<T,E>パターンで実装
 
-### 6. TypeScriptエラー
+### 6. TypeScriptエラー・コード品質
 **対策**: 
 - まず`npm run typecheck`で確認
 - 型定義は`src/types/`に集約
-- 新APIでは`any`を避けて型安全に実装
+- coreAPIでは`any`を避けて型安全に実装
+- ESLintエラーは`npm run lint`で確認・修正
+- 未使用変数は`_`プレフィックスで無効化または削除
 
 ## 💡 開発のコツ
 
@@ -183,12 +188,12 @@ const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
 - Zustandを使用（シンプルで高速）
 - Immerは使わない（プロキシ問題を避ける）
 - 更新は必ずimmutableに
-- 新APIではResult<T,E>パターンでエラーハンドリング
+- coreAPIではResult<T,E>パターンでエラーハンドリング
 
-### 新APIシミュレーション（推奨）
+### coreAPIシミュレーション（推奨）
 ```typescript
-// ✅ 良い例：新API使用
-const result = evaluateCircuitPure(circuit, config);
+// ✅ 良い例：coreAPI使用
+const result = evaluateCircuit(circuit, config);
 if (result.success) {
   const { circuit: updatedCircuit } = result.data;
   // 成功時の処理
@@ -197,7 +202,7 @@ if (result.success) {
 }
 
 // ❌ 旧API（非推奨）
-const updatedCircuit = evaluateCircuit(circuit); // エラーが見えない
+const updatedCircuit = evaluateCircuitLegacy(circuit); // エラーが見えない
 ```
 
 ### カスタムゲート開発
@@ -237,6 +242,7 @@ const updatedCircuit = evaluateCircuit(circuit); // エラーが見えない
 
 ### コミット前
 - [ ] `npm run typecheck`でエラーなし
+- [ ] `npm run lint`でエラーなし（警告は許容）
 - [ ] `npm run test`で単体テストが通る
 - [ ] 関連するE2Eテストが通る
 - [ ] コミットメッセージが規約に従っている
@@ -255,21 +261,17 @@ const updatedCircuit = evaluateCircuit(circuit); // エラーが見えない
 
 ## 📌 重要な注意事項
 
-1. **src_old**ディレクトリは参考程度に（バグが多い）
-2. **ViewModelパターンは使わない**（Zustandで十分）
-3. **過度な抽象化は避ける**（シンプルに保つ）
-4. **動作確認は必ずブラウザで**（テストだけでは不十分）
+1. **ViewModelパターンは使わない**（Zustandで十分）
+2. **過度な抽象化は避ける**（シンプルに保つ）
+3. **動作確認は必ずブラウザで**（テストだけでは不十分）
 
-## 📝 最新の作業ログ
+## 📝 最新の開発状況
 
-最新のセッションログは `SESSION_LOG_2025-01-05.md` を参照してください。
-このファイルには：
-- 実施した作業の詳細（半加算器レッスン改善、学習モードUI問題）
-- 発見した問題と解決策
-- 次にやるべきタスクリスト（ズームボタン移動、ヘッダー制御など）
-- 検討した改善案の詳細（フローティング、スライド、レイアウト最適化など）
-
-が記録されています。
+### 最近の大きな改善
+- **学習モード完成**: 21レッスンの構造化コンテンツ
+- **API統一**: `pure`→`core`に命名を統一、新旧の区別を排除
+- **コード品質向上**: ESLintエラーを警告レベルに改善（1455→140）
+- **型安全性強化**: TypeScript strict mode有効化、型エラーを解消
 
 ---
 

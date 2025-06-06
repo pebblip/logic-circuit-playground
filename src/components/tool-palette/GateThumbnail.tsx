@@ -6,7 +6,10 @@ interface GateThumbnailProps {
   customDefinition?: CustomGateDefinition;
 }
 
-export const GateThumbnail: React.FC<GateThumbnailProps> = ({ type, customDefinition }) => {
+export const GateThumbnail: React.FC<GateThumbnailProps> = ({
+  type,
+  customDefinition,
+}) => {
   // 基本ゲート
   if (['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'].includes(type)) {
     return (
@@ -80,14 +83,7 @@ export const GateThumbnail: React.FC<GateThumbnailProps> = ({ type, customDefini
   if (type === 'D-FF') {
     return (
       <svg className="tool-preview" viewBox="-60 -50 120 100">
-        <rect
-          className="gate"
-          x="-40"
-          y="-30"
-          width="80"
-          height="60"
-          rx="8"
-        />
+        <rect className="gate" x="-40" y="-30" width="80" height="60" rx="8" />
         <text className="gate-text" x="0" y="0" style={{ fontSize: '8px' }}>
           D-FF
         </text>
@@ -129,14 +125,7 @@ export const GateThumbnail: React.FC<GateThumbnailProps> = ({ type, customDefini
   if (type === 'SR-LATCH') {
     return (
       <svg className="tool-preview" viewBox="-60 -50 120 100">
-        <rect
-          className="gate"
-          x="-40"
-          y="-30"
-          width="80"
-          height="60"
-          rx="8"
-        />
+        <rect className="gate" x="-40" y="-30" width="80" height="60" rx="8" />
         <text className="gate-text" x="0" y="-5" style={{ fontSize: '8px' }}>
           SR
         </text>
@@ -186,14 +175,7 @@ export const GateThumbnail: React.FC<GateThumbnailProps> = ({ type, customDefini
   if (type === 'MUX') {
     return (
       <svg className="tool-preview" viewBox="-60 -50 120 100">
-        <rect
-          className="gate"
-          x="-40"
-          y="-30"
-          width="80"
-          height="60"
-          rx="8"
-        />
+        <rect className="gate" x="-40" y="-30" width="80" height="60" rx="8" />
         <text className="gate-text" x="0" y="0" style={{ fontSize: '8px' }}>
           MUX
         </text>

@@ -63,22 +63,28 @@ const DEMO_CUSTOM_GATES: CustomGateDefinition[] = [
 ];
 
 export const ToolPalette: React.FC = () => {
-  const { customGates, addCustomGate, gates, wires, allowedGates } = useCircuitStore();
-  
+  const {
+    customGates,
+    addCustomGate,
+    gates,
+    wires: _wires,
+    allowedGates,
+  } = useCircuitStore();
+
   const { startDrag, endDrag } = useDragGate();
   const {
     isCreateDialogOpen,
     dialogInitialData,
     isTruthTableOpen,
     currentTruthTable,
-    openCreateDialog,
+    openCreateDialog: _openCreateDialog,
     closeCreateDialog,
     openTruthTable,
     closeTruthTable,
   } = useCustomGateDialog();
 
   // 回路からカスタムゲート作成ダイアログを開く
-  const handleOpenCreateFromCircuit = () => {
+  const _handleOpenCreateFromCircuit = () => {
     const inputGates = gates.filter(g => g.type === 'INPUT');
     const outputGates = gates.filter(g => g.type === 'OUTPUT');
 
@@ -186,17 +192,27 @@ export const ToolPalette: React.FC = () => {
         definition.truthTable = truthTable;
 
         // 作成後に真理値表を表示
-        const inputNames = definition.inputs.map((input, index) => input.name || `IN${index + 1}`);
-        const outputNames = definition.outputs.map((output, index) => output.name || `OUT${index + 1}`);
-        
+        const inputNames = definition.inputs.map(
+          (input, index) => input.name || `IN${index + 1}`
+        );
+        const outputNames = definition.outputs.map(
+          (output, index) => output.name || `OUT${index + 1}`
+        );
+
         // デバッグ: 真理値表表示時のpropsを確認
         console.log('=== ToolPalette Truth Table Debug (Create) ===');
         console.log('CRITICAL: definition object:', definition);
         console.log('CRITICAL: definition.inputs:', definition.inputs);
         console.log('CRITICAL: definition.outputs:', definition.outputs);
-        console.log('CRITICAL: definition.outputs length:', definition.outputs?.length);
-        console.log('CRITICAL: definition.outputs structure:', JSON.stringify(definition.outputs, null, 2));
-        
+        console.log(
+          'CRITICAL: definition.outputs length:',
+          definition.outputs?.length
+        );
+        console.log(
+          'CRITICAL: definition.outputs structure:',
+          JSON.stringify(definition.outputs, null, 2)
+        );
+
         // outputsの詳細を一つずつ確認
         if (definition.outputs) {
           definition.outputs.forEach((output, index) => {
@@ -206,7 +222,7 @@ export const ToolPalette: React.FC = () => {
         } else {
           console.log('CRITICAL: definition.outputs is null/undefined!');
         }
-        
+
         console.log('inputNames:', inputNames);
         console.log('outputNames:', outputNames);
         console.log('truthTableResult:', truthTableResult);
@@ -229,8 +245,12 @@ export const ToolPalette: React.FC = () => {
 
   const handleContextMenu = (definition: CustomGateDefinition) => {
     if (definition.internalCircuit && definition.truthTable) {
-      const inputNames = definition.inputs.map((input, index) => input.name || `IN${index + 1}`);
-      const outputNames = definition.outputs.map((output, index) => output.name || `OUT${index + 1}`);
+      const inputNames = definition.inputs.map(
+        (input, index) => input.name || `IN${index + 1}`
+      );
+      const outputNames = definition.outputs.map(
+        (output, index) => output.name || `OUT${index + 1}`
+      );
 
       // デバッグ: 右クリックメニューでの真理値表表示時のpropsを確認
       console.log('=== ToolPalette Truth Table Debug (Context Menu) ===');
@@ -238,8 +258,11 @@ export const ToolPalette: React.FC = () => {
       console.log('definition.inputs:', definition.inputs);
       console.log('definition.outputs:', definition.outputs);
       console.log('definition.outputs length:', definition.outputs?.length);
-      console.log('definition.outputs structure:', JSON.stringify(definition.outputs, null, 2));
-      
+      console.log(
+        'definition.outputs structure:',
+        JSON.stringify(definition.outputs, null, 2)
+      );
+
       // outputsの詳細を一つずつ確認
       if (definition.outputs) {
         definition.outputs.forEach((output, index) => {
@@ -247,7 +270,7 @@ export const ToolPalette: React.FC = () => {
           console.log(`output[${index}].name:`, output?.name);
         });
       }
-      
+
       console.log('inputNames:', inputNames);
       console.log('outputNames:', outputNames);
       console.log('definition.truthTable:', definition.truthTable);
@@ -257,9 +280,7 @@ export const ToolPalette: React.FC = () => {
         ([inputs, outputs]) => ({
           inputs,
           outputs,
-          inputValues: inputs
-            .split('')
-            .map(bit => displayStateToBoolean(bit)),
+          inputValues: inputs.split('').map(bit => displayStateToBoolean(bit)),
           outputValues: outputs
             .split('')
             .map(bit => displayStateToBoolean(bit)),

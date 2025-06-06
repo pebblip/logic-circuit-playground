@@ -7,7 +7,11 @@ interface BasicGateRendererProps {
   isSelected: boolean;
   handleMouseDown: (event: React.MouseEvent) => void;
   handleTouchStart: (event: React.TouchEvent) => void;
-  handlePinClick: (event: React.MouseEvent, pinIndex: number, isOutput: boolean) => void;
+  handlePinClick: (
+    event: React.MouseEvent,
+    pinIndex: number,
+    isOutput: boolean
+  ) => void;
   handleGateClick: (event: React.MouseEvent) => void;
 }
 

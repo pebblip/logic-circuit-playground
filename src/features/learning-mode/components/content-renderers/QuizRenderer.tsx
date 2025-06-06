@@ -1,24 +1,27 @@
 import React, { useState } from 'react';
-import type { QuizContent } from '../../types/lesson-content';
+import type { QuizContent } from '../../../../types/lesson-content';
 
 interface QuizRendererProps {
   content: QuizContent;
   onAnswer?: (isCorrect: boolean) => void;
 }
 
-export const QuizRenderer: React.FC<QuizRendererProps> = ({ content, onAnswer }) => {
+export const QuizRenderer: React.FC<QuizRendererProps> = ({
+  content,
+  onAnswer,
+}) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  
+
   const handleAnswer = (index: number) => {
     setSelectedAnswer(index);
     if (onAnswer) {
       onAnswer(index === content.correctIndex);
     }
   };
-  
+
   const isCorrect = selectedAnswer === content.correctIndex;
   const hasAnswered = selectedAnswer !== null;
-  
+
   return (
     <div className="quiz-section">
       <h3 className="quiz-question">{content.question}</h3>
@@ -39,11 +42,7 @@ export const QuizRenderer: React.FC<QuizRendererProps> = ({ content, onAnswer })
           もう一度考えてみましょう！
         </div>
       )}
-      {isCorrect && (
-        <div className="quiz-feedback correct">
-          正解です！🎉
-        </div>
-      )}
+      {isCorrect && <div className="quiz-feedback correct">正解です！🎉</div>}
     </div>
   );
 };

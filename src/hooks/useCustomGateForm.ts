@@ -19,7 +19,7 @@ interface UseCustomGateFormProps {
   isOpen: boolean;
 }
 
-export const useCustomGateForm = ({ 
+export const useCustomGateForm = ({
   initialInputs = [
     { name: 'A', index: 0 },
     { name: 'B', index: 1 },
@@ -45,9 +45,17 @@ export const useCustomGateForm = ({
       console.log('isOpen:', isOpen);
       console.log('initialInputs received:', initialInputs);
       console.log('initialOutputs received:', initialOutputs);
-      console.log('initialInputs type:', typeof initialInputs, Array.isArray(initialInputs));
-      console.log('initialOutputs type:', typeof initialOutputs, Array.isArray(initialOutputs));
-      
+      console.log(
+        'initialInputs type:',
+        typeof initialInputs,
+        Array.isArray(initialInputs)
+      );
+      console.log(
+        'initialOutputs type:',
+        typeof initialOutputs,
+        Array.isArray(initialOutputs)
+      );
+
       if (initialInputs) {
         console.log('Setting inputs to:', initialInputs);
         setInputs(initialInputs);
@@ -130,7 +138,7 @@ export const useCustomGateForm = ({
 
   const handleRemoveOutput = (index: number) => {
     if (outputs.length <= 1) return;
-    
+
     const updatedOutputs = outputs
       .filter((_, i) => i !== index)
       .map((output, i) => ({ ...output, index: i }));

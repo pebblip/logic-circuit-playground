@@ -19,7 +19,15 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": false,
     
     /* Path mapping */
     "baseUrl": ".",
@@ -40,15 +48,8 @@
   },
   "include": ["src"],
   "exclude": [
-    "src/stories/**/*",
-    "src/components/Circuit/Number4BitGateComponent.tsx",
-    "src/components/Layout/**/*",
-    "src/components/ModeSelection/**/*",
-    "src/design-system/**/*",
     "**/*.test.ts",
-    "**/*.test.tsx",
-    "src/domain/simulation/legacy/**/*",
-    "src/domain/simulation/pure/validation.ts"
+    "**/*.test.tsx"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

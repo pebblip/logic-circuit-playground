@@ -6,11 +6,7 @@ interface HelpPanelProps {
   onClose: () => void;
 }
 
-type TabId =
-  | 'getting-started'
-  | 'troubleshooting'
-  | 'features'
-  | 'modes';
+type TabId = 'getting-started' | 'troubleshooting' | 'features' | 'modes';
 
 interface HelpContent {
   question: string;
@@ -27,17 +23,17 @@ const helpContents: Record<TabId, HelpContent[]> = {
     {
       question: '🏗️ 回路を構築する基本手順',
       answer:
-        '1. ツールパレットからゲートを選択してドラッグ&ドロップ\n2. 配置したゲートのピンをクリックして接続（出力→入力の順）\n3. INPUTゲートで信号を制御し、OUTPUTゲートで結果を確認\n4. 複雑な回路は小さな部分から組み立て、段階的に拡張していく',
+        '1. ツールパレットからゲートを選択してドラッグ&ドロップ\n2. 配置したゲートのピンをクリックして接続（出力→入力の順）\n3. 入力ゲートで信号を制御し、出力ゲートで結果を確認\n4. 複雑な回路は小さな部分から組み立て、段階的に拡張していく',
     },
     {
       question: '🔍 ゲートの種類と役割',
       answer:
-        '• 基本ゲート（AND/OR/NOT）: 論理演算の基礎\n• 複合ゲート（XOR/NAND/NOR）: 効率的な回路設計\n• 記憶素子（D-FF/SR-LATCH）: 状態を保持する機能\n• 特殊ゲート（CLOCK/MUX）: タイミング制御や信号選択\n• カスタムゲート: 自作回路を部品化して再利用',
+        '• 基本ゲート（AND/OR/NOT）: 論理演算の基礎\n• 複合ゲート（XOR/NAND/NOR）: 効率的な回路設計\n• 記憶素子（D-FF/SR-LATCH）: 状態を保持する機能\n• 特殊ゲート（クロック/MUX）: タイミング制御や信号選択\n• カスタムゲート: 自作回路を部品化して再利用',
     },
     {
       question: '⚡ 信号の流れを理解する',
       answer:
-        '信号は「源流」から「下流」へ流れます。INPUTが源流、OUTPUTが終点です。信号の色で状態を表現：緑＝ON（1）、グレー＝OFF（0）。接続線も同様に色が変化し、リアルタイムで信号の伝播を視覚化します。',
+        '信号は「源流」から「下流」へ流れます。入力が源流、出力が終点です。信号の色で状態を表現：ON（1）、OFF（0）。接続線も同様に色が変化し、リアルタイムで信号の伝播を視覚化します。',
     },
     {
       question: '🎨 効率的な操作テクニック',
@@ -64,7 +60,7 @@ const helpContents: Record<TabId, HelpContent[]> = {
     {
       question: '🔧 回路が期待通りに動作しない',
       answer:
-        '【チェック1】未接続のピン: すべての入力ピンに信号が供給されているか確認\n【チェック2】論理の理解: ANDは「すべてON」、ORは「一つでもON」など、各ゲートの動作を再確認\n【チェック3】信号の伝播: INPUTから始まって、順序立てて信号が流れているか色で確認\n【チェック4】フィードバックループ: 循環回路になっていないか',
+        '【チェック1】未接続のピン: すべての入力ピンに信号が供給されているか確認\n【チェック2】論理の理解: ANDは「すべてON」、ORは「一つでもON」など、各ゲートの動作を再確認\n【チェック3】信号の伝播: 入力から始まって、順序立てて信号が流れているか色で確認\n【チェック4】フィードバックループ: 循環回路になっていないか',
     },
     {
       question: '🎯 ゲートを選択・移動できない',
@@ -234,10 +230,7 @@ export const HelpPanel: React.FC<HelpPanelProps> = ({ isOpen, onClose }) => {
           )}
 
           {filteredContent.map((item, index) => (
-            <div
-              key={index}
-              className="help-item"
-            >
+            <div key={index} className="help-item">
               <div
                 className="help-question"
                 onClick={() => toggleExpanded(item.question)}

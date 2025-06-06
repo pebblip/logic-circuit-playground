@@ -10,7 +10,7 @@
 @import './reset.css';
 
 /* 3. 基本レイアウト */
-@import './layout.new.css';
+@import './layout.css';
 
 /* 4. 共通コンポーネント */
 @import './components.css';

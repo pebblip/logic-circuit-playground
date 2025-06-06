@@ -1,6 +1,6 @@
 # 🎯 Logic Circuit Playground
 
-> 誰でも楽しく論理回路からCPUまで学べる、最高の教育プラットフォーム
+> 誰でも楽しく論理回路からCPUまで学べる、直感的な教育プラットフォーム
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.2-61dafb)](https://reactjs.org/)
@@ -19,12 +19,11 @@ Logic Circuit Playgroundは、論理回路の基礎から応用まで段階的�
 - 📱 **マルチデバイス対応**: PC・タブレット・スマホで快適操作
 - 🎯 **段階的学習**: 基本ゲートからCPU設計まで
 
-### 🎉 技術的特徴
-**✅ 最新のアーキテクチャとAPI設計**
+### 🛠️ 技術的特徴
 - Result<T,E>パターンによる型安全なAPI
 - 純粋関数ベースの回路シミュレーション
-- 防御的プログラミングによる堅牢性
-- 包括的テストスイート（21+ファイル、全テスト成功）
+- 防御的プログラミングによる安定性
+- 充実したテストスイート（21+ファイル）
 - 詳細は[CHANGELOG.md](./docs/CHANGELOG.md)を参照
 
 ## 🎯 始め方
@@ -90,9 +89,9 @@ npm run preview
 
 ### 🎯 使用例
 ```typescript
-import { evaluateCircuitPure, defaultConfig } from '@domain/simulation/pure';
+import { evaluateCircuit, defaultConfig } from '@domain/simulation/core';
 
-const result = evaluateCircuitPure(circuit, defaultConfig);
+const result = evaluateCircuit(circuit, defaultConfig);
 
 if (result.success) {
   console.log('評価成功！', result.data.circuit);
@@ -111,8 +110,8 @@ src/
 ├── domain/                    # ドメインロジック
 │   ├── analysis/             # 真理値表生成・回路分析
 │   ├── circuit/              # 回路レイアウト・操作
-│   └── simulation/           # 新API：純粋関数シミュレーション
-│       └── pure/             # Result<T,E>パターン実装
+│   └── simulation/           # 回路シミュレーション
+│       └── core/             # Result<T,E>パターン実装
 ├── stores/                   # Zustand状態管理
 ├── components/               # UIコンポーネント
 ├── features/                 # 機能別実装

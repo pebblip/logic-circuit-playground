@@ -7,7 +7,11 @@ interface SpecialGateRendererProps {
   isSelected: boolean;
   handleMouseDown: (event: React.MouseEvent) => void;
   handleTouchStart: (event: React.TouchEvent) => void;
-  handlePinClick: (event: React.MouseEvent, pinIndex: number, isOutput: boolean) => void;
+  handlePinClick: (
+    event: React.MouseEvent,
+    pinIndex: number,
+    isOutput: boolean
+  ) => void;
   handleGateClick: (event: React.MouseEvent) => void;
 }
 
@@ -21,13 +25,57 @@ export const SpecialGateRenderer: React.FC<SpecialGateRendererProps> = ({
 }) => {
   switch (gate.type) {
     case 'CLOCK':
-      return <ClockGateRenderer {...{ gate, isSelected, handleMouseDown, handleTouchStart, handlePinClick, handleGateClick }} />;
+      return (
+        <ClockGateRenderer
+          {...{
+            gate,
+            isSelected,
+            handleMouseDown,
+            handleTouchStart,
+            handlePinClick,
+            handleGateClick,
+          }}
+        />
+      );
     case 'D-FF':
-      return <DFFGateRenderer {...{ gate, isSelected, handleMouseDown, handleTouchStart, handlePinClick, handleGateClick }} />;
+      return (
+        <DFFGateRenderer
+          {...{
+            gate,
+            isSelected,
+            handleMouseDown,
+            handleTouchStart,
+            handlePinClick,
+            handleGateClick,
+          }}
+        />
+      );
     case 'SR-LATCH':
-      return <SRLatchGateRenderer {...{ gate, isSelected, handleMouseDown, handleTouchStart, handlePinClick, handleGateClick }} />;
+      return (
+        <SRLatchGateRenderer
+          {...{
+            gate,
+            isSelected,
+            handleMouseDown,
+            handleTouchStart,
+            handlePinClick,
+            handleGateClick,
+          }}
+        />
+      );
     case 'MUX':
-      return <MuxGateRenderer {...{ gate, isSelected, handleMouseDown, handleTouchStart, handlePinClick, handleGateClick }} />;
+      return (
+        <MuxGateRenderer
+          {...{
+            gate,
+            isSelected,
+            handleMouseDown,
+            handleTouchStart,
+            handlePinClick,
+            handleGateClick,
+          }}
+        />
+      );
     default:
       return null;
   }
@@ -80,15 +128,10 @@ const ClockGateRenderer: React.FC<SpecialGateRendererProps> = ({
             repeatCount="indefinite"
           />
         </circle>
-        <text 
-          className="gate-text" 
-          x="0" 
-          y="-5"
-          style={{ fontSize: '24px' }}
-        >
+        <text className="gate-text" x="0" y="-5" style={{ fontSize: '24px' }}>
           ⏰
         </text>
-        
+
         {/* パルス波形表示 */}
         <path
           d="M -20 20 h5 v-8 h5 v8 h5 v-8 h5 v8 h5"
@@ -97,20 +140,21 @@ const ClockGateRenderer: React.FC<SpecialGateRendererProps> = ({
           fill="none"
           opacity="0.8"
         />
-        
+
         {/* 周波数表示（ホバー時のみ） */}
         {isHovered && (
-          <text 
-            className="gate-text" 
-            x="0" 
-            y="35" 
-            style={{ fontSize: '11px' }}
-          >
+          <text className="gate-text" x="0" y="35" style={{ fontSize: '11px' }}>
             {frequency}Hz
           </text>
         )}
         {/* 時計アニメーション */}
-        <circle cx="0" cy="0" r="3" fill={gate.output ? "#00ff88" : "#444"} opacity={gate.output ? 1 : 0} />
+        <circle
+          cx="0"
+          cy="0"
+          r="3"
+          fill={gate.output ? '#00ff88' : '#444'}
+          opacity={gate.output ? 1 : 0}
+        />
       </g>
 
       {/* 出力ピン */}
@@ -174,10 +218,38 @@ const DFFGateRenderer: React.FC<SpecialGateRendererProps> = ({
           D-FF
         </text>
         {/* ピン名 */}
-        <text className="gate-text" x="-35" y="-20" style={{ fontSize: '11px', fill: '#999' }}>D</text>
-        <text className="gate-text" x="-35" y="20" style={{ fontSize: '11px', fill: '#999' }}>CLK</text>
-        <text className="gate-text" x="40" y="-20" style={{ fontSize: '11px', fill: '#999' }}>Q</text>
-        <text className="gate-text" x="40" y="20" style={{ fontSize: '11px', fill: '#999' }}>Q̄</text>
+        <text
+          className="gate-text"
+          x="-35"
+          y="-20"
+          style={{ fontSize: '11px', fill: '#999' }}
+        >
+          D
+        </text>
+        <text
+          className="gate-text"
+          x="-35"
+          y="20"
+          style={{ fontSize: '11px', fill: '#999' }}
+        >
+          CLK
+        </text>
+        <text
+          className="gate-text"
+          x="40"
+          y="-20"
+          style={{ fontSize: '11px', fill: '#999' }}
+        >
+          Q
+        </text>
+        <text
+          className="gate-text"
+          x="40"
+          y="20"
+          style={{ fontSize: '11px', fill: '#999' }}
+        >
+          Q̄
+        </text>
       </g>
 
       {/* 入力ピン - D */}
@@ -297,10 +369,38 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
           SR-LATCH
         </text>
         {/* ピン名 */}
-        <text className="gate-text" x="-35" y="-20" style={{ fontSize: '11px', fill: '#999' }}>S</text>
-        <text className="gate-text" x="-35" y="20" style={{ fontSize: '11px', fill: '#999' }}>R</text>
-        <text className="gate-text" x="40" y="-20" style={{ fontSize: '11px', fill: '#999' }}>Q</text>
-        <text className="gate-text" x="40" y="20" style={{ fontSize: '11px', fill: '#999' }}>Q̄</text>
+        <text
+          className="gate-text"
+          x="-35"
+          y="-20"
+          style={{ fontSize: '11px', fill: '#999' }}
+        >
+          S
+        </text>
+        <text
+          className="gate-text"
+          x="-35"
+          y="20"
+          style={{ fontSize: '11px', fill: '#999' }}
+        >
+          R
+        </text>
+        <text
+          className="gate-text"
+          x="40"
+          y="-20"
+          style={{ fontSize: '11px', fill: '#999' }}
+        >
+          Q
+        </text>
+        <text
+          className="gate-text"
+          x="40"
+          y="20"
+          style={{ fontSize: '11px', fill: '#999' }}
+        >
+          Q̄
+        </text>
       </g>
 
       {/* 入力ピン - S */}
@@ -420,10 +520,42 @@ const MuxGateRenderer: React.FC<SpecialGateRendererProps> = ({
           MUX
         </text>
         {/* ピン名 */}
-        <text className="gate-text" x="-35" y="-25" fontSize="11" style={{ fill: '#999' }}>A</text>
-        <text className="gate-text" x="-35" y="0" fontSize="11" style={{ fill: '#999' }}>B</text>
-        <text className="gate-text" x="-35" y="25" fontSize="11" style={{ fill: '#999' }}>S</text>
-        <text className="gate-text" x="40" y="0" fontSize="11" style={{ fill: '#999' }}>Y</text>
+        <text
+          className="gate-text"
+          x="-35"
+          y="-25"
+          fontSize="11"
+          style={{ fill: '#999' }}
+        >
+          A
+        </text>
+        <text
+          className="gate-text"
+          x="-35"
+          y="0"
+          fontSize="11"
+          style={{ fill: '#999' }}
+        >
+          B
+        </text>
+        <text
+          className="gate-text"
+          x="-35"
+          y="25"
+          fontSize="11"
+          style={{ fill: '#999' }}
+        >
+          S
+        </text>
+        <text
+          className="gate-text"
+          x="40"
+          y="0"
+          fontSize="11"
+          style={{ fill: '#999' }}
+        >
+          Y
+        </text>
       </g>
 
       {/* 入力ピン - A */}
