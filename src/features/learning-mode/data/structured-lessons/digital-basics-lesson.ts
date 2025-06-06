@@ -9,6 +9,7 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
   difficulty: 'beginner',
   prerequisites: [],
   estimatedMinutes: 15,
+  availableGates: ['INPUT', 'OUTPUT'],
   steps: [
     {
       id: 'welcome',

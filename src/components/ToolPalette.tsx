@@ -8,6 +8,7 @@ import { displayStateToBoolean } from '../domain/simulation';
 import { GateSection } from './tool-palette/GateSection';
 import { CustomGateSection } from './tool-palette/CustomGateSection';
 import { useDragGate } from './tool-palette/hooks/useDragGate';
+import { debug } from '../shared/debug';
 import { useCustomGateDialog } from './tool-palette/hooks/useCustomGateDialog';
 
 const BASIC_GATES: { type: GateType; label: string }[] = [
@@ -20,9 +21,9 @@ const BASIC_GATES: { type: GateType; label: string }[] = [
 ];
 
 const IO_GATES: { type: GateType; label: string }[] = [
-  { type: 'INPUT', label: 'INPUT' },
-  { type: 'OUTPUT', label: 'OUTPUT' },
-  { type: 'CLOCK', label: 'CLOCK' },
+  { type: 'INPUT', label: '入力' },
+  { type: 'OUTPUT', label: '出力' },
+  { type: 'CLOCK', label: 'クロック' },
 ];
 
 // 特殊ゲート
@@ -107,9 +108,9 @@ export const ToolPalette: React.FC = () => {
     }));
 
     // デバッグ: 初期値を確認
-    console.log('=== Initial Values Debug ===');
-    console.log('initialInputs:', initialInputs);
-    console.log('initialOutputs:', initialOutputs);
+    debug.log('=== Initial Values Debug ===');
+    debug.log('initialInputs:', initialInputs);
+    debug.log('initialOutputs:', initialOutputs);
 
     // カスタムイベントを発火してダイアログを開く
     const event = new CustomEvent('open-custom-gate-dialog', {
@@ -200,15 +201,15 @@ export const ToolPalette: React.FC = () => {
         );
 
         // デバッグ: 真理値表表示時のpropsを確認
-        console.log('=== ToolPalette Truth Table Debug (Create) ===');
-        console.log('CRITICAL: definition object:', definition);
-        console.log('CRITICAL: definition.inputs:', definition.inputs);
-        console.log('CRITICAL: definition.outputs:', definition.outputs);
-        console.log(
+        debug.log('=== ToolPalette Truth Table Debug (Create) ===');
+        debug.log('CRITICAL: definition object:', definition);
+        debug.log('CRITICAL: definition.inputs:', definition.inputs);
+        debug.log('CRITICAL: definition.outputs:', definition.outputs);
+        debug.log(
           'CRITICAL: definition.outputs length:',
           definition.outputs?.length
         );
-        console.log(
+        debug.log(
           'CRITICAL: definition.outputs structure:',
           JSON.stringify(definition.outputs, null, 2)
         );
@@ -216,16 +217,16 @@ export const ToolPalette: React.FC = () => {
         // outputsの詳細を一つずつ確認
         if (definition.outputs) {
           definition.outputs.forEach((output, index) => {
-            console.log(`CRITICAL: output[${index}]:`, output);
-            console.log(`CRITICAL: output[${index}].name:`, output?.name);
+            debug.log(`CRITICAL: output[${index}]:`, output);
+            debug.log(`CRITICAL: output[${index}].name:`, output?.name);
           });
         } else {
-          console.log('CRITICAL: definition.outputs is null/undefined!');
+          debug.log('CRITICAL: definition.outputs is null/undefined!');
         }
 
-        console.log('inputNames:', inputNames);
-        console.log('outputNames:', outputNames);
-        console.log('truthTableResult:', truthTableResult);
+        debug.log('inputNames:', inputNames);
+        debug.log('outputNames:', outputNames);
+        debug.log('truthTableResult:', truthTableResult);
 
         openTruthTable({
           result: truthTableResult,
@@ -253,12 +254,12 @@ export const ToolPalette: React.FC = () => {
       );
 
       // デバッグ: 右クリックメニューでの真理値表表示時のpropsを確認
-      console.log('=== ToolPalette Truth Table Debug (Context Menu) ===');
-      console.log('definition:', definition);
-      console.log('definition.inputs:', definition.inputs);
-      console.log('definition.outputs:', definition.outputs);
-      console.log('definition.outputs length:', definition.outputs?.length);
-      console.log(
+      debug.log('=== ToolPalette Truth Table Debug (Context Menu) ===');
+      debug.log('definition:', definition);
+      debug.log('definition.inputs:', definition.inputs);
+      debug.log('definition.outputs:', definition.outputs);
+      debug.log('definition.outputs length:', definition.outputs?.length);
+      debug.log(
         'definition.outputs structure:',
         JSON.stringify(definition.outputs, null, 2)
       );
@@ -266,14 +267,14 @@ export const ToolPalette: React.FC = () => {
       // outputsの詳細を一つずつ確認
       if (definition.outputs) {
         definition.outputs.forEach((output, index) => {
-          console.log(`output[${index}]:`, output);
-          console.log(`output[${index}].name:`, output?.name);
+          debug.log(`output[${index}]:`, output);
+          debug.log(`output[${index}].name:`, output?.name);
         });
       }
 
-      console.log('inputNames:', inputNames);
-      console.log('outputNames:', outputNames);
-      console.log('definition.truthTable:', definition.truthTable);
+      debug.log('inputNames:', inputNames);
+      debug.log('outputNames:', outputNames);
+      debug.log('definition.truthTable:', definition.truthTable);
 
       // 真理値表をTruthTableResult形式に変換
       const table = Object.entries(definition.truthTable).map(
@@ -295,7 +296,7 @@ export const ToolPalette: React.FC = () => {
         recognizedPattern: undefined,
       };
 
-      console.log('Generated TruthTableResult:', result);
+      debug.log('Generated TruthTableResult:', result);
 
       openTruthTable({
         result,

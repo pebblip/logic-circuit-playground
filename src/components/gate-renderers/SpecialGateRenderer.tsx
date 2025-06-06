@@ -101,7 +101,7 @@ const ClockGateRenderer: React.FC<SpecialGateRendererProps> = ({
         onClick={handleGateClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        style={{ cursor: 'grab' }}
+        className="u-cursor-grab"
       >
         <circle
           className={`gate ${isSelected ? 'selected' : ''}`}
@@ -128,7 +128,7 @@ const ClockGateRenderer: React.FC<SpecialGateRendererProps> = ({
             repeatCount="indefinite"
           />
         </circle>
-        <text className="gate-text" x="0" y="-5" style={{ fontSize: '24px' }}>
+        <text className="gate-text u-text-lg" x="0" y="-5">
           ⏰
         </text>
 
@@ -143,7 +143,7 @@ const ClockGateRenderer: React.FC<SpecialGateRendererProps> = ({
 
         {/* 周波数表示（ホバー時のみ） */}
         {isHovered && (
-          <text className="gate-text" x="0" y="35" style={{ fontSize: '11px' }}>
+          <text className="gate-text u-text-md" x="0" y="35">
             {frequency}Hz
           </text>
         )}
@@ -164,7 +164,7 @@ const ClockGateRenderer: React.FC<SpecialGateRendererProps> = ({
           cy="0"
           r="15"
           fill="transparent"
-          style={{ cursor: 'crosshair' }}
+          className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, true)}
         />
         <circle
@@ -202,7 +202,7 @@ const DFFGateRenderer: React.FC<SpecialGateRendererProps> = ({
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onClick={handleGateClick}
-        style={{ cursor: 'grab' }}
+        className="u-cursor-grab"
       >
         <rect
           className={`gate ${isSelected ? 'selected' : ''}`}
@@ -218,36 +218,16 @@ const DFFGateRenderer: React.FC<SpecialGateRendererProps> = ({
           D-FF
         </text>
         {/* ピン名 */}
-        <text
-          className="gate-text"
-          x="-35"
-          y="-20"
-          style={{ fontSize: '11px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-md u-fill-muted" x="-35" y="-20">
           D
         </text>
-        <text
-          className="gate-text"
-          x="-35"
-          y="20"
-          style={{ fontSize: '11px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-md u-fill-muted" x="-35" y="20">
           CLK
         </text>
-        <text
-          className="gate-text"
-          x="40"
-          y="-20"
-          style={{ fontSize: '11px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-md u-fill-muted" x="40" y="-20">
           Q
         </text>
-        <text
-          className="gate-text"
-          x="40"
-          y="20"
-          style={{ fontSize: '11px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-md u-fill-muted" x="40" y="20">
           Q̄
         </text>
       </g>
@@ -259,7 +239,7 @@ const DFFGateRenderer: React.FC<SpecialGateRendererProps> = ({
           cy="-20"
           r="15"
           fill="transparent"
-          style={{ cursor: 'crosshair' }}
+          className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, false)}
         />
         <circle
@@ -286,7 +266,7 @@ const DFFGateRenderer: React.FC<SpecialGateRendererProps> = ({
           cy="20"
           r="15"
           fill="transparent"
-          style={{ cursor: 'crosshair' }}
+          className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 1, false)}
         />
         <circle
@@ -313,7 +293,7 @@ const DFFGateRenderer: React.FC<SpecialGateRendererProps> = ({
           cy="-20"
           r="15"
           fill="transparent"
-          style={{ cursor: 'crosshair' }}
+          className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, true)}
         />
         <circle
@@ -353,7 +333,7 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onClick={handleGateClick}
-        style={{ cursor: 'grab' }}
+        className="u-cursor-grab"
       >
         <rect
           className={`gate ${isSelected ? 'selected' : ''}`}
@@ -369,36 +349,16 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
           SR-LATCH
         </text>
         {/* ピン名 */}
-        <text
-          className="gate-text"
-          x="-35"
-          y="-20"
-          style={{ fontSize: '11px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-md u-fill-muted" x="-35" y="-20">
           S
         </text>
-        <text
-          className="gate-text"
-          x="-35"
-          y="20"
-          style={{ fontSize: '11px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-md u-fill-muted" x="-35" y="20">
           R
         </text>
-        <text
-          className="gate-text"
-          x="40"
-          y="-20"
-          style={{ fontSize: '11px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-md u-fill-muted" x="40" y="-20">
           Q
         </text>
-        <text
-          className="gate-text"
-          x="40"
-          y="20"
-          style={{ fontSize: '11px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-md u-fill-muted" x="40" y="20">
           Q̄
         </text>
       </g>
@@ -410,7 +370,7 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
           cy="-20"
           r="15"
           fill="transparent"
-          style={{ cursor: 'crosshair' }}
+          className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, false)}
         />
         <circle
@@ -437,7 +397,7 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
           cy="20"
           r="15"
           fill="transparent"
-          style={{ cursor: 'crosshair' }}
+          className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 1, false)}
         />
         <circle
@@ -464,7 +424,7 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
           cy="-20"
           r="15"
           fill="transparent"
-          style={{ cursor: 'crosshair' }}
+          className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, true)}
         />
         <circle
@@ -504,7 +464,7 @@ const MuxGateRenderer: React.FC<SpecialGateRendererProps> = ({
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onClick={handleGateClick}
-        style={{ cursor: 'grab' }}
+        className="u-cursor-grab"
       >
         <rect
           className={`gate ${isSelected ? 'selected' : ''}`}
@@ -520,40 +480,16 @@ const MuxGateRenderer: React.FC<SpecialGateRendererProps> = ({
           MUX
         </text>
         {/* ピン名 */}
-        <text
-          className="gate-text"
-          x="-35"
-          y="-25"
-          fontSize="11"
-          style={{ fill: '#999' }}
-        >
+        <text className="gate-text u-fill-muted" x="-35" y="-25" fontSize="11">
           A
         </text>
-        <text
-          className="gate-text"
-          x="-35"
-          y="0"
-          fontSize="11"
-          style={{ fill: '#999' }}
-        >
+        <text className="gate-text u-fill-muted" x="-35" y="0" fontSize="11">
           B
         </text>
-        <text
-          className="gate-text"
-          x="-35"
-          y="25"
-          fontSize="11"
-          style={{ fill: '#999' }}
-        >
+        <text className="gate-text u-fill-muted" x="-35" y="25" fontSize="11">
           S
         </text>
-        <text
-          className="gate-text"
-          x="40"
-          y="0"
-          fontSize="11"
-          style={{ fill: '#999' }}
-        >
+        <text className="gate-text u-fill-muted" x="40" y="0" fontSize="11">
           Y
         </text>
       </g>
@@ -565,7 +501,7 @@ const MuxGateRenderer: React.FC<SpecialGateRendererProps> = ({
           cy="-25"
           r="15"
           fill="transparent"
-          style={{ cursor: 'crosshair' }}
+          className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, false)}
         />
         <circle
@@ -592,7 +528,7 @@ const MuxGateRenderer: React.FC<SpecialGateRendererProps> = ({
           cy="0"
           r="15"
           fill="transparent"
-          style={{ cursor: 'crosshair' }}
+          className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 1, false)}
         />
         <circle
@@ -619,7 +555,7 @@ const MuxGateRenderer: React.FC<SpecialGateRendererProps> = ({
           cy="25"
           r="15"
           fill="transparent"
-          style={{ cursor: 'crosshair' }}
+          className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 2, false)}
         />
         <circle
@@ -646,7 +582,7 @@ const MuxGateRenderer: React.FC<SpecialGateRendererProps> = ({
           cy="0"
           r="15"
           fill="transparent"
-          style={{ cursor: 'crosshair' }}
+          className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, true)}
         />
         <circle

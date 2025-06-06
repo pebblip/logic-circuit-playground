@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './QuickTutorial.css';
 import type { Gate, Wire } from '../types/circuit';
+import { debug } from '../shared/debug';
 
 interface QuickTutorialProps {
   onClose: () => void;
@@ -161,7 +162,7 @@ export const QuickTutorial: React.FC<QuickTutorialProps> = ({
               .nextElementSibling as HTMLElement | null;
             const gridRect = toolsGrid?.getBoundingClientRect();
 
-            console.log('入出力セクション位置:', {
+            debug.log('入出力セクション位置:', {
               section: rect,
               grid: gridRect,
               text: (ioSection as HTMLElement).textContent,
@@ -181,7 +182,7 @@ export const QuickTutorial: React.FC<QuickTutorialProps> = ({
           const canvas = document.querySelector('.canvas-container');
           if (canvas) {
             const rect = canvas.getBoundingClientRect();
-            console.log('キャンバス位置:', rect);
+            debug.log('キャンバス位置:', rect);
 
             // キャンバスの中央付近をハイライト（上部に寄りすぎないように）
             setHighlightStyle({
@@ -215,7 +216,7 @@ export const QuickTutorial: React.FC<QuickTutorialProps> = ({
               const screenY =
                 svgRect.top + (inputGate.position.y - viewBox.y) * scaleY;
 
-              console.log('INPUTゲート位置:', {
+              debug.log('INPUTゲート位置:', {
                 gate: inputGate.position,
                 screen: { x: screenX, y: screenY },
                 viewBox,

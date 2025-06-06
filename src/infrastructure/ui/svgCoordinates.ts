@@ -21,7 +21,7 @@ import type { Position } from '@/types/circuit';
  * // マウスイベントからSVG座標を取得
  * const svgPos = clientToSVGCoordinates(event.clientX, event.clientY);
  * if (svgPos) {
- *   console.log('SVG座標:', svgPos.x, svgPos.y);
+ *   debug.log('SVG座標:', svgPos.x, svgPos.y);
  * }
  *
  * // 特定のSVG要素を指定

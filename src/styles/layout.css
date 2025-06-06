@@ -454,7 +454,7 @@
 
 /* ズームコントロール */
 .zoom-controls {
-  position: absolute;
+  position: fixed; /* absoluteからfixedに変更で確実な配置 */
   bottom: var(--spacing-lg);
   left: var(--spacing-lg);
   background: var(--color-bg-secondary);
@@ -465,6 +465,14 @@
   display: flex;
   gap: 2px;
   z-index: var(--z-panel); /* 適切なz-index変数を使用 */
+  box-shadow: var(--shadow-lg); /* 影を追加で見やすく */
+  transition: all var(--transition-base);
+}
+
+/* ホバー時のエフェクト */
+.zoom-controls:hover {
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-2px);
 }
 
 /* 右サイドバー（既存クラス名） */
@@ -573,3 +581,70 @@
 .mb-auto { margin-bottom: auto; }
 .ml-auto { margin-left: auto; }
 .mr-auto { margin-right: auto; }
+
+/* ========== デスクトップ用FAB ========== */
+.fab-container-desktop {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  display: flex;
+  gap: var(--spacing-sm);
+  z-index: var(--z-panel);
+}
+
+/* FABのプライマリスタイル */
+.fab--primary {
+  width: 56px;
+  height: 56px;
+  background: var(--color-primary);
+  color: var(--color-bg-primary);
+  border-radius: var(--border-radius-full);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-size: 24px;
+}
+
+.fab--primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
+  background: var(--color-primary-hover);
+}
+
+.fab--primary.active {
+  background: var(--color-secondary);
+  color: var(--color-bg-primary);
+}
+
+/* FABのセカンダリスタイル（小さめ） */
+.fab--secondary {
+  width: 44px;
+  height: 44px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-size: 18px;
+}
+
+.fab--secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background: var(--color-bg-elevated);
+  border-color: var(--color-primary);
+}
+
+.fab--secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

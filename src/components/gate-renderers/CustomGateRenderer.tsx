@@ -58,8 +58,7 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onClick={handleGateClick}
-        style={{ cursor: 'grab' }}
-        className="custom-gate"
+        className="u-cursor-grab custom-gate"
       >
         <rect
           className="custom-gate-border"
@@ -111,7 +110,7 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
               cy={y}
               r="15"
               fill="transparent"
-              style={{ cursor: 'crosshair' }}
+              className="u-cursor-crosshair"
               onClick={e => handlePinClick(e, index, false)}
             />
             <circle
@@ -154,7 +153,7 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
               cy={y}
               r="15"
               fill="transparent"
-              style={{ cursor: 'crosshair' }}
+              className="u-cursor-crosshair"
               onClick={e => handlePinClick(e, -index - 1, true)}
             />
             <circle

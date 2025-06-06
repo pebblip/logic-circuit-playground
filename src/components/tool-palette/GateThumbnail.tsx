@@ -87,36 +87,16 @@ export const GateThumbnail: React.FC<GateThumbnailProps> = ({
         <text className="gate-text" x="0" y="0" style={{ fontSize: '8px' }}>
           D-FF
         </text>
-        <text
-          className="gate-text"
-          x="-30"
-          y="-15"
-          style={{ fontSize: '8px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-sm u-fill-muted" x="-30" y="-15">
           D
         </text>
-        <text
-          className="gate-text"
-          x="-30"
-          y="15"
-          style={{ fontSize: '8px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-sm u-fill-muted" x="-30" y="15">
           CLK
         </text>
-        <text
-          className="gate-text"
-          x="30"
-          y="-15"
-          style={{ fontSize: '8px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-sm u-fill-muted" x="30" y="-15">
           Q
         </text>
-        <text
-          className="gate-text"
-          x="30"
-          y="15"
-          style={{ fontSize: '8px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-sm u-fill-muted" x="30" y="15">
           Q̄
         </text>
       </svg>
@@ -126,47 +106,22 @@ export const GateThumbnail: React.FC<GateThumbnailProps> = ({
     return (
       <svg className="tool-preview" viewBox="-60 -50 120 100">
         <rect className="gate" x="-40" y="-30" width="80" height="60" rx="8" />
-        <text className="gate-text" x="0" y="-5" style={{ fontSize: '8px' }}>
+        <text className="gate-text u-text-sm" x="0" y="-5">
           SR
         </text>
-        <text
-          className="gate-text"
-          x="0"
-          y="8"
-          style={{ fontSize: '7px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-xs u-fill-muted" x="0" y="8">
           LATCH
         </text>
-        <text
-          className="gate-text"
-          x="-30"
-          y="-15"
-          style={{ fontSize: '8px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-sm u-fill-muted" x="-30" y="-15">
           S
         </text>
-        <text
-          className="gate-text"
-          x="-30"
-          y="15"
-          style={{ fontSize: '8px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-sm u-fill-muted" x="-30" y="15">
           R
         </text>
-        <text
-          className="gate-text"
-          x="30"
-          y="-15"
-          style={{ fontSize: '8px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-sm u-fill-muted" x="30" y="-15">
           Q
         </text>
-        <text
-          className="gate-text"
-          x="30"
-          y="15"
-          style={{ fontSize: '8px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-sm u-fill-muted" x="30" y="15">
           Q̄
         </text>
       </svg>
@@ -179,36 +134,16 @@ export const GateThumbnail: React.FC<GateThumbnailProps> = ({
         <text className="gate-text" x="0" y="0" style={{ fontSize: '8px' }}>
           MUX
         </text>
-        <text
-          className="gate-text"
-          x="-30"
-          y="-18"
-          style={{ fontSize: '7px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-xs u-fill-muted" x="-30" y="-18">
           A
         </text>
-        <text
-          className="gate-text"
-          x="-30"
-          y="0"
-          style={{ fontSize: '7px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-xs u-fill-muted" x="-30" y="0">
           B
         </text>
-        <text
-          className="gate-text"
-          x="-30"
-          y="18"
-          style={{ fontSize: '7px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-xs u-fill-muted" x="-30" y="18">
           S
         </text>
-        <text
-          className="gate-text"
-          x="30"
-          y="0"
-          style={{ fontSize: '7px', fill: '#999' }}
-        >
+        <text className="gate-text u-text-xs u-fill-muted" x="30" y="0">
           Y
         </text>
       </svg>

@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
 import type { Gate } from '@/types/circuit';
 

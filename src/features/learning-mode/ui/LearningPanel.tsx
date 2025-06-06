@@ -115,30 +115,32 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
       return;
     }
 
-    const requiredGates: Set<GateType> = new Set();
-
-    if (selectedLesson.id === 'half-adder') {
-      requiredGates.add('INPUT' as GateType);
-      requiredGates.add('XOR' as GateType);
-      requiredGates.add('AND' as GateType);
-      requiredGates.add('OUTPUT' as GateType);
+    // レッスンに明示的に定義されたavailableGatesを使用
+    if (selectedLesson.availableGates) {
+      setAllowedGates(selectedLesson.availableGates as GateType[]);
     } else {
+      // フォールバック: ステップから動的に計算（後方互換性のため）
+      const requiredGates: Set<GateType> = new Set();
+
       const stepsToCheck = Math.min(
         currentStepIndex + 2,
         selectedLesson.steps.length - 1
       );
       for (let i = 0; i <= stepsToCheck; i++) {
-        const step = selectedLesson.steps[i] as any;
+        const step = selectedLesson.steps[i];
         if (step?.action?.type === 'place-gate') {
-          requiredGates.add(step.action.gateType as GateType);
+          requiredGates.add(
+            (step.action as { type: 'place-gate'; gateType: string })
+              .gateType as GateType
+          );
         }
       }
-    }
 
-    const allowedGatesList =
-      requiredGates.size > 0 ? Array.from(requiredGates) : null;
-    setAllowedGates(allowedGatesList);
-  }, [selectedLesson, currentStepIndex, setAllowedGates]);
+      const allowedGatesList =
+        requiredGates.size > 0 ? Array.from(requiredGates) : null;
+      setAllowedGates(allowedGatesList);
+    }
+  }, [selectedLesson, setAllowedGates]);
 
   // レッスン完了処理
   useEffect(() => {
@@ -181,7 +183,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
   };
 
   const handleNextStep = () => {
-    if ((currentStep as any)?.action?.type === 'quiz' && !quizAnswered) {
+    if (currentStep?.content?.some(c => c.type === 'quiz') && !quizAnswered) {
       return; // クイズに答えていない場合は進まない
     }
     setCurrentStepIndex(prev => prev + 1);
@@ -406,7 +408,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
             {currentStepIndex < selectedLesson.steps.length && currentStep ? (
               <>
                 <LessonStepRenderer
-                  step={currentStep as any}
+                  step={currentStep}
                   onQuizAnswer={handleQuizAnswer}
                 />
 
@@ -465,7 +467,8 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
               <button
                 onClick={handleNextStep}
                 disabled={
-                  (currentStep as any)?.action?.type === 'quiz' && !quizAnswered
+                  currentStep?.content?.some(c => c.type === 'quiz') &&
+                  !quizAnswered
                 }
                 className="nav-button next"
                 title="次のステップ"

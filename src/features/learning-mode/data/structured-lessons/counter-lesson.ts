@@ -7,6 +7,7 @@ export const counterStructuredLesson: StructuredLesson = {
   difficulty: 'advanced',
   prerequisites: ['sr-latch'],
   estimatedMinutes: 25,
+  availableGates: ['OUTPUT', 'CLOCK', 'D-FF'],
   steps: [
     {
       id: 'intro',

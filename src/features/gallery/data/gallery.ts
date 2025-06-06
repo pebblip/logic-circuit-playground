@@ -1,5 +1,13 @@
 import type { Gate, Wire } from '../../../types';
 
+export type CircuitCategory =
+  | 'basic'
+  | 'intermediate'
+  | 'advanced'
+  | 'creative'
+  | 'educational';
+export type CircuitComplexity = 'simple' | 'moderate' | 'complex' | 'expert';
+
 export interface CircuitMetadata {
   id: string;
   title: string;
@@ -9,13 +17,13 @@ export interface CircuitMetadata {
   updatedAt: string;
 
   // 分類
-  category: 'basic' | 'intermediate' | 'advanced' | 'creative' | 'educational';
+  category: CircuitCategory;
   tags: string[];
 
   // 統計
   likes: number;
   views: number;
-  complexity: 'simple' | 'moderate' | 'complex' | 'expert';
+  complexity: CircuitComplexity;
 
   // 回路データ
   gates: Gate[];
@@ -463,11 +471,15 @@ export class GalleryService {
     sort: GallerySortOption
   ): CircuitMetadata[] {
     return [...circuits].sort((a, b) => {
-      let aValue: any = a[sort.field];
-      let bValue: any = b[sort.field];
+      let aValue: string | number | Date = a[
+        sort.field as keyof CircuitMetadata
+      ] as string | number | Date;
+      let bValue: string | number | Date = b[
+        sort.field as keyof CircuitMetadata
+      ] as string | number | Date;
 
       // 文字列の場合は小文字で比較
-      if (typeof aValue === 'string') {
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
         aValue = aValue.toLowerCase();
         bValue = bValue.toLowerCase();
       }
@@ -500,7 +512,7 @@ export class GalleryService {
   /**
    * 回路のサムネイルを生成
    */
-  static generateThumbnail(gates: Gate[], wires: Wire[]): string {
+  static generateThumbnail(_gates: Gate[], _wires: Wire[]): string {
     // 簡単なSVGサムネイルを生成
     // 実際の実装では、回路を小さくレンダリングしてbase64化
     return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmYWZjIi8+PC9zdmc+';

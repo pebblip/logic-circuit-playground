@@ -7,6 +7,7 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
   difficulty: 'advanced',
   prerequisites: ['multiplexer'],
   estimatedMinutes: 30,
+  availableGates: ['INPUT', 'OUTPUT', 'AND', 'NOT', 'XOR'],
   steps: [
     {
       id: 'intro',

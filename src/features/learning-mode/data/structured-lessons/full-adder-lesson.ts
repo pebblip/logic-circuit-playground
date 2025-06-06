@@ -7,6 +7,7 @@ export const fullAdderStructuredLesson: StructuredLesson = {
   difficulty: 'intermediate',
   prerequisites: ['half-adder'],
   estimatedMinutes: 20,
+  availableGates: ['INPUT', 'OUTPUT', 'OR', 'XOR', 'AND'],
   steps: [
     {
       id: 'intro',
@@ -232,8 +233,16 @@ B ──┼─────┘           Cin ──┼─────┐
           type: 'table',
           headers: ['段階', '計算', '結果'],
           rows: [
-            ['1. 半加算器1', 'A(1) XOR B(1) = S1(0), A(1) AND B(1) = C1(1)', 'S1=0, C1=1'],
-            ['2. 半加算器2', 'S1(0) XOR Cin(1) = Sum(1), S1(0) AND Cin(1) = C2(0)', 'Sum=1, C2=0'],
+            [
+              '1. 半加算器1',
+              'A(1) XOR B(1) = S1(0), A(1) AND B(1) = C1(1)',
+              'S1=0, C1=1',
+            ],
+            [
+              '2. 半加算器2',
+              'S1(0) XOR Cin(1) = Sum(1), S1(0) AND Cin(1) = C2(0)',
+              'Sum=1, C2=0',
+            ],
             ['3. ORゲート', 'C1(1) OR C2(0) = Cout(1)', 'Cout=1'],
             ['最終結果', '1 + 1 + 1 = 11 (2進数)', 'Sum=1, Cout=1'],
           ],

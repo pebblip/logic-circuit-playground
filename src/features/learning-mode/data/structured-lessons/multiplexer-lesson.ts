@@ -7,6 +7,7 @@ export const multiplexerStructuredLesson: StructuredLesson = {
   difficulty: 'intermediate',
   prerequisites: ['decoder'],
   estimatedMinutes: 25,
+  availableGates: ['INPUT', 'OUTPUT', 'AND', 'NOT', 'OR'],
   steps: [
     {
       id: 'intro',

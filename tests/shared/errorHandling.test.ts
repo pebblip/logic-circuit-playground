@@ -1,14 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { ErrorHandler, useAsyncErrorHandler, handleAsyncError, getErrorMessage } from '@shared/errors';
+import { debug } from '@shared/debug';
+
+// debugモジュールをモック
+vi.mock('@shared/debug', () => ({
+  debug: {
+    log: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn()
+  }
+}));
 
 describe('統一エラーハンドリングシステム', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // console.logをモック
-    vi.spyOn(console, 'log').mockImplementation(() => {});
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
   describe('ErrorHandler', () => {
@@ -29,8 +35,8 @@ describe('統一エラーハンドリングシステム', () => {
         expect(onError).not.toHaveBeenCalled();
         expect(setLoading).toHaveBeenCalledWith(true);
         expect(setLoading).toHaveBeenCalledWith(false);
-        expect(console.log).toHaveBeenCalledWith('🔄 テスト操作を開始...');
-        expect(console.log).toHaveBeenCalledWith('✅ テスト操作が成功しました');
+        expect(debug.log).toHaveBeenCalledWith('🔄 テスト操作を開始...');
+        expect(debug.log).toHaveBeenCalledWith('✅ テスト操作が成功しました');
       });
 
       it('失敗時はnullを返しエラーハンドラーを呼ぶ', async () => {
@@ -50,7 +56,7 @@ describe('統一エラーハンドリングシステム', () => {
         expect(onError).toHaveBeenCalledWith('テストエラー', error);
         expect(setLoading).toHaveBeenCalledWith(true);
         expect(setLoading).toHaveBeenCalledWith(false);
-        expect(console.error).toHaveBeenCalledWith('❌ テスト操作に失敗:', error);
+        expect(debug.error).toHaveBeenCalledWith('❌ テスト操作に失敗:', error);
       });
 
       it('setLoadingが省略された場合でも動作する', async () => {
@@ -74,7 +80,7 @@ describe('統一エラーハンドリングシステム', () => {
           operationName: 'テスト操作'
         });
 
-        expect(console.log).not.toHaveBeenCalled();
+        expect(debug.log).not.toHaveBeenCalled();
       });
     });
 
@@ -91,7 +97,7 @@ describe('統一エラーハンドリングシステム', () => {
 
         expect(result).toBe(successResult);
         expect(onError).not.toHaveBeenCalled();
-        expect(console.log).toHaveBeenCalledWith('✅ テスト操作が成功しました');
+        expect(debug.log).toHaveBeenCalledWith('✅ テスト操作が成功しました');
       });
 
       it('失敗時の結果を正しく処理する', async () => {
@@ -106,7 +112,7 @@ describe('統一エラーハンドリングシステム', () => {
 
         expect(result).toBe(failureResult);
         expect(onError).toHaveBeenCalledWith('操作に失敗しました');
-        expect(console.warn).toHaveBeenCalledWith('⚠️ テスト操作が失敗:', '操作に失敗しました');
+        expect(debug.warn).toHaveBeenCalledWith('⚠️ テスト操作が失敗:', '操作に失敗しました');
       });
 
       it('例外が発生した場合は失敗結果を返す', async () => {
@@ -217,8 +223,8 @@ describe('統一エラーハンドリングシステム', () => {
 
         ErrorHandler.logError('テストコンテキスト', error, additionalInfo);
 
-        expect(console.error).toHaveBeenCalledWith('Error:', 'テストエラー');
-        expect(console.error).toHaveBeenCalledWith('Additional Info:', additionalInfo);
+        expect(debug.error).toHaveBeenCalledWith('Error:', 'テストエラー');
+        expect(debug.error).toHaveBeenCalledWith('Additional Info:', additionalInfo);
       });
 
       it('logWarningが正しくログを出力する', () => {
@@ -226,8 +232,8 @@ describe('統一エラーハンドリングシステム', () => {
 
         ErrorHandler.logWarning('テストコンテキスト', '警告メッセージ', additionalInfo);
 
-        expect(console.warn).toHaveBeenCalledWith('Warning:', '警告メッセージ');
-        expect(console.warn).toHaveBeenCalledWith('Additional Info:', additionalInfo);
+        expect(debug.warn).toHaveBeenCalledWith('Warning:', '警告メッセージ');
+        expect(debug.warn).toHaveBeenCalledWith('Additional Info:', additionalInfo);
       });
 
       it('logInfoが正しくログを出力する', () => {
@@ -235,9 +241,9 @@ describe('統一エラーハンドリングシステム', () => {
 
         ErrorHandler.logInfo('テストコンテキスト', '情報メッセージ', additionalInfo);
 
-        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('ℹ️'));
-        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('テストコンテキスト: 情報メッセージ'));
-        expect(console.log).toHaveBeenCalledWith('Additional Info:', additionalInfo);
+        expect(debug.log).toHaveBeenCalledWith(expect.stringContaining('ℹ️'));
+        expect(debug.log).toHaveBeenCalledWith(expect.stringContaining('テストコンテキスト: 情報メッセージ'));
+        expect(debug.log).toHaveBeenCalledWith('Additional Info:', additionalInfo);
       });
     });
   });

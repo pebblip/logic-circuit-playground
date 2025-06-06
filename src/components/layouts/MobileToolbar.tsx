@@ -24,7 +24,7 @@ const TOOL_CATEGORIES = {
   special: {
     label: '特殊',
     gates: [
-      { type: 'CLOCK' as GateType, label: 'CLK', icon: 'CLK' },
+      { type: 'CLOCK' as GateType, label: 'クロック', icon: 'CLK' },
       { type: 'D-FF' as GateType, label: 'D-FF', icon: 'DFF' },
       { type: 'SR-LATCH' as GateType, label: 'SR', icon: 'SR' },
       { type: 'MUX' as GateType, label: 'MUX', icon: 'MUX' },
@@ -33,8 +33,8 @@ const TOOL_CATEGORIES = {
   io: {
     label: '入出力',
     gates: [
-      { type: 'INPUT' as GateType, label: 'IN', icon: 'IN' },
-      { type: 'OUTPUT' as GateType, label: 'OUT', icon: 'OUT' },
+      { type: 'INPUT' as GateType, label: '入力', icon: 'IN' },
+      { type: 'OUTPUT' as GateType, label: '出力', icon: 'OUT' },
     ],
   },
   custom: {

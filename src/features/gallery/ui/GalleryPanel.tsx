@@ -3,6 +3,8 @@ import type {
   CircuitMetadata,
   GalleryFilter,
   GallerySortOption,
+  CircuitCategory,
+  CircuitComplexity,
 } from '../data/gallery';
 import {
   FEATURED_CIRCUITS,
@@ -12,6 +14,7 @@ import {
   GalleryService,
 } from '../data/gallery';
 import { useCircuitStore } from '../../../stores/circuitStore';
+import { debug } from '@/shared/debug';
 import './GalleryPanel.css';
 
 interface GalleryPanelProps {
@@ -65,7 +68,7 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
 
   // いいねボタン（デモ用）
   const handleLike = (circuitId: string) => {
-    console.log(`❤️ 回路「${circuitId}」にいいね！`);
+    debug.log(`❤️ 回路「${circuitId}」にいいね！`);
     // 実際の実装では、サーバーAPIに送信
   };
 
@@ -113,7 +116,9 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
               onChange={e =>
                 setFilter({
                   ...filter,
-                  category: (e.target.value as any) || undefined,
+                  category: (e.target.value || undefined) as
+                    | CircuitCategory
+                    | undefined,
                 })
               }
             >
@@ -133,7 +138,9 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
               onChange={e =>
                 setFilter({
                   ...filter,
-                  complexity: (e.target.value as any) || undefined,
+                  complexity: (e.target.value || undefined) as
+                    | CircuitComplexity
+                    | undefined,
                 })
               }
             >
@@ -152,7 +159,10 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
               value={`${sort.field}-${sort.direction}`}
               onChange={e => {
                 const [field, direction] = e.target.value.split('-');
-                setSort({ field: field as any, direction: direction as any });
+                setSort({
+                  field: field as 'likes' | 'createdAt' | 'views' | 'title',
+                  direction: direction as 'asc' | 'desc',
+                });
               }}
             >
               <option value="likes-desc">人気順</option>

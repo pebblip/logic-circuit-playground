@@ -1,4 +1,5 @@
 import React from 'react';
+import { debug } from '../debug';
 
 /**
  * 統一エラーハンドリングシステム
@@ -65,7 +66,7 @@ export class ErrorHandler {
    * );
    *
    * if (result) {
-   *   console.log('保存成功:', result);
+   *   debug.log('保存成功:', result);
    * }
    * ```
    */
@@ -86,13 +87,13 @@ export class ErrorHandler {
 
     try {
       if (enableConsoleLog) {
-        console.log(`🔄 ${operationName}を開始...`);
+        debug.log(`🔄 ${operationName}を開始...`);
       }
 
       const result = await operation();
 
       if (enableConsoleLog) {
-        console.log(`✅ ${operationName}が成功しました`);
+        debug.log(`✅ ${operationName}が成功しました`);
       }
 
       return result;
@@ -100,7 +101,7 @@ export class ErrorHandler {
       const errorMessage = this.extractErrorMessage(error, defaultErrorMessage);
 
       if (enableConsoleLog) {
-        console.error(`❌ ${operationName}に失敗:`, error);
+        debug.error(`❌ ${operationName}に失敗:`, error);
       }
 
       onError(errorMessage, error);
@@ -131,7 +132,7 @@ export class ErrorHandler {
    * );
    *
    * if (result.success) {
-   *   console.log('読み込み成功:', result.data);
+   *   debug.log('読み込み成功:', result.data);
    * }
    * ```
    */
@@ -151,18 +152,18 @@ export class ErrorHandler {
 
     try {
       if (enableConsoleLog) {
-        console.log(`🔄 ${operationName}を開始...`);
+        debug.log(`🔄 ${operationName}を開始...`);
       }
 
       const result = await operation();
 
       if (result.success) {
         if (enableConsoleLog) {
-          console.log(`✅ ${operationName}が成功しました`);
+          debug.log(`✅ ${operationName}が成功しました`);
         }
       } else {
         if (enableConsoleLog) {
-          console.warn(`⚠️ ${operationName}が失敗:`, result.message);
+          debug.warn(`⚠️ ${operationName}が失敗:`, result.message);
         }
         onError(result.message || '操作に失敗しました');
       }
@@ -175,7 +176,7 @@ export class ErrorHandler {
       );
 
       if (enableConsoleLog) {
-        console.error(`❌ ${operationName}でエラーが発生:`, error);
+        debug.error(`❌ ${operationName}でエラーが発生:`, error);
       }
 
       onError(errorMessage, error);
@@ -200,7 +201,7 @@ export class ErrorHandler {
    */
   static async handleSequentialOperations(
     operations: Array<{
-      operation: () => Promise<any>;
+      operation: () => Promise<unknown>;
       name: string;
     }>,
     options: ErrorHandlingOptions
@@ -212,13 +213,13 @@ export class ErrorHandler {
     try {
       for (const { operation, name } of operations) {
         if (enableConsoleLog) {
-          console.log(`🔄 ${name}を実行中...`);
+          debug.log(`🔄 ${name}を実行中...`);
         }
 
         await operation();
 
         if (enableConsoleLog) {
-          console.log(`✅ ${name}が完了`);
+          debug.log(`✅ ${name}が完了`);
         }
       }
 
@@ -230,7 +231,7 @@ export class ErrorHandler {
       );
 
       if (enableConsoleLog) {
-        console.error('❌ 操作シーケンスでエラーが発生:', error);
+        debug.error('❌ 操作シーケンスでエラーが発生:', error);
       }
 
       onError(errorMessage, error);
@@ -267,7 +268,7 @@ export class ErrorHandler {
 
     // オブジェクトで message プロパティがある場合
     if (typeof error === 'object' && error !== null) {
-      const errorObj = error as any;
+      const errorObj = error as { message?: unknown; success?: boolean };
       if (typeof errorObj.message === 'string') {
         return errorObj.message || defaultMessage;
       }
@@ -290,23 +291,21 @@ export class ErrorHandler {
   static logError(
     context: string,
     error: unknown,
-    additionalInfo?: Record<string, any>
+    additionalInfo?: Record<string, unknown>
   ): void {
     const timestamp = new Date().toISOString();
-    console.group(`❌ [${timestamp}] ${context}`);
+    debug.error(`❌ [${timestamp}] ${context}`);
 
     if (error instanceof Error) {
-      console.error('Error:', error.message);
-      console.error('Stack:', error.stack);
+      debug.error('Error:', error.message);
+      debug.error('Stack:', error.stack);
     } else {
-      console.error('Error:', error);
+      debug.error('Error:', error);
     }
 
     if (additionalInfo) {
-      console.error('Additional Info:', additionalInfo);
+      debug.error('Additional Info:', additionalInfo);
     }
-
-    console.groupEnd();
   }
 
   /**
@@ -319,17 +318,15 @@ export class ErrorHandler {
   static logWarning(
     context: string,
     message: string,
-    additionalInfo?: Record<string, any>
+    additionalInfo?: Record<string, unknown>
   ): void {
     const timestamp = new Date().toISOString();
-    console.group(`⚠️ [${timestamp}] ${context}`);
-    console.warn('Warning:', message);
+    debug.warn(`⚠️ [${timestamp}] ${context}`);
+    debug.warn('Warning:', message);
 
     if (additionalInfo) {
-      console.warn('Additional Info:', additionalInfo);
+      debug.warn('Additional Info:', additionalInfo);
     }
-
-    console.groupEnd();
   }
 
   /**
@@ -342,13 +339,13 @@ export class ErrorHandler {
   static logInfo(
     context: string,
     message: string,
-    additionalInfo?: Record<string, any>
+    additionalInfo?: Record<string, unknown>
   ): void {
     const timestamp = new Date().toISOString();
-    console.log(`ℹ️ [${timestamp}] ${context}: ${message}`);
+    debug.log(`ℹ️ [${timestamp}] ${context}: ${message}`);
 
     if (additionalInfo) {
-      console.log('Additional Info:', additionalInfo);
+      debug.log('Additional Info:', additionalInfo);
     }
   }
 }

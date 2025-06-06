@@ -13,7 +13,7 @@ export const useKeyboardShortcuts = () => {
     selectedGateId,
     selectedGateIds,
     deleteGate,
-    deleteWire,
+    deleteWire: _deleteWire,
     copySelection,
     paste,
     canPaste,

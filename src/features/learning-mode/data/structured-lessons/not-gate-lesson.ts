@@ -9,6 +9,7 @@ export const notGateStructuredLesson: StructuredLesson = {
   difficulty: 'beginner',
   prerequisites: ['digital-basics'],
   estimatedMinutes: 10,
+  availableGates: ['INPUT', 'OUTPUT', 'NOT'],
   steps: [
     {
       id: 'intro',

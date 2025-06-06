@@ -1,4 +1,5 @@
 import type { CustomGateDefinition } from '@/types/circuit';
+import { debug } from '@/shared/debug';
 
 const STORAGE_KEY = 'logic-circuit-playground-custom-gates';
 const MAX_STORAGE_SIZE = 5 * 1024 * 1024; // 5MB limit
@@ -6,26 +7,32 @@ const MAX_STORAGE_SIZE = 5 * 1024 * 1024; // 5MB limit
 /**
  * カスタムゲート定義の検証
  */
-export function validateCustomGate(gate: any): gate is CustomGateDefinition {
+export function validateCustomGate(
+  gate: unknown
+): gate is CustomGateDefinition {
+  if (typeof gate !== 'object' || gate === null) {
+    return false;
+  }
+
+  const g = gate as Record<string, unknown>;
+
   return (
-    typeof gate === 'object' &&
-    gate !== null &&
-    typeof gate.id === 'string' &&
-    typeof gate.name === 'string' &&
-    typeof gate.displayName === 'string' &&
-    Array.isArray(gate.inputs) &&
-    Array.isArray(gate.outputs) &&
-    typeof gate.width === 'number' &&
-    typeof gate.height === 'number' &&
-    typeof gate.createdAt === 'number' &&
-    typeof gate.updatedAt === 'number'
+    typeof g.id === 'string' &&
+    typeof g.name === 'string' &&
+    typeof g.displayName === 'string' &&
+    Array.isArray(g.inputs) &&
+    Array.isArray(g.outputs) &&
+    typeof g.width === 'number' &&
+    typeof g.height === 'number' &&
+    typeof g.createdAt === 'number' &&
+    typeof g.updatedAt === 'number'
   );
 }
 
 /**
  * 循環参照を検出
  */
-function hasCircularReference(obj: any, seen = new WeakSet()): boolean {
+function hasCircularReference(obj: unknown, seen = new WeakSet()): boolean {
   if (obj === null || typeof obj !== 'object') {
     return false;
   }
@@ -36,10 +43,11 @@ function hasCircularReference(obj: any, seen = new WeakSet()): boolean {
 
   seen.add(obj);
 
-  for (const key in obj) {
+  const objRecord = obj as Record<string, unknown>;
+  for (const key in objRecord) {
     if (
-      Object.prototype.hasOwnProperty.call(obj, key) &&
-      hasCircularReference(obj[key], seen)
+      Object.prototype.hasOwnProperty.call(objRecord, key) &&
+      hasCircularReference(objRecord[key], seen)
     ) {
       return true;
     }
@@ -68,7 +76,7 @@ export function removeDuplicateIds(
 /**
  * ストレージサイズを推定
  */
-function estimateStorageSize(data: any): number {
+function estimateStorageSize(data: unknown): number {
   try {
     return new Blob([JSON.stringify(data)]).size;
   } catch {
@@ -138,7 +146,7 @@ export function saveCustomGatesEnhanced(
 
     const json = JSON.stringify(gatesToSave);
     localStorage.setItem(STORAGE_KEY, json);
-    console.log(`✅ ${gatesToSave.length}個のカスタムゲートを保存しました`);
+    debug.log(`✅ ${gatesToSave.length}個のカスタムゲートを保存しました`);
 
     return { success: true };
   } catch (error) {
@@ -177,53 +185,58 @@ export function loadCustomGatesEnhanced(
 
     const json = localStorage.getItem(STORAGE_KEY);
     if (!json) {
-      console.log('💡 保存されたカスタムゲートはありません');
+      debug.log('💡 保存されたカスタムゲートはありません');
       return { gates: [], errors: [] };
     }
 
-    let customGates = JSON.parse(json);
+    const parsed = JSON.parse(json);
+    let customGates: unknown[];
 
     // 配列でない場合の処理
-    if (!Array.isArray(customGates)) {
-      if (fallbackToPartial && typeof customGates === 'object') {
-        customGates = [customGates];
+    if (!Array.isArray(parsed)) {
+      if (fallbackToPartial && typeof parsed === 'object') {
+        customGates = [parsed];
         errors.push('データが配列形式ではありませんでした');
       } else {
         throw new Error('Invalid data format');
       }
+    } else {
+      customGates = parsed;
     }
 
     // null/undefined を除去
-    customGates = customGates.filter(
-      (gate: any): gate is CustomGateDefinition => gate != null
+    const nonNullGates = customGates.filter(
+      (gate): gate is CustomGateDefinition => gate != null
     );
+
+    let finalGates = nonNullGates;
 
     // 検証
     if (validate) {
-      const validGates = customGates.filter(validateCustomGate);
-      const invalidCount = customGates.length - validGates.length;
+      const validGates = finalGates.filter(validateCustomGate);
+      const invalidCount = finalGates.length - validGates.length;
       if (invalidCount > 0) {
         errors.push(`${invalidCount}個の無効なゲート定義をスキップしました`);
-        customGates = validGates;
+        finalGates = validGates;
       }
     }
 
     // 重複ID除去
     if (removeDuplicates) {
-      const beforeCount = customGates.length;
-      customGates = removeDuplicateIds(customGates);
-      const removedCount = beforeCount - customGates.length;
+      const beforeCount = finalGates.length;
+      finalGates = removeDuplicateIds(finalGates);
+      const removedCount = beforeCount - finalGates.length;
       if (removedCount > 0) {
         errors.push(`${removedCount}個の重複IDを除去しました`);
       }
     }
 
-    console.log(`✅ ${customGates.length}個のカスタムゲートを読み込みました`);
+    debug.log(`✅ ${finalGates.length}個のカスタムゲートを読み込みました`);
     if (errors.length > 0) {
       console.warn('⚠️ 読み込み時の警告:', errors);
     }
 
-    return { gates: customGates, errors };
+    return { gates: finalGates, errors };
   } catch (error) {
     console.error('❌ カスタムゲートの読み込みに失敗:', error);
     errors.push(error instanceof Error ? error.message : 'Unknown error');
@@ -296,31 +309,45 @@ export function importCustomGates(
 /**
  * 古い形式からの移行
  */
-export function migrateOldFormat(oldData: any): CustomGateDefinition | null {
+export function migrateOldFormat(
+  oldData: unknown
+): CustomGateDefinition | null {
   try {
+    if (typeof oldData !== 'object' || oldData === null) {
+      return null;
+    }
+
+    const data = oldData as Record<string, unknown>;
+
     // 最低限必要なフィールドがあるかチェック
-    if (!oldData.id || !oldData.name) {
+    if (!data.id || !data.name) {
       return null;
     }
 
     // 新しい形式に変換
     const migrated: CustomGateDefinition = {
-      id: oldData.id,
-      name: oldData.name,
-      displayName: oldData.displayName || oldData.name,
-      description: oldData.description || '',
-      inputs: oldData.inputs || [],
-      outputs:
-        oldData.outputs || (oldData.output ? [{ name: 'Q', index: 0 }] : []),
-      truthTable: oldData.truthTable,
-      internalCircuit: oldData.internalCircuit,
-      analysis: oldData.analysis,
-      icon: oldData.icon,
-      category: oldData.category,
-      width: oldData.width || 80,
-      height: oldData.height || 60,
-      createdAt: oldData.createdAt || Date.now(),
-      updatedAt: oldData.updatedAt || Date.now(),
+      id: String(data.id),
+      name: String(data.name),
+      displayName: String(data.displayName || data.name),
+      description: String(data.description || ''),
+      inputs: Array.isArray(data.inputs) ? data.inputs : [],
+      outputs: Array.isArray(data.outputs)
+        ? data.outputs
+        : data.output
+          ? [{ name: 'Q', index: 0 }]
+          : [],
+      truthTable: data.truthTable as Record<string, string> | undefined,
+      internalCircuit:
+        data.internalCircuit as CustomGateDefinition['internalCircuit'],
+      analysis: data.analysis as CustomGateDefinition['analysis'],
+      icon: data.icon ? String(data.icon) : undefined,
+      category: data.category ? String(data.category) : undefined,
+      width: typeof data.width === 'number' ? data.width : 80,
+      height: typeof data.height === 'number' ? data.height : 60,
+      createdAt:
+        typeof data.createdAt === 'number' ? data.createdAt : Date.now(),
+      updatedAt:
+        typeof data.updatedAt === 'number' ? data.updatedAt : Date.now(),
     };
 
     return validateCustomGate(migrated) ? migrated : null;

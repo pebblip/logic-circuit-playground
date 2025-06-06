@@ -7,6 +7,7 @@ export const srLatchStructuredLesson: StructuredLesson = {
   difficulty: 'advanced',
   prerequisites: ['d-flip-flop'],
   estimatedMinutes: 20,
+  availableGates: ['INPUT', 'OUTPUT', 'SR-LATCH'],
   steps: [
     {
       id: 'intro',

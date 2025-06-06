@@ -9,6 +9,7 @@ export const xorGateStructuredLesson: StructuredLesson = {
   difficulty: 'beginner',
   prerequisites: ['and-gate', 'or-gate'],
   estimatedMinutes: 15,
+  availableGates: ['INPUT', 'XOR', 'OUTPUT'],
   steps: [
     {
       id: 'intro',
@@ -29,11 +30,32 @@ export const xorGateStructuredLesson: StructuredLesson = {
       ],
     },
     {
-      id: 'place-components',
-      instruction: '回路を組み立てましょう。',
-      hint: '入力 x2、XORゲート、出力を配置して接続してください。',
+      id: 'place-inputs',
+      instruction: 'まず、2つの入力を配置しましょう。',
+      hint: '左のツールパレットから「入力」を2つドラッグして、キャンバスの左側に縦に並べて配置してください。',
+      content: [],
+      action: { type: 'place-gate', gateType: 'INPUT' },
+    },
+    {
+      id: 'place-xor',
+      instruction: '次に、XORゲートを配置します。',
+      hint: '「基本ゲート」セクションから「XOR」を選んで、入力の右側に配置してください。',
       content: [],
       action: { type: 'place-gate', gateType: 'XOR' },
+    },
+    {
+      id: 'place-output',
+      instruction: '最後に、結果を表示するランプ（出力）を配置します。',
+      hint: '出力をXORゲートの右側に配置してください。',
+      content: [],
+      action: { type: 'place-gate', gateType: 'OUTPUT' },
+    },
+    {
+      id: 'connect',
+      instruction: '配線して回路を完成させましょう。',
+      hint: '各入力の出力（右の丸）をXORの入力（左の丸）に、XORの出力を出力の入力に接続してください。',
+      content: [],
+      action: { type: 'connect-wire' },
     },
     {
       id: 'experiment-intro',

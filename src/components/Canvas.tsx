@@ -155,7 +155,14 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isDrawingWire, cancelWireDrawing, selectedGateIds, mousePosition]);
+  }, [
+    isDrawingWire,
+    cancelWireDrawing,
+    selectedGateIds,
+    mousePosition,
+    clearSelectionRect,
+    handlePanEnd,
+  ]);
 
   // CLOCKゲートがある場合、定期的に回路を更新
   React.useEffect(() => {
@@ -188,14 +195,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     return () => {
       clearInterval(interval);
     };
-  }, [
-    // 依存配列を修正: CLOCKゲート数とisRunning状態の両方を監視
-    gates.filter(g => g.type === 'CLOCK').length,
-    gates
-      .filter(g => g.type === 'CLOCK')
-      .map(g => g.metadata?.isRunning)
-      .join(','),
-  ]);
+  }, [gates]);
 
   const handleMouseMove = (event: React.MouseEvent) => {
     if (!svgRef.current) return;

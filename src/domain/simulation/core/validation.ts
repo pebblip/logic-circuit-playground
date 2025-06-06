@@ -172,7 +172,7 @@ export function validateGatePosition(
     );
   }
 
-  const pos = position as any;
+  const pos = position as { x: unknown; y: unknown };
 
   if (typeof pos.x !== 'number' || typeof pos.y !== 'number') {
     return failure(
@@ -298,7 +298,15 @@ export function validateGate(gate: unknown): Result<Gate, ValidationError> {
     );
   }
 
-  const g = gate as any;
+  const g = gate as {
+    id: unknown;
+    type: unknown;
+    position: unknown;
+    inputs: unknown;
+    output: unknown;
+    metadata?: unknown;
+    customGateDefinition?: unknown;
+  };
   const violations: ValidationViolation[] = [];
 
   // ID検証
@@ -325,7 +333,7 @@ export function validateGate(gate: unknown): Result<Gate, ValidationError> {
       severity: 'ERROR',
       code: 'INVALID_INPUTS_TYPE',
       message: 'Gate inputs must be an array',
-      location: { gateId: g.id },
+      location: { gateId: String(g.id) },
       suggestion: 'Provide inputs as an array',
     });
   }
@@ -336,7 +344,7 @@ export function validateGate(gate: unknown): Result<Gate, ValidationError> {
       severity: 'ERROR',
       code: 'INVALID_OUTPUT_TYPE',
       message: 'Gate output must be boolean',
-      location: { gateId: g.id },
+      location: { gateId: String(g.id) },
       suggestion: 'Ensure gate output is a boolean value',
     });
   }
@@ -348,7 +356,7 @@ export function validateGate(gate: unknown): Result<Gate, ValidationError> {
         severity: 'ERROR',
         code: 'MISSING_CUSTOM_GATE_DEFINITION',
         message: 'Custom gate must have definition',
-        location: { gateId: g.id },
+        location: { gateId: String(g.id) },
         suggestion: 'Provide a valid customGateDefinition for custom gates',
       });
     } else {
@@ -363,9 +371,13 @@ export function validateGate(gate: unknown): Result<Gate, ValidationError> {
 
   if (violations.length > 0) {
     return failure(
-      createValidationError(`Invalid gate: ${g.id || 'unknown'}`, violations, {
-        gateId: g.id,
-      })
+      createValidationError(
+        `Invalid gate: ${String(g.id) || 'unknown'}`,
+        violations,
+        {
+          gateId: String(g.id),
+        }
+      )
     );
   }
 
@@ -386,7 +398,14 @@ export function validateCustomGateDefinition(
     );
   }
 
-  const def = definition as any;
+  const def = definition as {
+    id: unknown;
+    name: unknown;
+    inputs: unknown;
+    outputs: unknown;
+    internalCircuit: unknown;
+    truthTable?: unknown;
+  };
   const violations: ValidationViolation[] = [];
 
   // ID検証
@@ -490,7 +509,12 @@ export function validateWire(wire: unknown): Result<Wire, ValidationError> {
     );
   }
 
-  const w = wire as any;
+  const w = wire as {
+    id: unknown;
+    from: unknown;
+    to: unknown;
+    isActive: unknown;
+  };
   const violations: ValidationViolation[] = [];
 
   // ID検証（ワイヤー専用）
@@ -506,7 +530,7 @@ export function validateWire(wire: unknown): Result<Wire, ValidationError> {
       severity: 'ERROR',
       code: 'EMPTY_WIRE_ID',
       message: 'Wire ID must be a non-empty string',
-      location: { wireId: w.id },
+      location: { wireId: String(w.id) },
     });
   }
 
@@ -516,29 +540,33 @@ export function validateWire(wire: unknown): Result<Wire, ValidationError> {
       severity: 'ERROR',
       code: 'INVALID_WIRE_FROM',
       message: 'Wire from must be object with gateId and pinIndex',
-      location: { wireId: w.id },
+      location: { wireId: String(w.id) },
       suggestion:
         'Provide a valid from connection point with gateId and pinIndex',
     });
   } else {
-    if (
-      typeof w.from.gateId !== 'string' ||
-      w.from.gateId.trim().length === 0
-    ) {
+    const from = w.from as { gateId?: unknown; pinIndex?: unknown };
+    if (typeof from.gateId !== 'string' || from.gateId.trim().length === 0) {
       violations.push({
         severity: 'ERROR',
         code: 'INVALID_FROM_GATE_ID',
         message: 'Wire from.gateId must be a non-empty string',
-        location: { wireId: w.id },
+        location: { wireId: String(w.id) },
         suggestion: 'Provide a valid gate ID for the wire source',
       });
     }
-    if (typeof w.from.pinIndex !== 'number') {
+    if (typeof from.pinIndex !== 'number') {
       violations.push({
         severity: 'ERROR',
         code: 'INVALID_FROM_PIN_INDEX',
         message: 'Wire from.pinIndex must be number',
-        location: { wireId: w.id, pinIndex: w.from.pinIndex },
+        location: {
+          wireId: String(w.id),
+          pinIndex:
+            typeof from.pinIndex === 'number'
+              ? (from.pinIndex as number)
+              : undefined,
+        },
         suggestion: 'Provide a valid numeric pin index for the wire source',
       });
     }
@@ -550,26 +578,38 @@ export function validateWire(wire: unknown): Result<Wire, ValidationError> {
       severity: 'ERROR',
       code: 'INVALID_WIRE_TO',
       message: 'Wire to must be object with gateId and pinIndex',
-      location: { wireId: w.id },
+      location: { wireId: String(w.id) },
       suggestion:
         'Provide a valid to connection point with gateId and pinIndex',
     });
   } else {
-    if (typeof w.to.gateId !== 'string' || w.to.gateId.trim().length === 0) {
+    if (
+      typeof (w.to as { gateId: unknown }).gateId !== 'string' ||
+      (w.to as { gateId: string }).gateId.trim().length === 0
+    ) {
       violations.push({
         severity: 'ERROR',
         code: 'INVALID_TO_GATE_ID',
         message: 'Wire to.gateId must be non-empty string',
-        location: { wireId: w.id },
+        location: { wireId: String(w.id) },
         suggestion: 'Provide a valid gate ID for the wire target',
       });
     }
-    if (typeof w.to.pinIndex !== 'number' || w.to.pinIndex < 0) {
+    if (
+      typeof (w.to as { pinIndex: unknown }).pinIndex !== 'number' ||
+      (w.to as { pinIndex: number }).pinIndex < 0
+    ) {
       violations.push({
         severity: 'ERROR',
         code: 'INVALID_TO_PIN_INDEX',
         message: 'Wire to.pinIndex must be non-negative number',
-        location: { wireId: w.id, pinIndex: w.to.pinIndex },
+        location: {
+          wireId: String(w.id),
+          pinIndex:
+            typeof (w.to as { pinIndex: unknown }).pinIndex === 'number'
+              ? (w.to as { pinIndex: number }).pinIndex
+              : undefined,
+        },
         suggestion:
           'Provide a valid non-negative pin index for the wire target',
       });
@@ -582,16 +622,20 @@ export function validateWire(wire: unknown): Result<Wire, ValidationError> {
       severity: 'ERROR',
       code: 'INVALID_WIRE_ACTIVE_STATE',
       message: 'Wire isActive must be boolean',
-      location: { wireId: w.id },
+      location: { wireId: String(w.id) },
       suggestion: 'Ensure wire isActive is a boolean value',
     });
   }
 
   if (violations.length > 0) {
     return failure(
-      createValidationError(`Invalid wire: ${w.id || 'unknown'}`, violations, {
-        wireId: w.id,
-      })
+      createValidationError(
+        `Invalid wire: ${String(w.id) || 'unknown'}`,
+        violations,
+        {
+          wireId: String(w.id),
+        }
+      )
     );
   }
 
@@ -612,7 +656,7 @@ export function validateCircuit(
   const validationConfig = { ...defaultValidationConfig, ...config };
   const violations: ValidationViolation[] = [];
   const suggestions: string[] = [];
-  const startTime = performance.now();
+  const startTime = Date.now();
 
   // 規模チェック
   if (circuit.gates.length > validationConfig.maxGateCount) {
@@ -635,7 +679,7 @@ export function validateCircuit(
 
   // ゲート個別検証
   const gateIds = new Set<string>();
-  circuit.gates.forEach((gate, index) => {
+  circuit.gates.forEach((gate, _index) => {
     const gateValidation = validateGate(gate);
     if (!gateValidation.success) {
       gateValidation.error.violations?.forEach(violation => {
@@ -663,7 +707,7 @@ export function validateCircuit(
 
   // ワイヤー個別検証
   const wireIds = new Set<string>();
-  circuit.wires.forEach((wire, index) => {
+  circuit.wires.forEach((wire, _index) => {
     const wireValidation = validateWire(wire);
     if (!wireValidation.success) {
       wireValidation.error.violations?.forEach(violation => {
@@ -722,7 +766,7 @@ export function validateCircuit(
   }
 
   // 出力ピンインデックスの検証
-  circuit.wires.forEach((wire, index) => {
+  circuit.wires.forEach((wire, _index) => {
     const sourceGate = circuit.gates.find(g => g.id === wire.from.gateId);
     if (sourceGate) {
       // カスタムゲートの場合、複数出力をチェック
@@ -776,7 +820,7 @@ export function validateCircuit(
     );
   }
 
-  const endTime = performance.now();
+  const endTime = Date.now();
   const isValid = violations.filter(v => v.severity === 'ERROR').length === 0;
 
   const result: ValidationResult = {

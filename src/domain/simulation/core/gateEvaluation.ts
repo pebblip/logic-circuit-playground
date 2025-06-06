@@ -45,7 +45,7 @@ export function evaluateGateUnified(
   inputs: readonly boolean[],
   config: Readonly<EvaluationConfig> = defaultConfig
 ): Result<GateEvaluationResult, EvaluationError> {
-  const startTime = performance.now();
+  const startTime = Date.now();
 
   try {
     // 1. 入力検証（strictValidationが有効な場合）
@@ -80,7 +80,7 @@ export function evaluateGateUnified(
     }
 
     const outputs = evaluationResult.data;
-    const endTime = performance.now();
+    const endTime = Date.now();
 
     // 3. メタデータ作成（一括構築）
     const metadata: GateMetadata = {
@@ -186,7 +186,7 @@ function evaluateGateLogic(
       default:
         return failure(
           createEvaluationError(
-            `Unknown gate type: ${(gate as any).type}`,
+            `Unknown gate type: ${(gate as { type: unknown }).type}`,
             'GATE_LOGIC',
             { gateId: gate.id }
           )
@@ -395,7 +395,7 @@ function evaluateWithCustomEvaluator(
 function evaluateCustomGateDefault(
   definition: Readonly<CustomGateDefinition>,
   inputs: readonly boolean[],
-  config: Readonly<EvaluationConfig>
+  _config: Readonly<EvaluationConfig>
 ): Result<readonly boolean[], EvaluationError> {
   // 真理値表評価を優先（シンプルで高速）
   if (definition.truthTable) {
@@ -571,7 +571,7 @@ export const defaultCustomGateEvaluator: CustomGateEvaluator = {
     return evaluateByTruthTable(definition, inputs);
   },
 
-  evaluateByInternalCircuit: (definition, inputs, config) => {
+  evaluateByInternalCircuit: (_definition, _inputs, _config) => {
     // 内部回路評価は複雑なため、現在は未実装
     // 将来的にはcircuitEvaluation.tsで実装予定
     return failure(

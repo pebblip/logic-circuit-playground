@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useRef, useState, useEffect } from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
 import {

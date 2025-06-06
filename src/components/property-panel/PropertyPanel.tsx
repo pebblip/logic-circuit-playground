@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
 import { isCustomGate } from '@/types/gates';
 import { DetailModal } from './DetailModal';
-import { TruthTableModal } from './TruthTableModal';
+import { TruthTableModal, type TruthTableResult } from './TruthTableModal';
 import { GateInfo } from './GateInfo';
 import { ClockControls } from './ClockControls';
 import { ActionButtons } from './ActionButtons';
@@ -18,7 +18,7 @@ export const PropertyPanel: React.FC = () => {
     gateId: string;
     gateType: string;
     truthTable: Record<string, string>;
-    result?: any;
+    result?: TruthTableResult;
     inputNames?: string[];
     outputNames?: string[];
     gateName?: string;
@@ -261,7 +261,11 @@ export const PropertyPanel: React.FC = () => {
       const gateName = `${selectedGate.type}ゲート`;
 
       // 基本ゲートの真理値表を生成
-      const truthTable = getTruthTable() as any[];
+      const truthTable = getTruthTable() as Array<{
+        a?: number;
+        b?: number;
+        out: number;
+      }>;
       if (truthTable.length > 0) {
         const table = truthTable.map(row => {
           // 真理値表専用の変換（0と1を明確に表示）
@@ -285,7 +289,7 @@ export const PropertyPanel: React.FC = () => {
           gateId: selectedGate.id,
           gateType: selectedGate.type,
           truthTable: truthTable.reduce(
-            (acc, row: any, index) => {
+            (acc, row, _index) => {
               // 真理値表専用の変換（0と1を明確に表示）
               const boolToTruthTableString = (val: boolean) =>
                 val ? '1' : '0';
@@ -305,7 +309,6 @@ export const PropertyPanel: React.FC = () => {
             inputCount: inputNames.length,
             outputCount: 1,
             isSequential: false,
-            recognizedPattern: selectedGate.type,
           },
           inputNames,
           outputNames,

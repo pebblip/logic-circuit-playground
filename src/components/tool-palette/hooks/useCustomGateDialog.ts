@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { CustomGatePin } from '@/types/circuit';
 import type { TruthTableResult } from '@/domain/analysis';
+import { debug } from '@/shared/debug';
 
 interface DialogInitialData {
   initialInputs?: CustomGatePin[];
@@ -36,11 +37,11 @@ export const useCustomGateDialog = () => {
         customEvent.detail;
 
       // デバッグ: イベントから受け取ったデータを確認
-      console.log('=== useCustomGateDialog Event Debug ===');
-      console.log('Raw event detail:', customEvent.detail);
-      console.log('initialInputs:', initialInputs);
-      console.log('initialOutputs:', initialOutputs);
-      console.log('isFullCircuit:', isFullCircuit);
+      debug.log('=== useCustomGateDialog Event Debug ===');
+      debug.log('Raw event detail:', customEvent.detail);
+      debug.log('initialInputs:', initialInputs);
+      debug.log('initialOutputs:', initialOutputs);
+      debug.log('isFullCircuit:', isFullCircuit);
 
       const processedData = {
         initialInputs: initialInputs as CustomGatePin[] | undefined,
@@ -48,7 +49,7 @@ export const useCustomGateDialog = () => {
         isFullCircuit,
       };
 
-      console.log('Processed dialogInitialData:', processedData);
+      debug.log('Processed dialogInitialData:', processedData);
 
       setDialogInitialData(processedData);
       setIsCreateDialogOpen(true);

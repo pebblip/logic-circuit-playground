@@ -66,36 +66,28 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
 
       {/* メインキャンバス */}
       <main className="main-canvas">
-        {/* キャンバスツールバー */}
-        <div className="canvas-toolbar" data-testid="canvas-toolbar">
+        {/* フローティングアクションボタン（FAB） */}
+        <div className="fab-container-desktop">
           <button
-            className="tool-button"
-            title="元に戻す"
+            className="fab fab--secondary"
+            title="元に戻す (Ctrl+Z)"
             onClick={undo}
             disabled={!canUndo()}
-            style={{ opacity: canUndo() ? 1 : 0.3 }}
+            style={{ opacity: canUndo() ? 1 : 0.5 }}
           >
             ↩️
           </button>
           <button
-            className="tool-button"
-            title="やり直し"
+            className="fab fab--secondary"
+            title="やり直し (Ctrl+Y)"
             onClick={redo}
             disabled={!canRedo()}
-            style={{ opacity: canRedo() ? 1 : 0.3 }}
+            style={{ opacity: canRedo() ? 1 : 0.5 }}
           >
             ↪️
           </button>
-          <div
-            style={{
-              width: '1px',
-              height: '24px',
-              background: 'rgba(255, 255, 255, 0.1)',
-              margin: '0 4px',
-            }}
-          ></div>
           <button
-            className="tool-button"
+            className="fab fab--secondary"
             title="すべてクリア"
             onClick={() => {
               if (window.confirm('すべての回路を削除しますか？')) {
@@ -105,17 +97,9 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
           >
             🗑️
           </button>
-          <div
-            style={{
-              width: '1px',
-              height: '24px',
-              background: 'rgba(255, 255, 255, 0.1)',
-              margin: '0 4px',
-            }}
-          ></div>
           <button
-            className={`tool-button ${isVisualizerOpen ? 'active' : ''}`}
-            title="ビジュアライザーを開く"
+            className={`fab fab--primary ${isVisualizerOpen ? 'active' : ''}`}
+            title="ビジュアライザー"
             onClick={() => setIsVisualizerOpen(!isVisualizerOpen)}
           >
             📟

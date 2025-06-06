@@ -179,8 +179,8 @@ export { validateCircuit as validateCircuit_v2 } from './validation';
  *
  * const result = evaluateGateUnified(andGate, [true, false], defaultConfig);
  * if (result.success) {
- *   console.log('Output:', result.data.primaryOutput); // false
- *   console.log('Outputs:', result.data.outputs); // [false]
+ *   debug.log('Output:', result.data.primaryOutput); // false
+ *   debug.log('Outputs:', result.data.outputs); // [false]
  * } else {
  *   console.error('Error:', result.error.message);
  * }
@@ -206,8 +206,8 @@ export { validateCircuit as validateCircuit_v2 } from './validation';
  * if (result.success) {
  *   const updatedCircuit = result.data.circuit;
  *   const stats = result.data.evaluationStats;
- *   console.log('Evaluated gates:', stats.evaluatedGates);
- *   console.log('NOT gate output:', updatedCircuit.gates[1].output); // false
+ *   debug.log('Evaluated gates:', stats.evaluatedGates);
+ *   debug.log('NOT gate output:', updatedCircuit.gates[1].output); // false
  * } else {
  *   console.error('Error:', result.error.message);
  * }
@@ -223,13 +223,13 @@ export { validateCircuit as validateCircuit_v2 } from './validation';
  * if (isFailure(result)) {
  *   switch (result.error.type) {
  *     case 'VALIDATION_ERROR':
- *       console.log('Validation failed:', result.error.violations);
+ *       debug.log('Validation failed:', result.error.violations);
  *       break;
  *     case 'DEPENDENCY_ERROR':
- *       console.log('Dependency error:', result.error.circularDependencies);
+ *       debug.log('Dependency error:', result.error.circularDependencies);
  *       break;
  *     case 'EVALUATION_ERROR':
- *       console.log('Evaluation error at stage:', result.error.stage);
+ *       debug.log('Evaluation error at stage:', result.error.stage);
  *       break;
  *   }
  * }
@@ -250,7 +250,7 @@ export { validateCircuit as validateCircuit_v2 } from './validation';
  *
  * const result = evaluateCircuit(circuit, customConfig);
  * if (result.success && result.data.debugTrace) {
- *   console.log('Debug trace:', result.data.debugTrace);
+ *   debug.log('Debug trace:', result.data.debugTrace);
  * }
  * ```
  */

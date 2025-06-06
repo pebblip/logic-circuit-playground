@@ -10,9 +10,7 @@ export const AsciiArtRenderer: React.FC<AsciiArtRendererProps> = ({
 }) => {
   return (
     <div className={`ascii-art-container ${content.className || ''}`}>
-      {content.title && (
-        <div className="ascii-art-title">{content.title}</div>
-      )}
+      {content.title && <div className="ascii-art-title">{content.title}</div>}
       <pre className="ascii-art">
         <code>{content.art}</code>
       </pre>

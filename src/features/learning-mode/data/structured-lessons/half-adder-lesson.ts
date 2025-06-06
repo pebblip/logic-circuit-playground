@@ -9,6 +9,7 @@ export const halfAdderStructuredLesson: StructuredLesson = {
   difficulty: 'intermediate',
   prerequisites: ['and-gate', 'xor-gate'],
   estimatedMinutes: 20,
+  availableGates: ['INPUT', 'OUTPUT', 'AND', 'XOR'],
   steps: [
     {
       id: 'intro',

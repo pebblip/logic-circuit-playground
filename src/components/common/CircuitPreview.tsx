@@ -47,7 +47,7 @@ export const CircuitPreview: React.FC<CircuitPreviewProps> = ({
 
       const viewWidth = maxX - minX;
       const viewHeight = maxY - minY;
-      const scale = Math.min(width / viewWidth, height / viewHeight, 1);
+      const _scale = Math.min(width / viewWidth, height / viewHeight, 1);
 
       // SVGプレビューを生成
       const svgContent = `
@@ -166,12 +166,12 @@ function getGateDisplayText(gate: Gate): string {
   return gate.type;
 }
 
-function getGateOutputOffset(gate: Gate): { x: number; y: number } {
+function getGateOutputOffset(_gate: Gate): { x: number; y: number } {
   // ゲートタイプに応じた出力ピンの位置
   return { x: 35, y: 0 };
 }
 
-function getGateInputOffset(gate: Gate): { x: number; y: number } {
+function getGateInputOffset(_gate: Gate): { x: number; y: number } {
   // ゲートタイプに応じた入力ピンの位置
   return { x: -35, y: 0 };
 }

@@ -7,6 +7,7 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
   difficulty: 'intermediate',
   prerequisites: ['full-adder'],
   estimatedMinutes: 25,
+  availableGates: ['INPUT', 'OUTPUT', 'CUSTOM'],
   steps: [
     {
       id: 'intro',

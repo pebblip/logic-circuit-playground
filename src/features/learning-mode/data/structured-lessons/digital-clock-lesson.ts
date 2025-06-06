@@ -7,6 +7,7 @@ export const digitalClockStructuredLesson: StructuredLesson = {
   difficulty: 'advanced',
   prerequisites: ['traffic-light'],
   estimatedMinutes: 35,
+  availableGates: ['OUTPUT', 'AND', 'CLOCK', 'D-FF'],
   steps: [
     {
       id: 'intro',

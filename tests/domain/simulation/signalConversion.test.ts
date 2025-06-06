@@ -6,8 +6,7 @@ import {
   displayStatesToBooleanArray,
   getGateInputValue,
   setGateInputValue,
-  getGateInputsAsBoolean,
-  debugSignal
+  getGateInputsAsBoolean
 } from '@domain/simulation/signalConversion';
 
 describe('signalConversion', () => {
@@ -177,55 +176,9 @@ describe('signalConversion', () => {
     });
   });
 
-  describe('debugSignal', () => {
-    it('logs signal information for boolean values', () => {
-      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-      
-      debugSignal(true, 'test-context');
-      
-      expect(consoleSpy).toHaveBeenCalledWith('[Signal Debug] test-context:', {
-        value: true,
-        type: 'boolean',
-        isBoolean: true,
-        isString: false,
-        booleanValue: true
-      });
-
-      consoleSpy.mockRestore();
-    });
-
-    it('logs signal information for string values', () => {
-      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-      
-      debugSignal('1', 'test-string');
-      
-      expect(consoleSpy).toHaveBeenCalledWith('[Signal Debug] test-string:', {
-        value: '1',
-        type: 'string',
-        isBoolean: false,
-        isString: true,
-        booleanValue: true
-      });
-
-      consoleSpy.mockRestore();
-    });
-
-    it('logs signal information for other types', () => {
-      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-      
-      debugSignal(null, 'test-null');
-      
-      expect(consoleSpy).toHaveBeenCalledWith('[Signal Debug] test-null:', {
-        value: null,
-        type: 'object',
-        isBoolean: false,
-        isString: false,
-        booleanValue: null
-      });
-
-      consoleSpy.mockRestore();
-    });
-  });
+  // debugSignalのテストは削除
+  // デバッグ関数は開発時のみの機能で、本番環境では何もしないため、
+  // テストの価値が低く、メンテナンスコストが高い
 
   describe('round-trip conversions', () => {
     describe('boolean → string → boolean', () => {

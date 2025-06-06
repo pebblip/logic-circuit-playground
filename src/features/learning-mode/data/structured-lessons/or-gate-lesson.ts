@@ -10,6 +10,7 @@ export const orGateStructuredLesson: StructuredLesson = {
   difficulty: 'beginner',
   prerequisites: ['and-gate'],
   estimatedMinutes: 10,
+  availableGates: ['INPUT', 'OR', 'OUTPUT'],
   steps: [
     {
       id: 'intro',
@@ -69,11 +70,32 @@ export const orGateStructuredLesson: StructuredLesson = {
       ],
     },
     {
-      id: 'place-components',
-      instruction: '回路を組み立てましょう。',
-      hint: '入力 x2、ORゲート、出力を配置して接続してください。',
+      id: 'place-inputs',
+      instruction: 'まず、2つの入力を配置しましょう。',
+      hint: '左のツールパレットから「入力」を2つドラッグして、キャンバスの左側に縦に並べて配置してください。',
+      content: [],
+      action: { type: 'place-gate', gateType: 'INPUT' },
+    },
+    {
+      id: 'place-or',
+      instruction: '次に、ORゲートを配置します。',
+      hint: '「基本ゲート」セクションから「OR」を選んで、入力の右側に配置してください。',
       content: [],
       action: { type: 'place-gate', gateType: 'OR' },
+    },
+    {
+      id: 'place-output',
+      instruction: '最後に、結果を表示するランプ（出力）を配置します。',
+      hint: '出力をORゲートの右側に配置してください。',
+      content: [],
+      action: { type: 'place-gate', gateType: 'OUTPUT' },
+    },
+    {
+      id: 'connect',
+      instruction: '配線して回路を完成させましょう。',
+      hint: '各入力の出力（右の丸）をORの入力（左の丸）に、ORの出力を出力の入力に接続してください。',
+      content: [],
+      action: { type: 'connect-wire' },
     },
     {
       id: 'experiment',

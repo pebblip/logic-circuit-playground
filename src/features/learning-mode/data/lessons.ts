@@ -58,15 +58,12 @@ export type StepAction =
   | { type: 'quiz'; question: string; options: string[]; correct: number }
   | { type: 'explanation'; content: string; visual?: string };
 
-export interface StepValidation {
-  type:
-    | 'gate-placed'
-    | 'wire-connected'
-    | 'output-matches'
-    | 'quiz-answered'
-    | 'circuit-complete';
-  expected?: any;
-}
+export type StepValidation =
+  | { type: 'gate-placed'; expected?: string } // gate type
+  | { type: 'wire-connected'; expected?: { from: string; to: string } }
+  | { type: 'output-matches'; expected?: { [key: string]: boolean } }
+  | { type: 'quiz-answered'; expected?: string | number }
+  | { type: 'circuit-complete'; expected?: unknown };
 
 export interface CircuitVerification {
   inputs: { [key: string]: boolean }[];
@@ -197,7 +194,7 @@ export const getLearningStats = (completedLessons: Set<string>) => {
   const progress = Math.round((completed / totalLessons) * 100);
 
   const phaseStats = Object.entries(lessonCategories).map(
-    ([key, category]) => ({
+    ([_key, category]) => ({
       phase: category.title,
       completed: category.lessons.filter(id => completedLessons.has(id)).length,
       total: category.lessons.length,

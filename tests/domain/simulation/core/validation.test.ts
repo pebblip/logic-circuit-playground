@@ -219,7 +219,8 @@ describe('Pure API Validation', () => {
           expect(result.error.message).toContain('Invalid inputs');
           expect(result.error.violations).toContainEqual(
             expect.objectContaining({
-              constraint: expect.stringContaining('expected 2 inputs, got 1')
+              message: 'Expected 2 inputs, got 1',
+              code: 'INVALID_INPUT_COUNT'
             })
           );
         }
@@ -240,8 +241,8 @@ describe('Pure API Validation', () => {
           expect(result.error.message).toContain('Invalid inputs');
           expect(result.error.violations).toContainEqual(
             expect.objectContaining({
-              field: 'inputs[1]',
-              constraint: 'must be boolean'
+              message: 'Input at index 1 must be boolean',
+              code: 'INVALID_INPUT_TYPE'
             })
           );
         }
@@ -338,8 +339,8 @@ describe('Pure API Validation', () => {
         if (!result.success) {
           expect(result.error.violations).toContainEqual(
             expect.objectContaining({
-              field: 'customGateDefinition',
-              constraint: 'custom gate must have definition'
+              message: 'Custom gate must have definition',
+              code: 'MISSING_CUSTOM_GATE_DEFINITION'
             })
           );
         }
@@ -418,12 +419,14 @@ describe('Pure API Validation', () => {
         if (!result.success) {
           expect(result.error.violations).toContainEqual(
             expect.objectContaining({
-              constraint: 'must have at least one input'
+              message: 'Custom gate definition must have at least one input',
+              code: 'NO_INPUTS_DEFINED'
             })
           );
           expect(result.error.violations).toContainEqual(
             expect.objectContaining({
-              constraint: 'must have at least one output'
+              message: 'Custom gate definition must have at least one output',
+              code: 'NO_OUTPUTS_DEFINED'
             })
           );
         }
@@ -443,7 +446,8 @@ describe('Pure API Validation', () => {
         if (!result.success) {
           expect(result.error.violations).toContainEqual(
             expect.objectContaining({
-              constraint: 'must have either truthTable or internalCircuit'
+              message: 'Custom gate definition must have either truthTable or internalCircuit',
+              code: 'NO_IMPLEMENTATION_DEFINED'
             })
           );
         }

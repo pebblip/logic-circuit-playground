@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCircuitStore } from '../../stores/circuitStore';
 import { circuitStorage } from '../../services/CircuitStorageService';
 import type {
@@ -42,18 +42,6 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
   // 利用可能なタグ一覧
   const [availableTags, setAvailableTags] = useState<string[]>([]);
 
-  // ダイアログが開かれた時に回路一覧を取得
-  useEffect(() => {
-    if (isOpen) {
-      loadCircuits();
-    }
-  }, [isOpen]);
-
-  // フィルタリング処理
-  useEffect(() => {
-    applyFilters();
-  }, [circuits, searchQuery, selectedTags, sortBy, sortOrder]);
-
   /**
    * 回路一覧を取得
    */
@@ -90,7 +78,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
   /**
    * フィルタリングを適用
    */
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...circuits];
 
     // 検索クエリでフィルタ
@@ -139,7 +127,19 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
     });
 
     setFilteredCircuits(filtered);
-  };
+  }, [circuits, searchQuery, selectedTags, sortBy, sortOrder]);
+
+  // ダイアログが開かれた時に回路一覧を取得
+  useEffect(() => {
+    if (isOpen) {
+      loadCircuits();
+    }
+  }, [isOpen]);
+
+  // フィルタリング処理
+  useEffect(() => {
+    applyFilters();
+  }, [circuits, searchQuery, selectedTags, sortBy, sortOrder, applyFilters]);
 
   /**
    * 回路を読み込み

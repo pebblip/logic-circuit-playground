@@ -1,13 +1,25 @@
 import React from 'react';
 import { TruthTableDisplay } from '@/components/TruthTableDisplay';
 
+export interface TruthTableResult {
+  table: Array<{
+    inputs: string;
+    outputs: string;
+    inputValues: boolean[];
+    outputValues: boolean[];
+  }>;
+  inputCount: number;
+  outputCount: number;
+  isSequential: boolean;
+}
+
 interface TruthTableModalProps {
   showTruthTableModal: boolean;
   truthTableData: {
     gateId: string;
     gateType: string;
     truthTable: Record<string, string>;
-    result?: any;
+    result?: TruthTableResult;
     inputNames?: string[];
     outputNames?: string[];
     gateName?: string;
@@ -55,13 +67,15 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
         }}
       >
         {/* 真理値表表示 */}
-        <TruthTableDisplay
-          result={truthTableData.result}
-          inputNames={truthTableData.inputNames || []}
-          outputNames={truthTableData.outputNames || []}
-          gateName={truthTableData.gateName || 'カスタムゲート'}
-          onClose={onClose}
-        />
+        {truthTableData.result && (
+          <TruthTableDisplay
+            result={truthTableData.result}
+            inputNames={truthTableData.inputNames || []}
+            outputNames={truthTableData.outputNames || []}
+            gateName={truthTableData.gateName || 'カスタムゲート'}
+            onClose={onClose}
+          />
+        )}
       </div>
     </div>
   );

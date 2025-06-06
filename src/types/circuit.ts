@@ -57,6 +57,37 @@ export interface CustomGateDefinition {
   updatedAt: number;
 }
 
+// ゲートのメタデータ型定義
+export interface GateMetadata {
+  // CLOCKゲート用
+  isRunning?: boolean;
+  frequency?: number;
+  previousClockState?: boolean;
+  startTime?: number;
+
+  // D-FFゲート用
+  qOutput?: boolean;
+  qBarOutput?: boolean;
+
+  // カウンター/特殊ゲート用
+  bitCount?: number;
+  maxValue?: number;
+
+  // ストレージメタデータ用
+  author?: string;
+  createdAt?: number;
+  description?: string;
+  name?: string;
+  tags?: string[];
+  thumbnail?: string;
+  updatedAt?: number;
+  id?: string;
+  validationTimeMs?: number;
+
+  // 将来の拡張用
+  [key: string]: unknown;
+}
+
 export interface Gate {
   id: string;
   type: GateType;
@@ -64,7 +95,7 @@ export interface Gate {
   inputs: string[]; // 入力ピンの状態
   output: boolean; // 出力ピンの状態（後方互換性のため残す）
   outputs?: boolean[]; // 複数出力のサポート（カスタムゲート用）
-  metadata?: any; // 特殊ゲート用の追加データ（後方互換性のため）
+  metadata?: GateMetadata; // 特殊ゲート用の追加データ
   customGateDefinition?: CustomGateDefinition; // カスタムゲート用定義
 }
 

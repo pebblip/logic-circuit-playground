@@ -85,10 +85,10 @@ export interface CircuitFilter {
 /**
  * 保存・読み込み操作の結果
  */
-export interface CircuitStorageResult {
+export interface CircuitStorageResult<T = unknown> {
   success: boolean;
   message?: string;
-  data?: any;
+  data?: T;
 }
 
 /**

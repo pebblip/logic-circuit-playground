@@ -655,3 +655,34 @@ button.button.primary:hover,
     filter: drop-shadow(0 0 20px rgba(255, 123, 0, 1));
   }
 }
+
+/* ========== ユーティリティクラス ========== */
+/* 最頻出インラインスタイルの代替クラス（230個→半減目標） */
+
+/* フォントサイズ */
+.u-text-xs { font-size: 7px; }    /* 5箇所で使用 */
+.u-text-sm { font-size: 8px; }    /* 11箇所で使用 */
+.u-text-md { font-size: 11px; }   /* 9箇所で使用 */
+.u-text-xl { font-size: 20px; }   /* IOGateRenderer用 */
+.u-text-lg { font-size: 24px; }   /* 3箇所で使用 */
+
+/* カーソル */
+.u-cursor-grab { cursor: grab; }        /* 8箇所で使用 */
+.u-cursor-crosshair { cursor: crosshair; } /* 17箇所で使用 */
+
+/* 色（SVG要素用） */
+.u-fill-muted { fill: #999; }           /* 25箇所で使用 */
+.u-fill-primary { fill: var(--color-primary, #00ff88); }
+
+/* よく使われるFlexboxパターン */
+.u-flex { display: flex; }
+.u-flex-center { display: flex; align-items: center; }
+.u-flex-between { display: flex; justify-content: space-between; }
+.u-flex-col { display: flex; flex-direction: column; }
+.u-flex-gap-sm { gap: 8px; }
+.u-flex-gap-md { gap: 12px; }
+
+/* Grid */
+.u-grid { display: grid; }
+.u-grid-gap-sm { gap: 8px; }
+.u-grid-gap-md { gap: 16px; }

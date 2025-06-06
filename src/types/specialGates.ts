@@ -9,6 +9,7 @@ export interface ClockMetadata {
   isRunning: boolean;
   startTime: number;
   lastToggleTime?: number;
+  [key: string]: unknown; // index signature for compatibility
 }
 
 // D-FFゲートのメタデータ
@@ -17,6 +18,7 @@ export interface DFlipFlopMetadata {
   previousClockState: boolean;
   qOutput: boolean;
   qBarOutput: boolean;
+  [key: string]: unknown; // index signature for compatibility
 }
 
 // SR-LATCHゲートのメタデータ
@@ -25,12 +27,14 @@ export interface SRLatchMetadata {
   qBarOutput: boolean;
   previousS?: boolean;
   previousR?: boolean;
+  [key: string]: unknown; // index signature for compatibility
 }
 
 // MUXゲートのメタデータ
 export interface MuxMetadata {
   dataInputCount: 2 | 4 | 8;
   selectedInput: number;
+  [key: string]: unknown; // index signature for compatibility
 }
 
 // 特殊ゲートの型定義

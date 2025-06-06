@@ -7,6 +7,7 @@ export const comparatorStructuredLesson: StructuredLesson = {
   difficulty: 'intermediate',
   prerequisites: ['xor-gate'],
   estimatedMinutes: 20,
+  availableGates: ['INPUT', 'OUTPUT', 'AND', 'XOR'],
   steps: [
     {
       id: 'intro',

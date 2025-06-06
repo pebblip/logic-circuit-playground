@@ -7,6 +7,7 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
   difficulty: 'advanced',
   prerequisites: ['register'],
   estimatedMinutes: 25,
+  availableGates: ['INPUT', 'OUTPUT', 'CLOCK', 'D-FF'],
   steps: [
     {
       id: 'intro',

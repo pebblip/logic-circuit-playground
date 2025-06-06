@@ -56,8 +56,11 @@ describe('useKeyboardShortcuts', () => {
       canUndo: vi.fn().mockReturnValue(true),
       canRedo: vi.fn().mockReturnValue(true),
       selectedGateId: null,
+      selectedGateIds: [],
       deleteGate: vi.fn(),
       deleteWire: vi.fn(),
+      copySelection: vi.fn(),
+      paste: vi.fn(),
     };
 
     (useCircuitStore as any).mockReturnValue(mockStore);
@@ -182,6 +185,7 @@ describe('useKeyboardShortcuts', () => {
     it('should delete selected gate on Delete key', () => {
       // Set up the store with a selected gate before rendering the hook
       mockStore.selectedGateId = 'gate-1';
+      mockStore.selectedGateIds = [];
       renderHook(() => useKeyboardShortcuts());
       
       const event = simulateKeydown('Delete');
@@ -192,6 +196,7 @@ describe('useKeyboardShortcuts', () => {
     it('should delete selected gate on Backspace key', () => {
       // Set up the store with a selected gate before rendering the hook
       mockStore.selectedGateId = 'gate-1';
+      mockStore.selectedGateIds = [];
       renderHook(() => useKeyboardShortcuts());
       
       const event = simulateKeydown('Backspace');
@@ -201,6 +206,7 @@ describe('useKeyboardShortcuts', () => {
 
     it('should not delete when no gate is selected', () => {
       mockStore.selectedGateId = null;
+      mockStore.selectedGateIds = [];
       renderHook(() => useKeyboardShortcuts());
       
       simulateKeydown('Delete');

@@ -94,7 +94,7 @@ export class CircuitStorageService {
       thumbnail?: string;
       overwrite?: boolean;
     } = {}
-  ): Promise<CircuitStorageResult> {
+  ): Promise<CircuitStorageResult<{ id: string }>> {
     try {
       // メタデータ生成
       const now = new Date().toISOString();
@@ -152,7 +152,9 @@ export class CircuitStorageService {
   /**
    * 回路を読み込み
    */
-  public async loadCircuit(circuitId: string): Promise<CircuitStorageResult> {
+  public async loadCircuit(
+    circuitId: string
+  ): Promise<CircuitStorageResult<SavedCircuit>> {
     try {
       const savedCircuit = await this.loadFromIndexedDB(circuitId);
 
@@ -188,7 +190,7 @@ export class CircuitStorageService {
    */
   public async listCircuits(
     filter: CircuitFilter = {}
-  ): Promise<CircuitStorageResult> {
+  ): Promise<CircuitStorageResult<CircuitMetadata[]>> {
     try {
       // まずはLocalStorageから高速でメタデータを取得
       const metadataList = this.getMetadataIndex();
@@ -216,7 +218,8 @@ export class CircuitStorageService {
       const sortOrder = filter.sortOrder || 'desc';
 
       filteredList.sort((a, b) => {
-        let aVal: any, bVal: any;
+        let aVal: string | number;
+        let bVal: string | number;
 
         switch (sortBy) {
           case 'name':
@@ -227,9 +230,15 @@ export class CircuitStorageService {
             aVal = a.stats.gateCount;
             bVal = b.stats.gateCount;
             break;
-          default:
+          case 'createdAt':
+          case 'updatedAt':
             aVal = new Date(a[sortBy]).getTime();
             bVal = new Date(b[sortBy]).getTime();
+            break;
+          default:
+            // デフォルトは更新日時でソート
+            aVal = new Date(a.updatedAt).getTime();
+            bVal = new Date(b.updatedAt).getTime();
         }
 
         return sortOrder === 'asc'
@@ -265,7 +274,9 @@ export class CircuitStorageService {
   /**
    * 回路を削除
    */
-  public async deleteCircuit(circuitId: string): Promise<CircuitStorageResult> {
+  public async deleteCircuit(
+    circuitId: string
+  ): Promise<CircuitStorageResult<void>> {
     try {
       // IndexedDBから削除
       await this.deleteFromIndexedDB(circuitId);
@@ -299,7 +310,7 @@ export class CircuitStorageService {
       includeThumbnail: false,
       compress: false,
     }
-  ): Promise<CircuitStorageResult> {
+  ): Promise<CircuitStorageResult<SavedCircuit>> {
     try {
       const result = await this.loadCircuit(circuitId);
       if (!result.success || !result.data) {
@@ -359,7 +370,7 @@ export class CircuitStorageService {
       generateNewName: true,
       validate: true,
     }
-  ): Promise<CircuitStorageResult> {
+  ): Promise<CircuitStorageResult<{ id: string }>> {
     try {
       const text = await file.text();
       const savedCircuit: SavedCircuit = JSON.parse(text);

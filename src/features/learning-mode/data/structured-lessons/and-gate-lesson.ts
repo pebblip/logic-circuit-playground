@@ -12,6 +12,7 @@ export const andGateStructuredLesson: StructuredLesson = {
   difficulty: 'beginner',
   prerequisites: [],
   estimatedMinutes: 10,
+  availableGates: ['INPUT', 'OUTPUT', 'AND'],
   steps: [
     {
       id: 'intro',

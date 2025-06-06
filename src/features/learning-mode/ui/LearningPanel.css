@@ -20,11 +20,34 @@
   right: 0;
   bottom: 0;
   left: auto;
-  width: 520px;
+  width: 30%; /* 画面幅の30% */
+  min-width: 480px; /* 最小幅 */
+  max-width: 600px; /* 最大幅 */
   background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
   border-left: 2px solid rgba(0, 255, 136, 0.3);
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(20px);
+  transition: width var(--transition-base);
+}
+
+/* タブレット向けレスポンシブ対応 */
+@media (max-width: 1024px) {
+  .learning-panel.lesson-active {
+    width: 40%;
+    min-width: 400px;
+    max-width: 500px;
+  }
+}
+
+/* モバイル向けレスポンシブ対応 */
+@media (max-width: 640px) {
+  .learning-panel.lesson-active {
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
+    border-left: none;
+    border-top: 2px solid rgba(0, 255, 136, 0.3);
+  }
 }
 
 /* 🏠 メイン学習画面 */

@@ -7,6 +7,7 @@ export const registerStructuredLesson: StructuredLesson = {
   difficulty: 'advanced',
   prerequisites: ['counter'],
   estimatedMinutes: 20,
+  availableGates: ['INPUT', 'OUTPUT', 'CLOCK', 'D-FF'],
   steps: [
     {
       id: 'intro',
@@ -92,11 +93,26 @@ export const registerStructuredLesson: StructuredLesson = {
           headers: ['種類', '用途', '特徴', '例'],
           rows: [
             ['汎用レジスタ', '演算・データ保存', '自由に使える', 'R0〜R15'],
-            ['データレジスタ', 'データの一時保存', '演算対象', 'AX, BX, CX, DX'],
-            ['アドレスレジスタ', 'メモリアドレス指定', 'ポインタ操作', 'SI, DI, BP'],
+            [
+              'データレジスタ',
+              'データの一時保存',
+              '演算対象',
+              'AX, BX, CX, DX',
+            ],
+            [
+              'アドレスレジスタ',
+              'メモリアドレス指定',
+              'ポインタ操作',
+              'SI, DI, BP',
+            ],
             ['プログラムカウンタ', '次の命令位置', '自動更新', 'PC'],
             ['スタックポインタ', 'スタック管理', 'PUSH/POP操作', 'SP'],
-            ['ステータスレジスタ', 'CPU状態・フラグ', '演算結果の状態', 'FLAGS'],
+            [
+              'ステータスレジスタ',
+              'CPU状態・フラグ',
+              '演算結果の状態',
+              'FLAGS',
+            ],
           ],
         },
         {
@@ -142,7 +158,19 @@ export const registerStructuredLesson: StructuredLesson = {
         },
         {
           type: 'table',
-          headers: ['時刻', 'CLK', 'D3', 'D2', 'D1', 'D0', '→', 'Q3', 'Q2', 'Q1', 'Q0'],
+          headers: [
+            '時刻',
+            'CLK',
+            'D3',
+            'D2',
+            'D1',
+            'D0',
+            '→',
+            'Q3',
+            'Q2',
+            'Q1',
+            'Q0',
+          ],
           rows: [
             ['t0', '0', '1', '0', '1', '1', '→', '0', '0', '0', '0'],
             ['t1', '↑', '1', '0', '1', '1', '→', '1', '0', '1', '1'],

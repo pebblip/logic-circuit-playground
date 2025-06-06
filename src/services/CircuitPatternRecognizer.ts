@@ -1,5 +1,12 @@
 import type { Gate, Wire } from '../types/circuit';
 
+export type PatternMetadata =
+  | { bitCount: number; clockGate: Gate; outputGates: Gate[]; maxValue: number } // led-counter
+  | { hours: number; minutes: number; seconds: number } // digital-clock
+  | { currentState: string; nextState: string } // traffic-light
+  | { isLocked: boolean; correctPassword: string } // password-lock
+  | Record<string, unknown>; // unknown
+
 export interface CircuitPattern {
   type:
     | 'led-counter'
@@ -10,7 +17,7 @@ export interface CircuitPattern {
   confidence: number; // 0-100
   description: string;
   relatedGates: Gate[];
-  metadata?: any;
+  metadata?: PatternMetadata;
 }
 
 export interface CounterPattern extends CircuitPattern {

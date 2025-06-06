@@ -8,6 +8,7 @@ import { useCircuitStore } from '../stores/circuitStore';
 import type { AppMode } from '../types/appMode';
 import type { CustomGateDefinition } from '../types/circuit';
 import { useMultipleDialogs } from '../hooks/useDialog';
+import { debug } from '../shared/debug';
 
 interface HeaderProps {
   activeMode: AppMode;
@@ -19,7 +20,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
     gates,
     wires: _wires,
     addCustomGate,
-    isLearningMode,
+    isLearningMode: _isLearningMode,
   } = useCircuitStore();
 
   // 統一ダイアログ管理
@@ -33,17 +34,17 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
 
   const handleSaveSuccess = () => {
     // 保存成功時の処理
-    console.log('✅ 回路が保存されました');
+    debug.log('✅ 回路が保存されました');
   };
 
   const handleLoadSuccess = () => {
     // 読み込み成功時の処理
-    console.log('✅ 回路が読み込まれました');
+    debug.log('✅ 回路が読み込まれました');
   };
 
   const handleExportSuccess = () => {
     // エクスポート成功時の処理
-    console.log('✅ 回路がエクスポートされました');
+    debug.log('✅ 回路がエクスポートされました');
   };
 
   const _handleShare = () => {
@@ -59,9 +60,15 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
   };
 
   // 回路からカスタムゲート作成
+  type GatePinInfo = {
+    name: string;
+    index: number;
+    gateId: string;
+  };
+
   const [customGateDialogData, setCustomGateDialogData] = React.useState<{
-    initialInputs: any[];
-    initialOutputs: any[];
+    initialInputs: GatePinInfo[];
+    initialOutputs: GatePinInfo[];
     isReadOnly: boolean;
   }>({
     initialInputs: [],
@@ -97,8 +104,8 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
       isReadOnly: true, // 回路から作成する場合はピン編集を無効化
     };
 
-    console.log('=== Header: Setting customGateDialogData ===');
-    console.log('newData:', newData);
+    debug.log('=== Header: Setting customGateDialogData ===');
+    debug.log('newData:', newData);
 
     setCustomGateDialogData(newData);
     dialogs.customGate.open();
@@ -107,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
   const handleCustomGateCreate = (definition: CustomGateDefinition) => {
     addCustomGate(definition);
     dialogs.customGate.close();
-    console.log('✅ カスタムゲートが作成されました');
+    debug.log('✅ カスタムゲートが作成されました');
 
     // ダイアログを閉じる際にデータをリセット
     setCustomGateDialogData({
@@ -138,7 +145,8 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
         </div>
 
         <div className="header-actions">
-          {!isLearningMode && (
+          {/* 自由制作モード時のアクション */}
+          {activeMode === '自由制作' && (
             <>
               <button
                 className="button"
@@ -166,7 +174,27 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
               </button>
             </>
           )}
-          {isLearningMode && (
+
+          {/* 学習モード時の表示 */}
+          {activeMode === '学習モード' && (
+            <div className="learning-mode-status">
+              <span className="learning-progress">
+                {/* ここに進捗表示を追加予定 */}
+                <span
+                  style={{
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    fontSize: '14px',
+                    marginRight: '12px',
+                  }}
+                >
+                  学習中
+                </span>
+              </span>
+            </div>
+          )}
+
+          {/* パズルモード時の表示 */}
+          {activeMode === 'パズル・チャレンジ' && (
             <span
               style={{
                 color: 'rgba(255, 255, 255, 0.6)',
@@ -174,9 +202,11 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
                 marginRight: '12px',
               }}
             >
-              学習モード中
+              パズルモード
             </span>
           )}
+
+          {/* ヘルプボタンは常に表示 */}
           <button
             className="button help-button"
             onClick={() => dialogs.help.open()}

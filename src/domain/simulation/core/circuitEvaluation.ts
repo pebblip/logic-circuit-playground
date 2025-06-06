@@ -51,7 +51,7 @@ export function evaluateCircuit(
   CircuitEvaluationResult,
   ValidationError | DependencyError | EvaluationError
 > {
-  const startTime = performance.now();
+  const startTime = Date.now();
   const debugTrace: DebugTraceEntry[] = [];
 
   try {
@@ -94,7 +94,7 @@ export function evaluateCircuit(
 
     if (config.enableDebug) {
       debugTrace.push({
-        timestamp: performance.now(),
+        timestamp: Date.now(),
         gateId: 'CIRCUIT',
         action: 'START_EVALUATION',
         data: {
@@ -105,13 +105,13 @@ export function evaluateCircuit(
     }
 
     // 2. 依存関係グラフ構築
-    const dependencyStart = performance.now();
+    const dependencyStart = Date.now();
     const dependencyResult = buildDependencyGraph(circuit);
     if (!dependencyResult.success) {
       return dependencyResult;
     }
     const dependencyGraph = dependencyResult.data;
-    const dependencyEnd = performance.now();
+    const dependencyEnd = Date.now();
 
     // 3. 循環依存チェック
     if (dependencyGraph.hasCycles) {
@@ -140,7 +140,7 @@ export function evaluateCircuit(
     }
 
     const { updatedCircuit, gateEvaluationTimes } = evaluationResult.data;
-    const endTime = performance.now();
+    const endTime = Date.now();
 
     // 5. 統計情報作成
     const stats: EvaluationStats = {
@@ -156,7 +156,7 @@ export function evaluateCircuit(
 
     if (config.enableDebug) {
       debugTrace.push({
-        timestamp: performance.now(),
+        timestamp: Date.now(),
         gateId: 'CIRCUIT',
         action: 'END_EVALUATION',
         data: { stats },
@@ -371,7 +371,7 @@ function buildDependencyGraph(
  */
 function topologicalSort(
   dependencies: Map<string, string[]>,
-  dependents: Map<string, string[]>
+  _dependents: Map<string, string[]>
 ): Result<{ evaluationOrder: string[]; cycles: string[][] }, DependencyError> {
   const visited = new Set<string>();
   const visiting = new Set<string>();
@@ -536,14 +536,14 @@ function evaluateCircuitStep(
 
       if (config.enableDebug) {
         debugTrace.push({
-          timestamp: performance.now(),
+          timestamp: Date.now(),
           gateId: gate.id,
           action: 'START_EVALUATION',
           data: { gateType: gate.type },
         });
       }
 
-      const gateStartTime = performance.now();
+      const gateStartTime = Date.now();
 
       // 入力値の収集
       const inputs = collectGateInputs(gate, gateInputWires, gateMap);
@@ -580,7 +580,7 @@ function evaluateCircuitStep(
         updateGateMetadata(gate, inputs);
       }
 
-      const gateEndTime = performance.now();
+      const gateEndTime = Date.now();
       gateEvaluationTimes.set(gateId, gateEndTime - gateStartTime);
 
       // ワイヤー状態の更新
@@ -588,7 +588,7 @@ function evaluateCircuitStep(
 
       if (config.enableDebug) {
         debugTrace.push({
-          timestamp: performance.now(),
+          timestamp: Date.now(),
           gateId: gate.id,
           action: 'END_EVALUATION',
           data: {
@@ -625,7 +625,7 @@ function evaluateCircuitStep(
 function collectGateInputs(
   gate: Gate,
   gateInputWires: Map<string, { wire: Wire; fromGate: Gate }[]>,
-  gateMap: Map<string, Gate>
+  _gateMap: Map<string, Gate>
 ): boolean[] {
   // 期待する入力数を計算
   let inputCount = 0;
@@ -783,8 +783,11 @@ function updateWireStates(
  * メモリ使用量を取得（Node.js環境のみ）
  */
 function getMemoryUsage(): { heapUsed: number; heapTotal: number } | undefined {
-  if (typeof process !== 'undefined' && process.memoryUsage) {
-    const usage = process.memoryUsage();
+  if (
+    typeof globalThis.process !== 'undefined' &&
+    globalThis.process.memoryUsage
+  ) {
+    const usage = globalThis.process.memoryUsage();
     return {
       heapUsed: usage.heapUsed,
       heapTotal: usage.heapTotal,
@@ -804,7 +807,7 @@ export function evaluateCircuitIncremental(
   circuit: Readonly<Circuit>,
   changedGateIds: readonly string[],
   previousResult: Readonly<CircuitEvaluationResult>,
-  config: Readonly<EvaluationConfig> = defaultConfig
+  _config: Readonly<EvaluationConfig> = defaultConfig
 ): Result<CircuitEvaluationResult, EvaluationError> {
   // TODO: 将来実装
   // 変更されたゲートとその依存関係のみを再評価
@@ -822,7 +825,7 @@ export function evaluateCircuitIncremental(
  */
 export function evaluateCircuitParallel(
   circuit: Readonly<Circuit>,
-  config: Readonly<EvaluationConfig> = defaultConfig
+  _config: Readonly<EvaluationConfig> = defaultConfig
 ): Result<CircuitEvaluationResult, EvaluationError> {
   // TODO: 将来実装
   // 依存関係のないゲートを並列評価

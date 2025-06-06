@@ -5,6 +5,7 @@ import { useCustomGateForm } from '@/hooks/useCustomGateForm';
 import { BasicInfoForm } from './custom-gate-dialog/BasicInfoForm';
 import { PinEditor } from './custom-gate-dialog/PinEditor';
 import { GatePreview } from './custom-gate-dialog/GatePreview';
+import { debug } from '@/shared/debug';
 
 interface CreateCustomGateDialogProps {
   isOpen: boolean;
@@ -26,11 +27,11 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
   // デバッグ: CreateCustomGateDialog でのprops受け取りを確認
   React.useEffect(() => {
     if (isOpen) {
-      console.log('=== CreateCustomGateDialog Props Debug ===');
-      console.log('isOpen:', isOpen);
-      console.log('initialInputs props:', initialInputs);
-      console.log('initialOutputs props:', initialOutputs);
-      console.log('isReadOnly:', isReadOnly);
+      debug.log('=== CreateCustomGateDialog Props Debug ===');
+      debug.log('isOpen:', isOpen);
+      debug.log('initialInputs props:', initialInputs);
+      debug.log('initialOutputs props:', initialOutputs);
+      debug.log('isReadOnly:', isReadOnly);
     }
   }, [isOpen, initialInputs, initialOutputs, isReadOnly]);
 
@@ -52,11 +53,11 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
     }
 
     // デバッグ: 保存時のフォームデータを確認
-    console.log('=== CreateCustomGateDialog Save Debug ===');
-    console.log('formData:', formData);
-    console.log('formData.inputs:', formData.inputs);
-    console.log('formData.outputs:', formData.outputs);
-    console.log(
+    debug.log('=== CreateCustomGateDialog Save Debug ===');
+    debug.log('formData:', formData);
+    debug.log('formData.inputs:', formData.inputs);
+    debug.log('formData.outputs:', formData.outputs);
+    debug.log(
       'formData.outputs structure:',
       JSON.stringify(formData.outputs, null, 2)
     );
@@ -77,8 +78,8 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
       updatedAt: Date.now(),
     };
 
-    console.log('Final definition created:', definition);
-    console.log('definition.outputs:', definition.outputs);
+    debug.log('Final definition created:', definition);
+    debug.log('definition.outputs:', definition.outputs);
 
     onSave(definition);
     // 保存後に状態をリセット

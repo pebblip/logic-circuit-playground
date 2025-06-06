@@ -7,6 +7,7 @@ export const trafficLightStructuredLesson: StructuredLesson = {
   difficulty: 'advanced',
   prerequisites: ['clock-sync'],
   estimatedMinutes: 30,
+  availableGates: ['OUTPUT', 'AND', 'CLOCK', 'D-FF', 'NOT'],
   steps: [
     {
       id: 'intro',

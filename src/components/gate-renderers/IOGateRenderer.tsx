@@ -35,7 +35,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
           onDoubleClick={handleInputDoubleClick}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
-          style={{ cursor: 'grab' }}
+          className="u-cursor-grab"
         >
           {/* スイッチトラック */}
           <rect
@@ -66,7 +66,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
             cy="0"
             r="15"
             fill="transparent"
-            style={{ cursor: 'crosshair' }}
+            className="u-cursor-crosshair"
             onClick={e => handlePinClick(e, 0, true)}
           />
           <circle
@@ -94,7 +94,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
           onClick={handleGateClick}
-          style={{ cursor: 'grab' }}
+          className="u-cursor-grab"
         >
           <circle
             cx="0"
@@ -110,7 +110,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
             r="15"
             fill={getGateInputValue(gate, 0) ? '#00ff88' : '#333'}
           />
-          <text x="0" y="5" className="gate-text" style={{ fontSize: '20px' }}>
+          <text x="0" y="5" className="gate-text u-text-xl">
             💡
           </text>
         </g>
@@ -122,7 +122,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
             cy="0"
             r="15"
             fill="transparent"
-            style={{ cursor: 'crosshair' }}
+            className="u-cursor-crosshair"
             onClick={e => handlePinClick(e, 0, false)}
           />
           <circle

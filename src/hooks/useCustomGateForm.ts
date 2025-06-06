@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { CustomGatePin } from '@/types/circuit';
+import { debug } from '@/shared/debug';
 
 export interface CustomGateFormData {
   gateName: string;
@@ -41,27 +42,27 @@ export const useCustomGateForm = ({
   useEffect(() => {
     if (isOpen) {
       // デバッグ: useCustomGateForm での初期化を確認
-      console.log('=== useCustomGateForm Initialization Debug ===');
-      console.log('isOpen:', isOpen);
-      console.log('initialInputs received:', initialInputs);
-      console.log('initialOutputs received:', initialOutputs);
-      console.log(
+      debug.log('=== useCustomGateForm Initialization Debug ===');
+      debug.log('isOpen:', isOpen);
+      debug.log('initialInputs received:', initialInputs);
+      debug.log('initialOutputs received:', initialOutputs);
+      debug.log(
         'initialInputs type:',
         typeof initialInputs,
         Array.isArray(initialInputs)
       );
-      console.log(
+      debug.log(
         'initialOutputs type:',
         typeof initialOutputs,
         Array.isArray(initialOutputs)
       );
 
       if (initialInputs) {
-        console.log('Setting inputs to:', initialInputs);
+        debug.log('Setting inputs to:', initialInputs);
         setInputs(initialInputs);
       }
       if (initialOutputs) {
-        console.log('Setting outputs to:', initialOutputs);
+        debug.log('Setting outputs to:', initialOutputs);
         setOutputs(initialOutputs);
       }
     }

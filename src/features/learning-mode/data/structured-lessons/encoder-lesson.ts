@@ -7,6 +7,7 @@ export const encoderStructuredLesson: StructuredLesson = {
   difficulty: 'intermediate',
   prerequisites: ['comparator'],
   estimatedMinutes: 20,
+  availableGates: ['INPUT', 'OUTPUT', 'OR'],
   steps: [
     {
       id: 'intro',

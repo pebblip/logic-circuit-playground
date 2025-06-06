@@ -7,6 +7,7 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
   difficulty: 'advanced',
   prerequisites: ['alu-basics'],
   estimatedMinutes: 25,
+  availableGates: ['INPUT', 'OUTPUT', 'CLOCK', 'D-FF'],
   steps: [
     {
       id: 'intro',

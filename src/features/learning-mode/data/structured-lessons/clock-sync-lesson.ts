@@ -7,6 +7,7 @@ export const clockSyncStructuredLesson: StructuredLesson = {
   difficulty: 'advanced',
   prerequisites: ['shift-register'],
   estimatedMinutes: 20,
+  availableGates: ['INPUT', 'OUTPUT', 'CLOCK', 'D-FF'],
   steps: [
     {
       id: 'intro',

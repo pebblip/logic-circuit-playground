@@ -9,7 +9,7 @@ const g = (
   type: GateType,
   x: number,
   y: number,
-  metadata?: any
+  metadata?: Record<string, unknown>
 ): Gate => ({
   id,
   type,

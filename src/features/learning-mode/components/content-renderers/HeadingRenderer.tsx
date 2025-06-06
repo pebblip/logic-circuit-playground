@@ -9,7 +9,7 @@ export const HeadingRenderer: React.FC<HeadingRendererProps> = ({
   content,
 }) => {
   const level = content.level || 2; // デフォルトをh2に設定
-  const Tag = `h${level}` as keyof JSX.IntrinsicElements;
+  const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
 
   return (
     <Tag className="explanation-heading">

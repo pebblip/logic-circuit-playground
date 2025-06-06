@@ -8,19 +8,19 @@
 /**
  * バリデーション結果の型
  */
-export interface ValidationResult {
+export interface ValidationResult<T = unknown> {
   /** バリデーションが成功したかどうか */
   isValid: boolean;
   /** エラーメッセージ（バリデーション失敗時） */
   error?: string;
   /** 清浄化された値（成功時） */
-  value?: any;
+  value?: T;
 }
 
 /**
  * バリデーション関数の型
  */
-export type ValidationFunction<T = any> = (value: T) => ValidationResult;
+export type ValidationFunction<T = unknown> = (value: T) => ValidationResult<T>;
 
 /**
  * バリデーションルールの設定
@@ -45,7 +45,7 @@ export class ValidationRules {
    * @returns バリデーション関数
    */
   static required(fieldName: string = 'この項目'): ValidationFunction<string> {
-    return (value: string): ValidationResult => {
+    return (value: string): ValidationResult<string> => {
       const trimmed = value?.trim() || '';
       if (!trimmed) {
         return {
@@ -73,7 +73,7 @@ export class ValidationRules {
     max: number = Infinity,
     fieldName: string = 'この項目'
   ): ValidationFunction<string> {
-    return (value: string): ValidationResult => {
+    return (value: string): ValidationResult<string> => {
       const trimmed = value?.trim() || '';
       const length = trimmed.length;
 
@@ -103,7 +103,7 @@ export class ValidationRules {
    * 統一された回路名の検証ルール
    */
   static circuitName(): ValidationFunction<string> {
-    return (value: string): ValidationResult => {
+    return (value: string): ValidationResult<string> => {
       const trimmed = value?.trim() || '';
 
       // 必須チェック
@@ -144,7 +144,7 @@ export class ValidationRules {
    * 統一されたゲート名の検証ルール
    */
   static gateName(): ValidationFunction<string> {
-    return (value: string): ValidationResult => {
+    return (value: string): ValidationResult<string> => {
       const trimmed = value?.trim() || '';
 
       // 必須チェック
@@ -184,7 +184,7 @@ export class ValidationRules {
    * 表示名のバリデーション（カスタムゲート用）
    */
   static displayName(): ValidationFunction<string> {
-    return (value: string): ValidationResult => {
+    return (value: string): ValidationResult<string> => {
       const trimmed = value?.trim() || '';
 
       // 必須チェック
@@ -214,7 +214,7 @@ export class ValidationRules {
    * 説明文のバリデーション
    */
   static description(): ValidationFunction<string> {
-    return (value: string): ValidationResult => {
+    return (value: string): ValidationResult<string> => {
       const trimmed = value?.trim() || '';
 
       // 最大文字数チェック（500文字）
@@ -236,7 +236,7 @@ export class ValidationRules {
    * タグのバリデーション
    */
   static tag(): ValidationFunction<string> {
-    return (value: string): ValidationResult => {
+    return (value: string): ValidationResult<string> => {
       const trimmed = value?.trim() || '';
 
       if (!trimmed) {
@@ -275,7 +275,7 @@ export class ValidationRules {
   static fileName(
     allowedExtensions: string[] = []
   ): ValidationFunction<string> {
-    return (value: string): ValidationResult => {
+    return (value: string): ValidationResult<string> => {
       const trimmed = value?.trim() || '';
 
       if (!trimmed) {
@@ -323,7 +323,7 @@ export class ValidationRules {
     min: number = -Infinity,
     max: number = Infinity
   ): ValidationFunction<string | number> {
-    return (value: string | number): ValidationResult => {
+    return (value: string | number): ValidationResult<string | number> => {
       const num = typeof value === 'string' ? parseFloat(value) : value;
 
       if (isNaN(num)) {
@@ -358,7 +358,7 @@ export class ValidationRules {
    * 周波数のバリデーション（CLOCK ゲート用）
    */
   static frequency(): ValidationFunction<string | number> {
-    return (value: string | number): ValidationResult => {
+    return (value: string | number): ValidationResult<string | number> => {
       const num = typeof value === 'string' ? parseFloat(value) : value;
 
       if (isNaN(num)) {
@@ -396,7 +396,7 @@ export class ValidationRules {
 export function combineValidations<T>(
   ...validators: ValidationFunction<T>[]
 ): ValidationFunction<T> {
-  return (value: T): ValidationResult => {
+  return (value: T): ValidationResult<T> => {
     for (const validator of validators) {
       const result = validator(value);
       if (!result.isValid) {
@@ -416,14 +416,14 @@ export function combineValidations<T>(
  * フォーム全体のバリデーション
  */
 export class FormValidator {
-  private fields: Record<string, ValidationFunction> = {};
-  private values: Record<string, any> = {};
+  private fields: Record<string, ValidationFunction<unknown>> = {};
+  private values: Record<string, unknown> = {};
   private errors: Record<string, string> = {};
 
   /**
    * フィールドのバリデーションルールを追加
    */
-  addField(name: string, validator: ValidationFunction): this {
+  addField(name: string, validator: ValidationFunction<unknown>): this {
     this.fields[name] = validator;
     return this;
   }
@@ -431,7 +431,7 @@ export class FormValidator {
   /**
    * 値を設定
    */
-  setValue(name: string, value: any): this {
+  setValue(name: string, value: unknown): this {
     this.values[name] = value;
     return this;
   }
@@ -439,7 +439,7 @@ export class FormValidator {
   /**
    * 複数の値を設定
    */
-  setValues(values: Record<string, any>): this {
+  setValues(values: Record<string, unknown>): this {
     this.values = { ...this.values, ...values };
     return this;
   }
@@ -447,7 +447,7 @@ export class FormValidator {
   /**
    * 単一フィールドのバリデーション
    */
-  validateField(name: string): ValidationResult {
+  validateField(name: string): ValidationResult<unknown> {
     const validator = this.fields[name];
     const value = this.values[name];
 
@@ -473,7 +473,7 @@ export class FormValidator {
   validateAll(): {
     isValid: boolean;
     errors: Record<string, string>;
-    values: Record<string, any>;
+    values: Record<string, unknown>;
   } {
     this.errors = {};
 
@@ -505,14 +505,14 @@ export class FormValidator {
   /**
    * バリデーション済みの値を取得
    */
-  getValue(name: string): any {
+  getValue(name: string): unknown {
     return this.values[name];
   }
 
   /**
    * 全ての値を取得
    */
-  getValues(): Record<string, any> {
+  getValues(): Record<string, unknown> {
     return { ...this.values };
   }
 
@@ -543,27 +543,29 @@ export class FormValidator {
 export function validate<T>(
   value: T,
   validator: ValidationFunction<T>
-): ValidationResult {
+): ValidationResult<T> {
   return validator(value);
 }
 
 /**
  * 回路名の即座なバリデーション
  */
-export function validateCircuitName(name: string): ValidationResult {
+export function validateCircuitName(name: string): ValidationResult<string> {
   return ValidationRules.circuitName()(name);
 }
 
 /**
  * ゲート名の即座なバリデーション
  */
-export function validateGateName(name: string): ValidationResult {
+export function validateGateName(name: string): ValidationResult<string> {
   return ValidationRules.gateName()(name);
 }
 
 /**
  * ファイル名の即座なバリデーション（JSON ファイル）
  */
-export function validateJsonFileName(fileName: string): ValidationResult {
+export function validateJsonFileName(
+  fileName: string
+): ValidationResult<string> {
   return ValidationRules.fileName(['.json'])(fileName);
 }

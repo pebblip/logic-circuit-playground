@@ -137,9 +137,10 @@ export interface StructuredLesson {
   objective?: string;
   category?: string;
   lessonType?: string;
-  icon: string;
+  icon?: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   prerequisites: string[];
   estimatedMinutes: number;
   steps: StructuredLessonStep[];
+  availableGates?: string[]; // レッスンで使用可能なゲートタイプ
 }

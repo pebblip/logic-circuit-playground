@@ -52,7 +52,10 @@ export const ContentRenderer: React.FC<ContentRendererProps> = ({
       return <AsciiArtRenderer content={content} />;
 
     default:
-      console.warn('Unknown content type:', (content as any).type);
+      console.warn(
+        'Unknown content type:',
+        (content as { type: unknown }).type
+      );
       return null;
   }
 };

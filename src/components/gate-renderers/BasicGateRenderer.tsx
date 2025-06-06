@@ -32,7 +32,7 @@ export const BasicGateRenderer: React.FC<BasicGateRendererProps> = ({
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onClick={handleGateClick}
-        style={{ cursor: 'grab' }}
+        className="u-cursor-grab"
       >
         <rect
           className={`gate ${isSelected ? 'selected' : ''}`}
@@ -60,7 +60,7 @@ export const BasicGateRenderer: React.FC<BasicGateRendererProps> = ({
               cy={y}
               r="15"
               fill="transparent"
-              style={{ cursor: 'crosshair' }}
+              className="u-cursor-crosshair"
               onClick={e => handlePinClick(e, index, false)}
             />
             <circle
@@ -90,7 +90,7 @@ export const BasicGateRenderer: React.FC<BasicGateRendererProps> = ({
           cy="0"
           r="15"
           fill="transparent"
-          style={{ cursor: 'crosshair' }}
+          className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, true)}
         />
         <circle

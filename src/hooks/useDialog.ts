@@ -56,8 +56,8 @@ interface DialogState<T> {
  * ```typescript
  * // 基本的な使用例
  * const saveDialog = useDialog({
- *   onOpen: () => console.log('Save dialog opened'),
- *   onClose: () => console.log('Save dialog closed')
+ *   onOpen: () => debug.log('Save dialog opened'),
+ *   onClose: () => debug.log('Save dialog closed')
  * });
  *
  * // データ付きの使用例
@@ -68,8 +68,8 @@ interface DialogState<T> {
  *
  * const truthTableDialog = useDialog<TruthTableData>({
  *   initialData: null,
- *   onOpen: (data) => console.log('Truth table opened for:', data?.gateType),
- *   onClose: () => console.log('Truth table closed')
+ *   onOpen: (data) => debug.log('Truth table opened for:', data?.gateType),
+ *   onClose: () => debug.log('Truth table closed')
  * });
  *
  * // 使用方法
@@ -89,7 +89,7 @@ interface DialogState<T> {
  * />
  * ```
  */
-export function useDialog<T = any>(
+export function useDialog<T = unknown>(
   options: DialogOptions<T> = {}
 ): DialogState<T> {
   const [isOpen, setIsOpen] = useState(false);
@@ -191,9 +191,9 @@ export function useDialog<T = any>(
  * @example
  * ```typescript
  * const dialogs = useMultipleDialogs({
- *   save: { onOpen: () => console.log('Save opened') },
- *   load: { onOpen: () => console.log('Load opened') },
- *   export: { onOpen: () => console.log('Export opened') }
+ *   save: { onOpen: () => debug.log('Save opened') },
+ *   load: { onOpen: () => debug.log('Load opened') },
+ *   export: { onOpen: () => debug.log('Export opened') }
  * });
  *
  * // 使用方法
@@ -207,17 +207,23 @@ export function useDialog<T = any>(
  * ```
  */
 export function useMultipleDialogs<
-  T extends Record<string, DialogOptions<any>>,
+  T extends Record<string, DialogOptions<unknown>>,
 >(
   dialogConfigs: T
 ): {
-  [K in keyof T]: DialogState<T[K] extends DialogOptions<infer U> ? U : any>;
+  [K in keyof T]: DialogState<
+    T[K] extends DialogOptions<infer U> ? U : unknown
+  >;
 } {
-  const dialogs = {} as any;
+  const dialogs = {} as {
+    [K in keyof T]: DialogState<
+      T[K] extends DialogOptions<infer U> ? U : unknown
+    >;
+  };
 
   for (const [key, config] of Object.entries(dialogConfigs)) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    dialogs[key] = useDialog(config);
+    (dialogs as Record<string, DialogState<unknown>>)[key] = useDialog(config);
   }
 
   return dialogs;
@@ -234,13 +240,13 @@ export function useMultipleDialogs<
  * const modal = useModalDialog({
  *   closeOnEscape: true,
  *   closeOnBackdropClick: true,
- *   onOpen: () => console.log('Modal opened')
+ *   onOpen: () => debug.log('Modal opened')
  * });
  *
  * // ESCキーでモーダルが自動的に閉じる
  * ```
  */
-export function useModalDialog<T = any>(
+export function useModalDialog<T = unknown>(
   options: DialogOptions<T> & {
     closeOnEscape?: boolean;
     closeOnBackdropClick?: boolean;

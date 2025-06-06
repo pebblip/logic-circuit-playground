@@ -436,10 +436,11 @@ describe('customGateStorageEnhanced', () => {
     });
 
     it('移行後の検証に失敗した場合nullを返す', () => {
+      // idやnameが欠けている場合はnullを返す
       const oldData = {
-        id: 'old1',
+        // idが欠如
         name: 'OldGate',
-        width: 'not a number', // 不正な型
+        width: 100,
       };
 
       const migrated = migrateOldFormat(oldData);

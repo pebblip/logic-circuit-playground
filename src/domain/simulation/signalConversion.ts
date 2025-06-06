@@ -1,6 +1,8 @@
 // 信号型変換ユーティリティ
 // boolean ↔ string の変換を統一的に管理
 
+import { debug } from '@/shared/debug';
+
 /**
  * boolean値をUI表示用の文字列に変換
  * @param value boolean値
@@ -87,12 +89,12 @@ export function getGateInputsAsBoolean(gate: {
  * @param signal 信号値
  * @param context デバッグコンテキスト
  */
-export function debugSignal(signal: any, context: string): void {
-  if (
-    process.env.NODE_ENV === 'development' ||
-    process.env.NODE_ENV === 'test'
-  ) {
-    console.debug(`[Signal Debug] ${context}:`, {
+export function debugSignal(
+  signal: string | boolean | unknown,
+  context: string
+): void {
+  if (import.meta.env.DEV || import.meta.env.MODE === 'test') {
+    debug.log(`[Signal Debug] ${context}:`, {
       value: signal,
       type: typeof signal,
       isBoolean: typeof signal === 'boolean',
