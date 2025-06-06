@@ -4,7 +4,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
   id: 'sr-latch',
   title: 'SRラッチ - 最もシンプルなメモリ',
   description: 'セット・リセット機能を持つ基本的な記憶回路を作ります',
-  icon: '🔒',
   difficulty: 'advanced',
   prerequisites: ['d-flip-flop'],
   estimatedMinutes: 20,
@@ -20,7 +19,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤔 SRラッチとは？',
-          icon: '🤔',
         },
         {
           type: 'text',
@@ -29,7 +27,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '「ラッチ」は「掛け金」の意味 - 状態を保持します',
-          icon: '🔐',
         },
       ],
     },
@@ -40,7 +37,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 真理値表',
-          icon: '📊',
         },
         {
           type: 'table',
@@ -55,7 +51,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'S=1,R=1は使用禁止！予測不能な動作になります',
-          icon: '⚠️',
         },
       ],
     },
@@ -66,7 +61,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔄 自己保持の仕組み',
-          icon: '🔄',
         },
         {
           type: 'text',
@@ -84,7 +78,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'この相互フィードバックが記憶を可能にします！',
-          icon: '💡',
         },
       ],
     },
@@ -95,7 +88,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔧 基本構成',
-          icon: '🔧',
         },
         {
           type: 'text',
@@ -123,7 +115,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 SR-LATCHゲートの仕様',
-          icon: '🎯',
         },
         {
           type: 'list',
@@ -197,7 +188,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '電源投入時の状態は不定です',
-          icon: '🎲',
         },
       ],
       action: { type: 'toggle-input' },
@@ -213,7 +203,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'Sを0に戻してもQ=1のまま！',
-          icon: '✨',
         },
       ],
       action: { type: 'toggle-input' },
@@ -247,7 +236,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '⚠️ S=1, R=1の危険性',
-          icon: '⚠️',
         },
         {
           type: 'text',
@@ -265,7 +253,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '試してみてもOKですが、実際の設計では禁止！',
-          icon: '🚫',
         },
       ],
     },
@@ -276,7 +263,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎛️ Enable信号の追加',
-          icon: '🎛️',
         },
         {
           type: 'text',
@@ -300,7 +286,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 実用例',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -322,7 +307,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '⚖️ 特徴比較',
-          icon: '⚖️',
         },
         {
           type: 'table',
@@ -341,7 +325,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎢 エネルギーの観点',
-          icon: '🎢',
         },
         {
           type: 'text',
@@ -359,7 +342,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'ボールが2つの谷のどちらかに落ち着くイメージ',
-          icon: '⚪',
         },
       ],
     },
@@ -370,7 +352,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 習得したスキル',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -385,7 +366,6 @@ export const srLatchStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これがすべてのメモリの出発点です！',
-          icon: '🌱',
         },
       ],
     },

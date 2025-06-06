@@ -9,7 +9,6 @@ export const andGateStructuredLesson: StructuredLesson = {
     'ANDゲートの基本動作を理解し、真理値表を確認して論理積の概念を習得する',
   category: '基本ゲート',
   lessonType: 'gate-intro',
-  icon: '🎯',
   difficulty: 'beginner',
   prerequisites: [],
   estimatedMinutes: 10,
@@ -26,7 +25,6 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📚 ANDゲートの歴史',
-          icon: '📚',
         },
         {
           type: 'text',
@@ -35,7 +33,6 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '🔍 論理積の記号：数学では「∧」、プログラミングでは「&&」や「AND」と表記します',
-          icon: '🔍',
         },
       ],
     },
@@ -46,7 +43,6 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔌 ANDゲートの電気的な意味',
-          icon: '🔌',
         },
         {
           type: 'text',
@@ -97,7 +93,6 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '入力をダブルクリックすると、OFF（0）とON（1）が切り替わります。',
-          icon: '💡',
         },
       ],
       action: { type: 'toggle-input' },
@@ -120,7 +115,6 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💡 発見：ANDゲートが1を出力するのは「両方とも1」の時だけ！',
-          icon: '💡',
         },
       ],
     },
@@ -141,12 +135,10 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '📊 確率：4パターン中1パターンのみ出力が1になる（25%）',
-          icon: '📊',
         },
         {
           type: 'heading',
           text: '🎯 ANDとORの比較',
-          icon: '🎯',
         },
         {
           type: 'comparison',
@@ -180,7 +172,6 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔐 セキュリティシステム',
-          icon: '🔐',
         },
         {
           type: 'list',
@@ -196,7 +187,6 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🚗 自動車の安全装置',
-          icon: '🚗',
         },
         {
           type: 'list',
@@ -210,7 +200,6 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏭 工場の安全装置',
-          icon: '🏭',
         },
         {
           type: 'text',
@@ -233,7 +222,6 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📐 AND演算のさまざまな表記法',
-          icon: '📐',
         },
         {
           type: 'list',
@@ -248,7 +236,6 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '💡 なぜ乗算記号？ 0×0=0, 0×1=0, 1×0=0, 1×1=1 とANDの真理値表が同じだから！',
-          icon: '💡',
         },
       ],
     },
@@ -274,10 +261,18 @@ export const andGateStructuredLesson: StructuredLesson = {
       instruction: '【応用クイズ】',
       content: [
         {
+          type: 'text',
+          text: 'ANDゲートは3つ以上の入力を持つこともできます。3入力ANDは全ての入力が1の時だけ1を出力します。',
+        },
+        {
           type: 'quiz',
           question: '3入力ANDゲートで出力が1になる確率は？',
           options: ['12.5%（1/8）', '25%（2/8）', '37.5%（3/8）', '50%（4/8）'],
           correctIndex: 0,
+        },
+        {
+          type: 'note',
+          text: '3入力の組み合わせは2³=8通り。その中で全てが1になるのは1通りだけ！',
         },
       ],
     },
@@ -288,7 +283,6 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎆 今日学んだこと',
-          icon: '🎆',
         },
         {
           type: 'list',
@@ -303,7 +297,6 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '🚀 次は「ORゲート」を学びましょう！',
-          icon: '🚀',
         },
       ],
     },

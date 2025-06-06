@@ -4,7 +4,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
   id: '4bit-adder',
   title: '4ビット加算器 - 本格的な計算機',
   description: '4ビットの数同士を足し算できる実用的な回路を作ります',
-  icon: '🔢',
   difficulty: 'intermediate',
   prerequisites: ['full-adder'],
   estimatedMinutes: 25,
@@ -20,7 +19,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 目標',
-          icon: '🎯',
         },
         {
           type: 'text',
@@ -29,7 +27,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '4ビットで表せるのは0〜15まで。16以上は5ビット目（繰り上がり）が必要！',
-          icon: '💡',
         },
       ],
     },
@@ -40,7 +37,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 4ビットで表せる数',
-          icon: '📊',
         },
         {
           type: 'table',
@@ -59,13 +55,42 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
       ],
     },
     {
+      id: 'cascade-connection',
+      instruction: '4つの全加算器のカスケード接続',
+      content: [
+        {
+          type: 'heading',
+          text: '🔗 カスケード接続図',
+        },
+        {
+          type: 'text',
+          text: '4ビットリップルキャリー加算器の構成：',
+        },
+        {
+          type: 'ascii-art',
+          art: `     A3 B3      A2 B2      A1 B1      A0 B0
+      │ │        │ │        │ │        │ │
+    ┌─┴─┴─┐    ┌─┴─┴─┐    ┌─┴─┴─┐    ┌─┴─┴─┐
+C4◀─┤ FA3 ├◀─C3─┤ FA2 ├◀─C2─┤ FA1 ├◀─C1─┤ FA0 ├◀─▐0
+    └──┬──┘    └──┬──┘    └──┬──┘    └──┬──┘
+       │           │           │           │
+       S3          S2          S1          S0
+
+    ←───────────── 繰り上がりの流れ ─────────────→`,
+        },
+        {
+          type: 'note',
+          text: '各全加算器（FA）はA、B、Cinを3入力、Sum、Coutを2出力',
+        },
+      ],
+    },
+    {
       id: 'design-concept',
       instruction: '設計コンセプト：リップルキャリー',
       content: [
         {
           type: 'heading',
           text: '🔗 全加算器を4つ連結！',
-          icon: '🔗',
         },
         {
           type: 'text',
@@ -84,7 +109,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '繰り上がりが波のように伝わるので「リップル（波紋）」キャリー',
-          icon: '🌊',
         },
       ],
     },
@@ -99,7 +123,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💡 カスタムゲートを活用！',
-          icon: '💡',
         },
         {
           type: 'text',
@@ -108,7 +131,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'まだ全加算器を保存していない場合は、先に作成して保存してください',
-          icon: '⚠️',
         },
       ],
     },
@@ -143,7 +165,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '最下位ビット（1の位）は半加算器でもOK（Cin=0だから）',
-          icon: '💡',
         },
       ],
       action: { type: 'place-gate', gateType: 'CUSTOM' },
@@ -197,7 +218,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '結果は 00101（5）になるはずです',
-          icon: '🎯',
         },
       ],
       action: { type: 'toggle-input' },
@@ -213,7 +233,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '結果は 10000（16）- 5ビット目に繰り上がり！',
-          icon: '🎯',
         },
       ],
       action: { type: 'toggle-input' },
@@ -229,10 +248,71 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '結果は 11110（30）になります',
-          icon: '🎯',
         },
       ],
       action: { type: 'toggle-input' },
+    },
+    {
+      id: 'propagation-delay',
+      instruction: 'キャリー伝播遅延の視覚化',
+      content: [
+        {
+          type: 'heading',
+          text: '⏱️ 伝播遅延の問題',
+        },
+        {
+          type: 'text',
+          text: '最悪のケース：1111 + 0001 の計算時間',
+        },
+        {
+          type: 'table',
+          headers: ['時間', 'FA0', 'FA1', 'FA2', 'FA3', '状態'],
+          rows: [
+            ['0ns', '計算中', '待機', '待機', '待機', 'FA0が計算開始'],
+            ['2ns', 'C1=1', '計算中', '待機', '待機', 'FA1が計算開始'],
+            ['4ns', '完了', 'C2=1', '計算中', '待機', 'FA2が計算開始'],
+            ['6ns', '完了', '完了', 'C3=1', '計算中', 'FA3が計算開始'],
+            ['8ns', '完了', '完了', '完了', 'C4=1', '全体完了'],
+          ],
+        },
+        {
+          type: 'note',
+          text: '32ビットの場合、最大64nsの遅延！2ns/ゲートと仮定）',
+        },
+      ],
+    },
+    {
+      id: 'step-by-step-calculation',
+      instruction: '2進数計算の段階的実行例',
+      content: [
+        {
+          type: 'heading',
+          text: '🔢 実例：1010 + 0110 = ?',
+        },
+        {
+          type: 'text',
+          text: '各桁の計算過程：',
+        },
+        {
+          type: 'table',
+          headers: ['桁', 'A', 'B', 'Cin', '計算', 'Sum', 'Cout'],
+          rows: [
+            ['1の位', '0', '0', '0', '0+0+0', '0', '0'],
+            ['2の位', '1', '1', '0', '1+1+0', '0', '1'],
+            ['4の位', '0', '1', '1', '0+1+1', '0', '1'],
+            ['8の位', '1', '0', '1', '1+0+1', '0', '1'],
+            ['繰上り', '-', '-', '1', '-', '-', '1'],
+          ],
+        },
+        {
+          type: 'text',
+          text: '結果：10000（16を表す）',
+        },
+        {
+          type: 'note',
+          text: '10 + 6 = 16 の計算が正しく行われました！',
+        },
+      ],
     },
     {
       id: 'ripple-effect',
@@ -241,7 +321,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🌊 繰り上がりの波',
-          icon: '🌊',
         },
         {
           type: 'text',
@@ -261,7 +340,44 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '繰り上がりが連鎖的に伝わる様子が「波紋」のよう！',
-          icon: '💫',
+        },
+      ],
+    },
+    {
+      id: 'carry-lookahead',
+      instruction: '【発展】キャリールックアヘッドとの比較',
+      content: [
+        {
+          type: 'heading',
+          text: '⚡ 高速化技術：キャリールックアヘッド',
+        },
+        {
+          type: 'table',
+          headers: ['方式', '遅延時間', '回路規模', '特徴'],
+          rows: [
+            ['リップルキャリー', 'O(n)', '小', 'シンプル、遅い'],
+            ['キャリールックアヘッド', 'O(log n)', '大', '複雑、高速'],
+            ['ハイブリッド', 'O(sqrt(n))', '中', 'バランス型'],
+          ],
+        },
+        {
+          type: 'text',
+          text: `キャリールックアヘッドの基本原理：
+
+G (Generate): その桁で繰り上がりが必ず発生
+  Gi = Ai ∧ Bi
+
+P (Propagate): その桁で繰り上がりが伝播
+  Pi = Ai ⊕ Bi
+
+繰り上がりの予測：
+  C1 = G0 + P0∙C0
+  C2 = G1 + P1∙G0 + P1∙P0∙C0
+  C3 = G2 + P2∙G1 + P2∙P1∙G0 + P2∙P1∙P0∙C0`,
+        },
+        {
+          type: 'note',
+          text: '全ての繰り上がりを並列に計算できるため高速！',
         },
       ],
     },
@@ -272,7 +388,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 現代のCPU',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -286,7 +401,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '⚡ 高速化の工夫',
-          icon: '⚡',
         },
         {
           type: 'list',
@@ -306,7 +420,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 できるようになったこと',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -321,7 +434,6 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これがコンピュータの計算の基礎です！',
-          icon: '✨',
         },
       ],
     },
@@ -334,6 +446,17 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
           question: '4ビット加算器で 1111 + 0001 を計算した結果は？',
           options: ['1111（15）', '0000（0）', '10000（16）', 'エラー'],
           correctIndex: 2,
+        },
+        {
+          type: 'quiz',
+          question: 'リップルキャリー加算器の最大の問題点は？',
+          options: [
+            '回路が複雑',
+            '繰り上がりの伝播遅延',
+            '消費電力が大きい',
+            'コストが高い',
+          ],
+          correctIndex: 1,
         },
       ],
     },

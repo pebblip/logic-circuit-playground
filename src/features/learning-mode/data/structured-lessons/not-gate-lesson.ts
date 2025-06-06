@@ -6,7 +6,6 @@ export const notGateStructuredLesson: StructuredLesson = {
   description: '入力を反転させる最もシンプルで重要なゲートを学びます',
   objective:
     'NOTゲートの動作原理を理解し、論理否定の概念を習得。デジタル回路における反転の重要性を学びます',
-  icon: '🔄',
   difficulty: 'beginner',
   prerequisites: ['digital-basics'],
   estimatedMinutes: 10,
@@ -22,7 +21,6 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🌍 身近な例',
-          icon: '🌍',
         },
         {
           type: 'list',
@@ -38,7 +36,6 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '💡 NOTゲートは「否定」「反転」「インバータ」とも呼ばれます',
-          icon: '💡',
         },
       ],
     },
@@ -77,7 +74,6 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '入力をダブルクリックすると、OFF（0）とON（1）が切り替わります。',
-          icon: '💡',
         },
       ],
       action: { type: 'toggle-input' },
@@ -98,7 +94,6 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💡 重要な発見',
-          icon: '💡',
         },
         {
           type: 'list',
@@ -136,7 +131,6 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '⚡ NOTゲートの電気回路',
-          icon: '⚡',
         },
         {
           type: 'text',
@@ -153,7 +147,6 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '🔬 現代のCPUには数十億個のトランジスタが入っています！',
-          icon: '🔬',
         },
       ],
     },
@@ -164,7 +157,6 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📐 回路図での表現',
-          icon: '📐',
         },
         {
           type: 'text',
@@ -173,7 +165,6 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📐 さまざまな表記法',
-          icon: '📐',
         },
         {
           type: 'list',
@@ -188,7 +179,6 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '📝 数学では「否定」、電子工学では「インバータ」と呼ばれます',
-          icon: '📝',
         },
       ],
     },
@@ -199,7 +189,6 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔧 実際の使用例',
-          icon: '🔧',
         },
         {
           type: 'list',
@@ -236,12 +225,10 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'ヒント：負の負は正...？',
-          icon: '🤔',
         },
         {
           type: 'heading',
           text: '🔄 ダブルNOTの真理値表',
-          icon: '🔄',
         },
         {
           type: 'table',
@@ -264,7 +251,6 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎆 デ・モルガンの法則',
-          icon: '🎆',
         },
         {
           type: 'text',
@@ -281,12 +267,10 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '💡 これにより、ANDとORを相互変換できます！',
-          icon: '💡',
         },
         {
           type: 'heading',
           text: '🔄 オシレータ回路',
-          icon: '🔄',
         },
         {
           type: 'text',

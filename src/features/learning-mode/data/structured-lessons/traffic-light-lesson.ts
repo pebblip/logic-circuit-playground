@@ -4,7 +4,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
   id: 'traffic-light',
   title: '信号機 - 実用的な制御回路',
   description: '赤・黄・青の信号を自動制御する回路を作ります',
-  icon: '🚦',
   difficulty: 'advanced',
   prerequisites: ['clock-sync'],
   estimatedMinutes: 30,
@@ -20,22 +19,24 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤔 信号機の要件',
-          icon: '🤔',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '🔴 赤：停止（30秒）',
-            '🟡 黄：注意（3秒）',
-            '🟢 青：進行（27秒）',
+            '🔴 赤：停止',
+            '🟡 黄：注意',
+            '🟢 青：進行',
             '♻️ 自動的に繰り返し',
           ],
         },
         {
+          type: 'text',
+          text: '実際の信号機では赤30秒、青27秒、黄3秒などの時間配分がありますが、',
+        },
+        {
           type: 'note',
           text: '実際の信号機はもっと複雑ですが、基本原理は同じです',
-          icon: '💡',
         },
       ],
     },
@@ -46,7 +47,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔄 3つの状態',
-          icon: '🔄',
         },
         {
           type: 'text',
@@ -64,7 +64,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これを「有限状態機械（FSM）」と呼びます',
-          icon: '🎯',
         },
       ],
     },
@@ -75,7 +74,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔢 2ビットで表現',
-          icon: '🔢',
         },
         {
           type: 'table',
@@ -100,7 +98,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '⏱️ 時間管理',
-          icon: '⏱️',
         },
         {
           type: 'text',
@@ -119,7 +116,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '今回は簡略化して、全て同じ時間にします',
-          icon: '🔧',
         },
       ],
     },
@@ -134,7 +130,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📐 構成',
-          icon: '📐',
         },
         {
           type: 'list',
@@ -238,7 +233,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '各色が1つずつ順番に点灯します',
-          icon: '🚦',
         },
       ],
       action: { type: 'toggle-input' },
@@ -250,7 +244,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🚶 押しボタン式信号',
-          icon: '🚶',
         },
         {
           type: 'text',
@@ -275,7 +268,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🚗 感応式信号機',
-          icon: '🚗',
         },
         {
           type: 'list',
@@ -296,7 +288,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔀 複雑な交差点',
-          icon: '🔀',
         },
         {
           type: 'text',
@@ -315,7 +306,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '複数の状態機械が協調動作します',
-          icon: '🔗',
         },
       ],
     },
@@ -326,7 +316,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🌐 広域交通管制',
-          icon: '🌐',
         },
         {
           type: 'list',
@@ -347,7 +336,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🛡️ フェイルセーフ',
-          icon: '🛡️',
         },
         {
           type: 'text',
@@ -372,7 +360,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💡 最新技術',
-          icon: '💡',
         },
         {
           type: 'list',
@@ -393,7 +380,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 他の制御システム',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -415,7 +401,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 習得したスキル',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -430,7 +415,6 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '身近な機器の仕組みが理解できました！',
-          icon: '🌟',
         },
       ],
     },

@@ -6,7 +6,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
   description: '2つの1ビット数を足し算する基本回路を作ります',
   objective:
     'コンピュータが足し算を行う仕組みを理解し、基本ゲートを組み合わせて算術演算回路を構築できるようになる',
-  icon: '🧮',
   difficulty: 'intermediate',
   prerequisites: ['and-gate', 'xor-gate'],
   estimatedMinutes: 20,
@@ -22,7 +21,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 2進数の足し算の基本',
-          icon: '📊',
         },
         {
           type: 'list',
@@ -37,7 +35,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '💡 10進数で「9 + 1 = 10」で繰り上がるように、2進数では「1 + 1 = 10」で繰り上がります！',
-          icon: '💡',
         },
       ],
     },
@@ -48,7 +45,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💡 重要な発見',
-          icon: '💡',
         },
         {
           type: 'text',
@@ -65,7 +61,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'つまり、XORゲートとANDゲートがあれば足し算ができる！',
-          icon: '🎯',
         },
       ],
     },
@@ -76,7 +71,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 半加算器の真理値表',
-          icon: '📊',
         },
         {
           type: 'table',
@@ -138,7 +132,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '上の出力が「和（Sum）」、下の出力が「繰り上がり（Carry）」です',
-          icon: '📍',
         },
       ],
       action: { type: 'place-gate', gateType: 'OUTPUT' },
@@ -175,12 +168,10 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '上のランプ = 和（Sum）、下のランプ = 繰り上がり（Carry）',
-          icon: '💡',
         },
         {
           type: 'heading',
           text: '🔬 実験のポイント',
-          icon: '🔬',
         },
         {
           type: 'list',
@@ -243,7 +234,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎉 成功！2進数の足し算ができました！',
-          icon: '🎉',
         },
         {
           type: 'text',
@@ -258,7 +248,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🚀 実用例',
-          icon: '🚀',
         },
         {
           type: 'list',
@@ -273,7 +262,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'この小さな回路が、コンピュータの計算能力の基礎なのです！',
-          icon: '✨',
         },
       ],
     },
@@ -288,7 +276,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤔 前の桁からの繰り上がりは？',
-          icon: '🤔',
         },
         {
           type: 'text',
@@ -297,12 +284,10 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これを解決するのが「全加算器（Full Adder）」です！',
-          icon: '💡',
         },
         {
           type: 'heading',
           text: '📊 半加算器 vs 全加算器',
-          icon: '📊',
         },
         {
           type: 'table',
@@ -321,7 +306,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📜 人類初のコンピュータ',
-          icon: '📜',
         },
         {
           type: 'text',
@@ -339,7 +323,6 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '🚀 たった80年で、計算速度は100万倍以上に！',
-          icon: '🚀',
         },
       ],
     },

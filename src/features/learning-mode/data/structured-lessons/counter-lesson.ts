@@ -4,7 +4,6 @@ export const counterStructuredLesson: StructuredLesson = {
   id: 'counter',
   title: 'カウンタ - 数を数える回路',
   description: 'クロックに同期して自動的にカウントアップする回路を作ります',
-  icon: '🔢',
   difficulty: 'advanced',
   prerequisites: ['sr-latch'],
   estimatedMinutes: 25,
@@ -20,7 +19,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤔 カウンタとは？',
-          icon: '🤔',
         },
         {
           type: 'text',
@@ -29,7 +27,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '0→1→2→3→0... と自動的に繰り返します',
-          icon: '🔄',
         },
       ],
     },
@@ -40,7 +37,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 基本的な分類',
-          icon: '📊',
         },
         {
           type: 'list',
@@ -55,7 +51,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 今回作るもの',
-          icon: '🎯',
         },
         {
           type: 'text',
@@ -70,7 +65,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🌊 波及的な動作',
-          icon: '🌊',
         },
         {
           type: 'text',
@@ -88,7 +82,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '各段が前段の半分の速度で動作します',
-          icon: '⚡',
         },
       ],
     },
@@ -99,7 +92,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔀 トグル動作',
-          icon: '🔀',
         },
         {
           type: 'text',
@@ -117,7 +109,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: "D-FFでT-FFを作る：DにQ'を接続！",
-          icon: '💡',
         },
       ],
     },
@@ -128,7 +119,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📈 2ビットカウンタの動作',
-          icon: '📈',
         },
         {
           type: 'table',
@@ -154,7 +144,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔧 必要な接続',
-          icon: '🔧',
         },
         {
           type: 'list',
@@ -271,7 +260,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '上位ビットは下位ビットの半分の速度で変化します',
-          icon: '🎵',
         },
       ],
       action: { type: 'toggle-input' },
@@ -283,7 +271,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎛️ 周波数分割',
-          icon: '🎛️',
         },
         {
           type: 'text',
@@ -301,7 +288,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '時計の1秒を作るのに使われます（32.768kHz÷32768=1Hz）',
-          icon: '⏰',
         },
       ],
     },
@@ -312,7 +298,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '⚡ より高速な設計',
-          icon: '⚡',
         },
         {
           type: 'text',
@@ -336,7 +321,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔟 10進カウンタ',
-          icon: '🔟',
         },
         {
           type: 'text',
@@ -350,7 +334,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'デジタル時計の各桁はこの原理です',
-          icon: '🕐',
         },
       ],
     },
@@ -361,7 +344,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 実用例',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -384,7 +366,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎚️ 大きな分周比',
-          icon: '🎚️',
         },
         {
           type: 'text',
@@ -398,7 +379,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '24ビットカウンタで実現可能',
-          icon: '🔧',
         },
       ],
     },
@@ -409,7 +389,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 習得したスキル',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -424,7 +403,6 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これで時間や回数を数えられます！',
-          icon: '🌟',
         },
       ],
     },

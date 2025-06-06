@@ -4,7 +4,6 @@ export const decoderStructuredLesson: StructuredLesson = {
   id: 'decoder',
   title: 'デコーダ - 信号の解読装置',
   description: 'バイナリコードから特定の出力を選択する回路を作ります',
-  icon: '🔓',
   difficulty: 'intermediate',
   prerequisites: ['encoder'],
   estimatedMinutes: 20,
@@ -20,7 +19,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤔 デコーダとは？',
-          icon: '🤔',
         },
         {
           type: 'text',
@@ -29,7 +27,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '例：2ビット（00〜11） → 4つの出力のうち1つがON',
-          icon: '💡',
         },
       ],
     },
@@ -40,7 +37,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 真理値表',
-          icon: '📊',
         },
         {
           type: 'table',
@@ -65,7 +61,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔧 各出力の条件',
-          icon: '🔧',
         },
         {
           type: 'list',
@@ -80,7 +75,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '各出力は特定の入力パターンを検出するAND回路！',
-          icon: '💡',
         },
       ],
     },
@@ -223,7 +217,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎛️ デコーダのON/OFF制御',
-          icon: '🎛️',
         },
         {
           type: 'text',
@@ -241,7 +234,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'メモリチップの選択などに使用されます',
-          icon: '💾',
         },
       ],
     },
@@ -252,7 +244,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 身近な使用例',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -274,7 +265,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔢 数字表示の仕組み',
-          icon: '🔢',
         },
         {
           type: 'text',
@@ -292,7 +282,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '電卓や時計の数字表示はこの原理です！',
-          icon: '⏰',
         },
       ],
     },
@@ -303,7 +292,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔄 時分割制御',
-          icon: '🔄',
         },
         {
           type: 'text',
@@ -327,7 +315,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 習得したスキル',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -342,7 +329,6 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'エンコーダとデコーダで双方向変換が可能に！',
-          icon: '🔄',
         },
       ],
     },

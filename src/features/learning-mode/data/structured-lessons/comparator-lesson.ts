@@ -4,7 +4,6 @@ export const comparatorStructuredLesson: StructuredLesson = {
   id: 'comparator',
   title: '比較器 - 数の大小判定マシン',
   description: '2つの数値を比較して大小関係を判定する回路を作ります',
-  icon: '⚖️',
   difficulty: 'intermediate',
   prerequisites: ['xor-gate'],
   estimatedMinutes: 20,
@@ -20,7 +19,6 @@ export const comparatorStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 今回作るもの',
-          icon: '🎯',
         },
         {
           type: 'list',
@@ -34,7 +32,6 @@ export const comparatorStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'まずは1ビット比較器から始めて、段階的に拡張します',
-          icon: '📈',
         },
       ],
     },
@@ -45,7 +42,6 @@ export const comparatorStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 1ビット比較の真理値表',
-          icon: '📊',
         },
         {
           type: 'table',
@@ -60,7 +56,6 @@ export const comparatorStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💡 パターンを見つけよう',
-          icon: '💡',
         },
         {
           type: 'list',
@@ -74,13 +69,47 @@ export const comparatorStructuredLesson: StructuredLesson = {
       ],
     },
     {
+      id: 'logic-circuit-diagram',
+      instruction: '比較器の回路構成',
+      content: [
+        {
+          type: 'heading',
+          text: '🔌 1ビット比較器の回路図',
+        },
+        {
+          type: 'text',
+          text: '各出力の論理回路：',
+        },
+        {
+          type: 'ascii-art',
+          art: `A ─┬────────────────┐
+   │               │
+   │  ┌─────┐     │  ┌─────┐
+   │  │ XOR │─────┼──┤ NOT ├─── A=B
+   │  └──┬──┘     │  └─────┘
+   │     │        │
+   │     │        │  ┌─────┐
+   │     │        └──┤ AND ├─── A>B
+   │     │           └──┬──┘
+   │     │              │
+B ─┼─────┴─────┬───────┴───┬─────┐
+   │            │         │  ┌──┴──┐
+   │  ┌─────┐  │         │  │ NOT │
+   │  │ NOT │  │         │  └──┬──┘
+   │  └──┬──┘  │         │     │
+   │     │     │  ┌─────┐ │     │
+   └─────┴─────┴──┤ AND ├─┴─────┘
+                    └─────┘─── A<B`,
+        },
+      ],
+    },
+    {
       id: 'equality-circuit',
       instruction: 'まず「等しい」を判定する回路を作ろう',
       content: [
         {
           type: 'heading',
           text: '🔍 XNORゲートの活用',
-          icon: '🔍',
         },
         {
           type: 'text',
@@ -89,7 +118,6 @@ export const comparatorStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'XNORがない場合は、XORの出力をNOTで反転！',
-          icon: '💡',
         },
       ],
     },
@@ -149,7 +177,6 @@ export const comparatorStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '上から順に「等しい」「より大きい」「より小さい」です',
-          icon: '📍',
         },
       ],
       action: { type: 'place-gate', gateType: 'OUTPUT' },
@@ -209,13 +236,43 @@ export const comparatorStructuredLesson: StructuredLesson = {
       action: { type: 'toggle-input' },
     },
     {
+      id: 'multi-bit-extension',
+      instruction: '多ビット比較器への拡張',
+      content: [
+        {
+          type: 'heading',
+          text: '🔢 4ビット比較器の構成',
+        },
+        {
+          type: 'text',
+          text: '4ビット比較器の構成図：',
+        },
+        {
+          type: 'ascii-art',
+          art: `    A3 B3     A2 B2     A1 B1     A0 B0
+     │ │       │ │       │ │       │ │
+   ┌─┴─┴─┐   ┌─┴─┴─┐   ┌─┴─┴─┐   ┌─┴─┴─┐
+   │CMP3 │   │CMP2 │   │CMP1 │   │CMP0 │
+   └┬┬┬─┘   └┬┬┬─┘   └┬┬┬─┘   └┬┬┬─┘
+    │││      │││      │││      │││
+   ┌┴┴┴──────┴┴┴──────┴┴┴──────┴┴┴┐
+   │      プライオリティエンコーダ       │
+   └─────────┬───┬───┬──────────┘
+            A>B   A=B   A<B`,
+        },
+        {
+          type: 'note',
+          text: '最上位ビットから順に比較し、最初に差が出た結果を採用',
+        },
+      ],
+    },
+    {
       id: 'multi-bit-intro',
       instruction: '【発展】複数ビットの比較',
       content: [
         {
           type: 'heading',
           text: '🔢 2ビット以上の比較',
-          icon: '🔢',
         },
         {
           type: 'text',
@@ -233,7 +290,6 @@ export const comparatorStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '人間が数字を比較するのと同じ方法です！',
-          icon: '💡',
         },
       ],
     },
@@ -244,7 +300,6 @@ export const comparatorStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔗 比較器の連結',
-          icon: '🔗',
         },
         {
           type: 'text',
@@ -262,13 +317,97 @@ export const comparatorStructuredLesson: StructuredLesson = {
       ],
     },
     {
+      id: 'signed-comparison',
+      instruction: '符号付き数値の比較',
+      content: [
+        {
+          type: 'heading',
+          text: '± 符号付き数の扱い',
+        },
+        {
+          type: 'text',
+          text: '2の補数表現での符号付き4ビット数：',
+        },
+        {
+          type: 'table',
+          headers: ['ビットパターン', '符号なし', '符号付き', '特徴'],
+          rows: [
+            ['0111', '7', '+7', '最大正数'],
+            ['0000', '0', '0', 'ゼロ'],
+            ['1000', '8', '-8', '最小負数'],
+            ['1111', '15', '-1', '負数'],
+          ],
+        },
+        {
+          type: 'note',
+          text: '符号付き比較ではMSB（符号ビット）の扱いが異なる',
+        },
+        {
+          type: 'text',
+          text: `符号付き比較のロジック：
+1. 符号ビットが異なる場合：
+   - Aが正(0)、Bが負(1) → A > B
+   - Aが負(1)、Bが正(0) → A < B
+
+2. 符号ビットが同じ場合：
+   - 両方正：通常の符号なし比較
+   - 両方負：絶対値が小さい方が大きい`,
+        },
+      ],
+    },
+    {
+      id: 'practical-applications',
+      instruction: '実用的な応用例',
+      content: [
+        {
+          type: 'heading',
+          text: '🛠️ ソート回路の実装',
+        },
+        {
+          type: 'text',
+          text: 'バブルソートの基本要素：',
+        },
+        {
+          type: 'ascii-art',
+          art: `     A       B
+     │       │
+   ┌─┴───────┴─┐
+   │ 比較器   │
+   └─┬─┬─┬───┘
+     │ │ │
+     │ │ └────── A<B時：交換
+     │ └──────── A=B時：維持
+     └───────── A>B時：維持
+
+結果：常に小さい方が上に来る`,
+        },
+        {
+          type: 'heading',
+          text: '🎮 範囲チェック回路',
+        },
+        {
+          type: 'text',
+          text: 'ゲームでの応用例：0 ≤ X ≤ 100 のチェック',
+        },
+        {
+          type: 'list',
+          ordered: false,
+          items: [
+            'X ≥ 0：符号ビットで0かチェック',
+            'X ≤ 100：100との比較',
+            '両方をANDで結合',
+            '画面外判定や衝突判定に使用',
+          ],
+        },
+      ],
+    },
+    {
       id: 'applications',
       instruction: '【応用】比較器の使い道',
       content: [
         {
           type: 'heading',
           text: '💻 実用例',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -284,13 +423,51 @@ export const comparatorStructuredLesson: StructuredLesson = {
       ],
     },
     {
+      id: 'cpu-branch-instructions',
+      instruction: 'CPUの分岐命令での使用',
+      content: [
+        {
+          type: 'heading',
+          text: '🖥️ CPU分岐命令の実装',
+        },
+        {
+          type: 'text',
+          text: '主要な条件分岐命令と比較器の関係：',
+        },
+        {
+          type: 'table',
+          headers: ['命令', '条件', '比較器出力', '用途'],
+          rows: [
+            ['BEQ', 'Branch if Equal', 'A=B', 'ループ終了判定'],
+            ['BNE', 'Branch if Not Equal', 'NOT(A=B)', 'ループ継続'],
+            ['BLT', 'Branch if Less Than', 'A<B', '範囲チェック'],
+            ['BGT', 'Branch if Greater', 'A>B', '最大値検索'],
+            ['BLE', 'Branch if Less or Equal', 'A<B OR A=B', 'ソート'],
+            ['BGE', 'Branch if Greater or Equal', 'A>B OR A=B', '最小値検索'],
+          ],
+        },
+        {
+          type: 'text',
+          text: `アセンブリ言語の例：
+
+    CMP  R1, R2      ; R1とR2を比較
+    BLT  LESS_THAN   ; R1 < R2ならLESS_THANへジャンプ
+    BGT  GREATER     ; R1 > R2ならGREATERへジャンプ
+    ; R1 = R2の場合は次の命令へ`,
+        },
+        {
+          type: 'note',
+          text: '比較器はCPUの“判断力”の中核を担っています',
+        },
+      ],
+    },
+    {
       id: 'cpu-usage',
       instruction: 'CPUでの活用',
       content: [
         {
           type: 'heading',
           text: '🖥️ プロセッサ内部',
-          icon: '🖥️',
         },
         {
           type: 'text',
@@ -315,7 +492,6 @@ export const comparatorStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 習得したスキル',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -330,7 +506,6 @@ export const comparatorStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これでコンピュータの「判断力」の基礎が理解できました！',
-          icon: '✨',
         },
       ],
     },
@@ -343,6 +518,17 @@ export const comparatorStructuredLesson: StructuredLesson = {
           question: '1ビット比較器で A=1, B=0 のとき、どの出力が1になる？',
           options: ['A = B', 'A > B', 'A < B', 'すべて0'],
           correctIndex: 1,
+        },
+        {
+          type: 'quiz',
+          question: '符号付き4ビットで 1111(-1) と 0001(+1) を比較すると？',
+          options: [
+            '1111 > 0001',
+            '1111 = 0001',
+            '1111 < 0001',
+            '比較できない',
+          ],
+          correctIndex: 2,
         },
       ],
     },

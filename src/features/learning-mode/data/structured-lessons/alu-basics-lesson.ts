@@ -4,7 +4,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
   id: 'alu-basics',
   title: 'ALU基礎 - CPUの計算エンジン',
   description: '算術論理演算装置（ALU）の基本を理解し簡易版を作ります',
-  icon: '🧠',
   difficulty: 'advanced',
   prerequisites: ['multiplexer'],
   estimatedMinutes: 30,
@@ -20,7 +19,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤔 ALUとは？',
-          icon: '🤔',
         },
         {
           type: 'text',
@@ -29,7 +27,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '全ての計算、比較、論理演算はここで行われます！',
-          icon: '💫',
         },
       ],
     },
@@ -40,7 +37,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔧 主な演算',
-          icon: '🔧',
         },
         {
           type: 'list',
@@ -55,7 +51,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 今回作るもの',
-          icon: '🎯',
         },
         {
           type: 'text',
@@ -70,7 +65,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📐 基本構造',
-          icon: '📐',
         },
         {
           type: 'list',
@@ -247,7 +241,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🚩 演算結果の状態',
-          icon: '🚩',
         },
         {
           type: 'text',
@@ -266,7 +259,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これらのフラグで条件分岐が可能になります',
-          icon: '🔀',
         },
       ],
     },
@@ -277,7 +269,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔢 32ビットALU',
-          icon: '🔢',
         },
         {
           type: 'text',
@@ -301,7 +292,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🚀 現代のALU',
-          icon: '🚀',
         },
         {
           type: 'list',
@@ -322,7 +312,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 命令実行サイクル',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -337,7 +326,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'ALUは「実行」段階の主役です！',
-          icon: '⭐',
         },
       ],
     },
@@ -348,7 +336,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📝 A = B + C の実行',
-          icon: '📝',
         },
         {
           type: 'list',
@@ -370,7 +357,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 習得したスキル',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -385,7 +371,6 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これでCPUの心臓部が理解できました！',
-          icon: '🎊',
         },
       ],
     },

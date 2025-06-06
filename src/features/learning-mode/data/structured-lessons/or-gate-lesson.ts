@@ -7,7 +7,6 @@ export const orGateStructuredLesson: StructuredLesson = {
     '少なくとも1つの入力がONなら出力がONになる「OR」の動作を学びます',
   objective:
     'ORゲートの基本動作を理解し、論理和の概念を習得。ANDゲートとの違いを明確にし、実用的な応用例を学びます',
-  icon: '🎯',
   difficulty: 'beginner',
   prerequisites: ['and-gate'],
   estimatedMinutes: 10,
@@ -24,7 +23,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🌍 身近なORの例',
-          icon: '🌍',
         },
         {
           type: 'list',
@@ -40,7 +38,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '💡 ORは「選択肢がある」「柔軟性がある」状況を表現します',
-          icon: '💡',
         },
       ],
     },
@@ -51,7 +48,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔌 ORゲートの電気回路',
-          icon: '🔌',
         },
         {
           type: 'text',
@@ -69,7 +65,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '🔌 ANDが直列接続なら、ORは並列接続！',
-          icon: '🔌',
         },
       ],
     },
@@ -87,7 +82,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '入力をダブルクリックして、すべての組み合わせを試してください。',
-          icon: '💡',
         },
       ],
       action: { type: 'toggle-input' },
@@ -110,7 +104,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💡 発見：ORゲートが0を出力するのは「両方とも0」の時だけ！',
-          icon: '💡',
         },
       ],
     },
@@ -121,7 +114,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 ANDとORの比較',
-          icon: '🎯',
         },
         {
           type: 'comparison',
@@ -153,7 +145,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 確率的な見方',
-          icon: '📊',
         },
         {
           type: 'list',
@@ -166,7 +157,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '🎲 ランダム入力の場合、ORはANDの3倍出力が1になりやすい！',
-          icon: '🎲',
         },
       ],
     },
@@ -177,7 +167,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📐 OR演算のさまざまな表記法',
-          icon: '📐',
         },
         {
           type: 'list',
@@ -192,7 +181,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '💡 なぜ加算記号？ 集合の「合併」のイメージから来ています',
-          icon: '💡',
         },
       ],
     },
@@ -203,7 +191,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏠 スマートホーム',
-          icon: '🏠',
         },
         {
           type: 'list',
@@ -217,7 +204,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🚑 医療機器',
-          icon: '🚑',
         },
         {
           type: 'text',
@@ -257,7 +243,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎆 NANDとNORの特殊性',
-          icon: '🎆',
         },
         {
           type: 'text',
@@ -276,7 +261,6 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '🔬 実際のCPUでは、NANDやNORのような基本ゲートが大量に使われています',
-          icon: '🔬',
         },
       ],
     },

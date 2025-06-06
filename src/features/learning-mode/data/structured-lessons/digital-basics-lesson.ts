@@ -6,7 +6,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
   description: '0と1だけで作られる魔法の世界を探検しよう！',
   objective:
     'デジタル技術の基礎を理解し、なぜコンピュータが2進数を使うかを体験的に学びます',
-  icon: '🌟',
   difficulty: 'beginner',
   prerequisites: [],
   estimatedMinutes: 15,
@@ -22,7 +21,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤖 コンピュータの秘密',
-          icon: '🤖',
         },
         {
           type: 'text',
@@ -31,7 +29,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '💡 豆知識：世界初のコンピュータENIAC（1946年）は、約18,000本の真空管を使って、たった10進数の10桁を計算するので1秒かかりました。今のスマホは1秒間に数十億回の計算ができます！',
-          icon: '📜',
         },
       ],
     },
@@ -42,7 +39,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📻 アナログの世界',
-          icon: '📻',
         },
         {
           type: 'list',
@@ -58,7 +54,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 デジタルの世界',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -74,7 +69,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '🎯 ポイント：デジタルは「飛び飛びの値」、アナログは「連続的な値」が特徴です！',
-          icon: '🎯',
         },
       ],
     },
@@ -85,7 +79,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔌 電気で考えよう',
-          icon: '🔌',
         },
         {
           type: 'text',
@@ -102,7 +95,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔍 2進数を選んだ理由',
-          icon: '🔍',
         },
         {
           type: 'list',
@@ -117,7 +109,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '🎆 実際には、3進法や5進法のコンピュータも研究されましたが、2進法のシンプルさと実用性には勝てませんでした！',
-          icon: '🎆',
         },
       ],
     },
@@ -128,7 +119,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 1ビット = 0か1を表す最小単位',
-          icon: '🎯',
         },
         {
           type: 'list',
@@ -144,7 +134,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '📱 例：スマホの写真1枚（3MB）は約240万個の「0」と「1」でできています！',
-          icon: '📱',
         },
       ],
     },
@@ -160,7 +149,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '🔧 操作ヒント：ドラッグ＆ドロップで配置できます',
-          icon: '🔧',
         },
       ],
       action: { type: 'place-gate', gateType: 'INPUT' },
@@ -185,7 +173,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '配線は電気の通り道です。これで回路が完成！',
-          icon: '🔗',
         },
       ],
       action: { type: 'connect-wire' },
@@ -213,7 +200,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💡 観察結果',
-          icon: '💡',
         },
         {
           type: 'list',
@@ -236,7 +222,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔢 10進数 vs 2進数',
-          icon: '🔢',
         },
         {
           type: 'table',
@@ -261,7 +246,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '💡 覚え方：nビットで表現できる最大値 = 2^n - 1（例：8ビット = 2^8 - 1 = 255）',
-          icon: '💡',
         },
       ],
     },
@@ -272,7 +256,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📱 実はこれも0と1',
-          icon: '📱',
         },
         {
           type: 'list',
@@ -288,7 +271,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'すべて0と1の組み合わせで表現されています！',
-          icon: '✨',
         },
       ],
     },
@@ -299,7 +281,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎲 サイコロで数えてみよう',
-          icon: '🎲',
         },
         {
           type: 'list',
@@ -355,7 +336,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎉 基礎マスター！',
-          icon: '🎉',
         },
         {
           type: 'text',
@@ -368,7 +348,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これからもっと面白くなりますよ！',
-          icon: '🚀',
         },
       ],
     },

@@ -4,7 +4,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
   id: 'digital-clock',
   title: 'デジタル時計 - 時を刻む回路',
   description: '秒・分・時を正確にカウントする時計回路を作ります',
-  icon: '⏰',
   difficulty: 'advanced',
   prerequisites: ['traffic-light'],
   estimatedMinutes: 35,
@@ -20,7 +19,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤔 デジタル時計の構成',
-          icon: '🤔',
         },
         {
           type: 'list',
@@ -35,7 +33,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '32,768 = 2^15なので、15段分周で1Hzになります',
-          icon: '💡',
         },
       ],
     },
@@ -46,7 +43,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🕐 時:分:秒の関係',
-          icon: '🕐',
         },
         {
           type: 'table',
@@ -70,7 +66,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔢 BCD（2進化10進数）',
-          icon: '🔢',
         },
         {
           type: 'text',
@@ -88,7 +83,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '各桁が独立しているので7セグメント表示が簡単！',
-          icon: '🎯',
         },
       ],
     },
@@ -99,7 +93,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '⏱️ 0-59カウンタ',
-          icon: '⏱️',
         },
         {
           type: 'text',
@@ -128,7 +121,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📐 構成',
-          icon: '📐',
         },
         {
           type: 'list',
@@ -227,7 +219,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔤 セグメント配置',
-          icon: '🔤',
         },
         {
           type: 'text',
@@ -236,7 +227,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: ' a\nf b\n g\ne c\n d',
-          icon: '⬜',
         },
         {
           type: 'table',
@@ -256,7 +246,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🕰️ フル機能時計',
-          icon: '🕰️',
         },
         {
           type: 'text',
@@ -283,7 +272,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💾 専用ICの利点',
-          icon: '💾',
         },
         {
           type: 'list',
@@ -299,7 +287,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'DS3231などが有名です',
-          icon: '🔌',
         },
       ],
     },
@@ -310,7 +297,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📡 電波時計',
-          icon: '📡',
         },
         {
           type: 'text',
@@ -335,7 +321,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🌐 IoT時代の時計',
-          icon: '🌐',
         },
         {
           type: 'list',
@@ -357,7 +342,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 タイミング制御',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -380,7 +364,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 高精度化技術',
-          icon: '🎯',
         },
         {
           type: 'list',
@@ -402,7 +385,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 習得したスキル',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -417,7 +399,6 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '時を刻む仕組みが理解できました！',
-          icon: '⏰',
         },
       ],
     },

@@ -4,7 +4,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
   id: 'clock-sync',
   title: 'クロック同期 - タイミングの指揮者',
   description: 'デジタル回路の心臓部、クロック同期システムを理解します',
-  icon: '⏰',
   difficulty: 'advanced',
   prerequisites: ['shift-register'],
   estimatedMinutes: 20,
@@ -20,7 +19,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤔 クロック同期とは？',
-          icon: '🤔',
         },
         {
           type: 'text',
@@ -29,7 +27,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'CPUの「3.5GHz」などはクロック周波数のことです',
-          icon: '💻',
         },
       ],
     },
@@ -40,7 +37,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 クロック波形',
-          icon: '📊',
         },
         {
           type: 'text',
@@ -60,7 +56,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '多くの回路は立ち上がりエッジで動作します',
-          icon: '⚡',
         },
       ],
     },
@@ -71,7 +66,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '✅ なぜ同期が必要？',
-          icon: '✅',
         },
         {
           type: 'list',
@@ -93,7 +87,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '⚠️ 非同期の危険性',
-          icon: '⚠️',
         },
         {
           type: 'text',
@@ -112,7 +105,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '初期のコンピュータはこれらの問題に悩まされました',
-          icon: '📜',
         },
       ],
     },
@@ -123,7 +115,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🌐 クロックツリー',
-          icon: '🌐',
         },
         {
           type: 'text',
@@ -152,7 +143,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 実験内容',
-          icon: '🎯',
         },
         {
           type: 'list',
@@ -231,7 +221,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '両方のFFが同じタイミングで変化します',
-          icon: '⏱️',
         },
       ],
       action: { type: 'toggle-input' },
@@ -243,7 +232,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🌍 複数クロックの世界',
-          icon: '🌍',
         },
         {
           type: 'text',
@@ -257,7 +245,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'ドメイン間の同期が重要な技術です',
-          icon: '🔗',
         },
       ],
     },
@@ -268,7 +255,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔋 省電力技術',
-          icon: '🔋',
         },
         {
           type: 'text',
@@ -293,7 +279,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 クロック生成・調整',
-          icon: '🎯',
         },
         {
           type: 'list',
@@ -314,7 +299,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📏 重要なパラメータ',
-          icon: '📏',
         },
         {
           type: 'list',
@@ -335,7 +319,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 実用例',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -358,7 +341,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🚀 次世代技術',
-          icon: '🚀',
         },
         {
           type: 'list',
@@ -379,7 +361,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 習得したスキル',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -394,7 +375,6 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これで順序回路の基礎が完成しました！',
-          icon: '🎊',
         },
       ],
     },

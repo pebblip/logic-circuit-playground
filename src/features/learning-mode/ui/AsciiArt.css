@@ -1,0 +1,60 @@
+/* ASCIIアート表示用スタイル */
+.ascii-art-container {
+  margin: 1.5rem 0;
+  background-color: var(--surface-secondary, #1a1a1a);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ascii-art-title {
+  padding: 0.75rem 1rem;
+  background-color: var(--surface-tertiary, #2a2a2a);
+  border-bottom: 1px solid var(--border-color, #333);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary, #aaa);
+}
+
+.ascii-art {
+  margin: 0;
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  white-space: pre;
+  color: var(--text-primary, #fff);
+}
+
+.ascii-art code {
+  font-family: inherit;
+  font-size: inherit;
+  background: none;
+  padding: 0;
+}
+
+/* スクロールバーのスタイル */
+.ascii-art::-webkit-scrollbar {
+  height: 8px;
+}
+
+.ascii-art::-webkit-scrollbar-track {
+  background: var(--surface-tertiary, #2a2a2a);
+}
+
+.ascii-art::-webkit-scrollbar-thumb {
+  background: var(--border-color, #444);
+  border-radius: 4px;
+}
+
+.ascii-art::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover, #555);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .ascii-art {
+    font-size: 0.75rem;
+    padding: 0.75rem;
+  }
+}

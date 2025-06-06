@@ -6,7 +6,6 @@ export const xorGateStructuredLesson: StructuredLesson = {
   description: '2つの入力が「異なる」ときだけONになる特殊なゲートを学びます',
   objective:
     'XORゲートの動作原理を理解し、排他的論理和の概念を習得。加算器や暗号化などの実用的な応用を学びます',
-  icon: '🔍',
   difficulty: 'beginner',
   prerequisites: ['and-gate', 'or-gate'],
   estimatedMinutes: 15,
@@ -22,7 +21,6 @@ export const xorGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎮 ゲームで例えると',
-          icon: '🎮',
         },
         {
           type: 'text',
@@ -48,7 +46,6 @@ export const xorGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '「どちらか片方だけ」という意味です。両方ONはダメ！',
-          icon: '🚨',
         },
       ],
     },
@@ -59,7 +56,6 @@ export const xorGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '特に「両方ON」のときに注目してください！',
-          icon: '👀',
         },
       ],
       action: { type: 'toggle-input' },
@@ -82,7 +78,6 @@ export const xorGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💡 発見：入力が「異なる」ときだけ1を出力！',
-          icon: '💡',
         },
       ],
     },
@@ -93,7 +88,6 @@ export const xorGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 3つのゲートを比較',
-          icon: '🎯',
         },
         {
           type: 'comparison',
@@ -140,7 +134,6 @@ export const xorGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🌟 実世界での活用',
-          icon: '🌟',
         },
         {
           type: 'list',
@@ -161,7 +154,6 @@ export const xorGateStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔐 XOR暗号の仕組み',
-          icon: '🔐',
         },
         {
           type: 'text',
@@ -172,9 +164,16 @@ export const xorGateStructuredLesson: StructuredLesson = {
           text: '暗号文 XOR 鍵 = データ（元に戻る！）',
         },
         {
+          type: 'table',
+          headers: ['データ', '鍵', '暗号文', '復号'],
+          rows: [
+            ['1010', '1100', '0110', '1010'],
+            ['秘密(01)', 'key(11)', '暗号(10)', '秘密(01)'],
+          ],
+        },
+        {
           type: 'note',
           text: 'XORを2回適用すると元に戻る性質を使っています',
-          icon: '✨',
         },
       ],
     },
@@ -221,7 +220,6 @@ export const xorGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'ヒント：(A AND NOT B) OR (NOT A AND B)',
-          icon: '🤔',
         },
         {
           type: 'text',

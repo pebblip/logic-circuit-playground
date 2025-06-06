@@ -4,7 +4,6 @@ export const encoderStructuredLesson: StructuredLesson = {
   id: 'encoder',
   title: 'エンコーダ - 信号の暗号化装置',
   description: '複数の入力から対応するコードを生成する回路を作ります',
-  icon: '🔐',
   difficulty: 'intermediate',
   prerequisites: ['comparator'],
   estimatedMinutes: 20,
@@ -20,7 +19,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤔 エンコーダとは？',
-          icon: '🤔',
         },
         {
           type: 'text',
@@ -29,7 +27,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '例：0〜9の数字キー → 4ビット（0000〜1001）に変換',
-          icon: '📱',
         },
       ],
     },
@@ -40,7 +37,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 4-to-2エンコーダ',
-          icon: '🎯',
         },
         {
           type: 'text',
@@ -59,7 +55,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '一度に1つの入力だけがアクティブ（ワンホット）',
-          icon: '⚠️',
         },
       ],
     },
@@ -70,7 +65,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔧 出力の論理式',
-          icon: '🔧',
         },
         {
           type: 'list',
@@ -80,7 +74,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💡 パターンの発見',
-          icon: '💡',
         },
         {
           type: 'text',
@@ -243,7 +236,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 複数入力への対応',
-          icon: '🎯',
         },
         {
           type: 'text',
@@ -261,7 +253,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '実用的なエンコーダは優先順位付きが一般的',
-          icon: '💡',
         },
       ],
     },
@@ -272,7 +263,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 実世界での使用例',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -294,7 +284,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔢 10-to-4エンコーダ',
-          icon: '🔢',
         },
         {
           type: 'text',
@@ -313,7 +302,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '電卓やデジタル時計で広く使用されています',
-          icon: '🧮',
         },
       ],
     },
@@ -324,7 +312,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 習得したスキル',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -339,7 +326,6 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '次はこの逆、デコーダを学びましょう！',
-          icon: '➡️',
         },
       ],
     },

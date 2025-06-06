@@ -4,7 +4,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
   id: 'multiplexer',
   title: 'マルチプレクサ - データ選択スイッチ',
   description: '複数の入力から1つを選んで出力する回路を作ります',
-  icon: '🎛️',
   difficulty: 'intermediate',
   prerequisites: ['decoder'],
   estimatedMinutes: 25,
@@ -20,7 +19,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤔 マルチプレクサ（MUX）とは？',
-          icon: '🤔',
         },
         {
           type: 'text',
@@ -29,7 +27,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'テレビのチャンネル切り替えをイメージしてください！',
-          icon: '📺',
         },
       ],
     },
@@ -40,7 +37,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 入出力の関係',
-          icon: '📊',
         },
         {
           type: 'list',
@@ -70,7 +66,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔧 出力の論理式',
-          icon: '🔧',
         },
         {
           type: 'text',
@@ -79,7 +74,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💡 仕組みの理解',
-          icon: '💡',
         },
         {
           type: 'list',
@@ -112,7 +106,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '基本を理解すれば、4入力、8入力も同じ原理です',
-          icon: '📈',
         },
       ],
     },
@@ -242,7 +235,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'リアルタイムでデータソースを切り替えられます！',
-          icon: '🔄',
         },
       ],
       action: { type: 'toggle-input' },
@@ -254,7 +246,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔢 8-to-1 MUX',
-          icon: '🔢',
         },
         {
           type: 'list',
@@ -269,7 +260,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '選択ビット数 = log₂(入力数)',
-          icon: '📐',
         },
       ],
     },
@@ -280,7 +270,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 実世界での使用',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -302,7 +291,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔄 MUXの逆操作',
-          icon: '🔄',
         },
         {
           type: 'text',
@@ -320,7 +308,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'MUXとDEMUXで双方向通信システムが作れます！',
-          icon: '📡',
         },
       ],
     },
@@ -331,7 +318,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🚌 データバス',
-          icon: '🚌',
         },
         {
           type: 'text',
@@ -351,7 +337,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 習得したスキル',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -366,7 +351,6 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これでデータの流れを自在に制御できます！',
-          icon: '✨',
         },
       ],
     },

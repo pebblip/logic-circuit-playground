@@ -4,7 +4,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
   id: 'shift-register',
   title: 'シフトレジスタ - データの行列',
   description: 'データを順番に送り出す・受け取る回路を作ります',
-  icon: '⏩',
   difficulty: 'advanced',
   prerequisites: ['register'],
   estimatedMinutes: 25,
@@ -20,7 +19,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤔 シフトレジスタとは？',
-          icon: '🤔',
         },
         {
           type: 'text',
@@ -29,7 +27,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'シリアル通信の基本となる重要な回路です',
-          icon: '📡',
         },
       ],
     },
@@ -40,7 +37,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 4つの基本型',
-          icon: '📊',
         },
         {
           type: 'list',
@@ -55,7 +51,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 今回作るもの',
-          icon: '🎯',
         },
         {
           type: 'text',
@@ -70,7 +65,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔄 データの流れ',
-          icon: '🔄',
         },
         {
           type: 'text',
@@ -90,7 +84,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'データが右から左へ流れていきます',
-          icon: '⬅️',
         },
       ],
     },
@@ -101,7 +94,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔗 D-FFの連鎖',
-          icon: '🔗',
         },
         {
           type: 'list',
@@ -126,7 +118,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📐 構成',
-          icon: '📐',
         },
         {
           type: 'list',
@@ -252,7 +243,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '1が右に移動しました！',
-          icon: '➡️',
         },
       ],
       action: { type: 'toggle-input' },
@@ -275,7 +265,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📡 USBやUARTの基本',
-          icon: '📡',
         },
         {
           type: 'text',
@@ -294,7 +283,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'USB 3.0は5Gbpsでデータを送ります',
-          icon: '⚡',
         },
       ],
     },
@@ -305,7 +293,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💡 ダイナミック点灯',
-          icon: '💡',
         },
         {
           type: 'text',
@@ -330,7 +317,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔄 リングカウンタ',
-          icon: '🔄',
         },
         {
           type: 'text',
@@ -355,7 +341,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎲 疑似乱数生成',
-          icon: '🎲',
         },
         {
           type: 'text',
@@ -380,7 +365,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '⚡ 高速シフト',
-          icon: '⚡',
         },
         {
           type: 'text',
@@ -405,7 +389,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 実用例',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -428,7 +411,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 習得したスキル',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -443,7 +425,6 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これでデータ転送の仕組みが理解できました！',
-          icon: '🌟',
         },
       ],
     },

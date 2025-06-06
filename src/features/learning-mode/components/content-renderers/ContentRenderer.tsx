@@ -9,6 +9,7 @@ import { ComparisonRenderer } from './ComparisonRenderer';
 import { ExperimentResultRenderer } from './ExperimentResultRenderer';
 import { QuizRenderer } from './QuizRenderer';
 import { NoteRenderer } from './NoteRenderer';
+import { AsciiArtRenderer } from './AsciiArtRenderer';
 
 interface ContentRendererProps {
   content: Content;
@@ -46,6 +47,9 @@ export const ContentRenderer: React.FC<ContentRendererProps> = ({
 
     case 'note':
       return <NoteRenderer content={content} />;
+
+    case 'ascii-art':
+      return <AsciiArtRenderer content={content} />;
 
     default:
       console.warn('Unknown content type:', (content as any).type);

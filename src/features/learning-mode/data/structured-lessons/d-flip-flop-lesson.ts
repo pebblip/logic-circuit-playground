@@ -4,7 +4,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
   id: 'd-flip-flop',
   title: 'Dフリップフロップ - 1ビットメモリ',
   description: 'データを記憶できる基本的な順序回路を作ります',
-  icon: '💾',
   difficulty: 'advanced',
   prerequisites: ['alu-basics'],
   estimatedMinutes: 25,
@@ -20,7 +19,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🤔 データを保持するには？',
-          icon: '🤔',
         },
         {
           type: 'text',
@@ -29,7 +27,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これが順序回路の始まり - メモリの最小単位です',
-          icon: '🏁',
         },
       ],
     },
@@ -40,7 +37,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📦 1ビットの記憶装置',
-          icon: '📦',
         },
         {
           type: 'list',
@@ -55,7 +51,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '⏰ クロックの役割',
-          icon: '⏰',
         },
         {
           type: 'text',
@@ -70,7 +65,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 動作タイミング',
-          icon: '📊',
         },
         {
           type: 'table',
@@ -85,7 +79,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'CLKが↑（立ち上がり）の時だけデータを取り込みます',
-          icon: '⚡',
         },
       ],
     },
@@ -96,7 +89,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🔗 2段構成の理由',
-          icon: '🔗',
         },
         {
           type: 'text',
@@ -124,7 +116,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🎯 D-FFゲートの使い方',
-          icon: '🎯',
         },
         {
           type: 'list',
@@ -138,7 +129,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '実際の回路は約20個のトランジスタで構成されています',
-          icon: '🔬',
         },
       ],
     },
@@ -217,7 +207,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'CLOCKが0→1になる瞬間を観察してください',
-          icon: '👀',
         },
       ],
       action: { type: 'toggle-input' },
@@ -233,7 +222,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これが「記憶」です！',
-          icon: '💡',
         },
       ],
       action: { type: 'toggle-input' },
@@ -256,7 +244,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🗄️ 複数ビットの記憶',
-          icon: '🗄️',
         },
         {
           type: 'text',
@@ -280,7 +267,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '📊 記憶装置の階層',
-          icon: '📊',
         },
         {
           type: 'list',
@@ -295,7 +281,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'D-FFは最も基本的で高速な記憶素子です',
-          icon: '⚡',
         },
       ],
     },
@@ -306,7 +291,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '💻 実用例',
-          icon: '💻',
         },
         {
           type: 'list',
@@ -328,7 +312,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '⚡ トリガ方式の違い',
-          icon: '⚡',
         },
         {
           type: 'table',
@@ -355,7 +338,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '⏱️ タイミング制約',
-          icon: '⏱️',
         },
         {
           type: 'text',
@@ -379,7 +361,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'heading',
           text: '🏆 習得したスキル',
-          icon: '🏆',
         },
         {
           type: 'list',
@@ -394,7 +375,6 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: 'これでコンピュータが「記憶」できる理由がわかりました！',
-          icon: '🌟',
         },
       ],
     },

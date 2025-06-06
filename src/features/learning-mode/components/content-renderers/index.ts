@@ -7,3 +7,4 @@ export { BinaryExpressionRenderer } from './BinaryExpressionRenderer';
 export { ComparisonRenderer } from './ComparisonRenderer';
 export { ExperimentResultRenderer } from './ExperimentResultRenderer';
 export { QuizRenderer } from './QuizRenderer';
+export { AsciiArtRenderer } from './AsciiArtRenderer';

@@ -10,7 +10,8 @@ export type ContentType =
   | 'comparison'
   | 'experiment-result'
   | 'quiz'
-  | 'note';
+  | 'note'
+  | 'ascii-art';
 
 // 基本インターフェース
 export interface BaseContent {
@@ -95,6 +96,14 @@ export interface NoteContent extends BaseContent {
   variant?: 'info' | 'warning' | 'success' | 'tip';
 }
 
+// ASCIIアートコンテンツ（回路図など）
+export interface AsciiArtContent extends BaseContent {
+  type: 'ascii-art';
+  art: string;
+  title?: string;
+  className?: string;
+}
+
 // すべてのコンテンツタイプのユニオン
 export type Content =
   | TextContent
@@ -105,7 +114,8 @@ export type Content =
   | ComparisonContent
   | ExperimentResultContent
   | QuizContent
-  | NoteContent;
+  | NoteContent
+  | AsciiArtContent;
 
 // 構造化されたレッスンステップ
 export interface StructuredLessonStep {
