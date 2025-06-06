@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   evaluateCircuit,
   defaultConfig,
@@ -8,6 +8,7 @@ import type { Circuit } from '../../domain/simulation/core/types';
 import { useCircuitStore } from '../../stores/circuitStore';
 import { SaveCircuitDialog } from '../dialogs/SaveCircuitDialog';
 import { LoadCircuitDialog } from '../dialogs/LoadCircuitDialog';
+import { OPEN_SAVE_DIALOG_EVENT } from '../../hooks/useKeyboardShortcuts';
 
 export const FloatingActionButtons: React.FC = () => {
   const { gates, wires } = useCircuitStore();
@@ -55,6 +56,18 @@ export const FloatingActionButtons: React.FC = () => {
   const handleLoadSuccess = () => {
     // 読み込み成功時の処理
   };
+
+  // Ctrl+Sのイベントリスナー
+  useEffect(() => {
+    const handleOpenSaveDialog = () => {
+      setSaveDialogOpen(true);
+    };
+
+    window.addEventListener(OPEN_SAVE_DIALOG_EVENT, handleOpenSaveDialog);
+    return () => {
+      window.removeEventListener(OPEN_SAVE_DIALOG_EVENT, handleOpenSaveDialog);
+    };
+  }, []);
 
   return (
     <>

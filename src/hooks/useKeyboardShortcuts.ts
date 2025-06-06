@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import { useCircuitStore } from '../stores/circuitStore';
 
+// 保存ダイアログを開くためのグローバルイベント
+export const OPEN_SAVE_DIALOG_EVENT = 'openSaveDialog';
+
 export const useKeyboardShortcuts = () => {
   const {
     undo,
@@ -8,8 +11,12 @@ export const useKeyboardShortcuts = () => {
     canUndo,
     canRedo,
     selectedGateId,
+    selectedGateIds,
     deleteGate,
     deleteWire,
+    copySelection,
+    paste,
+    canPaste,
   } = useCircuitStore();
 
   useEffect(() => {
@@ -47,13 +54,61 @@ export const useKeyboardShortcuts = () => {
         }
       }
 
-      // Delete or Backspace: Delete selected gate
+      // Delete or Backspace: Delete selected gate(s)
       if (
         (event.key === 'Delete' || event.key === 'Backspace') &&
-        selectedGateId
+        (selectedGateId || selectedGateIds.length > 0)
       ) {
         event.preventDefault();
-        deleteGate(selectedGateId);
+        if (selectedGateIds.length > 0) {
+          selectedGateIds.forEach(id => deleteGate(id));
+        } else if (selectedGateId) {
+          deleteGate(selectedGateId);
+        }
+      }
+
+      // Cmd/Ctrl + S: Save circuit
+      if ((event.metaKey || event.ctrlKey) && event.key === 's') {
+        event.preventDefault();
+        // カスタムイベントを発火して保存ダイアログを開く
+        window.dispatchEvent(new CustomEvent(OPEN_SAVE_DIALOG_EVENT));
+      }
+
+      // Cmd/Ctrl + C: Copy
+      if (
+        (event.metaKey || event.ctrlKey) &&
+        event.key === 'c' &&
+        !event.shiftKey
+      ) {
+        event.preventDefault();
+        if (selectedGateIds.length > 0) {
+          copySelection();
+        }
+      }
+
+      // Cmd/Ctrl + V: Paste
+      if (
+        (event.metaKey || event.ctrlKey) &&
+        event.key === 'v' &&
+        !event.shiftKey
+      ) {
+        event.preventDefault();
+        if (canPaste()) {
+          // キャンバスの表示中心にペースト
+          const canvas = document.querySelector('svg.circuit-canvas');
+          if (canvas) {
+            const rect = canvas.getBoundingClientRect();
+            // viewBoxを考慮して実際のSVG座標に変換
+            const svg = canvas as SVGSVGElement;
+            const point = svg.createSVGPoint();
+            point.x = rect.width / 2;
+            point.y = rect.height / 2;
+            const svgPoint = point.matrixTransform(
+              svg.getScreenCTM()?.inverse() || svg.getCTM()?.inverse()
+            );
+            paste({ x: svgPoint.x, y: svgPoint.y });
+          }
+        }
       }
     };
 
@@ -61,5 +116,16 @@ export const useKeyboardShortcuts = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [undo, redo, canUndo, canRedo, selectedGateId, deleteGate]);
+  }, [
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    selectedGateId,
+    selectedGateIds,
+    deleteGate,
+    copySelection,
+    paste,
+    canPaste,
+  ]);
 };

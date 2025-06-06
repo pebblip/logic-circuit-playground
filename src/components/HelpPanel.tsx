@@ -38,7 +38,7 @@ const helpContents: Record<TabId, HelpContent[]> = {
     {
       question: '🎨 効率的な操作テクニック',
       answer:
-        '• Shift+クリック: 複数選択\n• ドラッグ: 範囲選択\n• Delete/Backspace: 削除\n• スペース+ドラッグ: キャンバス移動\n• マウスホイール: ズーム\n• Ctrl+C/V: コピー&ペースト',
+        '• Shift+クリック: 複数選択\n• ドラッグ: 範囲選択\n• Delete/Backspace: 削除\n• スペース+ドラッグ: キャンバス移動\n• マウスホイール: ズーム',
     },
     {
       question: '📐 きれいな回路を作るコツ',
@@ -85,9 +85,14 @@ const helpContents: Record<TabId, HelpContent[]> = {
   ],
   features: [
     {
+      question: '⌨️ キーボードショートカット',
+      answer:
+        '【コピー&ペースト】Ctrl+C/V（Mac: Cmd+C/V）で回路の一部を複製\n【元に戻す/やり直し】Ctrl+Z/Y（Mac: Cmd+Z/Y）で操作履歴を管理\n【削除】Delete/Backspace: 選択したゲートを削除\n【保存】Ctrl+S（Mac: Cmd+S）で回路を保存\n【複数選択】Shift+クリックまたはドラッグで範囲選択',
+    },
+    {
       question: '🎨 高度な編集機能',
       answer:
-        '【コピー&ペースト】Ctrl+C/V（Mac: Cmd+C/V）で回路の一部を複製\n【複数選択】Shift+クリックまたはドラッグで範囲選択\n【整列機能】選択したゲートを自動的に整列（準備中）\n【元に戻す/やり直し】Ctrl+Z/Y（Mac: Cmd+Z/Y）で操作履歴を管理',
+        '【整列機能】選択したゲートを自動的に整列（準備中）\n【グループ化】複数のゲートをまとめて操作\n【配線の最適化】自動ルーティング機能（準備中）\n【カラーテーマ】見やすさを重視した配色設定',
     },
     {
       question: '🔍 表示とナビゲーション',
