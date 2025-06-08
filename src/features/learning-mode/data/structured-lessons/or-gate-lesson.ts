@@ -1,12 +1,15 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
+import { TERMS } from '../terms';
 
 export const orGateStructuredLesson: StructuredLesson = {
   id: 'or-gate',
-  title: 'ORゲート - 寛容な選択肢',
+  title: 'ORゲート - どちらか1つでOK！',
   description:
     '少なくとも1つの入力がONなら出力がONになる「OR」の動作を学びます',
   objective:
-    'ORゲートの基本動作を理解し、論理和の概念を習得。ANDゲートとの違いを明確にし、実用的な応用例を学びます',
+    'ORゲートの基本動作を理解し、「どちらか1つでOK」の概念を習得。ANDゲートとの違いを明確にし、実用的な応用例を学びます',
+  category: '基本ゲート',
+  lessonType: 'gate-intro',
   difficulty: 'beginner',
   prerequisites: ['and-gate'],
   estimatedMinutes: 10,
@@ -18,27 +21,25 @@ export const orGateStructuredLesson: StructuredLesson = {
         'ORゲートは「どれか1つでも条件が満たされたとき」に動作します。',
       content: [
         {
-          type: 'text',
-          text: '日常生活で例えると、「現金」または「クレジットカード」で支払いができるお店のようなものです。',
+          type: 'rich-text',
+          elements: [
+            '日常生活で例えると、',
+            { text: '「現金」または「クレジットカード」', emphasis: true },
+            'で支払いができるお店のようなものです。',
+          ],
         },
         {
           type: 'heading',
-          text: '🌍 身近なORの例',
+          text: '🎯 身近な例',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '💳 支払い：現金 OR カード OR 電子マネー',
-            '🚃 交通手段：電車 OR バス OR 自転車',
-            '🏠 入館：正面入口 OR 裏口 OR 非常口',
-            '📞 連絡手段：電話 OR メール OR LINE',
-            '🍷 パーティ参加：招待状 OR 友人紹介 OR 会員資格',
+            '💳 支払い方法：現金でもカードでもOK → 買い物できる',
+            '🚪 部屋の照明：入口スイッチか、ベッドサイドのスイッチ → 電気がつく',
+            '📱 連絡手段：電話でもメールでも → 連絡がとれる',
           ],
-        },
-        {
-          type: 'note',
-          text: '💡 ORは「選択肢がある」「柔軟性がある」状況を表現します',
         },
       ],
     },
@@ -48,163 +49,246 @@ export const orGateStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🔌 ORゲートの電気回路',
+          text: '🔌 なぜ「OR」というの？',
         },
         {
-          type: 'text',
-          text: '電気回路では、ORゲートは「並列接続されたスイッチ」と同じです。',
+          type: 'rich-text',
+          elements: [
+            '電気回路で考えると、2つのスイッチを',
+            { text: '「別々の道」', emphasis: true },
+            'に配置したようなものです。',
+            { text: 'どちらか一方のスイッチをONにすれば、電気は流れます。', bold: true },
+          ],
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            'どちらか一方がON → 電流が流れる → 出力1',
-            '両方がOFF → 電流が流れない → 出力0',
-            '両方がON → 電流が流れる → 出力1',
+            'どちらか一方がON → 電流が流れる → 出力がON',
+            '両方がOFF → 電流が流れない → 出力がOFF',
+            '両方がON → 電流が流れる → 出力がON',
           ],
         },
         {
+          type: 'heading',
+          text: '💡 スイッチの例で考える',
+        },
+        {
+          type: 'text',
+          text: '2つのスイッチを並列につないだ回路を想像してください。電源からランプまで、2つの別々の経路があり、それぞれにスイッチがあります。',
+        },
+        {
+          type: 'heading',
+          text: '【並列回路のイメージ】'
+        },
+        {
+          type: 'svg-diagram',
+          diagramType: 'parallel-circuit',
+          width: 400,
+          height: 200
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '電源から2つの道：', bold: true }
+          ]
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '　道1：電源 → スイッチA → ランプ', bold: true }
+          ]
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '　道2：電源 → スイッチB → ランプ', bold: true }
+          ]
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '💡 ポイント：', bold: true },
+            '電気は',
+            { text: '2つの道のどちらからでも', emphasis: true },
+            '流れることができます。'
+          ]
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '→ ', bold: true },
+            { text: 'どちらか1つでもON', bold: true },
+            'なら電気は流れる！'
+          ]
+        },
+        {
+          type: 'table',
+          headers: ['スイッチA', 'スイッチB', '結果'],
+          rows: [
+            [TERMS.OFF, TERMS.OFF, 'ランプ消灯'],
+            [TERMS.OFF, TERMS.ON, 'ランプ点灯✨'],
+            [TERMS.ON, TERMS.OFF, 'ランプ点灯✨'],
+            [TERMS.ON, TERMS.ON, 'ランプ点灯✨']
+          ]
+        },
+        {
           type: 'note',
-          text: '🔌 ANDが直列接続なら、ORは並列接続！',
+          text: '🔌 2つのスイッチを別々の道に配置：どちらか1つでONなら電気は流れます！',
         },
       ],
     },
     {
-      id: 'place-inputs',
-      instruction: 'まず、2つの入力を配置しましょう。',
-      hint: '左のツールパレットから「入力」を2つドラッグして、キャンバスの左側に縦に並べて配置してください。',
-      content: [],
-      action: { type: 'place-gate', gateType: 'INPUT' },
-    },
-    {
-      id: 'place-or',
-      instruction: '次に、ORゲートを配置します。',
-      hint: '「基本ゲート」セクションから「OR」を選んで、入力の右側に配置してください。',
+      id: 'place-gates',
+      instruction: `${TERMS.INPUT}、${TERMS.OR}ゲート、${TERMS.OUTPUT}を配置しましょう。`,
+      hint: `左のツールパレットから「${TERMS.INPUT}」を2つキャンバスの左側に縦に並べ、「基本ゲート」から「${TERMS.OR}」をその右側に、最後に${TERMS.OUTPUT}を${TERMS.OR}ゲートの右側に配置してください。`,
       content: [],
       action: { type: 'place-gate', gateType: 'OR' },
     },
     {
-      id: 'place-output',
-      instruction: '最後に、結果を表示するランプ（出力）を配置します。',
-      hint: '出力をORゲートの右側に配置してください。',
-      content: [],
-      action: { type: 'place-gate', gateType: 'OUTPUT' },
-    },
-    {
       id: 'connect',
-      instruction: '配線して回路を完成させましょう。',
-      hint: '各入力の出力（右の丸）をORの入力（左の丸）に、ORの出力を出力の入力に接続してください。',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'experiment',
-      instruction: '実験開始！4つのパターンをすべて試してみましょう。',
+      instruction: `${TERMS.WIRE}して${TERMS.CIRCUIT}を完成させましょう。`,
+      hint: `各${TERMS.INPUT}の${TERMS.OUTPUT_PIN}を${TERMS.OR}の${TERMS.INPUT_PIN}に、${TERMS.OR}の${TERMS.OUTPUT_PIN}を${TERMS.OUTPUT}の${TERMS.INPUT_PIN}に${TERMS.CONNECT}してください。`,
       content: [
         {
           type: 'note',
-          text: '入力をダブルクリックして、すべての組み合わせを試してください。',
+          text: `🔗 配線のポイント：各${TERMS.INPUT}の${TERMS.OUTPUT_PIN}（${TERMS.RIGHT_CIRCLE}）を${TERMS.OR}ゲートの${TERMS.INPUT_PIN}（${TERMS.LEFT_CIRCLE}）に${TERMS.CONNECT}します。`,
+        }
+      ],
+      action: { type: 'connect-wire' },
+    },
+    {
+      id: 'circuit-answer',
+      instruction: '完成形を確認しよう！',
+      content: [
+        {
+          type: 'circuit-diagram-v2',
+          circuitId: 'or-gate',
+          showTruthTable: false,
+        },
+        {
+          type: 'note',
+          text: '✅ 2つの入力 → ORゲート → 出力 の順につながっています'
+        }
+      ],
+    },
+    {
+      id: 'predict',
+      instruction: '予測してみよう！',
+      content: [
+        {
+          type: 'heading',
+          text: '🤔 考えてみよう'
+        },
+        {
+          type: 'text',
+          text: '「寛容な選択肢」という名前から、どんな時に出力がONになると思いますか？'
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '💭 ヒント：', bold: true },
+            '2つのスイッチが並列（別々の道）につながっていることを思い出してください。'
+          ]
+        },
+        {
+          type: 'note',
+          text: '予測：どちらか1つでもONなら、出力もONになりそう...'
+        }
+      ]
+    },
+    {
+      id: 'experiment-and-analysis',
+      instruction: '実験で確かめよう！4つのパターンを試して結果を分析しよう',
+      content: [
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '💡 操作方法：', bold: true },
+            `${TERMS.INPUT}を`,
+            { text: TERMS.DOUBLE_CLICK, emphasis: true },
+            'して、すべての組み合わせを試してください。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '🔬 実験結果',
+        },
+        {
+          type: 'table',
+          headers: [`${TERMS.INPUT}A`, `${TERMS.INPUT}B`, `${TERMS.OUTPUT}`],
+          rows: [
+            [TERMS.OFF, TERMS.OFF, TERMS.OFF],
+            [TERMS.OFF, TERMS.ON, TERMS.ON],
+            [TERMS.ON, TERMS.OFF, TERMS.ON],
+            [TERMS.ON, TERMS.ON, TERMS.ON]
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '💡 発見：', bold: true },
+            `${TERMS.OR}ゲートが${TERMS.OFF}を出力するのは`,
+            { text: `「両方とも${TERMS.OFF}」`, bold: true },
+            'の時だけ！',
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '💡 覚え：', bold: true },
+            `${TERMS.AND}は`,
+            { text: '「厳しい」', emphasis: true },
+            '（両方必要）、${TERMS.OR}は',
+            { text: '「優しい」', emphasis: true },
+            '（1つでOK）！',
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '📊 確率：', bold: true },
+            `${TERMS.OR}ゲートは4パターン中`,
+            { text: '3パターン', emphasis: true },
+            `で${TERMS.OUTPUT}が${TERMS.ON}になる（75%）`,
+          ],
         },
       ],
       action: { type: 'toggle-input' },
     },
     {
-      id: 'results',
-      instruction: '【パターン分析】実験結果を整理しましょう。',
-      content: [
-        {
-          type: 'experiment-result',
-          title: '🔬 実験結果まとめ：',
-          results: [
-            { left: '0', operator: 'OR', right: '0', result: '0' },
-            { left: '0', operator: 'OR', right: '1', result: '1' },
-            { left: '1', operator: 'OR', right: '0', result: '1' },
-            { left: '1', operator: 'OR', right: '1', result: '1' },
-          ],
-          note: 'ここでの「OR」は論理和演算を表します。記号では「∨」と表記されます。',
-        },
-        {
-          type: 'heading',
-          text: '💡 発見：ORゲートが0を出力するのは「両方とも0」の時だけ！',
-        },
-      ],
-    },
-    {
       id: 'comparison',
-      instruction: '【理論】ANDゲートとORゲートを比較してみましょう。',
+      instruction: `【比較】${TERMS.AND}と${TERMS.OR}の違いを理解しよう`,
       content: [
         {
           type: 'heading',
-          text: '🎯 ANDとORの比較',
+          text: `🎯 ${TERMS.AND}と${TERMS.OR}の決定的な違い`
         },
         {
-          type: 'comparison',
-          items: [
-            {
-              gateType: 'AND',
-              values: [
-                { left: '0', operator: 'AND', right: '0', result: '0' },
-                { left: '0', operator: 'AND', right: '1', result: '0' },
-                { left: '1', operator: 'AND', right: '0', result: '0' },
-                { left: '1', operator: 'AND', right: '1', result: '1' },
-              ],
-            },
-            {
-              gateType: 'OR',
-              values: [
-                { left: '0', operator: 'OR', right: '0', result: '0' },
-                { left: '0', operator: 'OR', right: '1', result: '1' },
-                { left: '1', operator: 'OR', right: '0', result: '1' },
-                { left: '1', operator: 'OR', right: '1', result: '1' },
-              ],
-            },
+          type: 'table',
+          headers: [`${TERMS.INPUT}A`, `${TERMS.INPUT}B`, `${TERMS.AND}出力`, `${TERMS.OR}出力`],
+          rows: [
+            [TERMS.OFF, TERMS.OFF, TERMS.OFF, TERMS.OFF],
+            [TERMS.OFF, TERMS.ON, TERMS.OFF, TERMS.ON],
+            [TERMS.ON, TERMS.OFF, TERMS.OFF, TERMS.ON],
+            [TERMS.ON, TERMS.ON, TERMS.ON, TERMS.ON],
           ],
         },
         {
-          type: 'text',
-          text: 'ANDは「厳格」（すべて必要）、ORは「寛容」（1つでOK）という性格の違いがあります。',
-        },
-        {
-          type: 'heading',
-          text: '📊 確率的な見方',
+          type: 'rich-text',
+          elements: [
+            { text: '💡 覚え方：', bold: true }
+          ]
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            'AND：4パターン中1パターンで出力1（25%）',
-            'OR：4パターン中3パターンで出力1（75%）',
-          ],
-        },
-        {
-          type: 'note',
-          text: '🎲 ランダム入力の場合、ORはANDの3倍出力が1になりやすい！',
-        },
-      ],
-    },
-    {
-      id: 'mathematical-notation',
-      instruction: '【発展】数学的表現',
-      content: [
-        {
-          type: 'heading',
-          text: '📐 OR演算のさまざまな表記法',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '数学：A ∨ B',
-            '集合論：A ∪ B（結合）',
-            'プログラミング：A || B, A OR B',
-            '電子回路：A + B（加算記号）',
-          ],
-        },
-        {
-          type: 'note',
-          text: '💡 なぜ加算記号？ 集合の「合併」のイメージから来ています',
-        },
-      ],
+            `${TERMS.AND}は「厳しい」 → 両方必要 → 1/4の確率でON`,
+            `${TERMS.OR}は「優しい」 → 1つでOK → 3/4の確率でON`
+          ]
+        }
+      ]
     },
     {
       id: 'practical-applications',
@@ -212,31 +296,24 @@ export const orGateStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🏠 スマートホーム',
+          text: '🏠 安全・セキュリティで使われるORゲート',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '照明：リビングスイッチ OR 寝室スイッチ = 玄関ライトON',
-            'セキュリティ：窓センサ OR ドアセンサ OR 人感センサ = 警報',
-            '節電：人いない OR 夜間 = エアコンOFF',
+            '🚨 防犯システム：窓センサーかドアセンサーが反応 → 警報が鳴る',
+            '🚗 車のエアバッグ：正面衝突または側面衝突を検知 → エアバッグ作動',
+            '🏢 非常口：停電が起きたか、火災が発生 → 非常灯が点灯',
           ],
         },
         {
-          type: 'heading',
-          text: '🚑 医療機器',
-        },
-        {
-          type: 'text',
-          text: '生命維持装置のアラーム：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '心拍異常 OR 呼吸異常 OR 血圧異常 = 緊急アラーム',
-            'バッテリー低下 OR 電源切断 OR 機器異常 = バックアップ作動',
+          type: 'rich-text',
+          elements: [
+            { text: '💡 重要：', bold: true },
+            'ORゲートは',
+            { text: '「どれか1つでも危険があれば作動」', emphasis: true },
+            'という安全装置によく使われます！',
           ],
         },
       ],
@@ -247,42 +324,40 @@ export const orGateStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'quiz',
-          question: 'ORゲートで出力が0になるのは次のうちどれ？',
+          question: `${TERMS.OR}ゲートで${TERMS.OUTPUT}が${TERMS.OFF}になるのは次のうちどれ？`,
           options: [
-            '入力の少なくとも1つが1の時',
-            '入力の両方が1の時',
-            '入力の両方が0の時',
-            '入力が異なる値の時',
+            `${TERMS.INPUT}の少なくとも1つが${TERMS.ON}の時`,
+            `${TERMS.INPUT}の両方が${TERMS.ON}の時`,
+            `${TERMS.INPUT}の両方が${TERMS.OFF}の時`,
+            `${TERMS.INPUT}が異なる値の時`,
           ],
           correctIndex: 2,
         },
       ],
     },
     {
-      id: 'advanced-concept',
-      instruction: '【発展】万能ゲート',
+      id: 'summary',
+      instruction: `【まとめ】${TERMS.OR}ゲートの重要ポイント`,
       content: [
         {
           type: 'heading',
-          text: '🎆 NANDとNORの特殊性',
-        },
-        {
-          type: 'text',
-          text: 'NORゲート（NOT OR）は「万能ゲート」の一つです。',
+          text: '🎆 今日学んだこと',
         },
         {
           type: 'list',
-          ordered: false,
+          ordered: true,
           items: [
-            'NORゲートだけで、すべての論理ゲートを作れる',
-            'NOT = NOR（両入力を同じ信号に）',
-            'OR = NOR → NOT',
-            'AND = NORを使ったド・モルガン変換',
+            `${TERMS.OR}ゲートは「どれか1つ」でOK`,
+            `4パターン中3つで${TERMS.OUTPUT}が${TERMS.ON}`,
+            `${TERMS.AND}より「優しい」ゲート`,
+            '安全装置によく使われる',
           ],
         },
         {
-          type: 'note',
-          text: '🔬 実際のCPUでは、NANDやNORのような基本ゲートが大量に使われています',
+          type: 'rich-text',
+          elements: [
+            { text: `🚀 次は「${TERMS.XOR}ゲート」を学びましょう！`, bold: true },
+          ],
         },
       ],
     },

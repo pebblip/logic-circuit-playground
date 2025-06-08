@@ -454,7 +454,7 @@
 
 /* ズームコントロール */
 .zoom-controls {
-  position: fixed; /* absoluteからfixedに変更で確実な配置 */
+  position: absolute;
   bottom: var(--spacing-lg);
   left: var(--spacing-lg);
   background: var(--color-bg-secondary);
@@ -464,8 +464,8 @@
   padding: 4px;
   display: flex;
   gap: 2px;
-  z-index: var(--z-panel); /* 適切なz-index変数を使用 */
-  box-shadow: var(--shadow-lg); /* 影を追加で見やすく */
+  z-index: 50;
+  box-shadow: var(--shadow-lg);
   transition: all var(--transition-base);
 }
 
@@ -473,6 +473,52 @@
 .zoom-controls:hover {
   box-shadow: var(--shadow-xl);
   transform: translateY(-2px);
+}
+
+/* ズームボタンのスタイル */
+.zoom-button {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-md);
+  color: var(--color-text-secondary);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  font-family: inherit;
+}
+
+.zoom-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+
+.zoom-button:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.zoom-button.zoom-reset {
+  width: auto;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.zoom-button.zoom-reset:hover {
+  background: var(--color-primary-subtle);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 /* 右サイドバー（既存クラス名） */
@@ -584,12 +630,12 @@
 
 /* ========== デスクトップ用FAB ========== */
 .fab-container-desktop {
-  position: fixed;
-  bottom: var(--spacing-lg);
-  right: var(--spacing-lg);
+  position: absolute;
+  top: var(--spacing-lg);
+  left: var(--spacing-lg);
   display: flex;
   gap: var(--spacing-sm);
-  z-index: var(--z-panel);
+  z-index: 50;
 }
 
 /* FABのプライマリスタイル */
@@ -648,3 +694,6 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+/* ========== レスポンシブ調整 ========== */
+/* 削除 - ズームコントロールとツールバーは常にキャンバス内に配置 */

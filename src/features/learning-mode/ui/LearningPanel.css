@@ -1466,3 +1466,41 @@
     transform: translateX(0);
   }
 }
+
+/* 🎨 リッチテキストスタイル */
+.gate-name {
+  font-weight: bold;
+  color: #0066cc;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* ゲート別の色分け */
+.gate-name.gate-not { 
+  color: #e74c3c; /* 赤系 */
+}
+
+.gate-name.gate-and { 
+  color: #3498db; /* 青系 */
+}
+
+.gate-name.gate-or { 
+  color: #2ecc71; /* 緑系 */
+}
+
+.gate-name.gate-xor { 
+  color: #9b59b6; /* 紫系 */
+}
+
+/* 一般的な強調 */
+.bold { 
+  font-weight: bold; 
+}
+
+/* 新出用語や重要概念の強調 */
+.emphasis { 
+  background-color: rgba(255, 243, 205, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}

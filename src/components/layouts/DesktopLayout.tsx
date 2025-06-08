@@ -66,49 +66,49 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
 
       {/* メインキャンバス */}
       <main className="main-canvas">
-        {/* フローティングアクションボタン（FAB） */}
-        <div className="fab-container-desktop">
-          <button
-            className="fab fab--secondary"
-            title="元に戻す (Ctrl+Z)"
-            onClick={undo}
-            disabled={!canUndo()}
-            style={{ opacity: canUndo() ? 1 : 0.5 }}
-          >
-            ↩️
-          </button>
-          <button
-            className="fab fab--secondary"
-            title="やり直し (Ctrl+Y)"
-            onClick={redo}
-            disabled={!canRedo()}
-            style={{ opacity: canRedo() ? 1 : 0.5 }}
-          >
-            ↪️
-          </button>
-          <button
-            className="fab fab--secondary"
-            title="すべてクリア"
-            onClick={() => {
-              if (window.confirm('すべての回路を削除しますか？')) {
-                clearAll();
-              }
-            }}
-          >
-            🗑️
-          </button>
-          <button
-            className={`fab fab--primary ${isVisualizerOpen ? 'active' : ''}`}
-            title="ビジュアライザー"
-            onClick={() => setIsVisualizerOpen(!isVisualizerOpen)}
-          >
-            📟
-          </button>
-        </div>
-
         {/* キャンバス */}
         <div className="canvas-container">
           <Canvas highlightedGateId={highlightedGateId} />
+          
+          {/* フローティングアクションボタン（FAB） - キャンバス内に配置 */}
+          <div className="canvas-toolbar">
+            <button
+              className="tool-button"
+              title="元に戻す (Ctrl+Z)"
+              onClick={undo}
+              disabled={!canUndo()}
+              style={{ opacity: canUndo() ? 1 : 0.5 }}
+            >
+              ↩️
+            </button>
+            <button
+              className="tool-button"
+              title="やり直し (Ctrl+Y)"
+              onClick={redo}
+              disabled={!canRedo()}
+              style={{ opacity: canRedo() ? 1 : 0.5 }}
+            >
+              ↪️
+            </button>
+            <button
+              className="tool-button"
+              title="すべてクリア"
+              onClick={() => {
+                if (window.confirm('すべての回路を削除しますか？')) {
+                  clearAll();
+                }
+              }}
+            >
+              🗑️
+            </button>
+            <button
+              className={`tool-button ${isVisualizerOpen ? 'active' : ''}`}
+              title="ビジュアライザー"
+              onClick={() => setIsVisualizerOpen(!isVisualizerOpen)}
+            >
+              📟
+            </button>
+          </div>
         </div>
 
         {/* ステータスバー */}
@@ -123,9 +123,9 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
       </main>
 
       {/* 右サイドバー */}
-      {appMode === '自由制作' && (
-        <aside className="sidebar-right">
-          {isVisualizerOpen ? (
+      <aside className="sidebar-right">
+        {appMode === '自由制作' ? (
+          isVisualizerOpen ? (
             <CircuitVisualizerPanel
               isVisible={isVisualizerOpen}
               onGateHighlight={handleGateHighlight}
@@ -133,9 +133,9 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
             />
           ) : (
             <PropertyPanel />
-          )}
-        </aside>
-      )}
+          )
+        ) : null}
+      </aside>
 
       {/* 学習モードパネル */}
       <LearningPanel

@@ -1,0 +1,162 @@
+/* 回路図表示用スタイル */
+.circuit-diagram-container {
+  margin: 1.5rem 0;
+  background-color: var(--surface-secondary, #1a1a1a);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.diagram-title {
+  padding: 0.75rem 1rem;
+  background-color: var(--surface-tertiary, #2a2a2a);
+  border-bottom: 1px solid var(--border-color, #333);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary, #aaa);
+}
+
+.diagram-content {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  background: linear-gradient(45deg, 
+    rgba(0, 255, 136, 0.01) 0%, 
+    rgba(0, 255, 136, 0.02) 100%);
+}
+
+.circuit-diagram {
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.circuit-diagram text {
+  user-select: none;
+}
+
+.diagram-caption {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #888);
+  text-align: center;
+  border-top: 1px solid var(--border-color, #333);
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* 真理値表のビジュアル表現 */
+.truth-table-visual {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.truth-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.truth-table th,
+.truth-table td {
+  padding: 0.5rem 1rem;
+  text-align: center;
+  border: 1px solid var(--border-color, #333);
+}
+
+.truth-table th {
+  background-color: var(--surface-tertiary, #2a2a2a);
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.truth-table td {
+  background-color: var(--surface-secondary, #1a1a1a);
+  color: var(--text-primary, #fff);
+}
+
+.truth-table td.active {
+  background-color: rgba(0, 255, 136, 0.15);
+  color: #00ff88;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+}
+
+/* アニメーション */
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+.circuit-diagram .signal-active {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .diagram-content {
+    padding: 1rem;
+    min-height: 80px;
+  }
+  
+  .truth-table {
+    font-size: 0.75rem;
+  }
+  
+  .truth-table th,
+  .truth-table td {
+    padding: 0.375rem 0.5rem;
+  }
+}
+
+/* 信号図とテーブルの追加スタイル */
+.signal-diagram,
+.voltage-diagram,
+.bit-pattern-table {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.signal-diagram .diagram-title,
+.voltage-diagram .diagram-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+.lesson-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5rem 0;
+}
+
+.lesson-table th,
+.lesson-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lesson-table th {
+  background: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+  color: #00ff88;
+}
+
+.lesson-table tr:last-child td {
+  border-bottom: none;
+}
+
+.lesson-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}

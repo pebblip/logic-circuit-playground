@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG図表カタログ v2 - 論理回路プレイグラウンド</title>
+  <style>
+    :root {
+      /* カラーシステム */
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #1a1a1a;
+      --bg-tertiary: #2a2a2a;
+      --text-primary: #ffffff;
+      --text-secondary: #888888;
+      --wire-active: #00ff88;
+      --wire-inactive: #444444;
+      --gate-fill: #1a1a1a;
+      --gate-stroke: #00ff88;
+      --accent-red: #ff6b6b;
+      --accent-blue: #4ecdc4;
+      
+      /* デザインシステム */
+      --grid-unit: 10px;
+      --gate-width: 80px;
+      --gate-height: 60px;
+      --wire-width: 2px;
+      --gate-stroke-width: 2px;
+      --text-size-label: 14px;
+      --text-size-gate: 16px;
+      --corner-radius: 5px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 2rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 3rem;
+      font-size: 2.5rem;
+      color: var(--wire-active);
+    }
+
+    h2 {
+      margin: 3rem 0 1.5rem;
+      font-size: 1.8rem;
+      color: var(--text-primary);
+      border-bottom: 2px solid #333;
+      padding-bottom: 0.5rem;
+    }
+
+    .section {
+      margin-bottom: 4rem;
+    }
+
+    .diagram-container {
+      background-color: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .diagram-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .diagram-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 150px;
+    }
+
+    .circuit-diagram {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .diagram-caption {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .design-principles {
+      background-color: rgba(0, 255, 136, 0.1);
+      border-left: 4px solid var(--wire-active);
+      padding: 1.5rem;
+      margin: 2rem 0;
+      border-radius: 4px;
+    }
+
+    .design-principles h3 {
+      margin-top: 0;
+      color: var(--wire-active);
+    }
+
+    .design-principles ul {
+      margin-left: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .design-principles li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* 真理値表のスタイル */
+    .truth-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Consolas', 'Monaco', monospace;
+      margin: 1rem 0;
+    }
+
+    .truth-table th,
+    .truth-table td {
+      padding: 0.75rem;
+      text-align: center;
+      border: 1px solid #444;
+    }
+
+    .truth-table th {
+      background-color: var(--bg-tertiary);
+      font-weight: 600;
+    }
+
+    .truth-table td {
+      background-color: var(--bg-secondary);
+    }
+
+    .truth-table td.active {
+      background-color: rgba(0, 255, 136, 0.2);
+      color: var(--wire-active);
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 SVG図表カタログ v2.0</h1>
+    <p style="text-align: center; color: var(--text-secondary); margin-bottom: 3rem;">
+      再設計版：より明確で統一感のある教材用図表
+    </p>
+
+    <!-- デザイン原則 -->
+    <div class="design-principles">
+      <h3>🎨 デザイン原則</h3>
+      <ul>
+        <li><strong>ピンレス設計</strong>：接続点を明示せず、配線を直接ゲートに接続</li>
+        <li><strong>統一サイズ</strong>：基本ゲート 80×60px、グリッド単位 10px</li>
+        <li><strong>最小限の装飾</strong>：教育的な明確さを優先</li>
+        <li><strong>一貫した配色</strong>：アクティブ=#00ff88、非アクティブ=#444</li>
+        <li><strong>固定viewBox</strong>：単体ゲート 200×120px、回路図 400×200px</li>
+      </ul>
+    </div>
+
+    <!-- セクション1: 基本ゲート記号 -->
+    <section class="section">
+      <h2>1. 基本ゲート記号</h2>
+      <div class="grid">
+        <!-- ANDゲート -->
+        <div class="diagram-container">
+          <div class="diagram-title">ANDゲート</div>
+          <div class="diagram-content">
+            <svg viewBox="0 0 200 120" class="circuit-diagram">
+              <!-- 配線 -->
+              <line x1="30" y1="40" x2="60" y2="40" stroke="#00ff88" stroke-width="2" />
+              <line x1="30" y1="80" x2="60" y2="80" stroke="#00ff88" stroke-width="2" />
+              <line x1="140" y1="60" x2="170" y2="60" stroke="#00ff88" stroke-width="2" />
+              
+              <!-- ゲート本体 -->
+              <path d="M 60 30 L 110 30 Q 140 60 110 90 L 60 90 Z" 
+                    fill="#1a1a1a" stroke="#00ff88" stroke-width="2" />
+              <text x="100" y="65" text-anchor="middle" fill="#fff" font-size="16" font-weight="500">AND</text>
+              
+              <!-- ラベル -->
+              <text x="20" y="45" text-anchor="end" fill="#888" font-size="14">A</text>
+              <text x="20" y="85" text-anchor="end" fill="#888" font-size="14">B</text>
+              <text x="180" y="65" fill="#888" font-size="14">Y</text>
+            </svg>
+          </div>
+          <div class="diagram-caption">両方の入力が1のときのみ出力が1</div>
+        </div>
+
+        <!-- ORゲート -->
+        <div class="diagram-container">
+          <div class="diagram-title">ORゲート</div>
+          <div class="diagram-content">
+            <svg viewBox="0 0 200 120" class="circuit-diagram">
+              <!-- 配線 -->
+              <line x1="30" y1="40" x2="60" y2="40" stroke="#00ff88" stroke-width="2" />
+              <line x1="30" y1="80" x2="60" y2="80" stroke="#00ff88" stroke-width="2" />
+              <line x1="140" y1="60" x2="170" y2="60" stroke="#00ff88" stroke-width="2" />
+              
+              <!-- ゲート本体 -->
+              <path d="M 60 30 Q 80 60 60 90 L 90 90 Q 140 60 90 30 Z" 
+                    fill="#1a1a1a" stroke="#00ff88" stroke-width="2" />
+              <text x="100" y="65" text-anchor="middle" fill="#fff" font-size="16" font-weight="500">OR</text>
+              
+              <!-- ラベル -->
+              <text x="20" y="45" text-anchor="end" fill="#888" font-size="14">A</text>
+              <text x="20" y="85" text-anchor="end" fill="#888" font-size="14">B</text>
+              <text x="180" y="65" fill="#888" font-size="14">Y</text>
+            </svg>
+          </div>
+          <div class="diagram-caption">どちらかの入力が1なら出力が1</div>
+        </div>
+
+        <!-- NOTゲート -->
+        <div class="diagram-container">
+          <div class="diagram-title">NOTゲート（インバータ）</div>
+          <div class="diagram-content">
+            <svg viewBox="0 0 200 120" class="circuit-diagram">
+              <!-- 配線 -->
+              <line x1="30" y1="60" x2="70" y2="60" stroke="#00ff88" stroke-width="2" />
+              <line x1="138" y1="60" x2="170" y2="60" stroke="#00ff88" stroke-width="2" />
+              
+              <!-- ゲート本体（三角形 + 円） -->
+              <path d="M 70 40 L 120 60 L 70 80 Z" 
+                    fill="#1a1a1a" stroke="#00ff88" stroke-width="2" />
+              <circle cx="130" cy="60" r="8" fill="#1a1a1a" stroke="#00ff88" stroke-width="2" />
+              
+              <!-- ラベル -->
+              <text x="20" y="65" text-anchor="end" fill="#888" font-size="14">A</text>
+              <text x="180" y="65" fill="#888" font-size="14">Y</text>
+            </svg>
+          </div>
+          <div class="diagram-caption">入力を反転（0→1、1→0）</div>
+        </div>
+
+        <!-- XORゲート -->
+        <div class="diagram-container">
+          <div class="diagram-title">XORゲート</div>
+          <div class="diagram-content">
+            <svg viewBox="0 0 200 120" class="circuit-diagram">
+              <!-- 配線 -->
+              <line x1="30" y1="40" x2="60" y2="40" stroke="#00ff88" stroke-width="2" />
+              <line x1="30" y1="80" x2="60" y2="80" stroke="#00ff88" stroke-width="2" />
+              <line x1="140" y1="60" x2="170" y2="60" stroke="#00ff88" stroke-width="2" />
+              
+              <!-- ゲート本体（曲線追加） -->
+              <path d="M 60 30 Q 80 60 60 90 M 65 30 Q 85 60 65 90 L 90 90 Q 140 60 90 30 Z" 
+                    fill="#1a1a1a" stroke="#00ff88" stroke-width="2" />
+              <text x="100" y="65" text-anchor="middle" fill="#fff" font-size="16" font-weight="500">XOR</text>
+              
+              <!-- ラベル -->
+              <text x="20" y="45" text-anchor="end" fill="#888" font-size="14">A</text>
+              <text x="20" y="85" text-anchor="end" fill="#888" font-size="14">B</text>
+              <text x="180" y="65" fill="#888" font-size="14">Y</text>
+            </svg>
+          </div>
+          <div class="diagram-caption">入力が異なるときのみ出力が1</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- セクション2: 基本回路 -->
+    <section class="section">
+      <h2>2. 基本回路</h2>
+      
+      <div class="diagram-container">
+        <div class="diagram-title">入力→ゲート→出力の基本構成</div>
+        <div class="diagram-content">
+          <svg viewBox="0 0 400 200" class="circuit-diagram">
+            <!-- 入力スイッチ A -->
+            <rect x="30" y="40" width="60" height="30" rx="5" 
+                  fill="#2a2a2a" stroke="#00ff88" stroke-width="2" />
+            <text x="60" y="60" text-anchor="middle" fill="#fff" font-size="14">入力A</text>
+            
+            <!-- 入力スイッチ B -->
+            <rect x="30" y="130" width="60" height="30" rx="5" 
+                  fill="#2a2a2a" stroke="#00ff88" stroke-width="2" />
+            <text x="60" y="150" text-anchor="middle" fill="#fff" font-size="14">入力B</text>
+            
+            <!-- 配線（入力→ゲート） -->
+            <line x1="90" y1="55" x2="150" y2="70" stroke="#00ff88" stroke-width="2" />
+            <line x1="90" y1="145" x2="150" y2="130" stroke="#00ff88" stroke-width="2" />
+            
+            <!-- ANDゲート -->
+            <g transform="translate(150, 70)">
+              <path d="M 0 -20 L 50 -20 Q 80 10 50 40 L 0 40 Z" 
+                    fill="#1a1a1a" stroke="#00ff88" stroke-width="2" />
+              <text x="40" y="15" text-anchor="middle" fill="#fff" font-size="16">AND</text>
+            </g>
+            
+            <!-- 配線（ゲート→出力） -->
+            <line x1="230" y1="100" x2="310" y2="100" stroke="#00ff88" stroke-width="2" />
+            
+            <!-- 出力LED -->
+            <rect x="310" y="85" width="60" height="30" rx="5" 
+                  fill="#2a2a2a" stroke="#00ff88" stroke-width="2" />
+            <text x="340" y="105" text-anchor="middle" fill="#fff" font-size="14">出力</text>
+          </svg>
+        </div>
+        <div class="diagram-caption">入力信号がゲートを通って出力される基本的な流れ</div>
+      </div>
+
+      <div class="diagram-container">
+        <div class="diagram-title">NOT連鎖（ダブルインバータ）</div>
+        <div class="diagram-content">
+          <svg viewBox="0 0 400 120" class="circuit-diagram">
+            <!-- 入力 -->
+            <text x="30" y="65" fill="#888" font-size="14">入力</text>
+            <line x1="50" y1="60" x2="80" y2="60" stroke="#00ff88" stroke-width="2" />
+            
+            <!-- 第1 NOTゲート -->
+            <g transform="translate(80, 60)">
+              <path d="M 0 -20 L 40 0 L 0 20 Z" fill="#1a1a1a" stroke="#00ff88" stroke-width="2" />
+              <circle cx="48" cy="0" r="8" fill="#1a1a1a" stroke="#00ff88" stroke-width="2" />
+            </g>
+            
+            <!-- 中間配線 -->
+            <line x1="136" y1="60" x2="200" y2="60" stroke="#00ff88" stroke-width="2" />
+            <text x="168" y="50" text-anchor="middle" fill="#ff6b6b" font-size="12">反転</text>
+            
+            <!-- 第2 NOTゲート -->
+            <g transform="translate(200, 60)">
+              <path d="M 0 -20 L 40 0 L 0 20 Z" fill="#1a1a1a" stroke="#00ff88" stroke-width="2" />
+              <circle cx="48" cy="0" r="8" fill="#1a1a1a" stroke="#00ff88" stroke-width="2" />
+            </g>
+            
+            <!-- 出力 -->
+            <line x1="256" y1="60" x2="320" y2="60" stroke="#00ff88" stroke-width="2" />
+            <text x="350" y="65" fill="#888" font-size="14">出力</text>
+            <text x="288" y="50" text-anchor="middle" fill="#4ecdc4" font-size="12">元に戻る</text>
+          </svg>
+        </div>
+        <div class="diagram-caption">2回反転すると元の値に戻る（バッファとして使用可能）</div>
+      </div>
+    </section>
+
+    <!-- セクション3: 複合回路 -->
+    <section class="section">
+      <h2>3. 複合回路</h2>
+      
+      <div class="diagram-container">
+        <div class="diagram-title">半加算器（Half Adder）</div>
+        <div class="diagram-content">
+          <svg viewBox="0 0 500 250" class="circuit-diagram">
+            <!-- 入力 -->
+            <text x="20" y="65" fill="#888" font-size="14">A</text>
+            <text x="20" y="185" fill="#888" font-size="14">B</text>
+            
+            <!-- 入力分岐 -->
+            <line x1="40" y1="60" x2="100" y2="60" stroke="#00ff88" stroke-width="2" />
+            <line x1="100" y1="60" x2="100" y2="90" stroke="#00ff88" stroke-width="2" />
+            <line x1="100" y1="60" x2="150" y2="60" stroke="#00ff88" stroke-width="2" />
+            
+            <line x1="40" y1="180" x2="120" y2="180" stroke="#00ff88" stroke-width="2" />
+            <line x1="120" y1="180" x2="120" y2="100" stroke="#00ff88" stroke-width="2" />
+            <line x1="120" y1="180" x2="150" y2="180" stroke="#00ff88" stroke-width="2" />
+            
+            <!-- 接続線 -->
+            <line x1="100" y1="90" x2="150" y2="90" stroke="#00ff88" stroke-width="2" />
+            <line x1="120" y1="100" x2="150" y2="100" stroke="#00ff88" stroke-width="2" />
+            
+            <!-- XORゲート（Sum） -->
+            <g transform="translate(150, 60)">
+              <path d="M 0 0 Q 20 30 0 60 M 5 0 Q 25 30 5 60 L 30 60 Q 80 30 30 0 Z" 
+                    fill="#1a1a1a" stroke="#00ff88" stroke-width="2" />
+              <text x="40" y="35" text-anchor="middle" fill="#fff" font-size="14">XOR</text>
+            </g>
+            
+            <!-- ANDゲート（Carry） -->
+            <g transform="translate(150, 150)">
+              <path d="M 0 0 L 50 0 Q 80 30 50 60 L 0 60 Z" 
+                    fill="#1a1a1a" stroke="#00ff88" stroke-width="2" />
+              <text x="40" y="35" text-anchor="middle" fill="#fff" font-size="14">AND</text>
+            </g>
+            
+            <!-- 出力配線 -->
+            <line x1="230" y1="90" x2="380" y2="90" stroke="#00ff88" stroke-width="2" />
+            <line x1="230" y1="180" x2="380" y2="180" stroke="#00ff88" stroke-width="2" />
+            
+            <!-- 出力ラベル -->
+            <text x="400" y="95" fill="#888" font-size="14">Sum (S)</text>
+            <text x="400" y="185" fill="#888" font-size="14">Carry (C)</text>
+          </svg>
+        </div>
+        <div class="diagram-caption">1ビットの加算を行う基本回路（XORで和、ANDで桁上がり）</div>
+      </div>
+    </section>
+
+    <!-- セクション4: 信号波形 -->
+    <section class="section">
+      <h2>4. 信号波形</h2>
+      
+      <div class="diagram-container">
+        <div class="diagram-title">デジタル信号の基本波形</div>
+        <div class="diagram-content">
+          <svg viewBox="0 0 500 200" class="circuit-diagram">
+            <!-- グリッド -->
+            <defs>
+              <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#333" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect width="500" height="200" fill="url(#grid)" />
+            
+            <!-- 軸 -->
+            <line x1="50" y1="180" x2="450" y2="180" stroke="#fff" stroke-width="2" />
+            <line x1="50" y1="180" x2="50" y2="20" stroke="#fff" stroke-width="2" />
+            
+            <!-- ラベル -->
+            <text x="25" y="55" fill="#fff" font-size="12">1</text>
+            <text x="25" y="155" fill="#fff" font-size="12">0</text>
+            <text x="250" y="195" text-anchor="middle" fill="#888" font-size="12">時間</text>
+            
+            <!-- デジタル波形 -->
+            <path d="M 100 150 L 100 50 L 150 50 L 150 150 L 200 150 L 200 50 L 250 50 L 250 150 L 300 150 L 300 50 L 350 50 L 350 150 L 400 150" 
+                  fill="none" stroke="#00ff88" stroke-width="3" />
+            
+            <!-- エッジ表示 -->
+            <circle cx="100" cy="100" r="4" fill="#ff6b6b" />
+            <text x="110" y="95" fill="#ff6b6b" font-size="11">↑立ち上がり</text>
+            
+            <circle cx="150" cy="100" r="4" fill="#4ecdc4" />
+            <text x="160" y="95" fill="#4ecdc4" font-size="11">↓立ち下がり</text>
+          </svg>
+        </div>
+        <div class="diagram-caption">デジタル信号は0と1の2値のみ（エッジ＝値の変化点）</div>
+      </div>
+
+      <div class="diagram-container">
+        <div class="diagram-title">クロック信号（CLK）</div>
+        <div class="diagram-content">
+          <svg viewBox="0 0 500 150" class="circuit-diagram">
+            <!-- 背景グリッド -->
+            <line x1="50" y1="30" x2="450" y2="30" stroke="#333" stroke-width="1" />
+            <line x1="50" y1="120" x2="450" y2="120" stroke="#333" stroke-width="1" />
+            
+            <!-- 軸 -->
+            <line x1="50" y1="20" x2="50" y2="130" stroke="#fff" stroke-width="2" />
+            <line x1="50" y1="120" x2="450" y2="120" stroke="#fff" stroke-width="2" />
+            
+            <!-- クロック波形（正確な50%デューティ） -->
+            <path d="M 100 120 L 100 30 L 175 30 L 175 120 L 250 120 L 250 30 L 325 30 L 325 120 L 400 120" 
+                  fill="none" stroke="#00ff88" stroke-width="3" />
+            
+            <!-- 周期表示 -->
+            <g transform="translate(175, 140)">
+              <line x1="-75" y1="0" x2="75" y2="0" stroke="#888" stroke-width="1" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+              <text x="0" y="-5" text-anchor="middle" fill="#888" font-size="12">周期 T</text>
+            </g>
+            
+            <!-- マーカー定義 -->
+            <defs>
+              <marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L9,3 z" fill="#888" />
+              </marker>
+            </defs>
+            
+            <text x="25" y="35" fill="#fff" font-size="12">1</text>
+            <text x="25" y="125" fill="#fff" font-size="12">0</text>
+            <text x="20" y="75" fill="#fff" font-size="14" transform="rotate(-90 20 75)">CLK</text>
+          </svg>
+        </div>
+        <div class="diagram-caption">一定周期で0と1を繰り返す（デジタル回路の同期信号）</div>
+      </div>
+    </section>
+
+    <!-- セクション5: 真理値表 -->
+    <section class="section">
+      <h2>5. 真理値表</h2>
+      
+      <div class="grid">
+        <div class="diagram-container">
+          <div class="diagram-title">ANDゲートの真理値表</div>
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>A</th>
+                <th>B</th>
+                <th>Y (A AND B)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>1</td>
+                <td class="active">1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="diagram-container">
+          <div class="diagram-title">XORゲートの真理値表</div>
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>A</th>
+                <th>B</th>
+                <th>Y (A XOR B)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>0</td>
+                <td>1</td>
+                <td class="active">1</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>0</td>
+                <td class="active">1</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>1</td>
+                <td>0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 改善点まとめ -->
+    <div class="design-principles" style="background-color: rgba(78, 205, 196, 0.1); border-color: var(--accent-blue);">
+      <h3>✨ v2.0の改善点</h3>
+      <ul>
+        <li><strong>ピンの廃止</strong>：配線を直接ゲートに接続し、視覚的にシンプルに</li>
+        <li><strong>統一されたサイズ</strong>：全ゲート80×60px、viewBox固定</li>
+        <li><strong>グリッドシステム</strong>：10px単位で整列</li>
+        <li><strong>一貫した配色</strong>：用途別に色を固定</li>
+        <li><strong>適切な間隔</strong>：ラベルとゲートの距離を統一</li>
+        <li><strong>正確な波形</strong>：50%デューティのクロック、整った矩形波</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

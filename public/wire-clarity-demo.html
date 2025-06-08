@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配線視認性改善デモ</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00ff88;
+            margin-bottom: 2rem;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .demo-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        
+        .demo-title {
+            color: #00ff88;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .circuit-container {
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        
+        /* 基本スタイル */
+        .gate {
+            fill: #2a2a2a;
+            stroke: #444;
+            stroke-width: 2;
+        }
+        
+        .pin {
+            fill: #666;
+        }
+        
+        .pin.active {
+            fill: #00ff88;
+        }
+        
+        /* 配線スタイル */
+        .wire {
+            stroke-width: 2;
+            fill: none;
+            transition: all 0.3s ease;
+        }
+        
+        .wire-a {
+            stroke: #ff9500;
+        }
+        
+        .wire-b {
+            stroke: #4ecdc4;
+        }
+        
+        .wire-neutral {
+            stroke: #666;
+        }
+        
+        .wire-active {
+            stroke: #00ff88;
+        }
+        
+        /* ホバー効果 */
+        .wire-group:hover .wire {
+            stroke-width: 4;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+        
+        .wire-group:hover .wire-label {
+            opacity: 1;
+        }
+        
+        .wire-label {
+            fill: #ffffff;
+            font-size: 12px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        /* ジャンクション（分岐点） */
+        .junction {
+            fill: currentColor;
+            stroke: #1a1a1a;
+            stroke-width: 2;
+        }
+        
+        /* アニメーション */
+        @keyframes signal-flow {
+            from {
+                stroke-dashoffset: 0;
+            }
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+        
+        .wire-animated {
+            stroke-dasharray: 10 10;
+            animation: signal-flow 1s linear infinite;
+        }
+        
+        /* 配線背景 */
+        .wire-bg {
+            stroke-width: 8;
+            opacity: 0.2;
+        }
+        
+        .info-box {
+            background: #2a2a2a;
+            border-left: 4px solid #00ff88;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .legend-line {
+            width: 30px;
+            height: 3px;
+        }
+        
+        .controls {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        button {
+            background: #00ff88;
+            color: #0a0a0a;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #00cc66;
+        }
+        
+        button.active {
+            background: #00cc66;
+            box-shadow: 0 0 10px #00ff88;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>配線視認性改善デモ - 半加算器</h1>
+        
+        <div class="demo-grid">
+            <!-- 1. 色分け方式 -->
+            <div class="demo-card">
+                <h2 class="demo-title">方法1: 入力ごとの色分け</h2>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 600 400">
+                        <!-- 入力A（オレンジ）の配線 -->
+                        <g class="wire-group">
+                            <path d="M 135 150 L 220 150 L 220 105 L 255 105" 
+                                  class="wire wire-a"/>
+                            <path d="M 135 150 L 180 150 L 180 265 L 255 265" 
+                                  class="wire wire-a"/>
+                            <circle cx="180" cy="150" r="4" class="junction wire-a"/>
+                        </g>
+                        
+                        <!-- 入力B（青）の配線 -->
+                        <g class="wire-group">
+                            <path d="M 135 250 L 200 250 L 200 135 L 255 135" 
+                                  class="wire wire-b"/>
+                            <path d="M 135 250 L 160 250 L 160 295 L 255 295" 
+                                  class="wire wire-b"/>
+                            <circle cx="160" cy="250" r="4" class="junction wire-b"/>
+                        </g>
+                        
+                        <!-- 出力配線 -->
+                        <path d="M 345 120 L 470 120" class="wire wire-neutral"/>
+                        <path d="M 345 280 L 470 280" class="wire wire-active"/>
+                        
+                        <!-- ゲート（省略版） -->
+                        <g transform="translate(100, 150)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#ff9500"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#ff9500" font-size="14" font-weight="bold">A</text>
+                        </g>
+                        
+                        <g transform="translate(100, 250)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#4ecdc4"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#4ecdc4" font-size="14" font-weight="bold">B</text>
+                        </g>
+                        
+                        <g transform="translate(300, 120)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#e0e0e0" font-size="16">XOR</text>
+                        </g>
+                        
+                        <g transform="translate(300, 280)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#e0e0e0" font-size="16">AND</text>
+                        </g>
+                        
+                        <g transform="translate(500, 120)">
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="15" fill="#333"/>
+                            <text x="0" y="35" text-anchor="middle" fill="#888" font-size="12">Sum</text>
+                        </g>
+                        
+                        <g transform="translate(500, 280)">
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="15" fill="#00ff88"/>
+                            <text x="0" y="35" text-anchor="middle" fill="#888" font-size="12">Carry</text>
+                        </g>
+                    </svg>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-line" style="background: #ff9500;"></div>
+                        <span>入力A</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line" style="background: #4ecdc4;"></div>
+                        <span>入力B</span>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>利点:</strong> 各入力の経路が一目瞭然<br>
+                    <strong>実装:</strong> 簡単（色属性の追加のみ）
+                </div>
+            </div>
+            
+            <!-- 2. ホバー強調方式 -->
+            <div class="demo-card">
+                <h2 class="demo-title">方法2: ホバーで強調</h2>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 600 400">
+                        <!-- 入力Aグループ -->
+                        <g class="wire-group" style="cursor: pointer;">
+                            <path d="M 135 150 L 220 150 L 220 105 L 255 105" 
+                                  class="wire wire-active" stroke="#666"/>
+                            <path d="M 135 150 L 180 150 L 180 265 L 255 265" 
+                                  class="wire wire-active" stroke="#666"/>
+                            <text x="150" y="140" class="wire-label">A</text>
+                        </g>
+                        
+                        <!-- 入力Bグループ -->
+                        <g class="wire-group" style="cursor: pointer;">
+                            <path d="M 135 250 L 200 250 L 200 135 L 255 135" 
+                                  class="wire wire-active" stroke="#666"/>
+                            <path d="M 135 250 L 160 250 L 160 295 L 255 295" 
+                                  class="wire wire-active" stroke="#666"/>
+                            <text x="150" y="240" class="wire-label">B</text>
+                        </g>
+                        
+                        <!-- その他の要素は省略 -->
+                        <g transform="translate(100, 150)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12">A</text>
+                        </g>
+                        
+                        <g transform="translate(100, 250)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12">B</text>
+                        </g>
+                        
+                        <g transform="translate(300, 120)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#e0e0e0" font-size="16">XOR</text>
+                        </g>
+                        
+                        <g transform="translate(300, 280)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#e0e0e0" font-size="16">AND</text>
+                        </g>
+                    </svg>
+                </div>
+                <div class="info-box">
+                    <strong>利点:</strong> インタラクティブで学習効果が高い<br>
+                    <strong>実装:</strong> 中程度（CSSとグループ化）
+                </div>
+            </div>
+            
+            <!-- 3. 改善されたルーティング -->
+            <div class="demo-card">
+                <h2 class="demo-title">方法3: 改善されたルーティング</h2>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 600 400">
+                        <!-- より明確な配線ルート -->
+                        <!-- 入力A -->
+                        <path d="M 135 150 L 240 150" stroke="#ff9500" stroke-width="2" fill="none"/>
+                        <path d="M 240 150 L 240 105 L 255 105" stroke="#ff9500" stroke-width="2" fill="none"/>
+                        <path d="M 240 150 L 240 265 L 255 265" stroke="#ff9500" stroke-width="2" fill="none"/>
+                        <circle cx="240" cy="150" r="4" fill="#ff9500"/>
+                        
+                        <!-- 入力B -->
+                        <path d="M 135 250 L 220 250" stroke="#4ecdc4" stroke-width="2" fill="none"/>
+                        <path d="M 220 250 L 220 135 L 255 135" stroke="#4ecdc4" stroke-width="2" fill="none"/>
+                        <path d="M 220 250 L 220 295 L 255 295" stroke="#4ecdc4" stroke-width="2" fill="none"/>
+                        <circle cx="220" cy="250" r="4" fill="#4ecdc4"/>
+                        
+                        <!-- 分岐点を垂直に揃える -->
+                        <text x="240" y="145" text-anchor="middle" fill="#ff9500" font-size="10">A</text>
+                        <text x="220" y="245" text-anchor="middle" fill="#4ecdc4" font-size="10">B</text>
+                        
+                        <!-- ゲート -->
+                        <g transform="translate(100, 150)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#ff9500"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12">A</text>
+                        </g>
+                        
+                        <g transform="translate(100, 250)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#4ecdc4"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12">B</text>
+                        </g>
+                        
+                        <g transform="translate(300, 120)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#e0e0e0" font-size="16">XOR</text>
+                        </g>
+                        
+                        <g transform="translate(300, 280)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#e0e0e0" font-size="16">AND</text>
+                        </g>
+                    </svg>
+                </div>
+                <div class="info-box">
+                    <strong>利点:</strong> 配線の構造が明確<br>
+                    <strong>実装:</strong> 簡単（座標調整のみ）
+                </div>
+            </div>
+            
+            <!-- 4. アニメーション方式 -->
+            <div class="demo-card">
+                <h2 class="demo-title">方法4: 信号フローアニメーション</h2>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 600 400">
+                        <!-- アニメーション付き配線 -->
+                        <g id="animatedWires">
+                            <path d="M 135 150 L 220 150 L 220 105 L 255 105" 
+                                  stroke="#00ff88" stroke-width="2" fill="none" 
+                                  class="wire-animated"/>
+                            <path d="M 135 150 L 180 150 L 180 265 L 255 265" 
+                                  stroke="#00ff88" stroke-width="2" fill="none" 
+                                  class="wire-animated"/>
+                        </g>
+                        
+                        <!-- ゲート（省略） -->
+                        <g transform="translate(100, 150)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12">A</text>
+                        </g>
+                        
+                        <g transform="translate(300, 120)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#e0e0e0" font-size="16">XOR</text>
+                        </g>
+                        
+                        <g transform="translate(300, 280)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#e0e0e0" font-size="16">AND</text>
+                        </g>
+                    </svg>
+                </div>
+                <div class="controls">
+                    <button onclick="toggleAnimation()">アニメーション切替</button>
+                </div>
+                <div class="info-box">
+                    <strong>利点:</strong> 信号の流れが視覚的に理解できる<br>
+                    <strong>実装:</strong> 中程度（CSS/JSアニメーション）
+                </div>
+            </div>
+        </div>
+        
+        <!-- 統合提案 -->
+        <div class="demo-card" style="max-width: 800px; margin: 0 auto;">
+            <h2 class="demo-title">推奨: 複合アプローチ</h2>
+            <div class="circuit-container">
+                <svg viewBox="0 0 700 400" id="combinedDemo">
+                    <!-- 背景レイヤー（配線グループ） -->
+                    <defs>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    
+                    <!-- 入力A（オレンジ）グループ -->
+                    <g class="wire-group input-a-group" data-input="A">
+                        <!-- 背景 -->
+                        <path d="M 135 150 L 240 150" 
+                              stroke="#ff9500" stroke-width="8" fill="none" 
+                              opacity="0.2" class="wire-bg"/>
+                        <path d="M 240 150 L 240 105 L 255 105" 
+                              stroke="#ff9500" stroke-width="8" fill="none" 
+                              opacity="0.2" class="wire-bg"/>
+                        <path d="M 240 150 L 240 265 L 255 265" 
+                              stroke="#ff9500" stroke-width="8" fill="none" 
+                              opacity="0.2" class="wire-bg"/>
+                        
+                        <!-- 実線 -->
+                        <path d="M 135 150 L 240 150" 
+                              stroke="#ff9500" stroke-width="2" fill="none" class="wire"/>
+                        <path d="M 240 150 L 240 105 L 255 105" 
+                              stroke="#ff9500" stroke-width="2" fill="none" class="wire"/>
+                        <path d="M 240 150 L 240 265 L 255 265" 
+                              stroke="#ff9500" stroke-width="2" fill="none" class="wire"/>
+                        
+                        <!-- ジャンクション -->
+                        <circle cx="240" cy="150" r="5" fill="#ff9500" class="junction"/>
+                        
+                        <!-- ラベル -->
+                        <rect x="235" y="140" width="10" height="15" fill="#0a0a0a" opacity="0.8"/>
+                        <text x="240" y="148" text-anchor="middle" fill="#ff9500" font-size="10" font-weight="bold">A</text>
+                    </g>
+                    
+                    <!-- 入力B（シアン）グループ -->
+                    <g class="wire-group input-b-group" data-input="B">
+                        <!-- 背景 -->
+                        <path d="M 135 250 L 210 250" 
+                              stroke="#4ecdc4" stroke-width="8" fill="none" 
+                              opacity="0.2" class="wire-bg"/>
+                        <path d="M 210 250 L 210 135 L 255 135" 
+                              stroke="#4ecdc4" stroke-width="8" fill="none" 
+                              opacity="0.2" class="wire-bg"/>
+                        <path d="M 210 250 L 210 295 L 255 295" 
+                              stroke="#4ecdc4" stroke-width="8" fill="none" 
+                              opacity="0.2" class="wire-bg"/>
+                        
+                        <!-- 実線 -->
+                        <path d="M 135 250 L 210 250" 
+                              stroke="#4ecdc4" stroke-width="2" fill="none" class="wire"/>
+                        <path d="M 210 250 L 210 135 L 255 135" 
+                              stroke="#4ecdc4" stroke-width="2" fill="none" class="wire"/>
+                        <path d="M 210 250 L 210 295 L 255 295" 
+                              stroke="#4ecdc4" stroke-width="2" fill="none" class="wire"/>
+                        
+                        <!-- ジャンクション -->
+                        <circle cx="210" cy="250" r="5" fill="#4ecdc4" class="junction"/>
+                        
+                        <!-- ラベル -->
+                        <rect x="205" y="240" width="10" height="15" fill="#0a0a0a" opacity="0.8"/>
+                        <text x="210" y="248" text-anchor="middle" fill="#4ecdc4" font-size="10" font-weight="bold">B</text>
+                    </g>
+                    
+                    <!-- 出力配線 -->
+                    <path d="M 345 120 L 470 120" stroke="#666" stroke-width="2" fill="none"/>
+                    <path d="M 345 280 L 470 280" stroke="#00ff88" stroke-width="2" fill="none"/>
+                    
+                    <!-- ゲート -->
+                    <g transform="translate(100, 150)">
+                        <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#ff9500" stroke="#ff9500" stroke-width="2"/>
+                        <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                        <text x="0" y="-25" text-anchor="middle" fill="#ff9500" font-size="14" font-weight="bold">A</text>
+                        <circle cx="35" cy="0" r="6" fill="#ff9500"/>
+                    </g>
+                    
+                    <g transform="translate(100, 250)">
+                        <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#4ecdc4" stroke="#4ecdc4" stroke-width="2"/>
+                        <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                        <text x="0" y="-25" text-anchor="middle" fill="#4ecdc4" font-size="14" font-weight="bold">B</text>
+                        <circle cx="35" cy="0" r="6" fill="#4ecdc4"/>
+                    </g>
+                    
+                    <g transform="translate(300, 120)">
+                        <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                        <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#e0e0e0" font-size="16" font-weight="bold">XOR</text>
+                        <circle cx="-45" cy="-15" r="6" fill="#ff9500"/>
+                        <circle cx="-45" cy="15" r="6" fill="#4ecdc4"/>
+                        <circle cx="45" cy="0" r="6" fill="#666"/>
+                    </g>
+                    
+                    <g transform="translate(300, 280)">
+                        <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                        <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#e0e0e0" font-size="16" font-weight="bold">AND</text>
+                        <circle cx="-45" cy="-15" r="6" fill="#ff9500"/>
+                        <circle cx="-45" cy="15" r="6" fill="#4ecdc4"/>
+                        <circle cx="45" cy="0" r="6" fill="#00ff88"/>
+                    </g>
+                    
+                    <g transform="translate(500, 120)">
+                        <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                        <circle cx="0" cy="0" r="15" fill="#333"/>
+                        <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="20">💡</text>
+                        <text x="0" y="35" text-anchor="middle" fill="#888" font-size="12">Sum</text>
+                        <circle cx="-30" cy="0" r="6" fill="#666"/>
+                    </g>
+                    
+                    <g transform="translate(500, 280)">
+                        <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                        <circle cx="0" cy="0" r="15" fill="#00ff88"/>
+                        <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="20">💡</text>
+                        <text x="0" y="35" text-anchor="middle" fill="#888" font-size="12">Carry</text>
+                        <circle cx="-30" cy="0" r="6" fill="#00ff88"/>
+                    </g>
+                    
+                    <!-- インタラクションの説明 -->
+                    <text x="350" y="380" text-anchor="middle" fill="#666" font-size="12">配線にマウスを重ねてみてください</text>
+                </svg>
+            </div>
+            <div class="info-box">
+                <h3>統合された改善点：</h3>
+                <ul>
+                    <li><strong>色分け:</strong> 入力A（オレンジ）、入力B（シアン）で識別</li>
+                    <li><strong>ルーティング:</strong> 垂直に整列した分岐点</li>
+                    <li><strong>視覚的手がかり:</strong> 
+                        <ul>
+                            <li>分岐点にジャンクション（●）表示</li>
+                            <li>配線に薄い背景色</li>
+                            <li>分岐点にラベル</li>
+                        </ul>
+                    </li>
+                    <li><strong>インタラクティブ:</strong> ホバーで強調表示</li>
+                </ul>
+                <div style="margin-top: 1rem; padding: 1rem; background: #333; border-radius: 4px;">
+                    <strong>実装コスト:</strong> 約3-4時間<br>
+                    <strong>効果:</strong> 学習者の理解度が大幅に向上
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // アニメーション切り替え
+        let animationEnabled = false;
+        
+        function toggleAnimation() {
+            animationEnabled = !animationEnabled;
+            const wires = document.querySelectorAll('#animatedWires path');
+            wires.forEach(wire => {
+                if (animationEnabled) {
+                    wire.classList.add('wire-animated');
+                } else {
+                    wire.classList.remove('wire-animated');
+                }
+            });
+        }
+        
+        // ホバー効果のセットアップ
+        document.querySelectorAll('.wire-group').forEach(group => {
+            group.addEventListener('mouseenter', function() {
+                // 他のグループを薄くする
+                document.querySelectorAll('.wire-group').forEach(g => {
+                    if (g !== this) {
+                        g.style.opacity = '0.3';
+                    }
+                });
+            });
+            
+            group.addEventListener('mouseleave', function() {
+                // すべてのグループを元に戻す
+                document.querySelectorAll('.wire-group').forEach(g => {
+                    g.style.opacity = '1';
+                });
+            });
+        });
+        
+        // 統合デモのインタラクション
+        const combinedDemo = document.getElementById('combinedDemo');
+        const infoText = combinedDemo.querySelector('text[x="350"]');
+        
+        combinedDemo.querySelectorAll('.wire-group').forEach(group => {
+            group.addEventListener('mouseenter', function() {
+                const inputName = this.dataset.input;
+                infoText.textContent = `入力${inputName}の配線を強調表示中`;
+                infoText.setAttribute('fill', this.querySelector('.wire').getAttribute('stroke'));
+            });
+            
+            group.addEventListener('mouseleave', function() {
+                infoText.textContent = '配線にマウスを重ねてみてください';
+                infoText.setAttribute('fill', '#666');
+            });
+        });
+    </script>
+</body>
+</html>

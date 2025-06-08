@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学習モード レッスン別図表カタログ</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --accent-green: #00ff88;
+            --accent-red: #ff6b6b;
+            --accent-blue: #4ecdc4;
+            --accent-yellow: #ffd93d;
+            --accent-orange: #ff9500;
+            --wire-inactive: #666666;
+            --border-color: #333333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--accent-green);
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+        }
+        
+        .lesson-section {
+            margin-bottom: 4rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        
+        .lesson-title {
+            color: var(--accent-green);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .diagram-card {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .diagram-title {
+            color: var(--accent-blue);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .circuit-container {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        svg {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Gate styles */
+        .gate {
+            fill: var(--bg-tertiary);
+            stroke: #444;
+            stroke-width: 2;
+        }
+        
+        .gate-text {
+            fill: #e0e0e0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .pin {
+            fill: var(--wire-inactive);
+        }
+        
+        .pin.active {
+            fill: var(--accent-green);
+        }
+        
+        .pin-line {
+            stroke: var(--wire-inactive);
+            stroke-width: 2;
+        }
+        
+        .pin-line.active {
+            stroke: var(--accent-green);
+        }
+        
+        .wire {
+            stroke: var(--wire-inactive);
+            stroke-width: 2;
+            fill: none;
+        }
+        
+        .wire.active {
+            stroke: var(--accent-green);
+        }
+        
+        .wire-bg {
+            stroke-width: 8;
+            opacity: 0.2;
+        }
+        
+        .junction {
+            fill: currentColor;
+            stroke: var(--bg-primary);
+            stroke-width: 2;
+        }
+        
+        /* Truth table */
+        .truth-table {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+        
+        table {
+            border-collapse: collapse;
+            font-family: monospace;
+        }
+        
+        th, td {
+            padding: 0.5rem 1rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        
+        th {
+            background: var(--bg-tertiary);
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+        
+        td {
+            background: var(--bg-primary);
+        }
+        
+        .truth-1 {
+            background: var(--accent-green) !important;
+            color: var(--bg-primary);
+            font-weight: bold;
+        }
+        
+        .implementation-note {
+            background: var(--bg-primary);
+            border-left: 4px solid var(--accent-blue);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .code-snippet {
+            background: #000;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin-top: 0.5rem;
+        }
+        
+        .wire-a { stroke: #ff9500; }
+        .wire-b { stroke: #4ecdc4; }
+        .wire-c { stroke: #ffd93d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>学習モード レッスン別図表カタログ</h1>
+        
+        <!-- レッスン1: デジタル基礎 -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン1: デジタルって何？</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">電圧レベルとデジタル信号</h3>
+                <div class="circuit-container">
+                    <canvas id="voltageLevel" width="600" height="300"></canvas>
+                </div>
+                <div class="implementation-note">
+                    <strong>実装方法:</strong> Canvas API
+                    <div class="code-snippet">
+type: 'waveform',
+data: {
+  signals: [
+    { name: '電圧', type: 'analog', thresholds: [2.5] },
+    { name: 'デジタル', type: 'digital', derived: true }
+  ]
+}</div>
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">アナログ信号 vs デジタル信号</h3>
+                <div class="circuit-container">
+                    <canvas id="analogVsDigital" width="600" height="250"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン2: ANDゲート -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン2: ANDゲート</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">ANDゲート基本回路</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 500 250" style="max-width: 500px;">
+                        <!-- 入力A -->
+                        <g transform="translate(100, 100)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="14">A</text>
+                            <!-- 出力ピン -->
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="35" cy="0" r="6" fill="#00ff88"/>
+                        </g>
+                        
+                        <!-- 入力B -->
+                        <g transform="translate(100, 150)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="14">B</text>
+                            <!-- 出力ピン -->
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="35" cy="0" r="6" fill="#00ff88"/>
+                        </g>
+                        
+                        <!-- ANDゲート -->
+                        <g transform="translate(250, 125)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">AND</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="-10" r="6" fill="#00ff88" class="pin active"/>
+                            <line x1="-35" y1="-10" x2="-45" y2="-10" stroke="#00ff88" stroke-width="2" class="pin-line active"/>
+                            <circle cx="-45" cy="10" r="6" fill="#00ff88" class="pin active"/>
+                            <line x1="-35" y1="10" x2="-45" y2="10" stroke="#00ff88" stroke-width="2" class="pin-line active"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#00ff88" class="pin active"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#00ff88" stroke-width="2" class="pin-line active"/>
+                        </g>
+                        
+                        <!-- 出力 -->
+                        <g transform="translate(400, 125)">
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="15" fill="#00ff88"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="20">💡</text>
+                            <text x="0" y="35" text-anchor="middle" fill="#888" font-size="12">Y</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-30" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="-30" y1="0" x2="-20" y2="0" stroke="#00ff88" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- 配線（水平・垂直） -->
+                        <!-- A to AND -->
+                        <path d="M 135 100 L 180 100 L 180 115 L 205 115" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        <!-- B to AND -->
+                        <path d="M 135 150 L 180 150 L 180 135 L 205 135" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        <!-- AND to Y -->
+                        <line x1="295" y1="125" x2="370" y2="125" stroke="#00ff88" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="truth-table">
+                    <table>
+                        <tr><th>A</th><th>B</th><th>Y</th></tr>
+                        <tr><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>0</td><td>1</td><td>0</td></tr>
+                        <tr><td>1</td><td>0</td><td>0</td></tr>
+                        <tr><td>1</td><td>1</td><td class="truth-1">1</td></tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン3: ORゲート -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン3: ORゲート</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">ORゲート基本回路</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 500 250" style="max-width: 500px;">
+                        <!-- 入力A (ON) -->
+                        <g transform="translate(100, 100)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="14">A</text>
+                            <!-- 出力ピン -->
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="35" cy="0" r="6" fill="#00ff88"/>
+                        </g>
+                        
+                        <!-- 入力B (OFF) -->
+                        <g transform="translate(100, 150)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <circle cx="-10" cy="0" r="12" fill="#666"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="14">B</text>
+                            <!-- 出力ピン -->
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#666" stroke-width="2"/>
+                            <circle cx="35" cy="0" r="6" fill="#666"/>
+                        </g>
+                        
+                        <!-- ORゲート -->
+                        <g transform="translate(250, 125)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">OR</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="-10" r="6" fill="#00ff88" class="pin active"/>
+                            <line x1="-35" y1="-10" x2="-45" y2="-10" stroke="#00ff88" stroke-width="2" class="pin-line active"/>
+                            <circle cx="-45" cy="10" r="6" fill="#666" class="pin"/>
+                            <line x1="-35" y1="10" x2="-45" y2="10" stroke="#666" stroke-width="2" class="pin-line"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#00ff88" class="pin active"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#00ff88" stroke-width="2" class="pin-line active"/>
+                        </g>
+                        
+                        <!-- 出力 (ON) -->
+                        <g transform="translate(400, 125)">
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="15" fill="#00ff88"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="20">💡</text>
+                            <text x="0" y="35" text-anchor="middle" fill="#888" font-size="12">Y</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-30" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="-30" y1="0" x2="-20" y2="0" stroke="#00ff88" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- 配線（水平・垂直） -->
+                        <!-- A to OR -->
+                        <path d="M 135 100 L 180 100 L 180 115 L 205 115" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        <!-- B to OR -->
+                        <path d="M 135 150 L 180 150 L 180 135 L 205 135" stroke="#666" stroke-width="2" fill="none"/>
+                        <!-- OR to Y -->
+                        <line x1="295" y1="125" x2="370" y2="125" stroke="#00ff88" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="truth-table">
+                    <table>
+                        <tr><th>A</th><th>B</th><th>Y</th></tr>
+                        <tr><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>0</td><td>1</td><td class="truth-1">1</td></tr>
+                        <tr><td>1</td><td>0</td><td class="truth-1">1</td></tr>
+                        <tr><td>1</td><td>1</td><td class="truth-1">1</td></tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン4: NOTゲート -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン4: NOTゲート</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">NOTゲート基本回路</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 400 200" style="max-width: 400px;">
+                        <!-- 入力 (ON) -->
+                        <g transform="translate(100, 100)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="14">A</text>
+                            <!-- 出力ピン -->
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="35" cy="0" r="6" fill="#00ff88"/>
+                        </g>
+                        
+                        <!-- NOTゲート（四角形） -->
+                        <g transform="translate(200, 100)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">NOT</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="0" r="6" fill="#00ff88" class="pin active"/>
+                            <line x1="-35" y1="0" x2="-45" y2="0" stroke="#00ff88" stroke-width="2" class="pin-line active"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#666" class="pin"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#666" stroke-width="2" class="pin-line"/>
+                        </g>
+                        
+                        <!-- 出力 (OFF) -->
+                        <g transform="translate(300, 100)">
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="15" fill="#333"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="20">💡</text>
+                            <text x="0" y="35" text-anchor="middle" fill="#888" font-size="12">Y</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-30" cy="0" r="6" fill="#666"/>
+                            <line x1="-30" y1="0" x2="-20" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- 配線 -->
+                        <line x1="135" y1="100" x2="155" y2="100" stroke="#00ff88" stroke-width="2"/>
+                        <line x1="245" y1="100" x2="270" y2="100" stroke="#666" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="truth-table">
+                    <table>
+                        <tr><th>A</th><th>Y</th></tr>
+                        <tr><td>0</td><td class="truth-1">1</td></tr>
+                        <tr><td>1</td><td>0</td></tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">ダブルNOT回路（元に戻る）</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 600 200" style="max-width: 600px;">
+                        <!-- 入力 (OFF) -->
+                        <g transform="translate(50, 100)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <circle cx="-10" cy="0" r="12" fill="#666"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="14">A</text>
+                            <!-- 出力ピン -->
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#666" stroke-width="2"/>
+                            <circle cx="35" cy="0" r="6" fill="#666"/>
+                        </g>
+                        
+                        <!-- 1つ目のNOT -->
+                        <g transform="translate(200, 100)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">NOT</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="0" r="6" fill="#666" class="pin"/>
+                            <line x1="-35" y1="0" x2="-45" y2="0" stroke="#666" stroke-width="2" class="pin-line"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#00ff88" class="pin active"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#00ff88" stroke-width="2" class="pin-line active"/>
+                        </g>
+                        
+                        <!-- 2つ目のNOT -->
+                        <g transform="translate(350, 100)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">NOT</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="0" r="6" fill="#00ff88" class="pin active"/>
+                            <line x1="-35" y1="0" x2="-45" y2="0" stroke="#00ff88" stroke-width="2" class="pin-line active"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#666" class="pin"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#666" stroke-width="2" class="pin-line"/>
+                        </g>
+                        
+                        <!-- 出力 (OFF) -->
+                        <g transform="translate(500, 100)">
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="15" fill="#333"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="20">💡</text>
+                            <text x="0" y="35" text-anchor="middle" fill="#888" font-size="12">Y</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-30" cy="0" r="6" fill="#666"/>
+                            <line x1="-30" y1="0" x2="-20" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- 配線 -->
+                        <line x1="85" y1="100" x2="155" y2="100" stroke="#666" stroke-width="2"/>
+                        <line x1="245" y1="100" x2="305" y2="100" stroke="#00ff88" stroke-width="2"/>
+                        <line x1="395" y1="100" x2="470" y2="100" stroke="#666" stroke-width="2"/>
+                        
+                        <!-- 説明 -->
+                        <text x="120" y="130" text-anchor="middle" fill="#666" font-size="12">0</text>
+                        <text x="275" y="130" text-anchor="middle" fill="#00ff88" font-size="12">1</text>
+                        <text x="430" y="130" text-anchor="middle" fill="#666" font-size="12">0</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン5: XORゲート -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン5: XORゲート</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">XORゲート基本回路</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 500 250" style="max-width: 500px;">
+                        <!-- 入力A (ON) -->
+                        <g transform="translate(100, 100)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="14">A</text>
+                            <!-- 出力ピン -->
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="35" cy="0" r="6" fill="#00ff88"/>
+                        </g>
+                        
+                        <!-- 入力B (ON) -->
+                        <g transform="translate(100, 150)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="14">B</text>
+                            <!-- 出力ピン -->
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="35" cy="0" r="6" fill="#00ff88"/>
+                        </g>
+                        
+                        <!-- XORゲート -->
+                        <g transform="translate(250, 125)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">XOR</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="-10" r="6" fill="#00ff88" class="pin active"/>
+                            <line x1="-35" y1="-10" x2="-45" y2="-10" stroke="#00ff88" stroke-width="2" class="pin-line active"/>
+                            <circle cx="-45" cy="10" r="6" fill="#00ff88" class="pin active"/>
+                            <line x1="-35" y1="10" x2="-45" y2="10" stroke="#00ff88" stroke-width="2" class="pin-line active"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#666" class="pin"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#666" stroke-width="2" class="pin-line"/>
+                        </g>
+                        
+                        <!-- 出力 (OFF) -->
+                        <g transform="translate(400, 125)">
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="15" fill="#333"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="20">💡</text>
+                            <text x="0" y="35" text-anchor="middle" fill="#888" font-size="12">Y</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-30" cy="0" r="6" fill="#666"/>
+                            <line x1="-30" y1="0" x2="-20" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- 配線（水平・垂直） -->
+                        <!-- A to XOR -->
+                        <path d="M 135 100 L 180 100 L 180 115 L 205 115" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        <!-- B to XOR -->
+                        <path d="M 135 150 L 180 150 L 180 135 L 205 135" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        <!-- XOR to Y -->
+                        <line x1="295" y1="125" x2="370" y2="125" stroke="#666" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="truth-table">
+                    <table>
+                        <tr><th>A</th><th>B</th><th>Y</th></tr>
+                        <tr><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>0</td><td>1</td><td class="truth-1">1</td></tr>
+                        <tr><td>1</td><td>0</td><td class="truth-1">1</td></tr>
+                        <tr><td>1</td><td>1</td><td>0</td></tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン14: D-FF -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン14: Dフリップフロップ</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">D-FFタイミングチャート</h3>
+                <div class="circuit-container">
+                    <canvas id="dffTiming" width="600" height="300"></canvas>
+                </div>
+                <div class="implementation-note">
+                    <strong>実装方法:</strong> Canvas API - タイミングチャート
+                    <div class="code-snippet">
+type: 'timing-chart',
+signals: [
+  { name: 'CLK', type: 'clock' },
+  { name: 'D', data: [0,0,1,1,1,0,0,0,1,1] },
+  { name: 'Q', data: [0,0,0,1,1,1,0,0,0,1], delayed: true }
+]</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン7: 半加算器 -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン7: 半加算器</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">半加算器回路（改善版）</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 700 400" style="max-width: 700px;">
+                        <!-- 入力A配線（オレンジ・クリーン） -->
+                        <g class="wire-group">
+                            <path d="M 135 150 L 240 150" stroke="#ff9500" stroke-width="3" fill="none"/>
+                            <path d="M 240 150 L 240 105 L 305 105" stroke="#ff9500" stroke-width="3" fill="none"/>
+                            <path d="M 240 150 L 240 265 L 305 265" stroke="#ff9500" stroke-width="3" fill="none"/>
+                            <circle cx="240" cy="150" r="5" fill="#ff9500"/>
+                            <text x="240" y="140" text-anchor="middle" fill="#ff9500" font-size="12" font-weight="bold">A</text>
+                        </g>
+                        
+                        <!-- 入力B配線（シアン・クリーン） -->
+                        <g class="wire-group">
+                            <path d="M 135 250 L 210 250" stroke="#4ecdc4" stroke-width="3" fill="none"/>
+                            <path d="M 210 250 L 210 135 L 305 135" stroke="#4ecdc4" stroke-width="3" fill="none"/>
+                            <path d="M 210 250 L 210 295 L 305 295" stroke="#4ecdc4" stroke-width="3" fill="none"/>
+                            <circle cx="210" cy="250" r="5" fill="#4ecdc4"/>
+                            <text x="210" y="240" text-anchor="middle" fill="#4ecdc4" font-size="12" font-weight="bold">B</text>
+                        </g>
+                        
+                        <!-- 出力配線 -->
+                        <path d="M 395 120 L 520 120" stroke="#666" stroke-width="2" fill="none"/>
+                        <path d="M 395 280 L 520 280" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        
+                        <!-- ゲート -->
+                        <!-- INPUT A -->
+                        <g transform="translate(100, 150)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#ff9500" stroke="#ff9500" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#ff9500" font-size="14" font-weight="bold">A</text>
+                            <circle cx="35" cy="0" r="6" fill="#ff9500"/>
+                        </g>
+                        
+                        <!-- INPUT B -->
+                        <g transform="translate(100, 250)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#4ecdc4" stroke="#4ecdc4" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#4ecdc4" font-size="14" font-weight="bold">B</text>
+                            <circle cx="35" cy="0" r="6" fill="#4ecdc4"/>
+                        </g>
+                        
+                        <!-- XORゲート -->
+                        <g transform="translate(350, 120)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="-5" text-anchor="middle" dominant-baseline="middle" class="gate-text">XOR</text>
+                            <text x="0" y="10" text-anchor="middle" fill="#888" font-size="10">(Sum)</text>
+                            <!-- 入力ピンと接続線 -->
+                            <circle cx="-45" cy="-15" r="6" fill="#ff9500"/>
+                            <line x1="-35" y1="-15" x2="-45" y2="-15" stroke="#ff9500" stroke-width="3"/>
+                            <circle cx="-45" cy="15" r="6" fill="#4ecdc4"/>
+                            <line x1="-35" y1="15" x2="-45" y2="15" stroke="#4ecdc4" stroke-width="3"/>
+                            <!-- 出力ピンと接続線 -->
+                            <circle cx="45" cy="0" r="6" fill="#666"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#666" stroke-width="3"/>
+                        </g>
+                        
+                        <!-- ANDゲート -->
+                        <g transform="translate(350, 280)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="-5" text-anchor="middle" dominant-baseline="middle" class="gate-text">AND</text>
+                            <text x="0" y="10" text-anchor="middle" fill="#888" font-size="10">(Carry)</text>
+                            <!-- 入力ピンと接続線 -->
+                            <circle cx="-45" cy="-15" r="6" fill="#ff9500"/>
+                            <line x1="-35" y1="-15" x2="-45" y2="-15" stroke="#ff9500" stroke-width="3"/>
+                            <circle cx="-45" cy="15" r="6" fill="#4ecdc4"/>
+                            <line x1="-35" y1="15" x2="-45" y2="15" stroke="#4ecdc4" stroke-width="3"/>
+                            <!-- 出力ピンと接続線 -->
+                            <circle cx="45" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#00ff88" stroke-width="3"/>
+                        </g>
+                        
+                        <!-- OUTPUT Sum -->
+                        <g transform="translate(550, 120)">
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="15" fill="#333"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="20">💡</text>
+                            <text x="0" y="35" text-anchor="middle" fill="#888" font-size="12">Sum</text>
+                            <circle cx="-30" cy="0" r="6" fill="#666"/>
+                        </g>
+                        
+                        <!-- OUTPUT Carry -->
+                        <g transform="translate(550, 280)">
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="15" fill="#00ff88"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="20">💡</text>
+                            <text x="0" y="35" text-anchor="middle" fill="#888" font-size="12">Carry</text>
+                            <circle cx="-30" cy="0" r="6" fill="#00ff88"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="truth-table">
+                    <table>
+                        <tr><th>A</th><th>B</th><th>Sum</th><th>Carry</th></tr>
+                        <tr><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>0</td><td>1</td><td class="truth-1">1</td><td>0</td></tr>
+                        <tr><td>1</td><td>0</td><td class="truth-1">1</td><td>0</td></tr>
+                        <tr><td>1</td><td>1</td><td>0</td><td class="truth-1">1</td></tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン16: クロック同期 -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン16: クロック同期</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">クロック信号の基本</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 600 200" style="max-width: 600px;">
+                        <!-- クロック波形 -->
+                        <path d="M 50 150 L 100 150 L 100 50 L 150 50 L 150 150 L 200 150 L 200 50 L 250 50 L 250 150 L 300 150 L 300 50 L 350 50 L 350 150 L 400 150" 
+                              stroke="#00ff88" stroke-width="3" fill="none"/>
+                        
+                        <!-- 時間軸 -->
+                        <line x1="40" y1="170" x2="410" y2="170" stroke="#666" stroke-width="1"/>
+                        
+                        <!-- 電圧軸 -->
+                        <line x1="40" y1="40" x2="40" y2="180" stroke="#666" stroke-width="1"/>
+                        
+                        <!-- ラベル（適切位置） -->
+                        <text x="50" y="40" text-anchor="middle" fill="#00ff88" font-size="12" font-weight="bold">1</text>
+                        <text x="100" y="35" text-anchor="middle" fill="#888" font-size="10">立ち上がり</text>
+                        
+                        <text x="50" y="180" text-anchor="middle" fill="#888" font-size="12">0</text>
+                        <text x="150" y="165" text-anchor="middle" fill="#888" font-size="10">立ち下がり</text>
+                        
+                        <!-- 周期表示 -->
+                        <path d="M 100 30 L 200 30" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
+                        <text x="150" y="25" text-anchor="middle" fill="#666" font-size="10">1周期</text>
+                        
+                        <!-- CLKラベル -->
+                        <text x="25" y="100" text-anchor="middle" fill="#00ff88" font-size="14" font-weight="bold">CLK</text>
+                        
+                        <!-- 背景 -->
+                        <rect x="0" y="0" width="600" height="200" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン8: 全加算器 -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン8: 全加算器</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">全加算器回路図</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 800 400" style="max-width: 800px;">
+                        <!-- 入力A配線（オレンジ） -->
+                        <g class="wire-group">
+                            <!-- A to XOR1 and AND1 -->
+                            <path d="M 100 100 L 180 100" stroke="#ff9500" stroke-width="2" fill="none"/>
+                            <path d="M 180 100 L 180 95 L 255 95" stroke="#ff9500" stroke-width="2" fill="none"/>
+                            <path d="M 180 100 L 180 205 L 255 205" stroke="#ff9500" stroke-width="2" fill="none"/>
+                            <circle cx="180" cy="100" r="5" fill="#ff9500"/>
+                        </g>
+                        
+                        <!-- 入力B配線（シアン） -->
+                        <g class="wire-group">
+                            <!-- B to XOR1 and AND1 -->
+                            <path d="M 100 150 L 160 150" stroke="#4ecdc4" stroke-width="2" fill="none"/>
+                            <path d="M 160 150 L 160 105 L 255 105" stroke="#4ecdc4" stroke-width="2" fill="none"/>
+                            <path d="M 160 150 L 160 215 L 255 215" stroke="#4ecdc4" stroke-width="2" fill="none"/>
+                            <circle cx="160" cy="150" r="5" fill="#4ecdc4"/>
+                        </g>
+                        
+                        <!-- Cin入力配線（黄色・直線） -->
+                        <g class="wire-group">
+                            <!-- Cin直線で XOR2とAND2へ -->
+                            <path d="M 100 300 L 200 300" stroke="#ffd93d" stroke-width="2" fill="none"/>
+                            <path d="M 200 300 L 200 285 L 455 285" stroke="#ffd93d" stroke-width="2" fill="none"/>
+                            <path d="M 200 300 L 200 315 L 455 315" stroke="#ffd93d" stroke-width="2" fill="none"/>
+                            <circle cx="200" cy="300" r="5" fill="#ffd93d"/>
+                        </g>
+                        
+                        <!-- XOR1出力 to XOR2 -->
+                        <path d="M 345 100 L 400 100 L 400 275 L 455 275" stroke="#666" stroke-width="2" fill="none"/>
+                        
+                        <!-- AND1出力 to OR -->
+                        <path d="M 345 210 L 400 210 L 400 345 L 455 345" stroke="#666" stroke-width="2" fill="none"/>
+                        
+                        <!-- AND2出力 to OR -->
+                        <path d="M 545 305 L 580 305 L 580 355 L 605 355" stroke="#666" stroke-width="2" fill="none"/>
+                        
+                        <!-- XOR2出力 -->
+                        <path d="M 545 280 L 650 280" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        
+                        <!-- OR出力 -->
+                        <path d="M 695 350 L 750 350" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        
+                        <!-- 入力ゲート -->
+                        <!-- INPUT A -->
+                        <g transform="translate(65, 100)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#ff9500" stroke="#ff9500" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#ff9500" font-size="14" font-weight="bold">A</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#ff9500"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#ff9500" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- INPUT B -->
+                        <g transform="translate(65, 150)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#4ecdc4" stroke="#4ecdc4" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#4ecdc4" font-size="14" font-weight="bold">B</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#4ecdc4"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#4ecdc4" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- INPUT Cin -->
+                        <g transform="translate(65, 300)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#ffd93d" stroke="#ffd93d" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#ffd93d" font-size="14" font-weight="bold">Cin</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#ffd93d"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#ffd93d" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- 論理ゲート -->
+                        <!-- XOR1ゲート（A⊕B） -->
+                        <g transform="translate(300, 100)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">XOR</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="-10" r="6" fill="#ff9500"/>
+                            <line x1="-35" y1="-10" x2="-45" y2="-10" stroke="#ff9500" stroke-width="2"/>
+                            <circle cx="-45" cy="10" r="6" fill="#4ecdc4"/>
+                            <line x1="-35" y1="10" x2="-45" y2="10" stroke="#4ecdc4" stroke-width="2"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#666"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- AND1ゲート（A・B） -->
+                        <g transform="translate(300, 210)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">AND</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="-10" r="6" fill="#ff9500"/>
+                            <line x1="-35" y1="-10" x2="-45" y2="-10" stroke="#ff9500" stroke-width="2"/>
+                            <circle cx="-45" cy="10" r="6" fill="#4ecdc4"/>
+                            <line x1="-35" y1="10" x2="-45" y2="10" stroke="#4ecdc4" stroke-width="2"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#666"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- XOR2ゲート（Sum出力） -->
+                        <g transform="translate(500, 280)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">XOR</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="-10" r="6" fill="#666"/>
+                            <line x1="-35" y1="-10" x2="-45" y2="-10" stroke="#666" stroke-width="2"/>
+                            <circle cx="-45" cy="10" r="6" fill="#ffd93d"/>
+                            <line x1="-35" y1="10" x2="-45" y2="10" stroke="#ffd93d" stroke-width="2"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#00ff88" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- AND2ゲート（(A⊕B)・Cin） -->
+                        <g transform="translate(500, 305)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">AND</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="-10" r="6" fill="#666"/>
+                            <line x1="-35" y1="-10" x2="-45" y2="-10" stroke="#666" stroke-width="2"/>
+                            <circle cx="-45" cy="10" r="6" fill="#ffd93d"/>
+                            <line x1="-35" y1="10" x2="-45" y2="10" stroke="#ffd93d" stroke-width="2"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#666"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- ORゲート（Cout出力） -->
+                        <g transform="translate(650, 350)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">OR</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="-10" r="6" fill="#666"/>
+                            <line x1="-35" y1="-10" x2="-45" y2="-10" stroke="#666" stroke-width="2"/>
+                            <circle cx="-45" cy="10" r="6" fill="#666"/>
+                            <line x1="-35" y1="10" x2="-45" y2="10" stroke="#666" stroke-width="2"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#00ff88" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- 出力ラベル -->
+                        <text x="680" y="270" text-anchor="middle" fill="#00ff88" font-size="14" font-weight="bold">S</text>
+                        <text x="680" y="265" text-anchor="middle" fill="#888" font-size="10">(Sum)</text>
+                        
+                        <text x="680" y="340" text-anchor="middle" fill="#00ff88" font-size="14" font-weight="bold">Cout</text>
+                        <text x="680" y="365" text-anchor="middle" fill="#888" font-size="10">(Carry)</text>
+                        
+                        <!-- 出力ゲート（制作モード準拠の矩形） -->
+                        <!-- Sum出力 -->
+                        <g transform="translate(700, 280)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="8" fill="#00ff88" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="-10" cy="0" r="12" fill="#333"/>
+                            <text x="0" y="25" text-anchor="middle" fill="#00ff88" font-size="14" font-weight="bold">Sum</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-35" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="-25" y1="0" x2="-35" y2="0" stroke="#00ff88" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- Cout出力 -->
+                        <g transform="translate(700, 350)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="8" fill="#00ff88" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="-10" cy="0" r="12" fill="#333"/>
+                            <text x="0" y="25" text-anchor="middle" fill="#00ff88" font-size="14" font-weight="bold">Cout</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-35" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="-25" y1="0" x2="-35" y2="0" stroke="#00ff88" stroke-width="2"/>
+                        </g>
+                    </svg>
+                </div>
+                </div>
+                <div class="truth-table">
+                    <table>
+                        <tr><th>A</th><th>B</th><th>Cin</th><th>S</th><th>Cout</th></tr>
+                        <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>0</td><td>0</td><td>1</td><td class="truth-1">1</td><td>0</td></tr>
+                        <tr><td>0</td><td>1</td><td>0</td><td class="truth-1">1</td><td>0</td></tr>
+                        <tr><td>0</td><td>1</td><td>1</td><td>0</td><td class="truth-1">1</td></tr>
+                        <tr><td>1</td><td>0</td><td>0</td><td class="truth-1">1</td><td>0</td></tr>
+                        <tr><td>1</td><td>0</td><td>1</td><td>0</td><td class="truth-1">1</td></tr>
+                        <tr><td>1</td><td>1</td><td>0</td><td>0</td><td class="truth-1">1</td></tr>
+                        <tr><td>1</td><td>1</td><td>1</td><td class="truth-1">1</td><td class="truth-1">1</td></tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン9: 4ビット加算器 -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン9: 4ビット加算器</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">4ビット加算器のブロック図</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 800 400" style="max-width: 800px;">
+                        <!-- 全加算器4つ -->
+                        <!-- FA0 -->
+                        <g transform="translate(150, 200)">
+                            <rect x="-40" y="-40" width="80" height="80" rx="8" fill="#2a2a2a" stroke="#444" stroke-width="2"/>
+                            <text x="0" y="-10" text-anchor="middle" fill="#e0e0e0" font-size="14" font-weight="bold">FA</text>
+                            <text x="0" y="5" text-anchor="middle" fill="#888" font-size="10">0</text>
+                            <text x="-50" y="-20" text-anchor="end" fill="#888" font-size="10">A0</text>
+                            <text x="-50" y="0" text-anchor="end" fill="#888" font-size="10">B0</text>
+                            <text x="-50" y="20" text-anchor="end" fill="#888" font-size="10">Cin</text>
+                            <text x="50" y="-10" text-anchor="start" fill="#888" font-size="10">S0</text>
+                            <text x="50" y="10" text-anchor="start" fill="#888" font-size="10">C0</text>
+                        </g>
+                        
+                        <!-- FA1 -->
+                        <g transform="translate(300, 200)">
+                            <rect x="-40" y="-40" width="80" height="80" rx="8" fill="#2a2a2a" stroke="#444" stroke-width="2"/>
+                            <text x="0" y="-10" text-anchor="middle" fill="#e0e0e0" font-size="14" font-weight="bold">FA</text>
+                            <text x="0" y="5" text-anchor="middle" fill="#888" font-size="10">1</text>
+                            <text x="-50" y="-20" text-anchor="end" fill="#888" font-size="10">A1</text>
+                            <text x="-50" y="0" text-anchor="end" fill="#888" font-size="10">B1</text>
+                            <text x="50" y="-10" text-anchor="start" fill="#888" font-size="10">S1</text>
+                            <text x="50" y="10" text-anchor="start" fill="#888" font-size="10">C1</text>
+                        </g>
+                        
+                        <!-- FA2 -->
+                        <g transform="translate(450, 200)">
+                            <rect x="-40" y="-40" width="80" height="80" rx="8" fill="#2a2a2a" stroke="#444" stroke-width="2"/>
+                            <text x="0" y="-10" text-anchor="middle" fill="#e0e0e0" font-size="14" font-weight="bold">FA</text>
+                            <text x="0" y="5" text-anchor="middle" fill="#888" font-size="10">2</text>
+                            <text x="-50" y="-20" text-anchor="end" fill="#888" font-size="10">A2</text>
+                            <text x="-50" y="0" text-anchor="end" fill="#888" font-size="10">B2</text>
+                            <text x="50" y="-10" text-anchor="start" fill="#888" font-size="10">S2</text>
+                            <text x="50" y="10" text-anchor="start" fill="#888" font-size="10">C2</text>
+                        </g>
+                        
+                        <!-- FA3 -->
+                        <g transform="translate(600, 200)">
+                            <rect x="-40" y="-40" width="80" height="80" rx="8" fill="#2a2a2a" stroke="#444" stroke-width="2"/>
+                            <text x="0" y="-10" text-anchor="middle" fill="#e0e0e0" font-size="14" font-weight="bold">FA</text>
+                            <text x="0" y="5" text-anchor="middle" fill="#888" font-size="10">3</text>
+                            <text x="-50" y="-20" text-anchor="end" fill="#888" font-size="10">A3</text>
+                            <text x="-50" y="0" text-anchor="end" fill="#888" font-size="10">B3</text>
+                            <text x="50" y="-10" text-anchor="start" fill="#888" font-size="10">S3</text>
+                            <text x="50" y="10" text-anchor="start" fill="#888" font-size="10">Cout</text>
+                        </g>
+                        
+                        <!-- キャリー伝播線 -->
+                        <path d="M 190 210 L 250 210 L 250 220 L 260 220" stroke="#ffd93d" stroke-width="3" fill="none"/>
+                        <path d="M 340 210 L 400 210 L 400 220 L 410 220" stroke="#ffd93d" stroke-width="3" fill="none"/>
+                        <path d="M 490 210 L 550 210 L 550 220 L 560 220" stroke="#ffd93d" stroke-width="3" fill="none"/>
+                        
+                        <!-- 入力線 -->
+                        <text x="50" y="100" text-anchor="middle" fill="#ff9500" font-size="14">A[3:0]</text>
+                        <text x="50" y="140" text-anchor="middle" fill="#4ecdc4" font-size="14">B[3:0]</text>
+                        <text x="50" y="220" text-anchor="middle" fill="#ffd93d" font-size="14">Cin</text>
+                        
+                        <!-- 出力線 -->
+                        <text x="750" y="100" text-anchor="middle" fill="#00ff88" font-size="14">S[3:0]</text>
+                        <text x="750" y="210" text-anchor="middle" fill="#ffd93d" font-size="14">Cout</text>
+                        
+                        <!-- 入力矢印 -->
+                        <path d="M 20 220 L 110 220" stroke="#ffd93d" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                        
+                        <!-- 定義 -->
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="implementation-note">
+                    <strong>キャリー伝播:</strong> 各全加算器の桁上げ出力が次の全加算器の桁上げ入力に接続
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">キャリー伝播の動作</h3>
+                <div class="circuit-container">
+                    <div style="background: #0a0a0a; padding: 20px; border-radius: 8px;">
+                        <h4 style="text-align: center; color: #fff; margin-bottom: 20px;">キャリー伝播の様子 (1111 + 0001)</h4>
+                        
+                        <!-- キャリー伝播図 -->
+                        <svg viewBox="0 0 600 200" style="max-width: 600px; margin: 0 auto; display: block;">
+                            <!-- 各全加算器 -->
+                            <g transform="translate(100, 100)">
+                                <rect x="-30" y="-40" width="60" height="80" rx="8" fill="#2a2a2a" stroke="#444" stroke-width="2"/>
+                                <text x="0" y="-20" text-anchor="middle" fill="#e0e0e0" font-size="14" font-weight="bold">FA0</text>
+                                <text x="0" y="0" text-anchor="middle" fill="#888" font-size="11">A=1</text>
+                                <text x="0" y="15" text-anchor="middle" fill="#888" font-size="11">B=1</text>
+                                <text x="0" y="30" text-anchor="middle" fill="#00ff88" font-size="11">S=0</text>
+                            </g>
+                            
+                            <g transform="translate(200, 100)">
+                                <rect x="-30" y="-40" width="60" height="80" rx="8" fill="#2a2a2a" stroke="#444" stroke-width="2"/>
+                                <text x="0" y="-20" text-anchor="middle" fill="#e0e0e0" font-size="14" font-weight="bold">FA1</text>
+                                <text x="0" y="0" text-anchor="middle" fill="#888" font-size="11">A=1</text>
+                                <text x="0" y="15" text-anchor="middle" fill="#888" font-size="11">B=0</text>
+                                <text x="0" y="30" text-anchor="middle" fill="#00ff88" font-size="11">S=0</text>
+                            </g>
+                            
+                            <g transform="translate(300, 100)">
+                                <rect x="-30" y="-40" width="60" height="80" rx="8" fill="#2a2a2a" stroke="#444" stroke-width="2"/>
+                                <text x="0" y="-20" text-anchor="middle" fill="#e0e0e0" font-size="14" font-weight="bold">FA2</text>
+                                <text x="0" y="0" text-anchor="middle" fill="#888" font-size="11">A=1</text>
+                                <text x="0" y="15" text-anchor="middle" fill="#888" font-size="11">B=0</text>
+                                <text x="0" y="30" text-anchor="middle" fill="#00ff88" font-size="11">S=0</text>
+                            </g>
+                            
+                            <g transform="translate(400, 100)">
+                                <rect x="-30" y="-40" width="60" height="80" rx="8" fill="#2a2a2a" stroke="#444" stroke-width="2"/>
+                                <text x="0" y="-20" text-anchor="middle" fill="#e0e0e0" font-size="14" font-weight="bold">FA3</text>
+                                <text x="0" y="0" text-anchor="middle" fill="#888" font-size="11">A=1</text>
+                                <text x="0" y="15" text-anchor="middle" fill="#888" font-size="11">B=0</text>
+                                <text x="0" y="30" text-anchor="middle" fill="#00ff88" font-size="11">S=0</text>
+                            </g>
+                            
+                            <!-- キャリー伝播線（太く見やすく） -->
+                            <path d="M 130 110 L 170 110" stroke="#ffd93d" stroke-width="6" fill="none" marker-end="url(#arrow)"/>
+                            <text x="150" y="95" text-anchor="middle" fill="#ffd93d" font-size="16" font-weight="bold">C=1</text>
+                            
+                            <path d="M 230 110 L 270 110" stroke="#ffd93d" stroke-width="6" fill="none" marker-end="url(#arrow)"/>
+                            <text x="250" y="95" text-anchor="middle" fill="#ffd93d" font-size="16" font-weight="bold">C=1</text>
+                            
+                            <path d="M 330 110 L 370 110" stroke="#ffd93d" stroke-width="6" fill="none" marker-end="url(#arrow)"/>
+                            <text x="350" y="95" text-anchor="middle" fill="#ffd93d" font-size="16" font-weight="bold">C=1</text>
+                            
+                            <path d="M 430 110 L 470 110" stroke="#ffd93d" stroke-width="6" fill="none"/>
+                            <text x="450" y="95" text-anchor="middle" fill="#ffd93d" font-size="16" font-weight="bold">C=1</text>
+                            
+                            <!-- 矢印定義 -->
+                            <defs>
+                                <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#ffd93d"/>
+                                </marker>
+                            </defs>
+                            
+                            <!-- 最終キャリー -->
+                            <text x="500" y="110" text-anchor="start" fill="#ffd93d" font-size="14" font-weight="bold">Cout</text>
+                        </svg>
+                        
+                        <!-- 計算結果 -->
+                        <div style="margin-top: 30px; padding: 15px; background: #1a1a1a; border-radius: 4px;">
+                            <div style="display: flex; justify-content: space-around; font-family: monospace;">
+                                <div>
+                                    <div style="color: #888;">入力A:</div>
+                                    <div style="color: #ff9500; font-size: 18px;">1111 (15)</div>
+                                </div>
+                                <div>
+                                    <div style="color: #888;">入力B:</div>
+                                    <div style="color: #4ecdc4; font-size: 18px;">0001 (1)</div>
+                                </div>
+                                <div>
+                                    <div style="color: #888;">結果:</div>
+                                    <div style="color: #00ff88; font-size: 18px;">10000 (16)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン10: 比較器 -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン10: 比較器</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">1ビット比較器</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 700 350" style="max-width: 700px;">
+                        <!-- A入力配線（オレンジ・直交） -->
+                        <g class="wire-group">
+                            <!-- A to XNOR and NOT -->
+                            <path d="M 100 100 L 200 100" stroke="#ff9500" stroke-width="2" fill="none"/>
+                            <path d="M 200 100 L 200 135 L 255 135" stroke="#ff9500" stroke-width="2" fill="none"/>
+                            <path d="M 200 100 L 200 220 L 255 220" stroke="#ff9500" stroke-width="2" fill="none"/>
+                            <circle cx="200" cy="100" r="5" fill="#ff9500"/>
+                        </g>
+                        
+                        <!-- B入力配線（シアン・直交） -->
+                        <g class="wire-group">
+                            <!-- B to XNOR and NOT -->
+                            <path d="M 100 180 L 180 180" stroke="#4ecdc4" stroke-width="2" fill="none"/>
+                            <path d="M 180 180 L 180 155 L 255 155" stroke="#4ecdc4" stroke-width="2" fill="none"/>
+                            <path d="M 180 180 L 180 280 L 255 280" stroke="#4ecdc4" stroke-width="2" fill="none"/>
+                            <circle cx="180" cy="180" r="5" fill="#4ecdc4"/>
+                        </g>
+                        
+                        <!-- NOT出力 to ANDゲート（直交配線） -->
+                        <path d="M 345 220 L 420 220 L 420 245 L 455 245" stroke="#666" stroke-width="2" fill="none"/>
+                        <path d="M 345 280 L 380 280 L 380 265 L 455 265" stroke="#666" stroke-width="2" fill="none"/>
+                        
+                        <!-- ゲート出力配線 -->
+                        <path d="M 545 145 L 600 145" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        <path d="M 545 255 L 600 255" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        
+                        <!-- 入力ゲート -->
+                        <!-- INPUT A -->
+                        <g transform="translate(65, 100)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#ff9500" stroke="#ff9500" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#ff9500" font-size="14" font-weight="bold">A</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#ff9500"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#ff9500" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- INPUT B -->
+                        <g transform="translate(65, 180)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#4ecdc4" stroke="#4ecdc4" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#4ecdc4" font-size="14" font-weight="bold">B</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#4ecdc4"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#4ecdc4" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- 論理ゲート -->
+                        <!-- XNORゲート（A=B） -->
+                        <g transform="translate(300, 145)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">XNOR</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="-10" r="6" fill="#ff9500"/>
+                            <line x1="-35" y1="-10" x2="-45" y2="-10" stroke="#ff9500" stroke-width="2"/>
+                            <circle cx="-45" cy="10" r="6" fill="#4ecdc4"/>
+                            <line x1="-35" y1="10" x2="-45" y2="10" stroke="#4ecdc4" stroke-width="2"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#00ff88" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- NOT1ゲート（B反転） -->
+                        <g transform="translate(300, 220)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">NOT</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="0" r="6" fill="#ff9500"/>
+                            <line x1="-35" y1="0" x2="-45" y2="0" stroke="#ff9500" stroke-width="2"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#666"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- NOT2ゲート（A反転） -->
+                        <g transform="translate(300, 280)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="gate-text">NOT</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="0" r="6" fill="#4ecdc4"/>
+                            <line x1="-35" y1="0" x2="-45" y2="0" stroke="#4ecdc4" stroke-width="2"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#666"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- ANDゲート（A>B） -->
+                        <g transform="translate(500, 255)">
+                            <rect x="-35" y="-25" width="70" height="50" rx="8" class="gate"/>
+                            <text x="0" y="-5" text-anchor="middle" dominant-baseline="middle" class="gate-text">AND</text>
+                            <text x="0" y="8" text-anchor="middle" fill="#888" font-size="10">(A>B)</text>
+                            <!-- 入力ピン -->
+                            <circle cx="-45" cy="-10" r="6" fill="#ff9500"/>
+                            <line x1="-35" y1="-10" x2="-45" y2="-10" stroke="#ff9500" stroke-width="2"/>
+                            <circle cx="-45" cy="10" r="6" fill="#666"/>
+                            <line x1="-35" y1="10" x2="-45" y2="10" stroke="#666" stroke-width="2"/>
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#00ff88" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- 出力ラベル -->
+                        <text x="630" y="135" text-anchor="middle" fill="#00ff88" font-size="14" font-weight="bold">A=B</text>
+                        <text x="630" y="150" text-anchor="middle" fill="#888" font-size="10">(Equal)</text>
+                        
+                        <text x="630" y="245" text-anchor="middle" fill="#00ff88" font-size="14" font-weight="bold">A>B</text>
+                        <text x="630" y="270" text-anchor="middle" fill="#888" font-size="10">(Greater)</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン11: エンコーダ -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン11: エンコーダ</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">4-to-2 エンコーダ</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 600 350" style="max-width: 600px;">
+                        <!-- 入力配線（完全直交） -->
+                        <path d="M 100 100 L 220 100 L 220 130 L 245 130" stroke="#666" stroke-width="2" fill="none"/>
+                        <path d="M 100 140 L 200 140 L 200 150 L 245 150" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        <path d="M 100 180 L 180 180 L 180 170 L 245 170" stroke="#666" stroke-width="2" fill="none"/>
+                        <path d="M 100 220 L 160 220 L 160 190 L 245 190" stroke="#666" stroke-width="2" fill="none"/>
+                        
+                        <!-- 出力配線（完全直交） -->
+                        <path d="M 355 150 L 450 150" stroke="#666" stroke-width="2" fill="none"/>
+                        <path d="M 355 170 L 450 170" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        
+                        <!-- 入力ゲート -->
+                        <g transform="translate(65, 100)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12" font-weight="bold">D0</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#666"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <g transform="translate(65, 140)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#00ff88" font-size="12" font-weight="bold">D1</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#00ff88" stroke-width="2"/>
+                        </g>
+                        
+                        <g transform="translate(65, 180)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12" font-weight="bold">D2</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#666"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <g transform="translate(65, 220)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12" font-weight="bold">D3</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#666"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- エンコーダ本体（制作モード準拠・適切間隔） -->
+                        <g transform="translate(300, 160)">
+                            <rect x="-45" y="-60" width="90" height="120" rx="8" class="gate"/>
+                            <text x="0" y="-15" text-anchor="middle" dominant-baseline="middle" class="gate-text" font-size="14">ENC</text>
+                            <text x="0" y="0" text-anchor="middle" fill="#888" font-size="12">4-to-2</text>
+                            
+                            <!-- 入力ピン（20px間隔） -->
+                            <circle cx="-55" cy="-30" r="6" fill="#666"/>
+                            <line x1="-45" y1="-30" x2="-55" y2="-30" stroke="#666" stroke-width="2"/>
+                            <circle cx="-55" cy="-10" r="6" fill="#00ff88"/>
+                            <line x1="-45" y1="-10" x2="-55" y2="-10" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="-55" cy="10" r="6" fill="#666"/>
+                            <line x1="-45" y1="10" x2="-55" y2="10" stroke="#666" stroke-width="2"/>
+                            <circle cx="-55" cy="30" r="6" fill="#666"/>
+                            <line x1="-45" y1="30" x2="-55" y2="30" stroke="#666" stroke-width="2"/>
+                            
+                            <!-- 出力ピン（20px間隔） -->
+                            <circle cx="55" cy="-10" r="6" fill="#666"/>
+                            <line x1="45" y1="-10" x2="55" y2="-10" stroke="#666" stroke-width="2"/>
+                            <circle cx="55" cy="10" r="6" fill="#00ff88"/>
+                            <line x1="45" y1="10" x2="55" y2="10" stroke="#00ff88" stroke-width="2"/>
+                            
+                            <!-- ピンラベル -->
+                            <text x="-65" y="-28" text-anchor="end" fill="#888" font-size="10">D0</text>
+                            <text x="-65" y="-8" text-anchor="end" fill="#888" font-size="10">D1</text>
+                            <text x="-65" y="12" text-anchor="end" fill="#888" font-size="10">D2</text>
+                            <text x="-65" y="32" text-anchor="end" fill="#888" font-size="10">D3</text>
+                            <text x="65" y="-8" text-anchor="start" fill="#888" font-size="10">Y1</text>
+                            <text x="65" y="12" text-anchor="start" fill="#888" font-size="10">Y0</text>
+                        </g>
+                        
+                        <!-- 出力表示 -->
+                        <g transform="translate(480, 160)">
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="15" fill="#333"/>
+                            <text x="0" y="30" text-anchor="middle" fill="#888" font-size="12">Y1=0</text>
+                        </g>
+                        
+                        <g transform="translate(480, 200)">
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="15" fill="#00ff88"/>
+                            <text x="0" y="30" text-anchor="middle" fill="#888" font-size="12">Y0=1</text>
+                        </g>
+                    </svg>
+                </div>
+                <div class="truth-table">
+                    <table>
+                        <tr><th colspan="4">入力</th><th colspan="2">出力</th></tr>
+                        <tr><th>D3</th><th>D2</th><th>D1</th><th>D0</th><th>Y1</th><th>Y0</th></tr>
+                        <tr><td>0</td><td>0</td><td>0</td><td class="truth-1">1</td><td>0</td><td>0</td></tr>
+                        <tr><td>0</td><td>0</td><td class="truth-1">1</td><td>0</td><td>0</td><td class="truth-1">1</td></tr>
+                        <tr><td>0</td><td class="truth-1">1</td><td>0</td><td>0</td><td class="truth-1">1</td><td>0</td></tr>
+                        <tr><td class="truth-1">1</td><td>0</td><td>0</td><td>0</td><td class="truth-1">1</td><td class="truth-1">1</td></tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン12: デコーダ -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン12: デコーダ</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">2-to-4 デコーダ</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 600 350" style="max-width: 600px;">
+                        <!-- 入力配線（完全直交） -->
+                        <path d="M 100 130 L 200 130 L 200 140 L 245 140" stroke="#666" stroke-width="2" fill="none"/>
+                        <path d="M 100 170 L 180 170 L 180 160 L 245 160" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        
+                        <!-- 出力配線（完全直交） -->
+                        <path d="M 355 120 L 430 120" stroke="#666" stroke-width="2" fill="none"/>
+                        <path d="M 355 140 L 380 140 L 380 160 L 430 160" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        <path d="M 355 160 L 390 160 L 390 200 L 430 200" stroke="#666" stroke-width="2" fill="none"/>
+                        <path d="M 355 180 L 400 180 L 400 240 L 430 240" stroke="#666" stroke-width="2" fill="none"/>
+                        
+                        <!-- 入力ゲート -->
+                        <g transform="translate(65, 130)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12" font-weight="bold">A1</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#666"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <g transform="translate(65, 170)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#00ff88" font-size="12" font-weight="bold">A0</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#00ff88" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- デコーダ本体（制作モード準拠・適切間隔） -->
+                        <g transform="translate(300, 150)">
+                            <rect x="-45" y="-50" width="90" height="100" rx="8" class="gate"/>
+                            <text x="0" y="-10" text-anchor="middle" dominant-baseline="middle" class="gate-text" font-size="14">DEC</text>
+                            <text x="0" y="5" text-anchor="middle" fill="#888" font-size="12">2-to-4</text>
+                            
+                            <!-- 入力ピン（20px間隔） -->
+                            <circle cx="-55" cy="-10" r="6" fill="#666"/>
+                            <line x1="-45" y1="-10" x2="-55" y2="-10" stroke="#666" stroke-width="2"/>
+                            <circle cx="-55" cy="10" r="6" fill="#00ff88"/>
+                            <line x1="-45" y1="10" x2="-55" y2="10" stroke="#00ff88" stroke-width="2"/>
+                            
+                            <!-- 出力ピン（20px間隔） -->
+                            <circle cx="55" cy="-30" r="6" fill="#666"/>
+                            <line x1="45" y1="-30" x2="55" y2="-30" stroke="#666" stroke-width="2"/>
+                            <circle cx="55" cy="-10" r="6" fill="#00ff88"/>
+                            <line x1="45" y1="-10" x2="55" y2="-10" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="55" cy="10" r="6" fill="#666"/>
+                            <line x1="45" y1="10" x2="55" y2="10" stroke="#666" stroke-width="2"/>
+                            <circle cx="55" cy="30" r="6" fill="#666"/>
+                            <line x1="45" y1="30" x2="55" y2="30" stroke="#666" stroke-width="2"/>
+                            
+                            <!-- ピンラベル -->
+                            <text x="-65" y="-8" text-anchor="end" fill="#888" font-size="10">A1</text>
+                            <text x="-65" y="12" text-anchor="end" fill="#888" font-size="10">A0</text>
+                            <text x="65" y="-28" text-anchor="start" fill="#888" font-size="10">Y0</text>
+                            <text x="65" y="-8" text-anchor="start" fill="#888" font-size="10">Y1</text>
+                            <text x="65" y="12" text-anchor="start" fill="#888" font-size="10">Y2</text>
+                            <text x="65" y="32" text-anchor="start" fill="#888" font-size="10">Y3</text>
+                        </g>
+                        
+                        <!-- 出力表示 -->
+                        <g transform="translate(460, 120)">
+                            <circle cx="0" cy="0" r="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <text x="0" y="25" text-anchor="middle" fill="#888" font-size="12">Y0=0</text>
+                        </g>
+                        
+                        <g transform="translate(460, 160)">
+                            <circle cx="0" cy="0" r="15" fill="#00ff88" stroke="#444" stroke-width="2"/>
+                            <text x="0" y="25" text-anchor="middle" fill="#888" font-size="12">Y1=1</text>
+                        </g>
+                        
+                        <g transform="translate(460, 200)">
+                            <circle cx="0" cy="0" r="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <text x="0" y="25" text-anchor="middle" fill="#888" font-size="12">Y2=0</text>
+                        </g>
+                        
+                        <g transform="translate(460, 240)">
+                            <circle cx="0" cy="0" r="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <text x="0" y="25" text-anchor="middle" fill="#888" font-size="12">Y3=0</text>
+                        </g>
+                    </svg>
+                </div>
+                <div class="implementation-note">
+                    <strong>動作:</strong> 入力の2進数値に対応する出力線のみが1になる
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン13: マルチプレクサ -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン13: マルチプレクサ</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">4-to-1 マルチプレクサ</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 650 380" style="max-width: 650px;">
+                        <!-- データ入力配線（完全直交） -->
+                        <path d="M 100 100 L 220 100 L 220 135 L 245 135" stroke="#666" stroke-width="2" fill="none"/>
+                        <path d="M 100 140 L 200 140 L 200 145 L 245 145" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        <path d="M 100 180 L 180 180 L 180 155 L 245 155" stroke="#666" stroke-width="2" fill="none"/>
+                        <path d="M 100 220 L 160 220 L 160 165 L 245 165" stroke="#666" stroke-width="2" fill="none"/>
+                        
+                        <!-- 選択入力配線（完全直交） -->
+                        <path d="M 250 300 L 250 250 L 280 250 L 280 215 L 265 215" stroke="#666" stroke-width="2" fill="none"/>
+                        <path d="M 330 300 L 330 240 L 300 240 L 300 215 L 265 215" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        
+                        <!-- 出力配線 -->
+                        <path d="M 355 175 L 500 175" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        
+                        <!-- データ入力ゲート -->
+                        <g transform="translate(65, 100)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12" font-weight="bold">D0</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#666"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <g transform="translate(65, 140)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#00ff88" font-size="12" font-weight="bold">D1</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#00ff88" stroke-width="2"/>
+                        </g>
+                        
+                        <g transform="translate(65, 180)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12" font-weight="bold">D2</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#666"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <g transform="translate(65, 220)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12" font-weight="bold">D3</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#666"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- 選択入力ゲート -->
+                        <g transform="translate(250, 330)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#888" font-size="12" font-weight="bold">S1</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#666"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#666" stroke-width="2"/>
+                        </g>
+                        
+                        <g transform="translate(330, 330)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#00ff88" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#00ff88" font-size="12" font-weight="bold">S0</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#00ff88" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- MUX本体（制作モード準拠） -->
+                        <g transform="translate(310, 175)">
+                            <rect x="-35" y="-50" width="70" height="100" rx="8" class="gate"/>
+                            <text x="0" y="-20" text-anchor="middle" dominant-baseline="middle" class="gate-text" font-size="12">MUX</text>
+                            <text x="0" y="-5" text-anchor="middle" fill="#888" font-size="10">4-to-1</text>
+                            
+                            <!-- データ入力ピン -->
+                            <circle cx="-45" cy="-30" r="6" fill="#666"/>
+                            <line x1="-35" y1="-30" x2="-45" y2="-30" stroke="#666" stroke-width="2"/>
+                            <circle cx="-45" cy="-10" r="6" fill="#00ff88"/>
+                            <line x1="-35" y1="-10" x2="-45" y2="-10" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="-45" cy="10" r="6" fill="#666"/>
+                            <line x1="-35" y1="10" x2="-45" y2="10" stroke="#666" stroke-width="2"/>
+                            <circle cx="-45" cy="30" r="6" fill="#666"/>
+                            <line x1="-35" y1="30" x2="-45" y2="30" stroke="#666" stroke-width="2"/>
+                            
+                            <!-- 選択入力ピン（下部） -->
+                            <circle cx="-15" cy="40" r="6" fill="#666"/>
+                            <line x1="-15" y1="35" x2="-15" y2="40" stroke="#666" stroke-width="2"/>
+                            <circle cx="0" cy="40" r="6" fill="#00ff88"/>
+                            <line x1="0" y1="35" x2="0" y2="40" stroke="#00ff88" stroke-width="2"/>
+                            
+                            <!-- 出力ピン -->
+                            <circle cx="45" cy="0" r="6" fill="#00ff88"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#00ff88" stroke-width="2"/>
+                            
+                            <!-- ピンラベル -->
+                            <text x="-50" y="-28" text-anchor="end" fill="#888" font-size="8">D0</text>
+                            <text x="-50" y="-8" text-anchor="end" fill="#888" font-size="8">D1</text>
+                            <text x="-50" y="12" text-anchor="end" fill="#888" font-size="8">D2</text>
+                            <text x="-50" y="32" text-anchor="end" fill="#888" font-size="8">D3</text>
+                            <text x="-15" y="50" text-anchor="middle" fill="#888" font-size="8">S1</text>
+                            <text x="0" y="50" text-anchor="middle" fill="#888" font-size="8">S0</text>
+                            <text x="50" y="2" text-anchor="start" fill="#888" font-size="8">Y</text>
+                        </g>
+                        
+                        <!-- 出力表示 -->
+                        <g transform="translate(530, 175)">
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#444" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="15" fill="#00ff88"/>
+                            <text x="0" y="30" text-anchor="middle" fill="#888" font-size="12">Y=D1=1</text>
+                        </g>
+                        
+                        <!-- 選択線の強調表示 -->
+                        <path d="M 310 145 L 500 175" stroke="#00ff88" stroke-width="3" fill="none" opacity="0.3"/>
+                        <text x="400" y="150" text-anchor="middle" fill="#00ff88" font-size="10">選択: S1S0=01 → D1</text>
+                    </svg>
+                </div>
+                <div class="implementation-note">
+                    <strong>動作:</strong> S1S0=01なので、D1の値がYに出力される
+                </div>
+            </div>
+        </section>
+        
+        <!-- レッスン19: ALU基礎 -->
+        <section class="lesson-section">
+            <h2 class="lesson-title">レッスン19: ALU基礎</h2>
+            
+            <div class="diagram-card">
+                <h3 class="diagram-title">簡単な2ビットALU</h3>
+                <div class="circuit-container">
+                    <svg viewBox="0 0 650 350" style="max-width: 650px;">
+                        <!-- 入力配線（完全直交） -->
+                        <path d="M 100 100 L 220 100 L 220 140 L 255 140" stroke="#ff9500" stroke-width="2" fill="none"/>
+                        <path d="M 100 140 L 200 140 L 200 160 L 255 160" stroke="#4ecdc4" stroke-width="2" fill="none"/>
+                        <path d="M 100 240 L 180 240 L 180 180 L 255 180" stroke="#ffd93d" stroke-width="2" fill="none"/>
+                        
+                        <!-- 出力配線（完全直交） -->
+                        <path d="M 365 140 L 480 140" stroke="#00ff88" stroke-width="2" fill="none"/>
+                        <path d="M 365 160 L 480 160" stroke="#666" stroke-width="2" fill="none"/>
+                        <path d="M 365 180 L 480 180" stroke="#666" stroke-width="2" fill="none"/>
+                        
+                        <!-- 入力ゲート -->
+                        <g transform="translate(65, 100)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#ff9500" stroke="#ff9500" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#ff9500" font-size="12" font-weight="bold">A</text>
+                            <text x="0" y="35" text-anchor="middle" fill="#ff9500" font-size="10">10</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#ff9500"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#ff9500" stroke-width="2"/>
+                        </g>
+                        
+                        <g transform="translate(65, 140)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#4ecdc4" stroke="#4ecdc4" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#4ecdc4" font-size="12" font-weight="bold">B</text>
+                            <text x="0" y="35" text-anchor="middle" fill="#4ecdc4" font-size="10">01</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#4ecdc4"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#4ecdc4" stroke-width="2"/>
+                        </g>
+                        
+                        <g transform="translate(65, 240)">
+                            <rect x="-25" y="-15" width="50" height="30" rx="15" fill="#ffd93d" stroke="#ffd93d" stroke-width="2"/>
+                            <circle cx="10" cy="0" r="12" fill="#e0e0e0"/>
+                            <text x="0" y="-25" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="bold">Op</text>
+                            <text x="0" y="35" text-anchor="middle" fill="#ffd93d" font-size="10">00 (ADD)</text>
+                            <!-- 出力ピン -->
+                            <circle cx="35" cy="0" r="6" fill="#ffd93d"/>
+                            <line x1="25" y1="0" x2="35" y2="0" stroke="#ffd93d" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- ALU本体（制作モード準拠・適切間隔） -->
+                        <g transform="translate(310, 160)">
+                            <rect x="-45" y="-60" width="90" height="120" rx="8" class="gate"/>
+                            <text x="0" y="-20" text-anchor="middle" dominant-baseline="middle" class="gate-text" font-size="16">ALU</text>
+                            <text x="0" y="-5" text-anchor="middle" fill="#888" font-size="12">2-bit</text>
+                            
+                            <!-- 入力ピン（20px間隔） -->
+                            <circle cx="-55" cy="-20" r="6" fill="#ff9500"/>
+                            <line x1="-45" y1="-20" x2="-55" y2="-20" stroke="#ff9500" stroke-width="2"/>
+                            <circle cx="-55" cy="0" r="6" fill="#4ecdc4"/>
+                            <line x1="-45" y1="0" x2="-55" y2="0" stroke="#4ecdc4" stroke-width="2"/>
+                            <circle cx="-55" cy="20" r="6" fill="#ffd93d"/>
+                            <line x1="-45" y1="20" x2="-55" y2="20" stroke="#ffd93d" stroke-width="2"/>
+                            
+                            <!-- 出力ピン（20px間隔） -->
+                            <circle cx="55" cy="-20" r="6" fill="#00ff88"/>
+                            <line x1="45" y1="-20" x2="55" y2="-20" stroke="#00ff88" stroke-width="2"/>
+                            <circle cx="55" cy="0" r="6" fill="#666"/>
+                            <line x1="45" y1="0" x2="55" y2="0" stroke="#666" stroke-width="2"/>
+                            <circle cx="55" cy="20" r="6" fill="#666"/>
+                            <line x1="45" y1="20" x2="55" y2="20" stroke="#666" stroke-width="2"/>
+                            
+                            <!-- ピンラベル -->
+                            <text x="-65" y="-18" text-anchor="end" fill="#888" font-size="10">A[1:0]</text>
+                            <text x="-65" y="2" text-anchor="end" fill="#888" font-size="10">B[1:0]</text>
+                            <text x="-65" y="22" text-anchor="end" fill="#888" font-size="10">Op[1:0]</text>
+                            <text x="65" y="-18" text-anchor="start" fill="#888" font-size="10">Result</text>
+                            <text x="65" y="2" text-anchor="start" fill="#888" font-size="10">Zero</text>
+                            <text x="65" y="22" text-anchor="start" fill="#888" font-size="10">Carry</text>
+                        </g>
+                        
+                        <!-- 出力表示 -->
+                        <g transform="translate(510, 150)">
+                            <circle cx="0" cy="0" r="15" fill="#00ff88" stroke="#444" stroke-width="2"/>
+                            <text x="0" y="25" text-anchor="middle" fill="#888" font-size="12">Result=11</text>
+                        </g>
+                        
+                        <g transform="translate(510, 190)">
+                            <circle cx="0" cy="0" r="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <text x="0" y="25" text-anchor="middle" fill="#888" font-size="12">Zero=0</text>
+                        </g>
+                        
+                        <g transform="translate(510, 220)">
+                            <circle cx="0" cy="0" r="15" fill="#333" stroke="#444" stroke-width="2"/>
+                            <text x="0" y="25" text-anchor="middle" fill="#888" font-size="12">Carry=0</text>
+                        </g>
+                        
+                        <!-- 操作説明 -->
+                        <text x="325" y="50" text-anchor="middle" fill="#00ff88" font-size="12">10 + 01 = 11 (2+1=3)</text>
+                    </svg>
+                </div>
+                <div class="truth-table">
+                    <table>
+                        <tr><th>Op</th><th>動作</th><th>例（A=10, B=01）</th></tr>
+                        <tr><td>00</td><td>ADD</td><td class="truth-1">11</td></tr>
+                        <tr><td>01</td><td>AND</td><td>00</td></tr>
+                        <tr><td>10</td><td>OR</td><td>11</td></tr>
+                        <tr><td>11</td><td>XOR</td><td>11</td></tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        // Canvas設定ヘルパー
+        function setupCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = canvas.width * dpr;
+            canvas.height = canvas.height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            return ctx;
+        }
+        
+        // 共通の色設定
+        const colors = {
+            bg: '#0a0a0a',
+            grid: '#1a1a1a',
+            text: '#ffffff',
+            textSecondary: '#aaaaaa',
+            analog: '#ff9500',
+            digital: '#00ff88',
+            clock: '#4ecdc4',
+            threshold: '#ff6b6b'
+        };
+        
+        // 1. 電圧レベルとデジタル信号
+        function drawVoltageLevel() {
+            const ctx = setupCanvas('voltageLevel');
+            if (!ctx) return;
+            
+            // 背景
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, 600, 300);
+            
+            // グリッド
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const x = 50 + i * 50;
+                ctx.beginPath();
+                ctx.moveTo(x, 30);
+                ctx.lineTo(x, 250);
+                ctx.stroke();
+            }
+            
+            // 電圧軸
+            ctx.strokeStyle = colors.text;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(50, 250);
+            ctx.lineTo(50, 30);
+            ctx.stroke();
+            
+            // 電圧ラベル
+            ctx.fillStyle = colors.text;
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'right';
+            for (let v = 0; v <= 5; v++) {
+                const y = 250 - v * 40;
+                ctx.fillText(`${v}V`, 40, y + 4);
+            }
+            
+            // 閾値線
+            const thresholdY = 250 - 2.5 * 40;
+            ctx.strokeStyle = colors.threshold;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(50, thresholdY);
+            ctx.lineTo(550, thresholdY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            ctx.fillStyle = colors.threshold;
+            ctx.font = '14px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('閾値 2.5V', 560, thresholdY + 4);
+            
+            // アナログ信号
+            ctx.strokeStyle = colors.analog;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (let x = 50; x <= 550; x += 2) {
+                const t = (x - 50) / 500;
+                const voltage = 2.5 + Math.sin(t * Math.PI * 4) * 2 * (1 - t * 0.3);
+                const y = 250 - voltage * 40;
+                if (x === 50) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // デジタル信号
+            ctx.strokeStyle = colors.digital;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            let lastDigital = false;
+            for (let x = 50; x <= 550; x += 5) {
+                const t = (x - 50) / 500;
+                const voltage = 2.5 + Math.sin(t * Math.PI * 4) * 2 * (1 - t * 0.3);
+                const digital = voltage > 2.5;
+                const y = digital ? 70 : 180;
+                
+                if (x === 50) {
+                    ctx.moveTo(x, y);
+                } else {
+                    if (digital !== lastDigital) {
+                        ctx.lineTo(x, lastDigital ? 70 : 180);
+                        ctx.lineTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                lastDigital = digital;
+            }
+            ctx.stroke();
+            
+            // ラベル
+            ctx.fillStyle = colors.analog;
+            ctx.font = '14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('アナログ信号', 300, 20);
+            
+            ctx.fillStyle = colors.digital;
+            ctx.fillText('デジタル信号 (0/1)', 300, 60);
+        }
+        
+        // 2. アナログ vs デジタル
+        function drawAnalogVsDigital() {
+            const ctx = setupCanvas('analogVsDigital');
+            if (!ctx) return;
+            
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, 600, 250);
+            
+            // アナログ側
+            ctx.fillStyle = colors.analog;
+            ctx.font = '16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('アナログ信号', 150, 30);
+            
+            // アナログ波形
+            ctx.strokeStyle = colors.analog;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (let x = 50; x <= 250; x++) {
+                const t = (x - 50) / 200;
+                const y = 125 + Math.sin(t * Math.PI * 4) * 50 * Math.cos(t * Math.PI);
+                if (x === 50) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // デジタル側
+            ctx.fillStyle = colors.digital;
+            ctx.fillText('デジタル信号', 450, 30);
+            
+            // デジタル波形
+            ctx.strokeStyle = colors.digital;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            const bits = [1, 0, 1, 1, 0, 1];
+            bits.forEach((bit, i) => {
+                const x1 = 350 + i * 33;
+                const x2 = x1 + 33;
+                const y = bit ? 75 : 175;
+                
+                if (i === 0) {
+                    ctx.moveTo(x1, y);
+                } else {
+                    const prevY = bits[i-1] ? 75 : 175;
+                    if (y !== prevY) {
+                        ctx.lineTo(x1, prevY);
+                        ctx.lineTo(x1, y);
+                    }
+                }
+                ctx.lineTo(x2, y);
+                
+                // ビット値
+                ctx.fillStyle = colors.digital;
+                ctx.font = '12px monospace';
+                ctx.fillText(bit.toString(), x1 + 16, 65);
+            });
+            ctx.stroke();
+            
+            // 特徴
+            ctx.fillStyle = colors.textSecondary;
+            ctx.font = '12px sans-serif';
+            ctx.fillText('連続的に変化', 150, 220);
+            ctx.fillText('0と1の2値のみ', 450, 220);
+        }
+        
+        // 3. D-FFタイミングチャート
+        function drawDFFTiming() {
+            const ctx = setupCanvas('dffTiming');
+            if (!ctx) return;
+            
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, 600, 300);
+            
+            const signals = [
+                { name: 'CLK', data: [0,1,0,1,0,1,0,1,0,1], color: colors.clock, y: 60 },
+                { name: 'D', data: [0,0,1,1,1,0,0,0,1,1], color: colors.analog, y: 150 },
+                { name: 'Q', data: [0,0,0,1,1,1,0,0,0,1], color: colors.digital, y: 240 }
+            ];
+            
+            // 信号名
+            ctx.font = '14px monospace';
+            ctx.textAlign = 'right';
+            signals.forEach(signal => {
+                ctx.fillStyle = signal.color;
+                ctx.fillText(signal.name, 60, signal.y);
+            });
+            
+            // タイミンググリッド
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([2, 2]);
+            for (let i = 1; i < 10; i += 2) {
+                const x = 80 + i * 50;
+                ctx.beginPath();
+                ctx.moveTo(x, 30);
+                ctx.lineTo(x, 270);
+                ctx.stroke();
+            }
+            ctx.setLineDash([]);
+            
+            // 各信号を描画
+            signals.forEach(signal => {
+                ctx.strokeStyle = signal.color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                signal.data.forEach((bit, i) => {
+                    const x1 = 80 + i * 50;
+                    const x2 = x1 + 50;
+                    const y = signal.y + (bit ? -20 : 20);
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x1, y);
+                    } else {
+                        const prevY = signal.y + (signal.data[i-1] ? -20 : 20);
+                        if (y !== prevY) {
+                            ctx.lineTo(x1, prevY);
+                            ctx.lineTo(x1, y);
+                        }
+                    }
+                    ctx.lineTo(x2, y);
+                });
+                ctx.stroke();
+            });
+            
+            // タイトル
+            ctx.fillStyle = colors.text;
+            ctx.font = '16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('立ち上がりエッジでDの値を記憶', 300, 20);
+        }
+        
+        // 4. クロック信号の基本
+        function drawClockBasic() {
+            const ctx = setupCanvas('clockBasic');
+            if (!ctx) return;
+            
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, 600, 200);
+            
+            // クロック波形
+            ctx.strokeStyle = colors.clock;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let i = 0; i < 8; i++) {
+                const x = 50 + i * 60;
+                const phase = i % 2;
+                const y = phase === 0 ? 50 : 150;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    const prevY = (i - 1) % 2 === 0 ? 50 : 150;
+                    if (y !== prevY) {
+                        ctx.lineTo(x, prevY);
+                        ctx.lineTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+            }
+            ctx.stroke();
+            
+            // 周期の説明
+            ctx.strokeStyle = colors.textSecondary;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([2, 2]);
+            
+            // 1周期
+            ctx.beginPath();
+            ctx.moveTo(50, 170);
+            ctx.lineTo(170, 170);
+            ctx.stroke();
+            
+            // 矢印
+            ctx.beginPath();
+            ctx.moveTo(50, 165);
+            ctx.lineTo(50, 175);
+            ctx.moveTo(170, 165);
+            ctx.lineTo(170, 175);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            ctx.fillStyle = colors.textSecondary;
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('1周期', 110, 185);
+            
+            // エッジの説明
+            ctx.fillStyle = colors.clock;
+            ctx.font = '10px sans-serif';
+            ctx.fillText('↑立ち上がり', 110, 40);
+            ctx.fillText('↓立ち下がり', 170, 160);
+        }
+        
+        // 4. 4ビット加算器のキャリー伝播
+        function drawCarryPropagation() {
+            const ctx = setupCanvas('carryPropagation');
+            if (!ctx) return;
+            
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, 600, 300);
+            
+            // タイトル
+            ctx.fillStyle = colors.text;
+            ctx.font = '16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('キャリー伝播の様子 (1111 + 0001)', 300, 30);
+            
+            // 各ビット位置
+            const bitPositions = [100, 200, 300, 400];
+            const labels = ['FA0', 'FA1', 'FA2', 'FA3'];
+            const carries = [1, 1, 1, 1]; // 各段のキャリー
+            const results = [0, 0, 0, 0]; // 各段の結果
+            
+            // 各全加算器
+            bitPositions.forEach((x, i) => {
+                // FA枠
+                ctx.strokeStyle = colors.text;
+                ctx.fillStyle = '#2a2a2a';
+                ctx.beginPath();
+                ctx.rect(x - 30, 80, 60, 80);
+                ctx.fill();
+                ctx.stroke();
+                
+                // FAラベル
+                ctx.fillStyle = colors.text;
+                ctx.font = '14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(labels[i], x, 100);
+                
+                // 入力値
+                ctx.font = '12px monospace';
+                ctx.fillStyle = colors.textSecondary;
+                ctx.fillText('A=' + (i === 3 ? '0' : '1'), x, 120);
+                ctx.fillText('B=' + (i === 0 ? '1' : '0'), x, 135);
+                
+                // 結果
+                ctx.fillStyle = colors.digital;
+                ctx.fillText('S=' + results[i], x, 150);
+            });
+            
+            // キャリー伝播線
+            ctx.strokeStyle = colors.clock;
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            
+            // アニメーション風の矢印
+            for (let i = 0; i < 3; i++) {
+                const x1 = bitPositions[i] + 30;
+                const x2 = bitPositions[i + 1] - 30;
+                const y = 170;
+                
+                ctx.beginPath();
+                ctx.moveTo(x1, y);
+                ctx.lineTo(x2, y);
+                ctx.stroke();
+                
+                // 矢印
+                ctx.beginPath();
+                ctx.moveTo(x2 - 10, y - 5);
+                ctx.lineTo(x2, y);
+                ctx.lineTo(x2 - 10, y + 5);
+                ctx.stroke();
+                
+                // キャリー値
+                ctx.fillStyle = colors.clock;
+                ctx.font = '14px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText('C=' + carries[i], (x1 + x2) / 2, y - 10);
+            }
+            ctx.setLineDash([]);
+            
+            // 入出力表示
+            ctx.fillStyle = colors.textSecondary;
+            ctx.font = '14px monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText('入力A: 1111 (15)', 50, 230);
+            ctx.fillText('入力B: 0001 (1)', 50, 250);
+            ctx.fillStyle = colors.digital;
+            ctx.fillText('結果: 10000 (16)', 50, 270);
+            
+            // キャリーアウト
+            ctx.fillStyle = colors.clock;
+            ctx.fillText('最終キャリー: 1', 350, 270);
+        }
+        
+        // 初期描画
+        drawVoltageLevel();
+        drawAnalogVsDigital();
+        drawDFFTiming();
+        drawClockBasic();
+        drawCarryPropagation();
+    </script>
+</body>
+</html>

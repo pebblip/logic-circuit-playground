@@ -22,6 +22,7 @@ import { shiftRegisterStructuredLesson } from './structured-lessons/shift-regist
 import { clockSyncStructuredLesson } from './structured-lessons/clock-sync-lesson';
 import { trafficLightStructuredLesson } from './structured-lessons/traffic-light-lesson';
 import { digitalClockStructuredLesson } from './structured-lessons/digital-clock-lesson';
+import { diagramCatalogLesson } from './structured-lessons/diagram-catalog-lesson';
 
 // 既存のインターフェース定義（後方互換性のため維持）
 export interface Lesson {
@@ -93,6 +94,7 @@ const cleanLessons = [
   clockSyncStructuredLesson,
   trafficLightStructuredLesson,
   digitalClockStructuredLesson,
+  diagramCatalogLesson, // SVG図表カタログ
 ];
 
 // カテゴリを追加（旧形式との互換性のため）
@@ -132,6 +134,8 @@ const lessonsWithCategory = cleanLessons.map(lesson => {
     category = 'sequential';
   } else if (['traffic-light', 'digital-clock'].includes(lesson.id)) {
     category = 'systems';
+  } else if (lesson.id === 'diagram-catalog') {
+    category = 'systems'; // カタログはシステムカテゴリーに追加
   }
 
   return {
@@ -183,7 +187,7 @@ export const lessonCategories = {
     title: '🚀 Phase 4: 実用システム',
     description: '本格的なシステムを構築しよう',
     color: '#ff7b00',
-    lessons: ['traffic-light', 'digital-clock'],
+    lessons: ['traffic-light', 'digital-clock', 'diagram-catalog'],
   },
 };
 

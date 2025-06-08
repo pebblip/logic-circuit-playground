@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新しい回路図レンダラーV2テスト</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #1a1b26;
+      color: #e8e8ec;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #00ff88;
+      margin-bottom: 30px;
+    }
+
+    .circuit-section {
+      background-color: #24253a;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .circuit-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #00ff88;
+    }
+
+    /* 制作モードと同じSVGスタイル */
+    svg {
+      width: 100%;
+      max-width: 800px;
+      height: auto;
+      background-color: #2a2b3d;
+      border-radius: 8px;
+    }
+
+    /* ゲートスタイル（BasicGateRenderer準拠） */
+    .gate {
+      cursor: pointer;
+    }
+
+    .gate-body {
+      fill: #363849;
+      stroke: #00ff88;
+      stroke-width: 2;
+      rx: 8;
+    }
+
+    .gate-label {
+      fill: #e8e8ec;
+      font-size: 14px;
+      font-weight: bold;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    /* ピンスタイル */
+    .pin {
+      fill: none;
+      stroke: #00ff88;
+      stroke-width: 2;
+    }
+
+    .pin.active {
+      fill: #00ff88;
+    }
+
+    /* ワイヤースタイル */
+    .wire {
+      fill: none;
+      stroke: #565869;
+      stroke-width: 3;
+    }
+
+    .wire.active {
+      stroke: #00ff88;
+    }
+
+    /* 説明文 */
+    .description {
+      margin-top: 20px;
+      color: #9ca3af;
+      line-height: 1.6;
+    }
+
+    .note {
+      background-color: #1e1f2e;
+      border-left: 4px solid #00ff88;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 新しい回路図レンダラーV2 - 制作モード描画システム統合テスト</h1>
+
+    <div class="circuit-section">
+      <h2 class="circuit-title">半加算器回路（制作モードレンダラー使用）</h2>
+      
+      <svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg">
+        <!-- ワイヤー（背面） -->
+        <g class="wires">
+          <!-- A → XOR -->
+          <path class="wire" d="M 135 150 Q 242.5 150 242.5 135 T 350 120" />
+          <!-- B → XOR -->
+          <path class="wire" d="M 135 250 Q 242.5 250 242.5 140 T 350 140" />
+          <!-- A → AND -->
+          <path class="wire" d="M 135 150 Q 242.5 150 242.5 265 T 350 280" />
+          <!-- B → AND -->
+          <path class="wire" d="M 135 250 Q 242.5 250 242.5 285 T 350 300" />
+          <!-- XOR → Sum -->
+          <path class="wire active" d="M 420 130 Q 485 130 485 125 T 550 120" />
+          <!-- AND → Carry -->
+          <path class="wire" d="M 420 290 Q 485 290 485 285 T 550 280" />
+        </g>
+
+        <!-- ゲート（前面） -->
+        <g class="gates">
+          <!-- 入力A -->
+          <g class="gate input-gate" transform="translate(100, 150)">
+            <rect class="gate-body" x="-35" y="-25" width="70" height="50" />
+            <text class="gate-label">A</text>
+            <circle class="pin active" cx="35" cy="0" r="5" />
+          </g>
+
+          <!-- 入力B -->
+          <g class="gate input-gate" transform="translate(100, 250)">
+            <rect class="gate-body" x="-35" y="-25" width="70" height="50" />
+            <text class="gate-label">B</text>
+            <circle class="pin" cx="35" cy="0" r="5" />
+          </g>
+
+          <!-- XORゲート -->
+          <g class="gate xor-gate" transform="translate(385, 130)">
+            <rect class="gate-body" x="-35" y="-25" width="70" height="50" />
+            <text class="gate-label">XOR</text>
+            <!-- 入力ピン -->
+            <line class="pin" x1="-35" y1="-10" x2="-45" y2="-10" />
+            <circle class="pin" cx="-45" cy="-10" r="5" />
+            <line class="pin" x1="-35" y1="10" x2="-45" y2="10" />
+            <circle class="pin" cx="-45" cy="10" r="5" />
+            <!-- 出力ピン -->
+            <line class="pin" x1="35" y1="0" x2="45" y2="0" />
+            <circle class="pin active" cx="45" cy="0" r="5" />
+          </g>
+
+          <!-- ANDゲート -->
+          <g class="gate and-gate" transform="translate(385, 290)">
+            <rect class="gate-body" x="-35" y="-25" width="70" height="50" />
+            <text class="gate-label">AND</text>
+            <!-- 入力ピン -->
+            <line class="pin" x1="-35" y1="-10" x2="-45" y2="-10" />
+            <circle class="pin" cx="-45" cy="-10" r="5" />
+            <line class="pin" x1="-35" y1="10" x2="-45" y2="10" />
+            <circle class="pin" cx="-45" cy="10" r="5" />
+            <!-- 出力ピン -->
+            <line class="pin" x1="35" y1="0" x2="45" y2="0" />
+            <circle class="pin" cx="45" cy="0" r="5" />
+          </g>
+
+          <!-- 出力Sum -->
+          <g class="gate output-gate" transform="translate(585, 120)">
+            <rect class="gate-body" x="-35" y="-25" width="70" height="50" />
+            <text class="gate-label">Sum</text>
+            <!-- 入力ピン -->
+            <line class="pin" x1="-35" y1="0" x2="-45" y2="0" />
+            <circle class="pin active" cx="-45" cy="0" r="5" />
+          </g>
+
+          <!-- 出力Carry -->
+          <g class="gate output-gate" transform="translate(585, 280)">
+            <rect class="gate-body" x="-35" y="-25" width="70" height="50" />
+            <text class="gate-label">Carry</text>
+            <!-- 入力ピン -->
+            <line class="pin" x1="-35" y1="0" x2="-45" y2="0" />
+            <circle class="pin" cx="-45" cy="0" r="5" />
+          </g>
+        </g>
+      </svg>
+
+      <div class="description">
+        <p>この回路図は、制作モードと同じレンダリングシステムを使用して生成されています。</p>
+        <div class="note">
+          <strong>特徴：</strong>
+          <ul>
+            <li>統一されたゲート形状（70x50px、rx=8）</li>
+            <li>標準化されたピン配置とライン</li>
+            <li>ベジェ曲線による美しいワイヤー配線</li>
+            <li>アクティブ状態の視覚的フィードバック</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="circuit-section">
+      <h2 class="circuit-title">自動レイアウトのメリット</h2>
+      <div class="description">
+        <p>新しいシステムでは、以下の利点があります：</p>
+        <ol>
+          <li><strong>保守性：</strong> 1つのレンダリングシステムで統一</li>
+          <li><strong>一貫性：</strong> すべての回路図が同じ品質</li>
+          <li><strong>効率性：</strong> データ駆動で簡単に新規作成</li>
+          <li><strong>拡張性：</strong> 新しいゲートタイプも自動対応</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

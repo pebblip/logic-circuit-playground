@@ -1,12 +1,13 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
+import { TERMS } from '../terms';
 
 export const andGateStructuredLesson: StructuredLesson = {
   id: 'and-gate',
-  title: 'ANDゲート - すべてが揃って初めてON',
+  title: 'ANDゲート - すべてが揃って初めてON！',
   description:
     '2つの入力が両方ともONの時だけ出力がONになる「AND」の動作を学びます',
   objective:
-    'ANDゲートの基本動作を理解し、真理値表を確認して論理積の概念を習得する',
+    'ANDゲートの基本動作を理解し、真理値表を確認して「両方必要」の概念を習得する',
   category: '基本ゲート',
   lessonType: 'gate-intro',
   difficulty: 'beginner',
@@ -20,20 +21,25 @@ export const andGateStructuredLesson: StructuredLesson = {
         'ANDゲートは「すべての条件が満たされたとき」だけ動作します。',
       content: [
         {
-          type: 'text',
-          text: '日常生活で例えると、「鍵」と「暗証番号」の両方が必要な金庫のようなものです。',
+          type: 'rich-text',
+          elements: [
+            '日常生活で例えると、',
+            { text: '「鍵」と「暗証番号」の両方', emphasis: true },
+            'が必要な金庫のようなものです。',
+          ],
         },
         {
           type: 'heading',
-          text: '📚 ANDゲートの歴史',
+          text: '🎯 身近な例',
         },
         {
-          type: 'text',
-          text: '論理積（AND）の概念は、19世紀の数学者ジョージ・ブールが体系化しました。ブール代数は現代のコンピュータ科学の基礎となっています。',
-        },
-        {
-          type: 'note',
-          text: '🔍 論理積の記号：数学では「∧」、プログラミングでは「&&」や「AND」と表記します',
+          type: 'list',
+          ordered: false,
+          items: [
+            '🚪 オートロック：カギも暗証番号も両方必要 → ドアが開く',
+            '🚗 車の発進：シートベルトを締めて、エンジンもON → 走れる',
+            '📱 スマホ：パスコードと指紋が一致 → ロック解除',
+          ],
         },
       ],
     },
@@ -43,200 +49,230 @@ export const andGateStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🔌 ANDゲートの電気的な意味',
+          text: '🔌 なぜ「AND」というの？',
         },
         {
-          type: 'text',
-          text: '電気回路では、ANDゲートは「直列接続されたスイッチ」と同じです。どちらか一方でもOFFなら、電流は流れません。',
+          type: 'rich-text',
+          elements: [
+            '電気回路で考えると、2つのスイッチを',
+            { text: '「つなげて」', emphasis: true },
+            '配置したようなものです。',
+            { text: '両方のスイッチをONにしないと、電気は流れません。', bold: true },
+          ],
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '両方のスイッチがON → 電流が流れる → 出力1',
-            'どちらかがOFF → 電流が遮断 → 出力0',
+            '両方のスイッチがON → 電流が流れる → 出力がON',
+            'どちらかがOFF → 電流が遮断 → 出力がOFF',
           ],
+        },
+        {
+          type: 'heading',
+          text: '💡 スイッチの例で考える',
+        },
+        {
+          type: 'text',
+          text: '2つのスイッチを直列につないだ回路を想像してください。電源からランプまでの間にスイッチAとスイッチBが順番に並んでいます。',
+        },
+        {
+          type: 'heading',
+          text: '【直列回路のイメージ】'
+        },
+        {
+          type: 'svg-diagram',
+          diagramType: 'series-circuit',
+          width: 400,
+          height: 200
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '電源 → スイッチA → スイッチB → ランプ', bold: true }
+          ]
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '💡 ポイント：', bold: true },
+            'スイッチが',
+            { text: '一列につながっている', emphasis: true },
+            'ので、',
+            { text: 'どちらか1つでもOFF', emphasis: true },
+            'なら電気は流れません。'
+          ]
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '→ ', bold: true },
+            { text: 'スイッチA', emphasis: true },
+            'も',
+            { text: 'スイッチB', emphasis: true },
+            'も',
+            { text: '両方ON', bold: true },
+            'じゃないと電気は流れない！'
+          ]
+        },
+        {
+          type: 'table',
+          headers: ['スイッチA', 'スイッチB', '結果'],
+          rows: [
+            [TERMS.OFF, TERMS.OFF, 'ランプ消灯'],
+            [TERMS.OFF, TERMS.ON, 'ランプ消灯'],
+            [TERMS.ON, TERMS.OFF, 'ランプ消灯'],
+            [TERMS.ON, TERMS.ON, 'ランプ点灯✨']
+          ]
+        },
+        {
+          type: 'note',
+          text: '🔌 2つのスイッチをつなげた回路：両方ONじゃないと電気は流れません！',
         },
       ],
     },
     {
-      id: 'place-inputs',
-      instruction: 'まず、2つのスイッチ（入力）を配置しましょう。',
-      hint: '左のツールパレットから「入力」を2つドラッグして、キャンバスの左側に縦に並べて配置してください。',
-      content: [],
-      action: { type: 'place-gate', gateType: 'INPUT' },
-    },
-    {
-      id: 'place-and',
-      instruction: '次に、ANDゲートを配置します。',
-      hint: '「基本ゲート」セクションから「AND」を選んで、入力の右側に配置してください。',
+      id: 'place-gates',
+      instruction: `${TERMS.INPUT}、${TERMS.AND}ゲート、${TERMS.OUTPUT}を配置しましょう。`,
+      hint: `左のツールパレットから「${TERMS.INPUT}」を2つキャンバスの左側に縦に並べ、「基本ゲート」から「${TERMS.AND}」をその右側に、最後に${TERMS.OUTPUT}を${TERMS.AND}ゲートの右側に配置してください。`,
       content: [],
       action: { type: 'place-gate', gateType: 'AND' },
     },
     {
-      id: 'place-output',
-      instruction: '最後に、結果を表示するランプ（出力）を配置します。',
-      hint: '出力をANDゲートの右側に配置してください。',
-      content: [],
-      action: { type: 'place-gate', gateType: 'OUTPUT' },
-    },
-    {
       id: 'connect',
-      instruction: '配線して回路を完成させましょう。',
-      hint: '各入力の出力（右の丸）をANDの入力（左の丸）に、ANDの出力を出力の入力に接続してください。',
-      content: [],
+      instruction: `${TERMS.WIRE}して${TERMS.CIRCUIT}を完成させましょう。`,
+      hint: `各${TERMS.INPUT}の${TERMS.OUTPUT_PIN}を${TERMS.AND}の${TERMS.INPUT_PIN}に、${TERMS.AND}の${TERMS.OUTPUT_PIN}を${TERMS.OUTPUT}の${TERMS.INPUT_PIN}に${TERMS.CONNECT}してください。`,
+      content: [
+        {
+          type: 'note',
+          text: `🔗 配線のポイント：各${TERMS.INPUT}の${TERMS.OUTPUT_PIN}（${TERMS.RIGHT_CIRCLE}）を${TERMS.AND}ゲートの${TERMS.INPUT_PIN}（${TERMS.LEFT_CIRCLE}）に${TERMS.CONNECT}します。`,
+        }
+      ],
       action: { type: 'connect-wire' },
     },
     {
-      id: 'experiment',
-      instruction: '実験開始！4つのパターンをすべて試してみましょう。',
+      id: 'circuit-answer',
+      instruction: '完成形を確認しよう！',
       content: [
+        {
+          type: 'circuit-diagram-v2',
+          circuitId: 'and-gate',
+          showTruthTable: false,
+        },
         {
           type: 'note',
-          text: '入力をダブルクリックすると、OFF（0）とON（1）が切り替わります。',
-        },
+          text: '✅ 2つの入力 → ANDゲート → 出力 の順につながっています'
+        }
       ],
-      action: { type: 'toggle-input' },
     },
     {
-      id: 'results',
-      instruction: '【パターン分析】実験結果を整理しましょう。',
+      id: 'predict',
+      instruction: '予測してみよう！',
       content: [
         {
-          type: 'experiment-result',
-          title: '🔬 実験結果まとめ：',
-          results: [
-            { left: '0', operator: 'AND', right: '0', result: '0' },
-            { left: '0', operator: 'AND', right: '1', result: '0' },
-            { left: '1', operator: 'AND', right: '0', result: '0' },
-            { left: '1', operator: 'AND', right: '1', result: '1' },
+          type: 'heading',
+          text: '🤔 考えてみよう'
+        },
+        {
+          type: 'text',
+          text: '「すべてが揃って初めてON」という名前から、どんな時に出力がONになると思いますか？'
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '💭 ヒント：', bold: true },
+            '2つのスイッチが直列につながっていることを思い出してください。'
+          ]
+        },
+        {
+          type: 'note',
+          text: '予測：きっと両方がONの時だけ、出力もONになるはず...'
+        }
+      ]
+    },
+    {
+      id: 'experiment',
+      instruction: `実験と${TERMS.TRUTH_TABLE}`,
+      content: [
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '💡 操作方法：', bold: true },
+            `${TERMS.INPUT}を`,
+            { text: TERMS.DOUBLE_CLICK, emphasis: true },
+            `すると、${TERMS.OFF}（${TERMS.LOW}）と${TERMS.ON}（${TERMS.HIGH}）が切り替わります。`,
           ],
-          note: '「AND」は論理積演算を表します。記号では「∧」と表記されます。',
+        },
+        {
+          type: 'text',
+          text: '予測が当たっているか確認してみてください！'
         },
         {
           type: 'heading',
-          text: '💡 発見：ANDゲートが1を出力するのは「両方とも1」の時だけ！',
+          text: `📊 ${TERMS.TRUTH_TABLE}とは`,
         },
-      ],
-    },
-    {
-      id: 'truth-table',
-      instruction: '【理論】ANDゲートの真理値表を確認しましょう。',
-      content: [
+        {
+          type: 'rich-text',
+          elements: [
+            { text: TERMS.TRUTH_TABLE, emphasis: true },
+            `とは、${TERMS.INPUT}と${TERMS.OUTPUT}のすべての組み合わせを表にしたものです。`
+          ]
+        },
         {
           type: 'table',
-          headers: ['入力A', '入力B', '出力', '論理式'],
+          headers: [`${TERMS.INPUT}A`, `${TERMS.INPUT}B`, `${TERMS.OUTPUT}`],
           rows: [
-            ['0', '0', '0', '0 ∧ 0 = 0'],
-            ['0', '1', '0', '0 ∧ 1 = 0'],
-            ['1', '0', '0', '1 ∧ 0 = 0'],
-            ['1', '1', '1', '1 ∧ 1 = 1'],
+            [TERMS.LOW, TERMS.LOW, TERMS.LOW],
+            [TERMS.LOW, TERMS.HIGH, TERMS.LOW],
+            [TERMS.HIGH, TERMS.LOW, TERMS.LOW],
+            [TERMS.HIGH, TERMS.HIGH, TERMS.HIGH]
           ],
         },
         {
-          type: 'note',
-          text: '📊 確率：4パターン中1パターンのみ出力が1になる（25%）',
+          type: 'rich-text',
+          elements: [
+            { text: '💡 発見：', bold: true },
+            `${TERMS.AND}ゲートが${TERMS.ON}を出力するのは`,
+            { text: `「両方とも${TERMS.ON}」`, bold: true },
+            'の時だけ！',
+          ],
         },
         {
-          type: 'heading',
-          text: '🎯 ANDとORの比較',
-        },
-        {
-          type: 'comparison',
-          items: [
-            {
-              gateType: 'AND',
-              values: [
-                { left: '0', operator: 'AND', right: '0', result: '0' },
-                { left: '0', operator: 'AND', right: '1', result: '0' },
-                { left: '1', operator: 'AND', right: '0', result: '0' },
-                { left: '1', operator: 'AND', right: '1', result: '1' },
-              ],
-            },
-            {
-              gateType: 'OR',
-              values: [
-                { left: '0', operator: 'OR', right: '0', result: '0' },
-                { left: '0', operator: 'OR', right: '1', result: '1' },
-                { left: '1', operator: 'OR', right: '0', result: '1' },
-                { left: '1', operator: 'OR', right: '1', result: '1' },
-              ],
-            },
+          type: 'rich-text',
+          elements: [
+            { text: '📊 確率：', bold: true },
+            '4パターン中',
+            { text: '1パターンのみ', emphasis: true },
+            `${TERMS.OUTPUT}が${TERMS.ON}になる（25%）`,
           ],
         },
       ],
     },
     {
       id: 'application',
-      instruction: '【応用】ANDゲートの実用例を学びましょう。',
+      instruction: '【応用】ANDゲートの実用例',
       content: [
         {
           type: 'heading',
-          text: '🔐 セキュリティシステム',
+          text: '🔐 日常生活で見つけるANDゲート',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '🏦 銀行金庫：カードキー AND 暗証番号 = ドア開錠',
-            '📱 スマホ：指紋認証 AND 顔認証 = ロック解除',
-            '🎮 ゲーム機：両親の許可 AND 宿題完了 = ゲーム許可',
-            '🏂 リレー競走：バトンを持つ AND 走路内 = 走行可能',
-            '🚆 電車発車：ドア閉 AND 信号青 = 発車可能',
+            '🏦 銀行ATM：カードを入れて、暗証番号も正しく入力 → お金を引き出せる',
+            '🚗 車の発進：シートベルトを締めて、エンジンもかける → 走れる',
+            '🏠 オートロック：正しいカギを使って、正しい暗証番号も入力 → ドアが開く',
           ],
         },
         {
-          type: 'heading',
-          text: '🚗 自動車の安全装置',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            'シートベルト着用 AND エンジンON = 走行可能',
-            'ブレーキ踏む AND シフトP = エンジン始動可能',
-            'ヘッドライトON AND 夜間 = ハイビーム警告',
+          type: 'rich-text',
+          elements: [
+            { text: '💡 重要：', bold: true },
+            'ANDゲートは',
+            { text: '「安全性」', emphasis: true },
+            'を高めるためによく使われます！',
           ],
-        },
-        {
-          type: 'heading',
-          text: '🏭 工場の安全装置',
-        },
-        {
-          type: 'text',
-          text: 'より厳格な安全管理のため、複数のAND条件を組み合わせます：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '安全ヘルメット AND 安全靴 AND 作業許可証 = 入場可能',
-            '両手ボタン同時押し AND 安全ゲート閉 = 機械作動',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'mathematical-notation',
-      instruction: '【発展】数学的表現',
-      content: [
-        {
-          type: 'heading',
-          text: '📐 AND演算のさまざまな表記法',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '数学：A ∧ B',
-            '集合論：A ∩ B（交わり）',
-            'プログラミング：A && B, A AND B',
-            '電子回路：A · B（乗算記号）',
-          ],
-        },
-        {
-          type: 'note',
-          text: '💡 なぜ乗算記号？ 0×0=0, 0×1=0, 1×0=0, 1×1=1 とANDの真理値表が同じだから！',
         },
       ],
     },
@@ -258,26 +294,6 @@ export const andGateStructuredLesson: StructuredLesson = {
       ],
     },
     {
-      id: 'advanced-quiz',
-      instruction: '【応用クイズ】',
-      content: [
-        {
-          type: 'text',
-          text: 'ANDゲートは3つ以上の入力を持つこともできます。3入力ANDは全ての入力が1の時だけ1を出力します。',
-        },
-        {
-          type: 'quiz',
-          question: '3入力ANDゲートで出力が1になる確率は？',
-          options: ['12.5%（1/8）', '25%（2/8）', '37.5%（3/8）', '50%（4/8）'],
-          correctIndex: 0,
-        },
-        {
-          type: 'note',
-          text: '3入力の組み合わせは2³=8通り。その中で全てが1になるのは1通りだけ！',
-        },
-      ],
-    },
-    {
       id: 'summary',
       instruction: '【まとめ】ANDゲートの重要ポイント',
       content: [
@@ -290,14 +306,15 @@ export const andGateStructuredLesson: StructuredLesson = {
           ordered: true,
           items: [
             'ANDゲートは「全て」の条件が必要',
-            '真理値表で4パターン中1つだけ出力が1',
-            '論理積の記号は「∧」',
-            'セキュリティや安全装置に幅広く応用',
+            '4パターン中1つだけ出力がON',
+            'セキュリティや安全装置によく使われる',
           ],
         },
         {
-          type: 'note',
-          text: '🚀 次は「ORゲート」を学びましょう！',
+          type: 'rich-text',
+          elements: [
+            { text: '🚀 次は「ORゲート」を学びましょう！', bold: true },
+          ],
         },
       ],
     },

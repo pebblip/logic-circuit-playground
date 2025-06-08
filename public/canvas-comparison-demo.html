@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas APIでのアナログvsデジタル比較デモ</title>
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            margin: 20px;
+            background: #0a0a0a;
+            color: #ffffff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .demo-section {
+            background: #1a1a1a;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        h2 {
+            color: #00ff88;
+            margin-bottom: 20px;
+        }
+        .canvas-container {
+            background: #0a0a0a;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            border: 1px solid #333;
+            max-width: 100%;
+            height: auto;
+        }
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #00ff88;
+            color: #0a0a0a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #00cc66;
+            transform: translateY(-2px);
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .info {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        code {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #00ff88;">Canvas APIでのアナログvsデジタル比較</h1>
+        
+        <!-- デモ1: 基本的な比較 -->
+        <div class="demo-section">
+            <h2>デモ1: アナログ vs デジタル信号（静的）</h2>
+            <div class="canvas-container">
+                <canvas id="basicComparison" width="800" height="400"></canvas>
+            </div>
+            <div class="info">
+                <p>Canvas APIの利点：</p>
+                <ul>
+                    <li>テキストレンダリング: <code>ctx.fillText()</code>で高品質なテキスト表示</li>
+                    <li>グラデーション効果で美しいアナログ波形</li>
+                    <li>ピクセル単位の正確な制御</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- デモ2: アニメーション付き -->
+        <div class="demo-section">
+            <h2>デモ2: アニメーション付き変換デモ</h2>
+            <div class="canvas-container">
+                <canvas id="animatedComparison" width="800" height="400"></canvas>
+            </div>
+            <div class="controls">
+                <button onclick="startAnimation()">アニメーション開始</button>
+                <button onclick="stopAnimation()">停止</button>
+                <button onclick="resetAnimation()">リセット</button>
+            </div>
+            <div class="info">
+                <p>アナログ信号がデジタル信号に変換される様子をアニメーションで表現</p>
+            </div>
+        </div>
+
+        <!-- デモ3: インタラクティブ -->
+        <div class="demo-section">
+            <h2>デモ3: インタラクティブな閾値調整</h2>
+            <div class="canvas-container">
+                <canvas id="interactiveComparison" width="800" height="400"></canvas>
+            </div>
+            <div class="controls">
+                <label style="color: #aaa;">閾値: <span id="thresholdValue">2.5</span>V</label>
+                <input type="range" id="threshold" min="1" max="4" step="0.1" value="2.5" style="width: 200px;">
+            </div>
+            <div class="info">
+                <p>閾値を調整して、デジタル変換の結果がどう変わるか確認できます</p>
+            </div>
+        </div>
+
+        <!-- デモ4: 複数信号の比較 -->
+        <div class="demo-section">
+            <h2>デモ4: 複数信号の同時表示</h2>
+            <div class="canvas-container">
+                <canvas id="multiSignal" width="800" height="500"></canvas>
+            </div>
+            <div class="info">
+                <p>Canvas APIなら複数の信号を美しく配置可能：</p>
+                <ul>
+                    <li>レイアウトの自由度が高い</li>
+                    <li>統一されたスタイル</li>
+                    <li>効率的な描画</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 共通の設定
+        const colors = {
+            background: '#0a0a0a',
+            grid: '#2a2a2a',
+            text: '#ffffff',
+            textSecondary: '#aaaaaa',
+            analog: '#ff9500',
+            digital: '#00ff88',
+            digitalInactive: '#666666',
+            accent: '#4ecdc4'
+        };
+
+        // デモ1: 基本的な比較
+        function drawBasicComparison() {
+            const canvas = document.getElementById('basicComparison');
+            const ctx = canvas.getContext('2d');
+            
+            // 背景をクリア
+            ctx.fillStyle = colors.background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // グリッドを描画
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            
+            // タイトル
+            ctx.fillStyle = colors.text;
+            ctx.font = 'bold 24px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('アナログ信号 vs デジタル信号', canvas.width / 2, 40);
+            
+            // アナログ信号（上半分）
+            const analogY = 150;
+            ctx.fillStyle = colors.analog;
+            ctx.font = 'bold 18px -apple-system, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('アナログ信号', 50, analogY - 80);
+            
+            // アナログ波形
+            ctx.strokeStyle = colors.analog;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (let x = 50; x < canvas.width - 50; x++) {
+                const t = (x - 50) / (canvas.width - 100);
+                const y = analogY - Math.sin(t * Math.PI * 4) * 40 * (1 - t * 0.3);
+                if (x === 50) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // グラデーション効果
+            const gradient = ctx.createLinearGradient(0, analogY - 50, 0, analogY + 50);
+            gradient.addColorStop(0, colors.analog + '30');
+            gradient.addColorStop(1, colors.analog + '00');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // デジタル信号（下半分）
+            const digitalY = 300;
+            ctx.fillStyle = colors.digital;
+            ctx.font = 'bold 18px -apple-system, sans-serif';
+            ctx.fillText('デジタル信号', 50, digitalY - 30);
+            
+            // デジタル波形
+            ctx.strokeStyle = colors.digital;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            const digitalData = [1, 0, 0, 1, 1, 0, 1, 0, 1, 1];
+            const segmentWidth = (canvas.width - 100) / digitalData.length;
+            
+            for (let i = 0; i < digitalData.length; i++) {
+                const x1 = 50 + i * segmentWidth;
+                const x2 = 50 + (i + 1) * segmentWidth;
+                const y = digitalData[i] ? digitalY - 40 : digitalY + 40;
+                const prevY = i > 0 && digitalData[i-1] ? digitalY - 40 : digitalY + 40;
+                
+                if (i > 0 && y !== prevY) {
+                    ctx.lineTo(x1, y);
+                } else if (i === 0) {
+                    ctx.moveTo(x1, y);
+                }
+                ctx.lineTo(x2, y);
+                
+                // ビット値を表示
+                ctx.save();
+                ctx.fillStyle = colors.text;
+                ctx.font = '14px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(digitalData[i].toString(), x1 + segmentWidth/2, y - 50 * (digitalData[i] ? 1 : -1));
+                ctx.restore();
+            }
+            ctx.stroke();
+            
+            // 説明テキスト
+            ctx.fillStyle = colors.textSecondary;
+            ctx.font = '14px -apple-system, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('連続的に変化', canvas.width - 50, analogY + 60);
+            ctx.fillText('0と1の2値のみ', canvas.width - 50, digitalY + 60);
+        }
+
+        // デモ2: アニメーション
+        let animationId = null;
+        let animationTime = 0;
+        
+        function drawAnimatedComparison() {
+            const canvas = document.getElementById('animatedComparison');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = colors.background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // タイトル
+            ctx.fillStyle = colors.text;
+            ctx.font = 'bold 20px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('アナログ → デジタル変換のアニメーション', canvas.width / 2, 40);
+            
+            // アナログ波形
+            const centerY = 200;
+            ctx.strokeStyle = colors.analog;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let x = 50; x < canvas.width - 50; x++) {
+                const t = (x - 50) / (canvas.width - 100);
+                const y = centerY - Math.sin((t + animationTime) * Math.PI * 4) * 60;
+                if (x === 50) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // 閾値線
+            ctx.strokeStyle = colors.accent;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(50, centerY - 30);
+            ctx.lineTo(canvas.width - 50, centerY - 30);
+            ctx.moveTo(50, centerY + 30);
+            ctx.lineTo(canvas.width - 50, centerY + 30);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // デジタル化された信号
+            if (animationTime > 0.5) {
+                ctx.strokeStyle = colors.digital;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                for (let x = 50; x < canvas.width - 50; x += 5) {
+                    const t = (x - 50) / (canvas.width - 100);
+                    const analogY = centerY - Math.sin((t + animationTime) * Math.PI * 4) * 60;
+                    const digitalY = analogY < centerY ? centerY - 80 : centerY + 80;
+                    
+                    if (x === 50) ctx.moveTo(x, digitalY);
+                    else ctx.lineTo(x, digitalY);
+                }
+                ctx.stroke();
+            }
+            
+            // ラベル
+            ctx.fillStyle = colors.textSecondary;
+            ctx.font = '14px -apple-system, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('HIGH閾値', 55, centerY - 35);
+            ctx.fillText('LOW閾値', 55, centerY + 45);
+        }
+        
+        function startAnimation() {
+            if (animationId) return;
+            
+            function animate() {
+                animationTime += 0.01;
+                drawAnimatedComparison();
+                animationId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+        
+        function stopAnimation() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+        
+        function resetAnimation() {
+            stopAnimation();
+            animationTime = 0;
+            drawAnimatedComparison();
+        }
+
+        // デモ3: インタラクティブ
+        function drawInteractiveComparison(threshold = 2.5) {
+            const canvas = document.getElementById('interactiveComparison');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = colors.background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 電圧軸
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(50, 50);
+            ctx.lineTo(50, 350);
+            ctx.lineTo(750, 350);
+            ctx.stroke();
+            
+            // 電圧ラベル
+            ctx.fillStyle = colors.text;
+            ctx.font = '12px -apple-system, sans-serif';
+            ctx.textAlign = 'right';
+            for (let v = 0; v <= 5; v++) {
+                const y = 350 - (v * 60);
+                ctx.fillText(`${v}V`, 40, y + 5);
+                
+                // グリッドライン
+                ctx.strokeStyle = colors.grid;
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(50, y);
+                ctx.lineTo(750, y);
+                ctx.stroke();
+            }
+            
+            // アナログ信号
+            ctx.strokeStyle = colors.analog;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            const data = [];
+            for (let x = 50; x < 750; x++) {
+                const t = (x - 50) / 700;
+                const voltage = 2.5 + Math.sin(t * Math.PI * 6) * 2 * Math.exp(-t * 2);
+                const y = 350 - (voltage * 60);
+                data.push({ x, voltage });
+                
+                if (x === 50) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // 閾値線
+            const thresholdY = 350 - (threshold * 60);
+            ctx.strokeStyle = colors.accent;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(50, thresholdY);
+            ctx.lineTo(750, thresholdY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            ctx.fillStyle = colors.accent;
+            ctx.font = 'bold 14px -apple-system, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`閾値: ${threshold}V`, 760, thresholdY + 5);
+            
+            // デジタル信号
+            ctx.strokeStyle = colors.digital;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            let lastDigital = false;
+            for (let i = 0; i < data.length; i++) {
+                const digital = data[i].voltage > threshold;
+                const y = digital ? 100 : 250;
+                
+                if (i === 0) {
+                    ctx.moveTo(data[i].x, y);
+                } else if (digital !== lastDigital) {
+                    ctx.lineTo(data[i].x, lastDigital ? 100 : 250);
+                    ctx.lineTo(data[i].x, y);
+                } else {
+                    ctx.lineTo(data[i].x, y);
+                }
+                lastDigital = digital;
+            }
+            ctx.stroke();
+            
+            // ラベル
+            ctx.fillStyle = colors.analog;
+            ctx.font = 'bold 16px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('アナログ信号', 400, 30);
+            
+            ctx.fillStyle = colors.digital;
+            ctx.fillText('デジタル信号', 400, 80);
+        }
+
+        // デモ4: 複数信号
+        function drawMultiSignal() {
+            const canvas = document.getElementById('multiSignal');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = colors.background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // タイトル
+            ctx.fillStyle = colors.text;
+            ctx.font = 'bold 20px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('複数信号の比較表示', canvas.width / 2, 30);
+            
+            const signals = [
+                { name: 'アナログ音声', color: colors.analog, type: 'analog' },
+                { name: 'デジタル変換', color: colors.digital, type: 'digital' },
+                { name: 'サンプリング点', color: colors.accent, type: 'samples' }
+            ];
+            
+            const startY = 100;
+            const height = 120;
+            
+            signals.forEach((signal, index) => {
+                const y = startY + index * (height + 30);
+                
+                // 信号名
+                ctx.fillStyle = signal.color;
+                ctx.font = 'bold 16px -apple-system, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(signal.name, 50, y - 10);
+                
+                // 背景
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(50, y, 700, height);
+                
+                // 信号描画
+                ctx.strokeStyle = signal.color;
+                ctx.fillStyle = signal.color;
+                
+                if (signal.type === 'analog') {
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    for (let x = 50; x < 750; x += 2) {
+                        const t = (x - 50) / 700;
+                        const value = Math.sin(t * Math.PI * 8) * Math.exp(-t * 2);
+                        const py = y + height/2 - value * height/2 * 0.8;
+                        
+                        if (x === 50) ctx.moveTo(x, py);
+                        else ctx.lineTo(x, py);
+                    }
+                    ctx.stroke();
+                } else if (signal.type === 'digital') {
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    const bits = [1,0,1,1,0,1,0,0,1,1,0,1];
+                    const bitWidth = 700 / bits.length;
+                    
+                    bits.forEach((bit, i) => {
+                        const x1 = 50 + i * bitWidth;
+                        const x2 = x1 + bitWidth;
+                        const py = bit ? y + 20 : y + height - 20;
+                        
+                        if (i === 0) ctx.moveTo(x1, py);
+                        else {
+                            const prevY = bits[i-1] ? y + 20 : y + height - 20;
+                            if (py !== prevY) ctx.lineTo(x1, py);
+                        }
+                        ctx.lineTo(x2, py);
+                    });
+                    ctx.stroke();
+                } else if (signal.type === 'samples') {
+                    for (let i = 0; i < 24; i++) {
+                        const x = 50 + i * 30;
+                        const t = i / 24;
+                        const value = Math.sin(t * Math.PI * 8) * Math.exp(-t * 2);
+                        const py = y + height/2 - value * height/2 * 0.8;
+                        
+                        ctx.beginPath();
+                        ctx.arc(x, py, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // サンプル値の線
+                        ctx.strokeStyle = signal.color + '40';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(x, y + height/2);
+                        ctx.lineTo(x, py);
+                        ctx.stroke();
+                        ctx.strokeStyle = signal.color;
+                    }
+                }
+            });
+            
+            // 説明
+            ctx.fillStyle = colors.textSecondary;
+            ctx.font = '14px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Canvas APIによる統一的な表現で、複数の信号を美しく比較表示', canvas.width/2, canvas.height - 20);
+        }
+
+        // 閾値スライダーのイベント
+        document.getElementById('threshold').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            document.getElementById('thresholdValue').textContent = value.toFixed(1);
+            drawInteractiveComparison(value);
+        });
+
+        // 初期描画
+        drawBasicComparison();
+        drawAnimatedComparison();
+        drawInteractiveComparison();
+        drawMultiSignal();
+    </script>
+</body>
+</html>

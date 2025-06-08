@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas + HTMLハイブリッドアプローチ</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #0a0a0a;
+            color: #ffffff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00ff88;
+            margin-bottom: 2rem;
+        }
+        
+        /* 図表コンテナのスタイル */
+        .diagram-container {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        
+        .diagram-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00ff88;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        /* Canvas周りのレイアウト */
+        .canvas-wrapper {
+            position: relative;
+            background: #0a0a0a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #333;
+        }
+        
+        /* Canvas外のテキスト要素 */
+        .signal-labels {
+            display: flex;
+            justify-content: space-between;
+            margin: 1rem 0;
+            padding: 0 2rem;
+        }
+        
+        .signal-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .signal-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .analog-indicator {
+            background: #ff9500;
+        }
+        
+        .digital-indicator {
+            background: #00ff88;
+        }
+        
+        /* 軸ラベル */
+        .axis-labels {
+            position: relative;
+        }
+        
+        .y-axis-label {
+            position: absolute;
+            left: -3rem;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .x-axis-label {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+        
+        .x-axis-values {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 3rem;
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        
+        /* 説明セクション */
+        .description-section {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .description-title {
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .description-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .description-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .description-list li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #00ff88;
+        }
+        
+        /* インタラクティブコントロール */
+        .controls {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .control-label {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        input[type="range"] {
+            width: 200px;
+        }
+        
+        .control-value {
+            color: #00ff88;
+            font-weight: bold;
+            min-width: 3rem;
+        }
+        
+        button {
+            background: #00ff88;
+            color: #0a0a0a;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #00cc66;
+            transform: translateY(-2px);
+        }
+        
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .signal-labels {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0 1rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            input[type="range"] {
+                width: 100%;
+            }
+        }
+        
+        /* 比較セクション */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .comparison-item {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        
+        .comparison-item h3 {
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Canvas + HTMLハイブリッドアプローチ</h1>
+        
+        <!-- デモ1: 基本的なハイブリッド実装 -->
+        <div class="diagram-container">
+            <h2 class="diagram-title">デモ1: テキストはHTML、グラフィックはCanvas</h2>
+            
+            <!-- 信号ラベル（HTML） -->
+            <div class="signal-labels">
+                <div class="signal-label">
+                    <div class="signal-indicator analog-indicator"></div>
+                    <span>アナログ信号（連続的な変化）</span>
+                </div>
+                <div class="signal-label">
+                    <div class="signal-indicator digital-indicator"></div>
+                    <span>デジタル信号（0と1の2値）</span>
+                </div>
+            </div>
+            
+            <!-- Canvas部分（グラフィックのみ） -->
+            <div class="canvas-wrapper">
+                <div class="axis-labels">
+                    <div class="y-axis-label">電圧 (V)</div>
+                    <canvas id="hybridDemo1" width="800" height="300"></canvas>
+                    <div class="x-axis-label">時間 (ms)</div>
+                    <div class="x-axis-values">
+                        <span>0</span>
+                        <span>100</span>
+                        <span>200</span>
+                        <span>300</span>
+                        <span>400</span>
+                        <span>500</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 説明（HTML） -->
+            <div class="description-section">
+                <div class="description-title">ポイント</div>
+                <ul class="description-list">
+                    <li>タイトル、ラベル、説明文はすべてHTML/CSSで実装</li>
+                    <li>Canvasは波形の描画のみに専念</li>
+                    <li>テキストの品質とアクセシビリティを確保</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- デモ2: インタラクティブな閾値調整 -->
+        <div class="diagram-container">
+            <h2 class="diagram-title">デモ2: インタラクティブな閾値調整デモ</h2>
+            
+            <!-- コントロール（HTML） -->
+            <div class="controls">
+                <div class="control-group">
+                    <label class="control-label">閾値電圧:</label>
+                    <input type="range" id="threshold" min="1" max="4" step="0.1" value="2.5">
+                    <span class="control-value" id="thresholdValue">2.5V</span>
+                </div>
+                <button onclick="resetThreshold()">リセット</button>
+            </div>
+            
+            <!-- Canvas部分 -->
+            <div class="canvas-wrapper">
+                <canvas id="hybridDemo2" width="800" height="400"></canvas>
+            </div>
+            
+            <!-- 動的な統計情報（HTML） -->
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h3>アナログ信号</h3>
+                    <p>最大値: <span id="analogMax">5.0V</span></p>
+                    <p>最小値: <span id="analogMin">0.0V</span></p>
+                    <p>平均値: <span id="analogAvg">2.5V</span></p>
+                </div>
+                <div class="comparison-item">
+                    <h3>デジタル変換結果</h3>
+                    <p>HIGH期間: <span id="highRatio">50%</span></p>
+                    <p>LOW期間: <span id="lowRatio">50%</span></p>
+                    <p>遷移回数: <span id="transitions">8回</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- デモ3: アニメーション制御 -->
+        <div class="diagram-container">
+            <h2 class="diagram-title">デモ3: リアルタイムA/D変換シミュレーション</h2>
+            
+            <div class="controls">
+                <button onclick="startSimulation()">シミュレーション開始</button>
+                <button onclick="stopSimulation()">停止</button>
+                <button onclick="resetSimulation()">リセット</button>
+                <div class="control-group">
+                    <label class="control-label">速度:</label>
+                    <input type="range" id="speed" min="1" max="10" value="5">
+                </div>
+            </div>
+            
+            <div class="canvas-wrapper">
+                <canvas id="hybridDemo3" width="800" height="400"></canvas>
+            </div>
+            
+            <div class="description-section">
+                <div class="description-title">動作説明</div>
+                <p>アナログ信号（オレンジ）がリアルタイムでデジタル信号（緑）に変換される様子を表示します。</p>
+                <p>Canvas内のテキストは最小限（数値のみ）に抑え、それ以外の情報はHTML側で表示しています。</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Canvas設定ヘルパー
+        function setupCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            ctx.scale(dpr, dpr);
+            
+            return { canvas, ctx, width: rect.width, height: rect.height };
+        }
+        
+        // デモ1: 基本的なハイブリッド実装
+        function drawHybridDemo1() {
+            const { ctx, width, height } = setupCanvas('hybridDemo1');
+            
+            // 背景
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // グリッド（薄く）
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const x = i * width / 5;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            
+            // アナログ波形
+            ctx.strokeStyle = '#ff9500';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = x / width;
+                const y = height/2 + Math.sin(t * Math.PI * 4) * height * 0.3 * (1 - t * 0.5);
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // デジタル波形
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            const bits = [1, 0, 0, 1, 1, 0, 1, 0];
+            const bitWidth = width / bits.length;
+            
+            bits.forEach((bit, i) => {
+                const x1 = i * bitWidth;
+                const x2 = (i + 1) * bitWidth;
+                const y = bit ? height * 0.2 : height * 0.8;
+                
+                if (i === 0) {
+                    ctx.moveTo(x1, y);
+                } else {
+                    const prevY = bits[i-1] ? height * 0.2 : height * 0.8;
+                    if (y !== prevY) {
+                        ctx.lineTo(x1, prevY);
+                        ctx.lineTo(x1, y);
+                    }
+                }
+                ctx.lineTo(x2, y);
+            });
+            ctx.stroke();
+            
+            // Canvas内のテキストは最小限に（ビット値のみ）
+            ctx.fillStyle = '#00ff88';
+            ctx.font = '12px monospace';
+            ctx.textAlign = 'center';
+            bits.forEach((bit, i) => {
+                const x = (i + 0.5) * bitWidth;
+                ctx.fillText(bit.toString(), x, height * 0.1);
+            });
+        }
+        
+        // デモ2: インタラクティブな閾値調整
+        let currentThreshold = 2.5;
+        
+        function drawHybridDemo2() {
+            const { ctx, width, height } = setupCanvas('hybridDemo2');
+            
+            // 背景
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 電圧グリッド
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 1;
+            for (let v = 0; v <= 5; v++) {
+                const y = height - (v / 5) * height;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+                
+                // 電圧値（最小限のCanvas内テキスト）
+                ctx.fillStyle = '#666';
+                ctx.font = '10px monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText(`${v}V`, 25, y + 3);
+            }
+            
+            // アナログ信号とデータ収集
+            const analogData = [];
+            ctx.strokeStyle = '#ff9500';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let x = 30; x < width; x++) {
+                const t = (x - 30) / (width - 30);
+                const voltage = 2.5 + Math.sin(t * Math.PI * 6) * 2 * Math.exp(-t * 2);
+                const y = height - (voltage / 5) * height;
+                analogData.push(voltage);
+                
+                if (x === 30) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // 閾値線
+            const thresholdY = height - (currentThreshold / 5) * height;
+            ctx.strokeStyle = '#4ecdc4';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(30, thresholdY);
+            ctx.lineTo(width, thresholdY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // デジタル信号
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            let highCount = 0;
+            let transitions = 0;
+            let lastDigital = null;
+            
+            for (let i = 0; i < analogData.length; i++) {
+                const x = 30 + i;
+                const digital = analogData[i] > currentThreshold;
+                const y = digital ? height * 0.2 : height * 0.8;
+                
+                if (digital) highCount++;
+                if (lastDigital !== null && digital !== lastDigital) transitions++;
+                lastDigital = digital;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    const prevDigital = analogData[i-1] > currentThreshold;
+                    const prevY = prevDigital ? height * 0.2 : height * 0.8;
+                    if (y !== prevY) {
+                        ctx.lineTo(x, prevY);
+                        ctx.lineTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+            }
+            ctx.stroke();
+            
+            // 統計情報の更新（HTML側）
+            const avgVoltage = analogData.reduce((a, b) => a + b, 0) / analogData.length;
+            document.getElementById('analogMax').textContent = Math.max(...analogData).toFixed(1) + 'V';
+            document.getElementById('analogMin').textContent = Math.min(...analogData).toFixed(1) + 'V';
+            document.getElementById('analogAvg').textContent = avgVoltage.toFixed(1) + 'V';
+            
+            const highRatio = (highCount / analogData.length * 100).toFixed(0);
+            document.getElementById('highRatio').textContent = highRatio + '%';
+            document.getElementById('lowRatio').textContent = (100 - highRatio) + '%';
+            document.getElementById('transitions').textContent = transitions + '回';
+        }
+        
+        // デモ3: アニメーション
+        let animationId = null;
+        let animationTime = 0;
+        
+        function drawHybridDemo3() {
+            const { ctx, width, height } = setupCanvas('hybridDemo3');
+            const speed = document.getElementById('speed').value / 5;
+            
+            // 背景クリア
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 波形領域の背景
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(50, 50, width - 100, height - 100);
+            
+            // リアルタイムでスクロールする波形
+            const waveWidth = width - 100;
+            const waveHeight = height - 100;
+            
+            // アナログ信号
+            ctx.strokeStyle = '#ff9500';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let x = 0; x < waveWidth; x++) {
+                const t = (x / waveWidth + animationTime) * 2;
+                const voltage = Math.sin(t * Math.PI * 4) + 0.5 * Math.sin(t * Math.PI * 10);
+                const y = 50 + waveHeight/2 - voltage * waveHeight * 0.3;
+                
+                if (x === 0) ctx.moveTo(50 + x, y);
+                else ctx.lineTo(50 + x, y);
+            }
+            ctx.stroke();
+            
+            // デジタル信号
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let x = 0; x < waveWidth; x += 5) {
+                const t = (x / waveWidth + animationTime) * 2;
+                const voltage = Math.sin(t * Math.PI * 4) + 0.5 * Math.sin(t * Math.PI * 10);
+                const digital = voltage > 0;
+                const y = digital ? 80 : height - 80;
+                
+                if (x === 0) ctx.moveTo(50, y);
+                else ctx.lineTo(50 + x, y);
+            }
+            ctx.stroke();
+            
+            // 現在値インジケーター（Canvas内の最小限のテキスト）
+            const currentT = animationTime * 2;
+            const currentVoltage = Math.sin(currentT * Math.PI * 4) + 0.5 * Math.sin(currentT * Math.PI * 10);
+            const currentDigital = currentVoltage > 0;
+            
+            // 縦線
+            ctx.strokeStyle = '#4ecdc4';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(width - 100, 50);
+            ctx.lineTo(width - 100, height - 50);
+            ctx.stroke();
+            
+            // 現在値（数値のみ）
+            ctx.fillStyle = '#4ecdc4';
+            ctx.font = 'bold 14px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(currentDigital ? '1' : '0', width - 70, height/2);
+            
+            animationTime += 0.01 * speed;
+        }
+        
+        // イベントハンドラー
+        document.getElementById('threshold').addEventListener('input', (e) => {
+            currentThreshold = parseFloat(e.target.value);
+            document.getElementById('thresholdValue').textContent = currentThreshold.toFixed(1) + 'V';
+            drawHybridDemo2();
+        });
+        
+        function resetThreshold() {
+            currentThreshold = 2.5;
+            document.getElementById('threshold').value = 2.5;
+            document.getElementById('thresholdValue').textContent = '2.5V';
+            drawHybridDemo2();
+        }
+        
+        function startSimulation() {
+            if (animationId) return;
+            
+            function animate() {
+                drawHybridDemo3();
+                animationId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+        
+        function stopSimulation() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+        
+        function resetSimulation() {
+            stopSimulation();
+            animationTime = 0;
+            drawHybridDemo3();
+        }
+        
+        // 初期描画
+        drawHybridDemo1();
+        drawHybridDemo2();
+        drawHybridDemo3();
+    </script>
+</body>
+</html>

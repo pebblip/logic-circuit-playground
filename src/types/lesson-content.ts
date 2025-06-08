@@ -3,6 +3,7 @@
 // 基本的なコンテンツタイプ
 export type ContentType =
   | 'text'
+  | 'rich-text'
   | 'heading'
   | 'list'
   | 'table'
@@ -11,7 +12,13 @@ export type ContentType =
   | 'experiment-result'
   | 'quiz'
   | 'note'
-  | 'ascii-art';
+  | 'ascii-art'
+  | 'diagram'
+  | 'circuit-diagram-v2'
+  | 'digital-signal'
+  | 'voltage-signal'
+  | 'bit-pattern'
+  | 'svg-diagram';
 
 // 基本インターフェース
 export interface BaseContent {
@@ -104,9 +111,69 @@ export interface AsciiArtContent extends BaseContent {
   className?: string;
 }
 
+// 図表コンテンツ（ASCIIアートの代替）
+export interface DiagramContent extends BaseContent {
+  type: 'diagram';
+  diagramType: 'simple-connection' | 'gate-symbol' | 'truth-table-visual' | 'signal-flow' | 'custom';
+  title?: string;
+  caption?: string;
+  gateType?: string;  // gate-symbolの場合
+  data?: any[][];     // truth-table-visualの場合
+  signals?: any[];    // signal-flowの場合
+  customSvg?: string; // customの場合のSVGコード
+  className?: string;
+}
+
+// 新しい回路図コンテンツ（制作モード描画システム使用）
+export interface CircuitDiagramV2Content extends BaseContent {
+  type: 'circuit-diagram-v2';
+  circuitId: string;
+  description?: string;
+  showTruthTable?: boolean;
+}
+
+// デジタル信号波形表示
+export interface DigitalSignalContent extends BaseContent {
+  type: 'digital-signal';
+  title?: string;
+  showAnalog?: boolean;
+  showDigital?: boolean;
+}
+
+// 電圧レベルとデジタル信号の関係図
+export interface VoltageSignalContent extends BaseContent {
+  type: 'voltage-signal';
+}
+
+// ビット数とパターン表
+export interface BitPatternContent extends BaseContent {
+  type: 'bit-pattern';
+}
+
+// リッチテキストコンテンツ（強調表示付きテキスト）
+export interface RichTextContent extends BaseContent {
+  type: 'rich-text';
+  elements: (string | {
+    text: string;
+    bold?: boolean;      // 太字
+    gate?: boolean;      // ゲート名（色付き）
+    emphasis?: boolean;  // 強調（背景色付き）
+  })[];
+}
+
+// SVG図形コンテンツ
+export interface SvgDiagramContent extends BaseContent {
+  type: 'svg-diagram';
+  diagramType: 'series-circuit' | 'parallel-circuit' | 'custom';
+  customSvg?: string;  // カスタムSVGの場合
+  width?: number;
+  height?: number;
+}
+
 // すべてのコンテンツタイプのユニオン
 export type Content =
   | TextContent
+  | RichTextContent
   | HeadingContent
   | ListContent
   | TableContent
@@ -115,7 +182,13 @@ export type Content =
   | ExperimentResultContent
   | QuizContent
   | NoteContent
-  | AsciiArtContent;
+  | AsciiArtContent
+  | DiagramContent
+  | CircuitDiagramV2Content
+  | DigitalSignalContent
+  | VoltageSignalContent
+  | BitPatternContent
+  | SvgDiagramContent;
 
 // 構造化されたレッスンステップ
 export interface StructuredLessonStep {

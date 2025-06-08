@@ -1,11 +1,12 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
+import { TERMS } from '../terms';
 
 export const notGateStructuredLesson: StructuredLesson = {
   id: 'not-gate',
-  title: 'NOTゲート - 反転の魔法',
+  title: `${TERMS.NOT}ゲート - 反転の魔法！`,
   description: '入力を反転させる最もシンプルで重要なゲートを学びます',
   objective:
-    'NOTゲートの動作原理を理解し、論理否定の概念を習得。デジタル回路における反転の重要性を学びます',
+    `${TERMS.NOT}ゲートの動作原理を理解し、「反転」の概念を習得。デジタル回路における0と1の切り替えの重要性を学びます`,
   difficulty: 'beginner',
   prerequisites: ['digital-basics'],
   estimatedMinutes: 10,
@@ -13,11 +14,22 @@ export const notGateStructuredLesson: StructuredLesson = {
   steps: [
     {
       id: 'intro',
-      instruction: 'NOTゲートは「反転」という魔法を使います。',
+      instruction: `${TERMS.NOT}ゲートは「反転」という魔法を使います。`,
       content: [
         {
-          type: 'text',
-          text: '0を1に、1を0に変える、とてもシンプルだけど超重要なゲートです！',
+          type: 'rich-text',
+          elements: [
+            { text: TERMS.LOW, bold: true },
+            'を',
+            { text: TERMS.HIGH, bold: true },
+            'に、',
+            { text: TERMS.HIGH, bold: true },
+            'を',
+            { text: TERMS.LOW, bold: true },
+            'に変える、とてもシンプルだけど超重要な',
+            { text: TERMS.GATE, bold: true },
+            'です！'
+          ]
         },
         {
           type: 'heading',
@@ -27,165 +39,147 @@ export const notGateStructuredLesson: StructuredLesson = {
           type: 'list',
           ordered: false,
           items: [
-            '💡 ライトスイッチ：ON→OFF、OFF→ON',
+            `💡 ライトスイッチ：${TERMS.ON}→${TERMS.OFF}、${TERMS.OFF}→${TERMS.ON}`,
             '🚪 扉：開いている→閉める、閉まっている→開ける',
             '🌙 昼夜：昼→夜、夜→昼',
-            '🌡️ 温冷：暖房→冷房、冷房→暖房',
             '🔄 反対語：ポジティブ→ネガティブ',
           ],
         },
         {
           type: 'note',
-          text: '💡 NOTゲートは「否定」「反転」「インバータ」とも呼ばれます',
+          text: `💡 ${TERMS.NOT}ゲートの別名：「反転ゲート」（入力を逆にするから）`
         },
       ],
     },
     {
-      id: 'place-input',
-      instruction: 'まず、スイッチ（入力）を配置しましょう。',
-      hint: '左のツールパレットから「入力」をドラッグして、キャンバスの左側に配置してください。',
-      content: [],
-      action: { type: 'place-gate', gateType: 'INPUT' },
-    },
-    {
-      id: 'place-not',
-      instruction: '次に、NOTゲートを配置します。',
-      hint: '「基本ゲート」セクションから「NOT」を選んで、入力の右側に配置してください。',
-      content: [],
+      id: 'place-gates',
+      instruction: `${TERMS.INPUT}と${TERMS.NOT}ゲートを配置しましょう。`,
+      hint: `左のツールパレットから「${TERMS.INPUT}」をキャンバスの左側に、「基本ゲート」から「${TERMS.NOT}」をその右側に配置してください。`,
+      content: [
+        {
+          type: 'rich-text',
+          elements: [
+            { text: TERMS.NOT, gate: true },
+            'ゲートが中心的な役割を果たします。'
+          ]
+        }
+      ],
       action: { type: 'place-gate', gateType: 'NOT' },
     },
     {
       id: 'place-output',
-      instruction: '最後に、結果を表示するランプ（出力）を配置します。',
-      hint: '出力をNOTゲートの右側に配置してください。',
+      instruction: `最後に、結果を表示する${TERMS.OUTPUT}を配置します。`,
+      hint: `${TERMS.OUTPUT}を${TERMS.NOT}ゲートの右側に配置してください。`,
       content: [],
       action: { type: 'place-gate', gateType: 'OUTPUT' },
     },
     {
       id: 'connect',
-      instruction: '配線して回路を完成させましょう。',
-      hint: '入力の出力をNOTの入力に、NOTの出力を出力の入力に接続してください。',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'experiment',
-      instruction: '実験開始！スイッチを切り替えて動作を確認しましょう。',
+      instruction: `${TERMS.WIRE}して${TERMS.CIRCUIT}を完成させましょう。`,
+      hint: `${TERMS.INPUT}の${TERMS.OUTPUT_PIN}を${TERMS.NOT}の${TERMS.INPUT_PIN}に、${TERMS.NOT}の${TERMS.OUTPUT_PIN}を${TERMS.OUTPUT}の${TERMS.INPUT_PIN}に${TERMS.CONNECT}してください。`,
       content: [
         {
           type: 'note',
-          text: '入力をダブルクリックすると、OFF（0）とON（1）が切り替わります。',
+          text: `🔗 配線のポイント：${TERMS.INPUT}の${TERMS.OUTPUT_PIN}（${TERMS.RIGHT_CIRCLE}）を${TERMS.NOT}ゲートの${TERMS.INPUT_PIN}（${TERMS.LEFT_CIRCLE}）に${TERMS.CONNECT}します。`,
+        }
+      ],
+      action: { type: 'connect-wire' },
+    },
+    {
+      id: 'circuit-answer',
+      instruction: '完成形を確認しよう！',
+      content: [
+        {
+          type: 'circuit-diagram-v2',
+          circuitId: 'not-gate',
+          showTruthTable: false,
+        },
+        {
+          type: 'note',
+          text: '✅ 入力 → NOTゲート → 出力 の順につながっています'
+        }
+      ],
+    },
+    {
+      id: 'predict',
+      instruction: '予測してみよう！',
+      content: [
+        {
+          type: 'heading',
+          text: '🤔 考えてみよう'
+        },
+        {
+          type: 'text',
+          text: '「反転の魔法」という名前から、どんな動作をすると思いますか？'
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '💭 ヒント：', bold: true },
+            '日常生活で「反転」といえば、ON→OFF、OFF→ONのように...'
+          ]
+        },
+        {
+          type: 'note',
+          text: '予測：入力が0なら1に、1なら0になるはず...'
+        }
+      ]
+    },
+    {
+      id: 'experiment-and-observation',
+      instruction: `実験で確かめよう！${TERMS.NOT}ゲートの動作を確認`,
+      content: [
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '💡 操作方法：', bold: true },
+            `${TERMS.INPUT}を`,
+            { text: TERMS.DOUBLE_CLICK, emphasis: true },
+            `して動作を確認してください。`
+          ]
+        },
+        {
+          type: 'heading',
+          text: `📊 ${TERMS.TRUTH_TABLE}（実験結果）`
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: TERMS.TRUTH_TABLE, emphasis: true },
+            `とは、${TERMS.INPUT}と${TERMS.OUTPUT}の関係を示す表です。`
+          ]
+        },
+        {
+          type: 'table',
+          headers: [`${TERMS.INPUT}`, `${TERMS.OUTPUT}`],
+          rows: [
+            [`${TERMS.LOW}（${TERMS.OFF}）`, `${TERMS.HIGH}（${TERMS.ON}）`],
+            [`${TERMS.HIGH}（${TERMS.ON}）`, `${TERMS.LOW}（${TERMS.OFF}）`]
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '✨ ',
+            { text: TERMS.NOT, gate: true },
+            'ゲートは入力を',
+            { text: '完全に反転', bold: true },
+            'させます！'
+          ]
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '📊 特徴：', bold: true },
+            '常に入力と逆の値を出力（100%反転）'  
+          ]
         },
       ],
       action: { type: 'toggle-input' },
     },
     {
-      id: 'observation',
-      instruction: '【観察】何が起きましたか？',
-      content: [
-        {
-          type: 'experiment-result',
-          title: '🔬 実験結果',
-          results: [
-            { left: '0', operator: '→', right: '1', result: '' },
-            { left: '1', operator: '→', right: '0', result: '' },
-          ],
-          note: 'NOTゲートは入力を完全に反転させます！',
-        },
-        {
-          type: 'heading',
-          text: '💡 重要な発見',
-        },
-        {
-          type: 'list',
-          ordered: true,
-          items: [
-            '入力が OFF（0）のとき → 出力は ON（1）',
-            '入力が ON（1）のとき → 出力は OFF（0）',
-            '常に入力と逆の出力になる！',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'truth-table',
-      instruction: '【理論】NOTゲートの真理値表',
-      content: [
-        {
-          type: 'table',
-          headers: ['入力', '出力'],
-          rows: [
-            ['0', '1'],
-            ['1', '0'],
-          ],
-        },
-        {
-          type: 'text',
-          text: 'たった2行！シンプルイズベスト！',
-        },
-      ],
-    },
-    {
-      id: 'electrical-principle',
-      instruction: '【原理】電気的な仕組み',
-      content: [
-        {
-          type: 'heading',
-          text: '⚡ NOTゲートの電気回路',
-        },
-        {
-          type: 'text',
-          text: '最も簡単なNOTゲートは、トランジスタ1個で作れます：',
-        },
-        {
-          type: 'list',
-          ordered: true,
-          items: [
-            '入力が0V（LOW）→ トランジスタOFF → 出力5V（HIGH）',
-            '入力が5V（HIGH）→ トランジスタON → 出力0V（LOW）',
-          ],
-        },
-        {
-          type: 'note',
-          text: '🔬 現代のCPUには数十億個のトランジスタが入っています！',
-        },
-      ],
-    },
-    {
-      id: 'symbol',
-      instruction: '【豆知識】NOTゲートの記号',
-      content: [
-        {
-          type: 'heading',
-          text: '📐 回路図での表現',
-        },
-        {
-          type: 'text',
-          text: 'NOTゲートは三角形の先に小さな丸（バブル）がついた形で表されます。この丸が「反転」を意味します。',
-        },
-        {
-          type: 'heading',
-          text: '📐 さまざまな表記法',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '論理式：Ā、!A、¬A',
-            'プログラミング：!A、NOT A、~A',
-            '回路図：▷○（三角形+丸）',
-            '真理値表：A’、A̅',
-          ],
-        },
-        {
-          type: 'note',
-          text: '📝 数学では「否定」、電子工学では「インバータ」と呼ばれます',
-        },
-      ],
-    },
-    {
       id: 'applications',
-      instruction: '【応用】NOTゲートの実用例',
+      instruction: `【応用】${TERMS.NOT}ゲートの実用例`,
       content: [
         {
           type: 'heading',
@@ -195,11 +189,15 @@ export const notGateStructuredLesson: StructuredLesson = {
           type: 'list',
           ordered: false,
           items: [
-            'インバーター回路：信号の反転',
-            'プルダウン/プルアップ回路：デフォルト状態の設定',
-            'エラー検出：正常/異常の切り替え',
-            'トグルスイッチ：状態の切り替え',
+            '信号の反転：0を1に、1を0に変換',
+            'スイッチの切り替え：ON/OFFを逆にする',
+            'エラー検出：正常/異常の判定',
+            '状態の反転：現在の状態を逆にする',
           ],
+        },
+        {
+          type: 'note',
+          text: `📝 ${TERMS.NOT}ゲートは三角形の先に小さな丸（バブル）がついた形で表されます。この丸が「反転」を意味します。`,
         },
       ],
     },
@@ -209,73 +207,33 @@ export const notGateStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'quiz',
-          question: 'NOTゲートに「1」を入力したら、出力は？',
-          options: ['0', '1', '変化しない', 'エラーになる'],
+          question: `${TERMS.NOT}ゲートに「${TERMS.HIGH}」を入力したら、${TERMS.OUTPUT}は？`,
+          options: [TERMS.LOW, TERMS.HIGH, '変化しない', 'エラーになる'],
           correctIndex: 0,
         },
       ],
     },
     {
-      id: 'challenge',
-      instruction: '【チャレンジ】ダブルNOT',
-      content: [
-        {
-          type: 'text',
-          text: '2つのNOTゲートを直列に接続したら、どうなるでしょう？',
-        },
-        {
-          type: 'note',
-          text: 'ヒント：負の負は正...？',
-        },
-        {
-          type: 'heading',
-          text: '🔄 ダブルNOTの真理値表',
-        },
-        {
-          type: 'table',
-          headers: ['入力', '一つ目のNOT', '二つ目のNOT'],
-          rows: [
-            ['0', '1', '0'],
-            ['1', '0', '1'],
-          ],
-        },
-        {
-          type: 'text',
-          text: '答え：元の入力と同じになる！これを「バッファ」として使うこともあります。',
-        },
-      ],
-    },
-    {
-      id: 'advanced-applications',
-      instruction: '【発展】NOTゲートの高度な応用',
+      id: 'summary',
+      instruction: `【まとめ】${TERMS.NOT}ゲートの重要ポイント`,
       content: [
         {
           type: 'heading',
-          text: '🎆 デ・モルガンの法則',
-        },
-        {
-          type: 'text',
-          text: 'NOTゲートを使った重要な法則：',
+          text: '🎆 今日学んだこと',
         },
         {
           type: 'list',
-          ordered: false,
+          ordered: true,
           items: [
-            'NOT(A AND B) = (NOT A) OR (NOT B)',
-            'NOT(A OR B) = (NOT A) AND (NOT B)',
+            `${TERMS.NOT}ゲートは入力を反転させる`,
+            `${TERMS.LOW}→${TERMS.HIGH}、${TERMS.HIGH}→${TERMS.LOW}に変換`,
+            '最もシンプルだが重要なゲート',
+            `${TERMS.TRUTH_TABLE}はたった2行`,
           ],
         },
         {
           type: 'note',
-          text: '💡 これにより、ANDとORを相互変換できます！',
-        },
-        {
-          type: 'heading',
-          text: '🔄 オシレータ回路',
-        },
-        {
-          type: 'text',
-          text: '奇数個のNOTゲートをリング状に接続すると、信号が振動します（クロック信号の生成）。',
+          text: `🚀 次は「${TERMS.AND}ゲート」で複数の入力を扱いましょう！`,
         },
       ],
     },

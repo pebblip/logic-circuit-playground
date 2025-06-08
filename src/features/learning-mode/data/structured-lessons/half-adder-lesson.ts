@@ -63,6 +63,12 @@ export const halfAdderStructuredLesson: StructuredLesson = {
           type: 'note',
           text: 'つまり、XORゲートとANDゲートがあれば足し算ができる！',
         },
+        {
+          type: 'circuit-diagram-v2',
+          circuitId: 'half-adder',
+          description: '半加算器の回路構成（制作モード描画システム使用）',
+          showTruthTable: false,
+        },
       ],
     },
     {
