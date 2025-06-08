@@ -383,23 +383,32 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
       ) : (
         // レッスン実行画面
         <div className="lesson-player">
-          <div className="lesson-player-header">
-            <button
-              onClick={() => setSelectedLesson(null)}
-              className="back-button"
+          <div className="lesson-fixed-header">
+            <button 
+              onClick={() => {
+                setSelectedLesson(null);
+                setCurrentStepIndex(0);
+              }} 
+              className="header-nav-button" 
+              title="レッスン一覧に戻る"
             >
-              ← 戻る
+              ←
             </button>
-            <div className="lesson-info">
-              <h2 className="lesson-title">{selectedLesson.title}</h2>
-            </div>
-            <div className="header-buttons">
-              <button
-                onClick={() => setIsMinimized(true)}
-                className="minimize-button"
+            <h3 className="header-title">{selectedLesson.title}</h3>
+            <div className="header-actions">
+              <button 
+                onClick={() => setIsMinimized(true)} 
+                className="header-nav-button" 
                 title="最小化"
               >
                 ―
+              </button>
+              <button 
+                onClick={onClose} 
+                className="header-nav-button" 
+                title="閉じる"
+              >
+                ×
               </button>
             </div>
           </div>
@@ -411,15 +420,6 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                   step={currentStep}
                   onQuizAnswer={handleQuizAnswer}
                 />
-
-                <div className="step-progress">
-                  <div
-                    className="step-progress-bar"
-                    style={{
-                      width: `${(currentStepIndex / selectedLesson.steps.length) * 100}%`,
-                    }}
-                  />
-                </div>
               </>
             ) : (
               // レッスン完了画面
@@ -445,24 +445,24 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
             )}
           </div>
 
-          {/* フローティングナビゲーション */}
+          {/* 固定フッターナビゲーション */}
           {selectedLesson && currentStepIndex < selectedLesson.steps.length && (
-            <div className="floating-navigation">
+            <div className="lesson-fixed-footer">
               <button
                 onClick={handlePreviousStep}
                 disabled={currentStepIndex === 0}
-                className="nav-button prev"
+                className="footer-nav-button prev"
                 title="前のステップ"
               >
-                <span className="nav-icon">◀</span>
-                <span className="nav-text">前へ</span>
+                ◀ 前へ
               </button>
-              <div className="nav-indicator">
-                <span className="current-step">{currentStepIndex + 1}</span>
-                <span className="separator">/</span>
-                <span className="total-steps">
-                  {selectedLesson.steps.length}
-                </span>
+              <div className="nav-dots">
+                {selectedLesson.steps.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`nav-dot ${index === currentStepIndex ? 'active' : ''}`}
+                  />
+                ))}
               </div>
               <button
                 onClick={handleNextStep}
@@ -470,15 +470,10 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                   currentStep?.content?.some(c => c.type === 'quiz') &&
                   !quizAnswered
                 }
-                className="nav-button next"
-                title="次のステップ"
+                className="footer-nav-button next"
+                title={currentStepIndex === selectedLesson.steps.length - 1 ? '完了' : '次のステップ'}
               >
-                <span className="nav-text">
-                  {currentStepIndex === selectedLesson.steps.length - 1
-                    ? '完了'
-                    : '次へ'}
-                </span>
-                <span className="nav-icon">▶</span>
+                {currentStepIndex === selectedLesson.steps.length - 1 ? '完了 ✓' : '次へ ▶'}
               </button>
             </div>
           )}

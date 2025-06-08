@@ -202,6 +202,21 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
       action: { type: 'connect-wire' },
     },
     {
+      id: 'circuit-answer',
+      instruction: '完成形を確認しよう！',
+      content: [
+        {
+          type: 'circuit-diagram-v2',
+          circuitId: 'simple-connection',
+          showTruthTable: false,
+        },
+        {
+          type: 'note',
+          text: '✅ 入力 → 出力 がワイヤーでつながっています'
+        }
+      ],
+    },
+    {
       id: 'experiment',
       instruction: '実験：0と1を体験！',
       content: [
@@ -217,16 +232,6 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: '💡 0はOFF、1はONを表します',
-        },
-        {
-          type: 'heading',
-          text: '🔍 実際の回路で確認'
-        },
-        {
-          type: 'circuit-diagram-v2',
-          circuitId: 'simple-connection',
-          description: '回答',
-          showTruthTable: false
         },
       ],
       action: { type: 'toggle-input' },

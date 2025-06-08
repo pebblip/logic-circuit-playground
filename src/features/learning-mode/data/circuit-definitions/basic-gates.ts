@@ -224,7 +224,7 @@ export const xorGateCircuit = {
 
 // シンプルな接続（INPUT → OUTPUT）
 export const simpleConnectionCircuit = {
-  title: 'シンプルな接続',
+  title: '',
   gates: [
     // 入力
     {
@@ -258,8 +258,8 @@ export const simpleConnectionCircuit = {
   layout: {
     width: 500,
     height: 300,
-    inputLabels: ['入力（0か1を切り替える）'],
-    outputLabels: ['出力（信号を表示）'],
+    inputLabels: [''],
+    outputLabels: [''],
   },
 };
 
