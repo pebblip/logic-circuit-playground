@@ -6,7 +6,7 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.3);
-  z-index: 10; /* 背景のみ、低いz-index */
+  z-index: var(--z-overlay); /* チュートリアル背景オーバーレイ */
   pointer-events: none !important; /* 絶対に操作を妨げない */
   animation: fadeIn 0.3s ease-out;
 }
@@ -23,14 +23,14 @@
 .quick-tutorial-panel {
   position: fixed;
   background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-  border: 1px solid rgba(0, 255, 136, 0.3);
+  border: 1px solid var(--color-primary-border-strong);
   border-radius: 16px;
   padding: 24px;
   max-width: 450px;
   width: 90%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  box-shadow: var(--shadow-xl);
   animation: slideIn 0.3s ease-out;
-  z-index: 100; /* ツールパレットと同じレベルに */
+  z-index: var(--z-tutorial); /* チュートリアルパネル */
 }
 
 @keyframes slideIn {
@@ -90,7 +90,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #00ff88, #00aaff);
+  background: linear-gradient(90deg, var(--color-primary), #00aaff);
   transition: width 0.3s ease;
 }
 
@@ -158,16 +158,16 @@
 }
 
 .tutorial-button.primary {
-  background: rgba(0, 255, 136, 0.2);
-  border: 1px solid rgba(0, 255, 136, 0.4);
-  color: #00ff88;
+  background: var(--color-primary-border);
+  border: 1px solid var(--color-primary-border-stronger);
+  color: var(--color-primary);
 }
 
 .tutorial-button.primary:hover {
-  background: rgba(0, 255, 136, 0.3);
-  border-color: rgba(0, 255, 136, 0.6);
+  background: var(--color-primary-border-strong);
+  border-color: var(--color-primary-border-extra-strong);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+  box-shadow: 0 4px 12px var(--color-primary-border-strong);
 }
 
 .tutorial-button.secondary {
@@ -204,10 +204,10 @@
 .tutorial-success {
   margin-top: 12px;
   padding: 8px 12px;
-  background: rgba(0, 255, 136, 0.1);
-  border: 1px solid rgba(0, 255, 136, 0.3);
+  background: var(--color-primary-subtle);
+  border: 1px solid var(--color-primary-border-strong);
   border-radius: 8px;
-  color: #00ff88;
+  color: var(--color-primary);
   font-size: 14px;
   text-align: center;
   animation: successPop 0.3s ease-out;
@@ -228,23 +228,23 @@
 .tutorial-highlight {
   position: fixed;
   pointer-events: none !important; /* 重要：ハイライトは操作を妨げない */
-  border: 3px dashed #00ff88;
+  border: 3px dashed var(--color-primary);
   border-radius: 12px;
   background: transparent; /* 背景を完全に透明に */
-  box-shadow: 0 0 30px rgba(0, 255, 136, 0.4) inset; /* 内側の影に変更 */
+  box-shadow: 0 0 30px var(--color-primary-border-stronger) inset; /* 内側の影に変更 */
   animation: pulse 2s ease-in-out infinite;
-  z-index: 5; /* キャンバスより下に */
+  z-index: var(--z-tutorial-highlight); /* チュートリアルハイライト */
 }
 
 @keyframes pulse {
   0%,
   100% {
     opacity: 1;
-    box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+    box-shadow: 0 0 30px var(--color-primary-border-stronger);
   }
   50% {
     opacity: 0.7;
-    box-shadow: 0 0 40px rgba(0, 255, 136, 0.6);
+    box-shadow: 0 0 40px var(--color-primary-border-extra-strong);
   }
 }
 
@@ -254,7 +254,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 100;
+  z-index: var(--z-tutorial); /* 初回ガイド */
   animation: fadeInScale 0.5s ease-out;
 }
 
@@ -272,10 +272,10 @@
 .first-time-button {
   background: linear-gradient(
     135deg,
-    rgba(0, 255, 136, 0.15) 0%,
+    var(--color-primary-bg-hover) 0%,
     rgba(0, 170, 255, 0.15) 100%
   );
-  border: 2px solid rgba(0, 255, 136, 0.4);
+  border: 2px solid var(--color-primary-border-stronger);
   border-radius: 16px;
   padding: 24px 32px;
   cursor: pointer;
@@ -290,12 +290,12 @@
 .first-time-button:hover {
   background: linear-gradient(
     135deg,
-    rgba(0, 255, 136, 0.25) 0%,
+    var(--color-primary-bg-hover-strong) 0%,
     rgba(0, 170, 255, 0.25) 100%
   );
-  border-color: rgba(0, 255, 136, 0.6);
+  border-color: var(--color-primary-border-extra-strong);
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 255, 136, 0.3);
+  box-shadow: 0 8px 30px var(--color-primary-border-strong);
 }
 
 .first-time-icon {

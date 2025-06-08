@@ -42,7 +42,7 @@
   height: 100%;
   display: flex;
   position: relative;
-  z-index: 150; /* チュートリアルより上に */
+  z-index: var(--z-sidebar); /* デスクトップサイドバー */
   flex-direction: column;
 }
 

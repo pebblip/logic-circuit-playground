@@ -4,11 +4,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--color-bg-modal);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: var(--z-help);
   animation: fadeIn 0.2s ease-out;
 }
 
@@ -31,7 +31,7 @@
   flex-direction: column;
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(0, 255, 136, 0.2),
+    0 0 0 1px var(--color-primary-border),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   animation: slideUp 0.3s ease-out;
   backdrop-filter: blur(20px);
@@ -53,10 +53,10 @@
   align-items: center;
   justify-content: space-between;
   padding: 24px 28px;
-  border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+  border-bottom: 1px solid var(--color-primary-border);
   background: linear-gradient(
     90deg,
-    rgba(0, 255, 136, 0.05) 0%,
+    var(--color-primary-subtle-light) 0%,
     transparent 100%
   );
   border-radius: 16px 16px 0 0;
@@ -66,7 +66,7 @@
   margin: 0;
   font-size: 26px;
   font-weight: 700;
-  background: linear-gradient(45deg, #00ff88, #00ffdd);
+  background: linear-gradient(45deg, var(--color-primary), #00ffdd);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -100,15 +100,15 @@
 
 .help-search {
   padding: 20px 28px;
-  border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+  border-bottom: 1px solid var(--color-primary-subtle);
   position: relative;
 }
 
 .search-input {
   width: 100%;
   padding: 16px 20px 16px 48px;
-  background: rgba(0, 255, 136, 0.03);
-  border: 2px solid rgba(0, 255, 136, 0.1);
+  background: var(--color-primary-subtle-extra-light);
+  border: 2px solid var(--color-primary-subtle);
   border-radius: 12px;
   color: white;
   font-size: 15px;
@@ -124,11 +124,11 @@
 
 .search-input:focus {
   outline: none;
-  background: rgba(0, 255, 136, 0.08);
-  border-color: #00ff88;
+  background: var(--color-primary-subtle-lighter);
+  border-color: var(--color-primary);
   box-shadow:
-    0 0 0 4px rgba(0, 255, 136, 0.1),
-    0 8px 24px rgba(0, 255, 136, 0.15);
+    0 0 0 4px var(--color-primary-subtle),
+    0 8px 24px var(--color-primary-bg-hover);
   transform: translateY(-1px);
 }
 
@@ -147,7 +147,7 @@
   display: flex;
   padding: 0 28px;
   gap: 4px;
-  border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+  border-bottom: 1px solid var(--color-primary-subtle);
   background: rgba(0, 0, 0, 0.1);
   overflow-x: auto;
   scrollbar-width: none;
@@ -181,10 +181,10 @@
 }
 
 .help-tab.active {
-  color: #00ff88;
-  background: rgba(0, 255, 136, 0.1);
-  border-bottom-color: #00ff88;
-  box-shadow: 0 -4px 12px rgba(0, 255, 136, 0.2);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  border-bottom-color: var(--color-primary);
+  box-shadow: 0 -4px 12px var(--color-primary-border);
 }
 
 /* クイックスタートタブ専用スタイル */
@@ -234,10 +234,10 @@
   margin-bottom: 16px;
   background: linear-gradient(
     135deg,
-    rgba(0, 255, 136, 0.03) 0%,
+    var(--color-primary-subtle-extra-light) 0%,
     rgba(255, 255, 255, 0.02) 100%
   );
-  border: 1px solid rgba(0, 255, 136, 0.1);
+  border: 1px solid var(--color-primary-subtle);
   border-radius: 16px;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -247,12 +247,12 @@
 .help-item:hover {
   background: linear-gradient(
     135deg,
-    rgba(0, 255, 136, 0.08) 0%,
+    var(--color-primary-subtle-lighter) 0%,
     rgba(255, 255, 255, 0.05) 100%
   );
-  border-color: rgba(0, 255, 136, 0.2);
+  border-color: var(--color-primary-border);
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0, 255, 136, 0.1);
+  box-shadow: 0 8px 32px var(--color-primary-subtle);
 }
 
 .help-question {
@@ -269,14 +269,14 @@
 }
 
 .help-question:hover {
-  color: #00ff88;
+  color: var(--color-primary);
 }
 
 .expand-icon {
-  color: #00ff88;
+  color: var(--color-primary);
   font-size: 14px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: rgba(0, 255, 136, 0.1);
+  background: var(--color-primary-subtle);
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -309,7 +309,7 @@
 .search-context {
   margin-top: 8px;
   font-size: 12px;
-  color: #00ff88;
+  color: var(--color-primary);
   opacity: 0.6;
 }
 
@@ -322,21 +322,21 @@
 
 .help-footer {
   padding: 24px 28px;
-  border-top: 1px solid rgba(0, 255, 136, 0.1);
+  border-top: 1px solid var(--color-primary-subtle);
   text-align: center;
   color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 255, 136, 0.03) 50%,
+    var(--color-primary-subtle-extra-light) 50%,
     transparent 100%
   );
   border-radius: 0 0 16px 16px;
 }
 
 .help-footer a {
-  color: #00ff88;
+  color: var(--color-primary);
   text-decoration: none;
   margin: 0 4px;
   padding: 4px 8px;
@@ -346,7 +346,7 @@
 }
 
 .help-footer a:hover {
-  background: rgba(0, 255, 136, 0.1);
+  background: var(--color-primary-subtle);
   text-decoration: none;
   transform: translateY(-1px);
 }

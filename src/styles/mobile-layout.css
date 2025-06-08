@@ -17,13 +17,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  z-index: 100;
+  z-index: var(--z-header); /* モバイルヘッダー */
 }
 
 .mobile-header-title {
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #00ff88, #00aaff);
+  background: linear-gradient(135deg, var(--color-primary), #00aaff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -66,7 +66,7 @@
   padding: 4px;
   display: flex;
   gap: 4px;
-  z-index: 100;
+  z-index: var(--z-dropdown); /* モバイルモードセレクター */
 }
 
 .mode-button {
@@ -81,8 +81,8 @@
 }
 
 .mode-button.active {
-  background: rgba(0, 255, 136, 0.15);
-  color: #00ff88;
+  background: var(--color-primary-bg-hover);
+  color: var(--color-primary);
 }
 
 /* キャンバスコンテナ */
@@ -103,19 +103,19 @@
   display: flex;
   flex-direction: column-reverse;
   gap: 12px;
-  z-index: 100;
+  z-index: var(--z-fab); /* モバイルFABコンテナ */
 }
 
 .mobile-fab {
   width: 56px;
   height: 56px;
-  background: #00ff88;
+  background: var(--color-primary);
   color: #0a0a0a;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+  box-shadow: 0 4px 12px var(--color-primary-border-strong);
   font-size: 24px;
   border: none;
   cursor: pointer;
@@ -125,7 +125,7 @@
 
 .mobile-fab:active {
   transform: scale(0.9);
-  box-shadow: 0 2px 8px rgba(0, 255, 136, 0.2);
+  box-shadow: 0 2px 8px var(--color-primary-border);
 }
 
 .mobile-fab--secondary {
@@ -150,7 +150,7 @@
   background: rgba(15, 15, 15, 0.98);
   backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 99;
+  z-index: var(--z-toolbar); /* モバイルツールバー */
   transform: translateY(calc(100% - 60px)); /* デフォルトでは半閉じ */
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -213,8 +213,8 @@
 
 .mobile-gate-button:active {
   transform: scale(0.95);
-  background: rgba(0, 255, 136, 0.1);
-  border-color: rgba(0, 255, 136, 0.3);
+  background: var(--color-primary-subtle);
+  border-color: var(--color-primary-border-strong);
 }
 
 .mobile-gate-icon {
@@ -238,7 +238,7 @@
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-top: 1px solid rgba(255, 255, 255, 0.15);
   padding: 8px 8px 12px;
-  z-index: 100;
+  z-index: var(--z-toolbar); /* モバイルツールバー v2 */
   transform: translateY(calc(100% - 36px));
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
@@ -299,13 +299,13 @@
 .category-chip.active {
   background: linear-gradient(
     135deg,
-    rgba(0, 255, 136, 0.2),
+    var(--color-primary-border),
     rgba(0, 170, 255, 0.15)
   );
-  border-color: rgba(0, 255, 136, 0.4);
-  color: #00ff88;
+  border-color: var(--color-primary-border-stronger);
+  color: var(--color-primary);
   transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
+  box-shadow: 0 2px 8px var(--color-primary-border-strong);
 }
 
 .category-chip:not(.active):active {
@@ -355,7 +355,7 @@
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(0, 255, 136, 0.1),
+    var(--color-primary-subtle),
     rgba(0, 170, 255, 0.05)
   );
   opacity: 0;
@@ -364,9 +364,9 @@
 
 .tool-item:active {
   transform: scale(0.92);
-  background: rgba(0, 255, 136, 0.1);
-  border-color: rgba(0, 255, 136, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.2);
+  background: var(--color-primary-subtle);
+  border-color: var(--color-primary-border-strong);
+  box-shadow: 0 4px 12px var(--color-primary-border);
 }
 
 .tool-item:active::before {
@@ -376,7 +376,7 @@
 .tool-icon {
   font-size: 9px;
   font-weight: 600;
-  z-index: 1;
+  z-index: var(--z-gate); /* ツールアイコン */
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
   color: rgba(255, 255, 255, 0.9);
   font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
@@ -388,7 +388,7 @@
   font-size: 6px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.75);
-  z-index: 1;
+  z-index: var(--z-gate); /* ツール名 */
   letter-spacing: 0.1px;
   text-transform: uppercase;
   line-height: 1;
@@ -403,7 +403,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    z-index: 90;
+    z-index: var(--z-fab); /* FABコンテナ */
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
@@ -413,13 +413,13 @@
     width: 48px;
     height: 48px;
     border-radius: 24px;
-    background: rgba(0, 255, 136, 0.9);
+    background: var(--color-primary-bright);
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 20px;
-    box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+    box-shadow: 0 4px 12px var(--color-primary-border-strong);
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
@@ -438,7 +438,7 @@
   }
 
   .fab.primary {
-    background: rgba(0, 255, 136, 0.9);
+    background: var(--color-primary-bright);
   }
 
   /* 拡張メニュー */

@@ -11,6 +11,18 @@
   --color-primary-light: #4dffaa;
   --color-primary-dark: #00cc6a;
   --color-primary-subtle: rgba(0, 255, 136, 0.1);
+  --color-primary-subtle-light: rgba(0, 255, 136, 0.05);
+  --color-primary-border: rgba(0, 255, 136, 0.2);
+  --color-primary-border-strong: rgba(0, 255, 136, 0.3);
+  --color-primary-border-stronger: rgba(0, 255, 136, 0.4);
+  --color-primary-bg-hover: rgba(0, 255, 136, 0.15);
+  --color-primary-bg-hover-strong: rgba(0, 255, 136, 0.25);
+  --color-primary-border-medium: rgba(0, 255, 136, 0.5);
+  --color-primary-border-extra-strong: rgba(0, 255, 136, 0.6);
+  --color-primary-glow: rgba(0, 255, 136, 0.8);
+  --color-primary-bright: rgba(0, 255, 136, 0.9);
+  --color-primary-subtle-extra-light: rgba(0, 255, 136, 0.03);
+  --color-primary-subtle-lighter: rgba(0, 255, 136, 0.08);
 
   /* セカンダリカラー（情報・学習） */
   --color-secondary: #00aaff;
@@ -24,6 +36,13 @@
   --color-bg-tertiary: #1f1f1f;
   --color-bg-elevated: rgba(255, 255, 255, 0.03);
   --color-bg-overlay: rgba(0, 0, 0, 0.8);
+  
+  /* 頻出する半透明背景（重複解消用） */
+  --color-bg-glass: rgba(255, 255, 255, 0.05);        /* 軽いガラス効果 */
+  --color-bg-glass-medium: rgba(255, 255, 255, 0.1);   /* 中程度のガラス効果 */
+  --color-bg-glass-strong: rgba(255, 255, 255, 0.15);  /* 強いガラス効果 */
+  --color-bg-modal: rgba(0, 0, 0, 0.8);               /* モーダル背景 */
+  --color-bg-modal-light: rgba(0, 0, 0, 0.5);         /* 軽いモーダル背景 */
 
   /* テキスト色 */
   --color-text-primary: rgba(255, 255, 255, 0.95);
@@ -101,14 +120,35 @@
   --transition-slow: 350ms ease;
   --transition-slower: 500ms ease;
 
-  /* ========== Zインデックス ========== */
-  --z-canvas: 1;
-  --z-gate: 10;
-  --z-wire: 5;
-  --z-panel: 100;
-  --z-modal: 1000;
-  --z-tooltip: 1100;
-  --z-notification: 1200;
+  /* ========== Zインデックス階層管理 ========== */
+  
+  /* 基本要素レイヤー（0-9）: キャンバス内の基本要素 */
+  --z-canvas: 1;           /* キャンバス背景 */
+  --z-wire: 2;             /* 配線 */
+  --z-gate: 3;             /* ゲート要素 */
+  --z-selection: 4;        /* 選択ハイライト */
+
+  /* UIコンポーネント（10-99）: 通常のUI要素 */
+  --z-toolbar: 10;         /* キャンバスツールバー */
+  --z-controls: 15;        /* ズームコントロール */
+  --z-panel: 20;           /* サイドパネル */
+  --z-fab: 30;             /* フローティングボタン */
+  --z-header: 40;          /* メインヘッダー */
+  --z-sidebar: 50;         /* サイドバー */
+
+  /* オーバーレイ（100-999）: 一時的な表示要素 */
+  --z-overlay: 100;        /* 背景オーバーレイ */
+  --z-dropdown: 150;       /* ドロップダウンメニュー */
+  --z-tutorial: 200;       /* チュートリアル要素 */
+  --z-tutorial-highlight: 210; /* チュートリアルハイライト */
+  --z-toast: 300;          /* トースト通知 */
+
+  /* モーダルシステム（1000+）: 最上位要素 */
+  --z-modal: 1000;         /* モーダル背景 */
+  --z-modal-content: 1010; /* モーダルコンテンツ */
+  --z-tooltip: 1100;       /* ツールチップ */
+  --z-notification: 1200;  /* システム通知 */
+  --z-help: 1300;          /* ヘルプパネル（最上位）*/
 
   /* ========== コンポーネント固有 ========== */
 

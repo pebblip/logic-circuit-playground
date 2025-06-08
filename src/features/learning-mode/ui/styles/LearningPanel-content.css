@@ -1,0 +1,110 @@
+/* 📚 学習パネル - コンテンツ */
+
+/* 学習コンテンツ */
+.learning-content {
+  padding: 48px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 🎨 構造化コンテンツスタイル */
+.step-structured-content {
+  margin-top: 24px;
+}
+
+/* 見出しアイコン */
+.heading-icon {
+  margin-right: 8px;
+  filter: drop-shadow(0 0 10px var(--color-primary-border-strong));
+}
+
+.phase-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--phase-color, var(--color-primary));
+  margin: 0 0 16px 0;
+  text-shadow: 0 0 20px var(--phase-color, var(--color-primary));
+}
+
+.phase-description {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 24px 0;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.phase-progress {
+  width: 200px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin: 0 auto;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 📝 説明コンテンツのスタイル */
+.description-content {
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 20px;
+}
+
+.description-content h3 {
+  color: var(--color-primary);
+  font-size: 18px;
+  margin: 24px 0 12px 0;
+  border-left: 3px solid var(--color-primary);
+  padding-left: 12px;
+}
+
+.description-content h4 {
+  color: #ffaa00;
+  font-size: 16px;
+  margin: 20px 0 8px 0;
+}
+
+.description-content p {
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.description-content ul,
+.description-content ol {
+  margin: 16px 0 16px 20px;
+}
+
+.description-content li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.description-content strong {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.description-content em {
+  color: #ff8800;
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* コードブロック風のスタイル（2進数などの表示用） */
+.binary-display,
+.code-block {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: var(--color-primary);
+  margin: 16px 0;
+  letter-spacing: 1px;
+  text-align: center;
+}

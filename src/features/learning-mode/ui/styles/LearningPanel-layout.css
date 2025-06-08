@@ -1,0 +1,128 @@
+/* 🏠 学習パネル - レイアウト */
+
+/* メイン学習画面 */
+.learning-home {
+  height: calc(100vh - 56px); /* ヘッダーの高さを引く */
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.learning-home::-webkit-scrollbar {
+  display: none;
+}
+
+/* ✨ ヘッダー */
+.learning-header {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-bg-hover) 0%,
+    rgba(0, 255, 200, 0.1) 50%,
+    rgba(102, 51, 204, 0.1) 100%
+  );
+  border-bottom: 1px solid var(--color-primary-border);
+  padding: 40px 32px 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.learning-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 60%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    var(--color-primary-subtle) 0%,
+    transparent 70%
+  );
+  animation: headerPulse 6s ease-in-out infinite;
+}
+
+@keyframes headerPulse {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.1) rotate(180deg);
+    opacity: 0.1;
+  }
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.close-button:hover {
+  background: rgba(255, 0, 100, 0.1);
+  border-color: rgba(255, 0, 100, 0.3);
+  color: #ff0064;
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 8px 32px rgba(255, 0, 100, 0.2);
+}
+
+.learning-title {
+  font-size: 36px;
+  font-weight: 800;
+  margin: 0 0 16px 0;
+  background: linear-gradient(45deg, var(--color-primary), #00ffdd, #6633cc);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 40px var(--color-primary-border-strong);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.title-icon {
+  font-size: 48px;
+  filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.5));
+  animation: titleIconFloat 3s ease-in-out infinite;
+}
+
+@keyframes titleIconFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(5deg);
+  }
+}
+
+.learning-subtitle {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 32px 0;
+  max-width: 600px;
+  line-height: 1.6;
+}

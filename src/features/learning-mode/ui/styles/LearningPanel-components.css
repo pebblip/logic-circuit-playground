@@ -1,0 +1,237 @@
+/* 🎯 学習パネル - コンポーネント */
+
+/* 📊 学習統計 */
+.learning-stats {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin-top: 32px;
+  position: relative;
+  z-index: 2;
+}
+
+.stat-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px 32px;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 120px;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px var(--color-primary-bg-hover);
+  border-color: var(--color-primary-border-strong);
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+}
+
+.stat-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 🌟 フェーズセクション */
+.phase-section {
+  margin-bottom: 64px;
+}
+
+.phase-header {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+/* 🆕 新フォーマットバッジ */
+.lesson-card.new-format {
+  position: relative;
+  overflow: visible;
+}
+
+.new-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff6b6b, #ff8787);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* 🎯 レッスングリッド */
+.lessons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.lesson-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 28px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.lesson-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--lesson-color, var(--color-primary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lesson-card:hover::before {
+  opacity: 1;
+}
+
+.lesson-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--lesson-color, var(--color-primary));
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 0 0 1px var(--lesson-color, var(--color-primary));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+}
+
+.lesson-card.completed {
+  border-color: var(--color-primary);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-bg-hover) 0%,
+    var(--color-primary-subtle-light) 100%
+  );
+}
+
+.lesson-card.locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* デバッグモード：ロックされたレッスンも通常表示 */
+.lesson-card.locked.debug-unlocked {
+  opacity: 1;
+  cursor: pointer;
+  border-color: rgba(255, 102, 153, 0.5);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 102, 153, 0.08) 0%,
+    rgba(255, 102, 153, 0.03) 100%
+  );
+}
+
+.lesson-card.locked.debug-unlocked:hover {
+  transform: translateY(-8px);
+  border-color: #ff6699;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 0 0 1px #ff6699;
+}
+
+.lesson-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.lesson-content {
+  flex: 1;
+}
+
+.lesson-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.lesson-description {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.lesson-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.lesson-difficulty {
+  color: #ff6699;
+  background: rgba(255, 102, 153, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lesson-duration {
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+}

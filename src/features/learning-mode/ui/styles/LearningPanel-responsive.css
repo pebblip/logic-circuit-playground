@@ -1,0 +1,157 @@
+/* 📱 学習パネル - レスポンシブ対応 */
+
+/* レッスン実行中はサイドパネル */
+.learning-panel.lesson-active {
+  position: fixed;
+  top: 56px; /* ヘッダーの高さ分下げる */
+  right: 0;
+  bottom: 0;
+  left: auto;
+  width: 30%; /* 画面幅の30% */
+  min-width: 480px; /* 最小幅 */
+  max-width: 600px; /* 最大幅 */
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+  border-left: 2px solid var(--color-primary-border-strong);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  transition: width var(--transition-base);
+  overflow: visible; /* フローティング要素が正しく表示されるように */
+}
+
+/* タブレット向けレスポンシブ対応 */
+@media (max-width: 1024px) {
+  .learning-panel.lesson-active {
+    width: 40%;
+    min-width: 400px;
+    max-width: 500px;
+  }
+}
+
+/* モバイル向けレスポンシブ対応 */
+@media (max-width: 640px) {
+  .learning-panel.lesson-active {
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
+    border-left: none;
+    border-top: 2px solid var(--color-primary-border-strong);
+  }
+}
+
+/* 📱 モバイル対応 */
+@media (max-width: 768px) {
+  .learning-panel.lesson-active {
+    width: 100%;
+    left: 0;
+    border-left: none;
+    border-top: 2px solid var(--color-primary-border-strong);
+  }
+
+  /* モバイル用固定ヘッダー・フッター */
+  .lesson-fixed-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .header-title {
+    font-size: 0.875rem;
+  }
+
+  .lesson-fixed-footer {
+    padding: 0.75rem 1rem;
+    gap: 1rem;
+  }
+
+  .footer-nav-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .nav-dots {
+    display: none; /* モバイルでは非表示 */
+  }
+
+  .lesson-player-content {
+    padding: 1.5rem;
+  }
+
+  .learning-header {
+    padding: 24px 20px;
+  }
+
+  .learning-title {
+    font-size: 28px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .title-icon {
+    font-size: 40px;
+  }
+
+  .learning-stats {
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .stat-card {
+    padding: 20px 24px;
+    min-width: 100px;
+  }
+
+  .learning-content {
+    padding: 32px 20px;
+  }
+
+  .lessons-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .lesson-card {
+    padding: 20px;
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .lesson-player-header {
+    padding: 16px 20px;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .lesson-player-content {
+    padding: 24px 20px;
+  }
+
+  .step-navigation {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .nav-button {
+    max-width: none;
+  }
+
+  .completion-stats {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* モバイル用の比較表調整 */
+  .comparison-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .gate-label {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+
+  .gate-values {
+    padding-left: 16px;
+  }
+}
