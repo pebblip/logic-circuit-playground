@@ -4,17 +4,29 @@ import { halfAdderCircuit } from '../../data/circuit-definitions/half-adder';
 import { fullAdderCircuit } from '../../data/circuit-definitions/full-adder';
 import { fourBitAdderCircuit } from '../../data/circuit-definitions/4bit-adder';
 import { comparatorCircuit } from '../../data/circuit-definitions/comparator';
-import { notGateCircuit, notGateTransistorCircuit } from '../../data/circuit-definitions/not-gate';
-import { andGateCircuit, orGateCircuit, xorGateCircuit, simpleConnectionCircuit, doubleNotCircuit, signalOffStateCircuit, signalOnStateCircuit, signalComparisonCircuit } from '../../data/circuit-definitions/basic-gates';
-import type { CircuitDiagramV2Content } from '@/types/lesson-content';
+import {
+  notGateCircuit,
+  notGateTransistorCircuit,
+} from '../../data/circuit-definitions/not-gate';
+import {
+  andGateCircuit,
+  orGateCircuit,
+  xorGateCircuit,
+  simpleConnectionCircuit,
+  doubleNotCircuit,
+  signalOffStateCircuit,
+  signalOnStateCircuit,
+  signalComparisonCircuit,
+} from '../../data/circuit-definitions/basic-gates';
+import type { CircuitDiagramContent } from '@/types/lesson-content';
 
-interface CircuitDiagramRendererV2Props {
-  content: CircuitDiagramV2Content;
+interface CircuitDiagramRendererProps {
+  content: CircuitDiagramContent;
 }
 
 /**
- * 制作モードと同じ描画システムを使用した回路図レンダラー V2
- * 
+ * 制作モードと同じ描画システムを使用した回路図レンダラー
+ *
  * 特徴：
  * - データ駆動型の回路定義
  * - 自動レイアウト
@@ -22,9 +34,9 @@ interface CircuitDiagramRendererV2Props {
  * - 統一されたピン配置
  * - 保守性の高い設計
  */
-export const CircuitDiagramRendererV2: React.FC<CircuitDiagramRendererV2Props> = ({ 
-  content 
-}) => {
+export const CircuitDiagramRenderer: React.FC<
+  CircuitDiagramRendererProps
+> = ({ content }) => {
   // 回路定義マッピング
   const getCircuitDefinition = (circuitId: string) => {
     switch (circuitId) {
@@ -62,13 +74,13 @@ export const CircuitDiagramRendererV2: React.FC<CircuitDiagramRendererV2Props> =
     }
   };
 
-  if (content.type !== 'circuit-diagram-v2') {
+  if (content.type !== 'circuit-diagram') {
     return null;
   }
 
   const circuitId = (content as any).circuitId || 'half-adder';
   const circuitDefinition = getCircuitDefinition(circuitId);
-  
+
   if (!circuitDefinition) {
     return (
       <div className="circuit-error">
@@ -83,7 +95,7 @@ export const CircuitDiagramRendererV2: React.FC<CircuitDiagramRendererV2Props> =
         circuit={circuitDefinition}
         showTruthTable={(content as any).showTruthTable || false}
       />
-      
+
       {(content as any).description && (
         <div className="circuit-description">
           <p>{(content as any).description}</p>

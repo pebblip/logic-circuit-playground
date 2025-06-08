@@ -5,7 +5,9 @@ interface RichTextRendererProps {
   content: RichTextContent;
 }
 
-export const RichTextRenderer: React.FC<RichTextRendererProps> = ({ content }) => {
+export const RichTextRenderer: React.FC<RichTextRendererProps> = ({
+  content,
+}) => {
   return (
     <p className="explanation-paragraph">
       {content.elements.map((elem, idx) => {
@@ -13,10 +15,10 @@ export const RichTextRenderer: React.FC<RichTextRendererProps> = ({ content }) =
         if (typeof elem === 'string') {
           return <React.Fragment key={idx}>{elem}</React.Fragment>;
         }
-        
+
         // オブジェクトの場合はスタイルを適用
         const classNames: string[] = [];
-        
+
         if (elem.gate) {
           // ゲート名のスタイル（色付き）
           classNames.push('gate-name');
@@ -27,15 +29,15 @@ export const RichTextRenderer: React.FC<RichTextRendererProps> = ({ content }) =
           else if (gateName === 'or') classNames.push('gate-or');
           else if (gateName === 'xor') classNames.push('gate-xor');
         }
-        
+
         if (elem.bold) {
           classNames.push('bold');
         }
-        
+
         if (elem.emphasis) {
           classNames.push('emphasis');
         }
-        
+
         return (
           <span key={idx} className={classNames.join(' ')}>
             {elem.text}

@@ -10,10 +10,12 @@ interface LessonGateRendererProps {
  * ストアに依存せず、propsから渡されたデータのみで描画
  * BasicGateRendererのスタイルに準拠
  */
-export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({ gate }) => {
+export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({
+  gate,
+}) => {
   const renderIOGate = () => {
     const isInput = gate.type === 'INPUT';
-    
+
     if (isInput) {
       // INPUTゲート：スイッチ型
       return (
@@ -60,9 +62,13 @@ export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({ gate }) 
       );
     } else {
       // OUTPUTゲート：電球型
-      const inputValue = gate.inputs && gate.inputs.length > 0 ? 
-        (typeof gate.inputs[0] === 'boolean' ? gate.inputs[0] : false) : false;
-      
+      const inputValue =
+        gate.inputs && gate.inputs.length > 0
+          ? typeof gate.inputs[0] === 'boolean'
+            ? gate.inputs[0]
+            : false
+          : false;
+
       return (
         <>
           {/* 外側の円 */}
@@ -75,14 +81,16 @@ export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({ gate }) 
             strokeWidth="2"
           />
           {/* 内側の円（光る部分） */}
-          <circle
-            cx="0"
-            cy="0"
-            r="15"
-            fill={inputValue ? '#00ff88' : '#333'}
-          />
+          <circle cx="0" cy="0" r="15" fill={inputValue ? '#00ff88' : '#333'} />
           {/* 電球アイコン */}
-          <text x="0" y="5" className="gate-text u-text-xl" textAnchor="middle" fill="#fff" fontSize="20">
+          <text
+            x="0"
+            y="5"
+            className="gate-text u-text-xl"
+            textAnchor="middle"
+            fill="#fff"
+            fontSize="20"
+          >
             💡
           </text>
           {/* 入力ピン */}
@@ -110,7 +118,7 @@ export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({ gate }) 
 
   const renderBasicGate = () => {
     const inputCount = gate.type === 'NOT' ? 1 : 2;
-    
+
     return (
       <>
         <rect
@@ -139,26 +147,68 @@ export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({ gate }) 
         {/* 入力ピン */}
         {inputCount === 1 ? (
           <>
-            <line x1={-35} y1={0} x2={-45} y2={0} stroke="#00ff88" strokeWidth={2} />
-            <circle cx={-45} cy={0} r={5} fill="none" stroke="#00ff88" strokeWidth={2} />
+            <line
+              x1={-35}
+              y1={0}
+              x2={-45}
+              y2={0}
+              stroke="#00ff88"
+              strokeWidth={2}
+            />
+            <circle
+              cx={-45}
+              cy={0}
+              r={5}
+              fill="none"
+              stroke="#00ff88"
+              strokeWidth={2}
+            />
           </>
         ) : (
           <>
-            <line x1={-35} y1={-10} x2={-45} y2={-10} stroke="#00ff88" strokeWidth={2} />
-            <circle cx={-45} cy={-10} r={5} fill="none" stroke="#00ff88" strokeWidth={2} />
-            <line x1={-35} y1={10} x2={-45} y2={10} stroke="#00ff88" strokeWidth={2} />
-            <circle cx={-45} cy={10} r={5} fill="none" stroke="#00ff88" strokeWidth={2} />
+            <line
+              x1={-35}
+              y1={-10}
+              x2={-45}
+              y2={-10}
+              stroke="#00ff88"
+              strokeWidth={2}
+            />
+            <circle
+              cx={-45}
+              cy={-10}
+              r={5}
+              fill="none"
+              stroke="#00ff88"
+              strokeWidth={2}
+            />
+            <line
+              x1={-35}
+              y1={10}
+              x2={-45}
+              y2={10}
+              stroke="#00ff88"
+              strokeWidth={2}
+            />
+            <circle
+              cx={-45}
+              cy={10}
+              r={5}
+              fill="none"
+              stroke="#00ff88"
+              strokeWidth={2}
+            />
           </>
         )}
         {/* 出力ピン */}
         <line x1={35} y1={0} x2={45} y2={0} stroke="#00ff88" strokeWidth={2} />
-        <circle 
-          cx={45} 
-          cy={0} 
-          r={5} 
-          fill={gate.output ? '#00ff88' : 'none'} 
-          stroke="#00ff88" 
-          strokeWidth={2} 
+        <circle
+          cx={45}
+          cy={0}
+          r={5}
+          fill={gate.output ? '#00ff88' : 'none'}
+          stroke="#00ff88"
+          strokeWidth={2}
         />
       </>
     );
@@ -169,7 +219,7 @@ export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({ gate }) 
       case 'INPUT':
       case 'OUTPUT':
         return renderIOGate();
-      
+
       case 'AND':
       case 'OR':
       case 'NOT':
@@ -177,7 +227,7 @@ export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({ gate }) 
       case 'NAND':
       case 'NOR':
         return renderBasicGate();
-      
+
       default:
         // 特殊ゲートやカスタムゲートも基本形状で表示
         return renderBasicGate();

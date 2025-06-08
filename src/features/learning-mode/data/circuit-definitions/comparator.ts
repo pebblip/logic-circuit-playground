@@ -25,7 +25,7 @@ export const comparatorCircuit = {
       output: true,
       metadata: { name: 'A1' },
     },
-    
+
     // 入力B（2ビット）
     {
       id: 'input-b0',
@@ -43,7 +43,7 @@ export const comparatorCircuit = {
       output: true,
       metadata: { name: 'B1' },
     },
-    
+
     // ビット単位の比較（XNOR = 同じなら1）
     // A0=B0の検出
     {
@@ -60,7 +60,7 @@ export const comparatorCircuit = {
       inputs: [],
       output: true,
     },
-    
+
     // A1=B1の検出
     {
       id: 'xor1',
@@ -76,7 +76,7 @@ export const comparatorCircuit = {
       inputs: [],
       output: true,
     },
-    
+
     // 全ビットが等しいかAND
     {
       id: 'and-equal',
@@ -85,7 +85,7 @@ export const comparatorCircuit = {
       inputs: [],
       output: true,
     },
-    
+
     // 出力（A=B）
     {
       id: 'output-equal',
@@ -95,7 +95,7 @@ export const comparatorCircuit = {
       metadata: { name: 'A=B' },
     },
   ] as Gate[],
-  
+
   wires: [
     // A0とB0の比較
     {
@@ -116,7 +116,7 @@ export const comparatorCircuit = {
       to: { gateId: 'not0', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // A1とB1の比較
     {
       id: IdGenerator.generateWireId(),
@@ -136,7 +136,7 @@ export const comparatorCircuit = {
       to: { gateId: 'not1', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // AND処理
     {
       id: IdGenerator.generateWireId(),
@@ -150,7 +150,7 @@ export const comparatorCircuit = {
       to: { gateId: 'and-equal', pinIndex: 1 },
       isActive: true,
     },
-    
+
     // 出力
     {
       id: IdGenerator.generateWireId(),
@@ -159,7 +159,7 @@ export const comparatorCircuit = {
       isActive: true,
     },
   ] as Wire[],
-  
+
   layout: {
     preferredWidth: 750,
     preferredHeight: 500,

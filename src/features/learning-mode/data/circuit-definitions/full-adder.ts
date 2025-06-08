@@ -35,7 +35,7 @@ export const fullAdderCircuit = {
       output: false,
       metadata: { name: 'Cin' },
     },
-    
+
     // 第1半加算器
     // XOR1（A⊕B）
     {
@@ -53,7 +53,7 @@ export const fullAdderCircuit = {
       inputs: [],
       output: false,
     },
-    
+
     // 第2半加算器
     // XOR2（(A⊕B)⊕Cin）= Sum
     {
@@ -71,7 +71,7 @@ export const fullAdderCircuit = {
       inputs: [],
       output: false,
     },
-    
+
     // ORゲート（最終的な繰り上がり）
     {
       id: 'or-gate',
@@ -80,7 +80,7 @@ export const fullAdderCircuit = {
       inputs: [],
       output: false,
     },
-    
+
     // 出力Sum
     {
       id: 'output-sum',
@@ -98,7 +98,7 @@ export const fullAdderCircuit = {
       metadata: { name: 'Cout' },
     },
   ] as Gate[],
-  
+
   wires: [
     // A → XOR1
     {
@@ -128,7 +128,7 @@ export const fullAdderCircuit = {
       to: { gateId: 'and1', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // XOR1 → XOR2
     {
       id: IdGenerator.generateWireId(),
@@ -157,7 +157,7 @@ export const fullAdderCircuit = {
       to: { gateId: 'and2', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // AND1 → OR
     {
       id: IdGenerator.generateWireId(),
@@ -172,7 +172,7 @@ export const fullAdderCircuit = {
       to: { gateId: 'or-gate', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // XOR2 → Sum出力
     {
       id: IdGenerator.generateWireId(),
@@ -188,7 +188,7 @@ export const fullAdderCircuit = {
       isActive: false,
     },
   ] as Wire[],
-  
+
   layout: {
     preferredWidth: 750,
     preferredHeight: 450,

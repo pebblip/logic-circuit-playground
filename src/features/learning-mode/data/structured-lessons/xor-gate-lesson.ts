@@ -5,8 +5,7 @@ export const xorGateStructuredLesson: StructuredLesson = {
   id: 'xor-gate',
   title: `${TERMS.XOR}ゲート - 排他的論理和！`,
   description: `2つの${TERMS.INPUT}が「異なる」ときだけ${TERMS.ON}になる特殊なゲートを学びます`,
-  objective:
-    `${TERMS.XOR}ゲートの動作原理を理解し、「排他的論理和」の概念を習得。実用的な応用例を学びます`,
+  objective: `${TERMS.XOR}ゲートの動作原理を理解し、「排他的論理和」の概念を習得。実用的な応用例を学びます`,
   difficulty: 'beginner',
   prerequisites: ['and-gate', 'or-gate'],
   estimatedMinutes: 10,
@@ -22,8 +21,8 @@ export const xorGateStructuredLesson: StructuredLesson = {
             { text: TERMS.XOR, gate: true },
             `ゲートは、2つの${TERMS.INPUT}が`,
             { text: '異なる値', emphasis: true },
-            `のときだけ${TERMS.ON}を出力します。`
-          ]
+            `のときだけ${TERMS.ON}を出力します。`,
+          ],
         },
         {
           type: 'heading',
@@ -54,14 +53,14 @@ export const xorGateStructuredLesson: StructuredLesson = {
       instruction: '完成形を確認しよう！',
       content: [
         {
-          type: 'circuit-diagram-v2',
+          type: 'circuit-diagram',
           circuitId: 'xor-gate',
           showTruthTable: false,
         },
         {
           type: 'note',
-          text: '✅ 2つの入力 → XORゲート → 出力 の順につながっています'
-        }
+          text: '✅ 2つの入力 → XORゲート → 出力 の順につながっています',
+        },
       ],
     },
     {
@@ -70,24 +69,24 @@ export const xorGateStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🤔 考えてみよう'
+          text: '🤔 考えてみよう',
         },
         {
           type: 'text',
-          text: '「排他的論理和」という名前から、どんな時に出力がONになると思いますか？'
+          text: '「排他的論理和」という名前から、どんな時に出力がONになると思いますか？',
         },
         {
           type: 'rich-text',
           elements: [
             { text: '💭 ヒント：', bold: true },
-            '「違い」がキーワードです。2つの入力が同じ時と違う時を考えてみて。'
-          ]
+            '「違い」がキーワードです。2つの入力が同じ時と違う時を考えてみて。',
+          ],
         },
         {
           type: 'note',
-          text: '予測：入力が違う時（片方だけON）に出力がONになりそう...'
-        }
-      ]
+          text: '予測：入力が違う時（片方だけON）に出力がONになりそう...',
+        },
+      ],
     },
     {
       id: 'experiment',
@@ -97,8 +96,8 @@ export const xorGateStructuredLesson: StructuredLesson = {
           type: 'rich-text',
           elements: [
             { text: TERMS.XOR, gate: true },
-            `は「どちらか片方だけ${TERMS.ON}」のときに反応します。`
-          ]
+            `は「どちらか片方だけ${TERMS.ON}」のときに反応します。`,
+          ],
         },
         {
           type: 'note',
@@ -118,7 +117,7 @@ export const xorGateStructuredLesson: StructuredLesson = {
             [TERMS.OFF, TERMS.OFF, TERMS.OFF],
             [TERMS.OFF, TERMS.ON, TERMS.ON],
             [TERMS.ON, TERMS.OFF, TERMS.ON],
-            [TERMS.ON, TERMS.ON, TERMS.OFF]
+            [TERMS.ON, TERMS.ON, TERMS.OFF],
           ],
         },
         {
@@ -141,7 +140,13 @@ export const xorGateStructuredLesson: StructuredLesson = {
         },
         {
           type: 'table',
-          headers: [`${TERMS.INPUT}A`, `${TERMS.INPUT}B`, `${TERMS.AND}出力`, `${TERMS.OR}出力`, `${TERMS.XOR}出力`],
+          headers: [
+            `${TERMS.INPUT}A`,
+            `${TERMS.INPUT}B`,
+            `${TERMS.AND}出力`,
+            `${TERMS.OR}出力`,
+            `${TERMS.XOR}出力`,
+          ],
           rows: [
             [TERMS.OFF, TERMS.OFF, TERMS.OFF, TERMS.OFF, TERMS.OFF],
             [TERMS.OFF, TERMS.ON, TERMS.OFF, TERMS.ON, TERMS.ON],

@@ -384,28 +384,28 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
         // レッスン実行画面
         <div className="lesson-player">
           <div className="lesson-fixed-header">
-            <button 
+            <button
               onClick={() => {
                 setSelectedLesson(null);
                 setCurrentStepIndex(0);
-              }} 
-              className="header-nav-button" 
+              }}
+              className="header-nav-button"
               title="レッスン一覧に戻る"
             >
               ←
             </button>
             <h3 className="header-title">{selectedLesson.title}</h3>
             <div className="header-actions">
-              <button 
-                onClick={() => setIsMinimized(true)} 
-                className="header-nav-button" 
+              <button
+                onClick={() => setIsMinimized(true)}
+                className="header-nav-button"
                 title="最小化"
               >
                 ―
               </button>
-              <button 
-                onClick={onClose} 
-                className="header-nav-button" 
+              <button
+                onClick={onClose}
+                className="header-nav-button"
                 title="閉じる"
               >
                 ×
@@ -471,9 +471,15 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                   !quizAnswered
                 }
                 className="footer-nav-button next"
-                title={currentStepIndex === selectedLesson.steps.length - 1 ? '完了' : '次のステップ'}
+                title={
+                  currentStepIndex === selectedLesson.steps.length - 1
+                    ? '完了'
+                    : '次のステップ'
+                }
               >
-                {currentStepIndex === selectedLesson.steps.length - 1 ? '完了 ✓' : '次へ ▶'}
+                {currentStepIndex === selectedLesson.steps.length - 1
+                  ? '完了 ✓'
+                  : '次へ ▶'}
               </button>
             </div>
           )}

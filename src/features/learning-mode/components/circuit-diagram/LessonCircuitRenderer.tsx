@@ -36,7 +36,7 @@ export const LessonCircuitRenderer: React.FC<LessonCircuitRendererProps> = ({
 }) => {
   const viewWidth = circuit.bounds?.width || width;
   const viewHeight = circuit.bounds?.height || height;
-  
+
   // 境界を考慮したviewBoxの計算
   const minX = circuit.bounds?.minX || 0;
   const minY = circuit.bounds?.minY || 0;
@@ -51,13 +51,9 @@ export const LessonCircuitRenderer: React.FC<LessonCircuitRendererProps> = ({
       >
         {/* ワイヤーを先に描画（背面） */}
         {circuit.wires.map(wire => (
-          <LessonWireRenderer 
-            key={wire.id} 
-            wire={wire} 
-            gates={circuit.gates}
-          />
+          <LessonWireRenderer key={wire.id} wire={wire} gates={circuit.gates} />
         ))}
-        
+
         {/* ゲートを後に描画（前面） */}
         {circuit.gates.map(gate => (
           <LessonGateRenderer key={gate.id} gate={gate} />

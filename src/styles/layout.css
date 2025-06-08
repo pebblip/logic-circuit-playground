@@ -20,22 +20,22 @@
     grid-template-columns: var(--panel-width-desktop) 1fr auto;
     grid-template-rows: auto 1fr;
     grid-template-areas:
-      "header header header"
-      "sidebar canvas panel";
+      'header header header'
+      'sidebar canvas panel';
   }
-  
+
   .app-header {
     grid-area: header;
   }
-  
+
   .app-sidebar {
     grid-area: sidebar;
   }
-  
+
   .app-canvas {
     grid-area: canvas;
   }
-  
+
   .app-panel {
     grid-area: panel;
     width: var(--panel-width-desktop);
@@ -48,29 +48,29 @@
     grid-template-columns: auto 1fr;
     grid-template-rows: auto 1fr;
     grid-template-areas:
-      "header header"
-      "sidebar canvas";
+      'header header'
+      'sidebar canvas';
   }
-  
+
   .app-header {
     grid-area: header;
   }
-  
+
   .app-sidebar {
     grid-area: sidebar;
     width: var(--panel-width-tablet);
     transition: width var(--transition-base);
   }
-  
+
   .app-sidebar--collapsed {
     width: 60px;
   }
-  
+
   .app-canvas {
     grid-area: canvas;
     position: relative;
   }
-  
+
   /* フローティングパネル */
   .app-panel {
     position: absolute;
@@ -86,11 +86,11 @@
     transition: transform var(--transition-base);
     z-index: var(--z-panel);
   }
-  
+
   .app-panel--hidden {
     transform: translateX(calc(100% + var(--spacing-md)));
   }
-  
+
   /* パネルトグルボタン */
   .panel-toggle {
     position: absolute;
@@ -108,7 +108,7 @@
     cursor: pointer;
     transition: all var(--transition-fast);
   }
-  
+
   .panel-toggle:hover {
     background: var(--color-bg-elevated);
   }
@@ -120,23 +120,23 @@
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr auto;
     grid-template-areas:
-      "header"
-      "canvas"
-      "toolbar";
+      'header'
+      'canvas'
+      'toolbar';
   }
-  
+
   .app-header {
     grid-area: header;
     position: sticky;
     top: 0;
     z-index: var(--z-panel);
   }
-  
+
   .app-canvas {
     grid-area: canvas;
     position: relative;
   }
-  
+
   /* ボトムツールバー */
   .app-toolbar {
     grid-area: toolbar;
@@ -147,7 +147,7 @@
     bottom: 0;
     z-index: var(--z-panel);
   }
-  
+
   /* スワイプ可能なツールセクション */
   .toolbar-sections {
     display: flex;
@@ -157,11 +157,11 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
-  
+
   .toolbar-sections::-webkit-scrollbar {
     display: none;
   }
-  
+
   .toolbar-section {
     flex: 0 0 auto;
     scroll-snap-align: start;
@@ -169,7 +169,7 @@
     gap: var(--spacing-sm);
     padding: var(--spacing-sm) 0;
   }
-  
+
   /* モバイル用フローティングアクションボタン */
   .fab-container {
     position: fixed;
@@ -180,7 +180,7 @@
     gap: var(--spacing-sm);
     z-index: var(--z-panel);
   }
-  
+
   .fab {
     width: 56px;
     height: 56px;
@@ -194,12 +194,12 @@
     cursor: pointer;
     transition: all var(--transition-base);
   }
-  
+
   .fab:hover {
     transform: scale(1.1);
     box-shadow: var(--shadow-xl);
   }
-  
+
   .fab--secondary {
     width: 48px;
     height: 48px;
@@ -207,7 +207,7 @@
     color: var(--color-text-primary);
     border: 1px solid var(--color-border-default);
   }
-  
+
   /* モバイル用ボトムシート */
   .bottom-sheet {
     position: fixed;
@@ -223,11 +223,11 @@
     max-height: 80vh;
     overflow: hidden;
   }
-  
+
   .bottom-sheet--visible {
     transform: translateY(0);
   }
-  
+
   .bottom-sheet__handle {
     width: 40px;
     height: 4px;
@@ -235,7 +235,7 @@
     border-radius: var(--border-radius-full);
     margin: var(--spacing-sm) auto;
   }
-  
+
   .bottom-sheet__content {
     padding: var(--spacing-lg);
     overflow-y: auto;
@@ -375,7 +375,11 @@
 .logo {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-secondary)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -623,10 +627,18 @@
 }
 
 /* スペーシングユーティリティ */
-.mt-auto { margin-top: auto; }
-.mb-auto { margin-bottom: auto; }
-.ml-auto { margin-left: auto; }
-.mr-auto { margin-right: auto; }
+.mt-auto {
+  margin-top: auto;
+}
+.mb-auto {
+  margin-bottom: auto;
+}
+.ml-auto {
+  margin-left: auto;
+}
+.mr-auto {
+  margin-right: auto;
+}
 
 /* ========== デスクトップ用FAB ========== */
 .fab-container-desktop {

@@ -57,7 +57,10 @@ export const orGateStructuredLesson: StructuredLesson = {
             '電気回路で考えると、2つのスイッチを',
             { text: '「別々の道」', emphasis: true },
             'に配置したようなものです。',
-            { text: 'どちらか一方のスイッチをONにすれば、電気は流れます。', bold: true },
+            {
+              text: 'どちらか一方のスイッチをONにすれば、電気は流れます。',
+              bold: true,
+            },
           ],
         },
         {
@@ -79,31 +82,25 @@ export const orGateStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '【並列回路のイメージ】'
+          text: '【並列回路のイメージ】',
         },
         {
           type: 'svg-diagram',
           diagramType: 'parallel-circuit',
           width: 400,
-          height: 200
+          height: 200,
         },
         {
           type: 'rich-text',
-          elements: [
-            { text: '電源から2つの道：', bold: true }
-          ]
+          elements: [{ text: '電源から2つの道：', bold: true }],
         },
         {
           type: 'rich-text',
-          elements: [
-            { text: '　道1：電源 → スイッチA → ランプ', bold: true }
-          ]
+          elements: [{ text: '　道1：電源 → スイッチA → ランプ', bold: true }],
         },
         {
           type: 'rich-text',
-          elements: [
-            { text: '　道2：電源 → スイッチB → ランプ', bold: true }
-          ]
+          elements: [{ text: '　道2：電源 → スイッチB → ランプ', bold: true }],
         },
         {
           type: 'rich-text',
@@ -111,16 +108,16 @@ export const orGateStructuredLesson: StructuredLesson = {
             { text: '💡 ポイント：', bold: true },
             '電気は',
             { text: '2つの道のどちらからでも', emphasis: true },
-            '流れることができます。'
-          ]
+            '流れることができます。',
+          ],
         },
         {
           type: 'rich-text',
           elements: [
             { text: '→ ', bold: true },
             { text: 'どちらか1つでもON', bold: true },
-            'なら電気は流れる！'
-          ]
+            'なら電気は流れる！',
+          ],
         },
         {
           type: 'table',
@@ -129,8 +126,8 @@ export const orGateStructuredLesson: StructuredLesson = {
             [TERMS.OFF, TERMS.OFF, 'ランプ消灯'],
             [TERMS.OFF, TERMS.ON, 'ランプ点灯✨'],
             [TERMS.ON, TERMS.OFF, 'ランプ点灯✨'],
-            [TERMS.ON, TERMS.ON, 'ランプ点灯✨']
-          ]
+            [TERMS.ON, TERMS.ON, 'ランプ点灯✨'],
+          ],
         },
         {
           type: 'note',
@@ -153,7 +150,7 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: `🔗 配線のポイント：各${TERMS.INPUT}の${TERMS.OUTPUT_PIN}（${TERMS.RIGHT_CIRCLE}）を${TERMS.OR}ゲートの${TERMS.INPUT_PIN}（${TERMS.LEFT_CIRCLE}）に${TERMS.CONNECT}します。`,
-        }
+        },
       ],
       action: { type: 'connect-wire' },
     },
@@ -162,14 +159,14 @@ export const orGateStructuredLesson: StructuredLesson = {
       instruction: '完成形を確認しよう！',
       content: [
         {
-          type: 'circuit-diagram-v2',
+          type: 'circuit-diagram',
           circuitId: 'or-gate',
           showTruthTable: false,
         },
         {
           type: 'note',
-          text: '✅ 2つの入力 → ORゲート → 出力 の順につながっています'
-        }
+          text: '✅ 2つの入力 → ORゲート → 出力 の順につながっています',
+        },
       ],
     },
     {
@@ -178,24 +175,24 @@ export const orGateStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🤔 考えてみよう'
+          text: '🤔 考えてみよう',
         },
         {
           type: 'text',
-          text: '「寛容な選択肢」という名前から、どんな時に出力がONになると思いますか？'
+          text: '「寛容な選択肢」という名前から、どんな時に出力がONになると思いますか？',
         },
         {
           type: 'rich-text',
           elements: [
             { text: '💭 ヒント：', bold: true },
-            '2つのスイッチが並列（別々の道）につながっていることを思い出してください。'
-          ]
+            '2つのスイッチが並列（別々の道）につながっていることを思い出してください。',
+          ],
         },
         {
           type: 'note',
-          text: '予測：どちらか1つでもONなら、出力もONになりそう...'
-        }
-      ]
+          text: '予測：どちらか1つでもONなら、出力もONになりそう...',
+        },
+      ],
     },
     {
       id: 'experiment-and-analysis',
@@ -221,7 +218,7 @@ export const orGateStructuredLesson: StructuredLesson = {
             [TERMS.OFF, TERMS.OFF, TERMS.OFF],
             [TERMS.OFF, TERMS.ON, TERMS.ON],
             [TERMS.ON, TERMS.OFF, TERMS.ON],
-            [TERMS.ON, TERMS.ON, TERMS.ON]
+            [TERMS.ON, TERMS.ON, TERMS.ON],
           ],
         },
         {
@@ -262,11 +259,16 @@ export const orGateStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: `🎯 ${TERMS.AND}と${TERMS.OR}の決定的な違い`
+          text: `🎯 ${TERMS.AND}と${TERMS.OR}の決定的な違い`,
         },
         {
           type: 'table',
-          headers: [`${TERMS.INPUT}A`, `${TERMS.INPUT}B`, `${TERMS.AND}出力`, `${TERMS.OR}出力`],
+          headers: [
+            `${TERMS.INPUT}A`,
+            `${TERMS.INPUT}B`,
+            `${TERMS.AND}出力`,
+            `${TERMS.OR}出力`,
+          ],
           rows: [
             [TERMS.OFF, TERMS.OFF, TERMS.OFF, TERMS.OFF],
             [TERMS.OFF, TERMS.ON, TERMS.OFF, TERMS.ON],
@@ -276,19 +278,17 @@ export const orGateStructuredLesson: StructuredLesson = {
         },
         {
           type: 'rich-text',
-          elements: [
-            { text: '💡 覚え方：', bold: true }
-          ]
+          elements: [{ text: '💡 覚え方：', bold: true }],
         },
         {
           type: 'list',
           ordered: false,
           items: [
             `${TERMS.AND}は「厳しい」 → 両方必要 → 1/4の確率でON`,
-            `${TERMS.OR}は「優しい」 → 1つでOK → 3/4の確率でON`
-          ]
-        }
-      ]
+            `${TERMS.OR}は「優しい」 → 1つでOK → 3/4の確率でON`,
+          ],
+        },
+      ],
     },
     {
       id: 'practical-applications',
@@ -356,7 +356,10 @@ export const orGateStructuredLesson: StructuredLesson = {
         {
           type: 'rich-text',
           elements: [
-            { text: `🚀 次は「${TERMS.XOR}ゲート」を学びましょう！`, bold: true },
+            {
+              text: `🚀 次は「${TERMS.XOR}ゲート」を学びましょう！`,
+              bold: true,
+            },
           ],
         },
       ],

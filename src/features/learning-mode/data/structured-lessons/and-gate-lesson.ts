@@ -57,7 +57,10 @@ export const andGateStructuredLesson: StructuredLesson = {
             '電気回路で考えると、2つのスイッチを',
             { text: '「つなげて」', emphasis: true },
             '配置したようなものです。',
-            { text: '両方のスイッチをONにしないと、電気は流れません。', bold: true },
+            {
+              text: '両方のスイッチをONにしないと、電気は流れません。',
+              bold: true,
+            },
           ],
         },
         {
@@ -78,19 +81,19 @@ export const andGateStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '【直列回路のイメージ】'
+          text: '【直列回路のイメージ】',
         },
         {
           type: 'svg-diagram',
           diagramType: 'series-circuit',
           width: 400,
-          height: 200
+          height: 200,
         },
         {
           type: 'rich-text',
           elements: [
-            { text: '電源 → スイッチA → スイッチB → ランプ', bold: true }
-          ]
+            { text: '電源 → スイッチA → スイッチB → ランプ', bold: true },
+          ],
         },
         {
           type: 'rich-text',
@@ -100,8 +103,8 @@ export const andGateStructuredLesson: StructuredLesson = {
             { text: '一列につながっている', emphasis: true },
             'ので、',
             { text: 'どちらか1つでもOFF', emphasis: true },
-            'なら電気は流れません。'
-          ]
+            'なら電気は流れません。',
+          ],
         },
         {
           type: 'rich-text',
@@ -112,8 +115,8 @@ export const andGateStructuredLesson: StructuredLesson = {
             { text: 'スイッチB', emphasis: true },
             'も',
             { text: '両方ON', bold: true },
-            'じゃないと電気は流れない！'
-          ]
+            'じゃないと電気は流れない！',
+          ],
         },
         {
           type: 'table',
@@ -122,8 +125,8 @@ export const andGateStructuredLesson: StructuredLesson = {
             [TERMS.OFF, TERMS.OFF, 'ランプ消灯'],
             [TERMS.OFF, TERMS.ON, 'ランプ消灯'],
             [TERMS.ON, TERMS.OFF, 'ランプ消灯'],
-            [TERMS.ON, TERMS.ON, 'ランプ点灯✨']
-          ]
+            [TERMS.ON, TERMS.ON, 'ランプ点灯✨'],
+          ],
         },
         {
           type: 'note',
@@ -146,7 +149,7 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: `🔗 配線のポイント：各${TERMS.INPUT}の${TERMS.OUTPUT_PIN}（${TERMS.RIGHT_CIRCLE}）を${TERMS.AND}ゲートの${TERMS.INPUT_PIN}（${TERMS.LEFT_CIRCLE}）に${TERMS.CONNECT}します。`,
-        }
+        },
       ],
       action: { type: 'connect-wire' },
     },
@@ -155,14 +158,14 @@ export const andGateStructuredLesson: StructuredLesson = {
       instruction: '完成形を確認しよう！',
       content: [
         {
-          type: 'circuit-diagram-v2',
+          type: 'circuit-diagram',
           circuitId: 'and-gate',
           showTruthTable: false,
         },
         {
           type: 'note',
-          text: '✅ 2つの入力 → ANDゲート → 出力 の順につながっています'
-        }
+          text: '✅ 2つの入力 → ANDゲート → 出力 の順につながっています',
+        },
       ],
     },
     {
@@ -171,24 +174,24 @@ export const andGateStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🤔 考えてみよう'
+          text: '🤔 考えてみよう',
         },
         {
           type: 'text',
-          text: '「すべてが揃って初めてON」という名前から、どんな時に出力がONになると思いますか？'
+          text: '「すべてが揃って初めてON」という名前から、どんな時に出力がONになると思いますか？',
         },
         {
           type: 'rich-text',
           elements: [
             { text: '💭 ヒント：', bold: true },
-            '2つのスイッチが直列につながっていることを思い出してください。'
-          ]
+            '2つのスイッチが直列につながっていることを思い出してください。',
+          ],
         },
         {
           type: 'note',
-          text: '予測：きっと両方がONの時だけ、出力もONになるはず...'
-        }
-      ]
+          text: '予測：きっと両方がONの時だけ、出力もONになるはず...',
+        },
+      ],
     },
     {
       id: 'experiment',
@@ -205,7 +208,7 @@ export const andGateStructuredLesson: StructuredLesson = {
         },
         {
           type: 'text',
-          text: '予測が当たっているか確認してみてください！'
+          text: '予測が当たっているか確認してみてください！',
         },
         {
           type: 'heading',
@@ -215,8 +218,8 @@ export const andGateStructuredLesson: StructuredLesson = {
           type: 'rich-text',
           elements: [
             { text: TERMS.TRUTH_TABLE, emphasis: true },
-            `とは、${TERMS.INPUT}と${TERMS.OUTPUT}のすべての組み合わせを表にしたものです。`
-          ]
+            `とは、${TERMS.INPUT}と${TERMS.OUTPUT}のすべての組み合わせを表にしたものです。`,
+          ],
         },
         {
           type: 'table',
@@ -225,7 +228,7 @@ export const andGateStructuredLesson: StructuredLesson = {
             [TERMS.LOW, TERMS.LOW, TERMS.LOW],
             [TERMS.LOW, TERMS.HIGH, TERMS.LOW],
             [TERMS.HIGH, TERMS.LOW, TERMS.LOW],
-            [TERMS.HIGH, TERMS.HIGH, TERMS.HIGH]
+            [TERMS.HIGH, TERMS.HIGH, TERMS.HIGH],
           ],
         },
         {

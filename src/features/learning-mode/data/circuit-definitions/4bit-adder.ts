@@ -41,7 +41,7 @@ export const fourBitAdderCircuit = {
       output: false,
       metadata: { name: 'A3' },
     },
-    
+
     // 入力B（4ビット）
     {
       id: 'input-b0',
@@ -75,10 +75,10 @@ export const fourBitAdderCircuit = {
       output: true,
       metadata: { name: 'B3' },
     },
-    
+
     // 簡略化のため、各全加算器を1つのカスタムブロックとして表現
     // 実際の実装では、各FAブロックは2つのXOR、2つのAND、1つのORで構成
-    
+
     // FA0（最下位ビット - 半加算器として動作）
     {
       id: 'xor0',
@@ -96,7 +96,7 @@ export const fourBitAdderCircuit = {
       output: false,
       metadata: { name: 'FA0-C' },
     },
-    
+
     // FA1
     {
       id: 'fa1-xor1',
@@ -135,7 +135,7 @@ export const fourBitAdderCircuit = {
       output: false,
       metadata: { name: 'FA1-C' },
     },
-    
+
     // 出力（簡略化のため、S0とS1のみ表示）
     {
       id: 'output-s0',
@@ -159,7 +159,7 @@ export const fourBitAdderCircuit = {
       metadata: { name: 'C1' },
     },
   ] as Gate[],
-  
+
   wires: [
     // FA0の接続
     {
@@ -186,7 +186,7 @@ export const fourBitAdderCircuit = {
       to: { gateId: 'and0', pinIndex: 1 },
       isActive: true,
     },
-    
+
     // FA1の第1段
     {
       id: IdGenerator.generateWireId(),
@@ -212,7 +212,7 @@ export const fourBitAdderCircuit = {
       to: { gateId: 'fa1-and1', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // FA1の第2段（キャリー入力）
     {
       id: IdGenerator.generateWireId(),
@@ -238,7 +238,7 @@ export const fourBitAdderCircuit = {
       to: { gateId: 'fa1-and2', pinIndex: 0 },
       isActive: true,
     },
-    
+
     // キャリー出力
     {
       id: IdGenerator.generateWireId(),
@@ -252,7 +252,7 @@ export const fourBitAdderCircuit = {
       to: { gateId: 'fa1-or', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // 出力接続
     {
       id: IdGenerator.generateWireId(),
@@ -273,7 +273,7 @@ export const fourBitAdderCircuit = {
       isActive: false,
     },
   ] as Wire[],
-  
+
   layout: {
     preferredWidth: 800,
     preferredHeight: 500,

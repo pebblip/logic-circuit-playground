@@ -9,7 +9,7 @@ export const TERMS = {
   AND: 'AND',
   OR: 'OR',
   XOR: 'XOR',
-  
+
   // 基本用語
   INPUT: '入力',
   OUTPUT: '出力',
@@ -18,18 +18,18 @@ export const TERMS = {
   WIRE: '配線',
   PIN: 'ピン',
   TRUTH_TABLE: '真理値表',
-  
+
   // 状態
   ON: 'ON',
   OFF: 'OFF',
   HIGH: '1',
   LOW: '0',
-  
+
   // 操作
   DOUBLE_CLICK: 'ダブルクリック',
   CONNECT: '接続',
   PLACE: '配置',
-  
+
   // 定型句
   INPUT_PIN: '入力ピン',
   OUTPUT_PIN: '出力ピン',

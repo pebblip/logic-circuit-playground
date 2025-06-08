@@ -29,7 +29,7 @@
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 
+  box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.6),
     0 0 0 1px rgba(0, 255, 136, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -54,7 +54,11 @@
   justify-content: space-between;
   padding: 24px 28px;
   border-bottom: 1px solid rgba(0, 255, 136, 0.2);
-  background: linear-gradient(90deg, rgba(0, 255, 136, 0.05) 0%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(0, 255, 136, 0.05) 0%,
+    transparent 100%
+  );
   border-radius: 16px 16px 0 0;
 }
 
@@ -122,7 +126,7 @@
   outline: none;
   background: rgba(0, 255, 136, 0.08);
   border-color: #00ff88;
-  box-shadow: 
+  box-shadow:
     0 0 0 4px rgba(0, 255, 136, 0.1),
     0 8px 24px rgba(0, 255, 136, 0.15);
   transform: translateY(-1px);
@@ -228,7 +232,11 @@
 
 .help-item {
   margin-bottom: 16px;
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.03) 0%, rgba(255, 255, 255, 0.02) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 136, 0.03) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
   border: 1px solid rgba(0, 255, 136, 0.1);
   border-radius: 16px;
   overflow: hidden;
@@ -237,7 +245,11 @@
 }
 
 .help-item:hover {
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.08) 0%, rgba(255, 255, 255, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 136, 0.08) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
   border-color: rgba(0, 255, 136, 0.2);
   transform: translateY(-2px);
   box-shadow: 0 8px 32px rgba(0, 255, 136, 0.1);
@@ -314,7 +326,12 @@
   text-align: center;
   color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
-  background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 136, 0.03) 50%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 255, 136, 0.03) 50%,
+    transparent 100%
+  );
   border-radius: 0 0 16px 16px;
 }
 

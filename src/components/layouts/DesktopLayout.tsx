@@ -69,7 +69,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
         {/* キャンバス */}
         <div className="canvas-container">
           <Canvas highlightedGateId={highlightedGateId} />
-          
+
           {/* フローティングアクションボタン（FAB） - キャンバス内に配置 */}
           <div className="canvas-toolbar">
             <button

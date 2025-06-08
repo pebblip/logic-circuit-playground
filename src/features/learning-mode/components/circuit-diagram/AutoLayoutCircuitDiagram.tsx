@@ -1,6 +1,10 @@
 import React, { useMemo } from 'react';
 import { LessonCircuitRenderer } from './LessonCircuitRenderer';
-import { autoLayoutCircuit, snapToGrid, calculateCircuitBounds } from '../../utils/autoLayout';
+import {
+  autoLayoutCircuit,
+  snapToGrid,
+  calculateCircuitBounds,
+} from '../../utils/autoLayout';
 import type { Gate, Wire } from '@/types/circuit';
 
 interface CircuitDefinition {
@@ -22,37 +26,32 @@ interface AutoLayoutCircuitDiagramProps {
 
 /**
  * 自動レイアウト回路図コンポーネント
- * 
+ *
  * 特徴：
  * - 制作モードと同じ描画システム使用
  * - 自動レイアウトで美しい配置
  * - 統一されたゲート形状・ピン配置
  * - 保守性の高いデータ駆動設計
  */
-export const AutoLayoutCircuitDiagram: React.FC<AutoLayoutCircuitDiagramProps> = ({
-  circuit,
-  showTruthTable = false,
-}) => {
+export const AutoLayoutCircuitDiagram: React.FC<
+  AutoLayoutCircuitDiagramProps
+> = ({ circuit, showTruthTable = false }) => {
   // 自動レイアウト適用
   const layoutedCircuit = useMemo(() => {
-    const autoLaidGates = autoLayoutCircuit(
-      circuit.gates,
-      circuit.wires,
-      {
-        padding: 50,
-        gateSpacing: { x: 150, y: 100 },
-        layerWidth: 200,
-        preferredWidth: circuit.layout?.preferredWidth || 700,
-        preferredHeight: circuit.layout?.preferredHeight || 400,
-      }
-    );
-    
+    const autoLaidGates = autoLayoutCircuit(circuit.gates, circuit.wires, {
+      padding: 50,
+      gateSpacing: { x: 150, y: 100 },
+      layerWidth: 200,
+      preferredWidth: circuit.layout?.preferredWidth || 700,
+      preferredHeight: circuit.layout?.preferredHeight || 400,
+    });
+
     // グリッドにスナップして美しく整列
     const snappedGates = snapToGrid(autoLaidGates, 20);
-    
+
     // 境界計算
     const bounds = calculateCircuitBounds(snappedGates);
-    
+
     return {
       title: circuit.title,
       gates: snappedGates,
@@ -76,14 +75,12 @@ export const AutoLayoutCircuitDiagram: React.FC<AutoLayoutCircuitDiagramProps> =
         width={layoutedCircuit.bounds.width}
         height={layoutedCircuit.bounds.height}
       />
-      
+
       {/* 真理値表（オプション） */}
       {showTruthTable && (
-        <div className="truth-table">
-          {/* TODO: 真理値表の自動生成 */}
-        </div>
+        <div className="truth-table">{/* TODO: 真理値表の自動生成 */}</div>
       )}
-      
+
       {/* ピンラベル */}
       {circuit.layout?.inputLabels && (
         <div className="pin-labels input-labels">
@@ -94,7 +91,7 @@ export const AutoLayoutCircuitDiagram: React.FC<AutoLayoutCircuitDiagramProps> =
           ))}
         </div>
       )}
-      
+
       {circuit.layout?.outputLabels && (
         <div className="pin-labels output-labels">
           {circuit.layout.outputLabels.map((label, index) => (

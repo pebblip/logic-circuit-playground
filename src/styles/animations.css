@@ -6,7 +6,8 @@
 /* ========== キーフレーム定義 ========== */
 
 @keyframes pulse-highlight {
-  0%, 100% {
+  0%,
+  100% {
     filter: drop-shadow(0 0 12px var(--color-warning));
   }
   50% {
@@ -61,7 +62,8 @@
 }
 
 @keyframes glow-pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 5px var(--color-primary);
   }
   50% {

@@ -237,7 +237,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
   }
@@ -269,7 +270,11 @@
 }
 
 .first-time-button {
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 170, 255, 0.15) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 136, 0.15) 0%,
+    rgba(0, 170, 255, 0.15) 100%
+  );
   border: 2px solid rgba(0, 255, 136, 0.4);
   border-radius: 16px;
   padding: 24px 32px;
@@ -283,7 +288,11 @@
 }
 
 .first-time-button:hover {
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.25) 0%, rgba(0, 170, 255, 0.25) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 136, 0.25) 0%,
+    rgba(0, 170, 255, 0.25) 100%
+  );
   border-color: rgba(0, 255, 136, 0.6);
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(0, 255, 136, 0.3);

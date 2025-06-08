@@ -5,8 +5,7 @@ export const notGateStructuredLesson: StructuredLesson = {
   id: 'not-gate',
   title: `${TERMS.NOT}ゲート - 反転の魔法！`,
   description: '入力を反転させる最もシンプルで重要なゲートを学びます',
-  objective:
-    `${TERMS.NOT}ゲートの動作原理を理解し、「反転」の概念を習得。デジタル回路における0と1の切り替えの重要性を学びます`,
+  objective: `${TERMS.NOT}ゲートの動作原理を理解し、「反転」の概念を習得。デジタル回路における0と1の切り替えの重要性を学びます`,
   difficulty: 'beginner',
   prerequisites: ['digital-basics'],
   estimatedMinutes: 10,
@@ -28,8 +27,8 @@ export const notGateStructuredLesson: StructuredLesson = {
             { text: TERMS.LOW, bold: true },
             'に変える、とてもシンプルだけど超重要な',
             { text: TERMS.GATE, bold: true },
-            'です！'
-          ]
+            'です！',
+          ],
         },
         {
           type: 'heading',
@@ -47,7 +46,7 @@ export const notGateStructuredLesson: StructuredLesson = {
         },
         {
           type: 'note',
-          text: `💡 ${TERMS.NOT}ゲートの別名：「反転ゲート」（入力を逆にするから）`
+          text: `💡 ${TERMS.NOT}ゲートの別名：「反転ゲート」（入力を逆にするから）`,
         },
       ],
     },
@@ -60,9 +59,9 @@ export const notGateStructuredLesson: StructuredLesson = {
           type: 'rich-text',
           elements: [
             { text: TERMS.NOT, gate: true },
-            'ゲートが中心的な役割を果たします。'
-          ]
-        }
+            'ゲートが中心的な役割を果たします。',
+          ],
+        },
       ],
       action: { type: 'place-gate', gateType: 'NOT' },
     },
@@ -81,7 +80,7 @@ export const notGateStructuredLesson: StructuredLesson = {
         {
           type: 'note',
           text: `🔗 配線のポイント：${TERMS.INPUT}の${TERMS.OUTPUT_PIN}（${TERMS.RIGHT_CIRCLE}）を${TERMS.NOT}ゲートの${TERMS.INPUT_PIN}（${TERMS.LEFT_CIRCLE}）に${TERMS.CONNECT}します。`,
-        }
+        },
       ],
       action: { type: 'connect-wire' },
     },
@@ -90,14 +89,14 @@ export const notGateStructuredLesson: StructuredLesson = {
       instruction: '完成形を確認しよう！',
       content: [
         {
-          type: 'circuit-diagram-v2',
+          type: 'circuit-diagram',
           circuitId: 'not-gate',
           showTruthTable: false,
         },
         {
           type: 'note',
-          text: '✅ 入力 → NOTゲート → 出力 の順につながっています'
-        }
+          text: '✅ 入力 → NOTゲート → 出力 の順につながっています',
+        },
       ],
     },
     {
@@ -106,24 +105,24 @@ export const notGateStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🤔 考えてみよう'
+          text: '🤔 考えてみよう',
         },
         {
           type: 'text',
-          text: '「反転の魔法」という名前から、どんな動作をすると思いますか？'
+          text: '「反転の魔法」という名前から、どんな動作をすると思いますか？',
         },
         {
           type: 'rich-text',
           elements: [
             { text: '💭 ヒント：', bold: true },
-            '日常生活で「反転」といえば、ON→OFF、OFF→ONのように...'
-          ]
+            '日常生活で「反転」といえば、ON→OFF、OFF→ONのように...',
+          ],
         },
         {
           type: 'note',
-          text: '予測：入力が0なら1に、1なら0になるはず...'
-        }
-      ]
+          text: '予測：入力が0なら1に、1なら0になるはず...',
+        },
+      ],
     },
     {
       id: 'experiment-and-observation',
@@ -135,26 +134,26 @@ export const notGateStructuredLesson: StructuredLesson = {
             { text: '💡 操作方法：', bold: true },
             `${TERMS.INPUT}を`,
             { text: TERMS.DOUBLE_CLICK, emphasis: true },
-            `して動作を確認してください。`
-          ]
+            `して動作を確認してください。`,
+          ],
         },
         {
           type: 'heading',
-          text: `📊 ${TERMS.TRUTH_TABLE}（実験結果）`
+          text: `📊 ${TERMS.TRUTH_TABLE}（実験結果）`,
         },
         {
           type: 'rich-text',
           elements: [
             { text: TERMS.TRUTH_TABLE, emphasis: true },
-            `とは、${TERMS.INPUT}と${TERMS.OUTPUT}の関係を示す表です。`
-          ]
+            `とは、${TERMS.INPUT}と${TERMS.OUTPUT}の関係を示す表です。`,
+          ],
         },
         {
           type: 'table',
           headers: [`${TERMS.INPUT}`, `${TERMS.OUTPUT}`],
           rows: [
             [`${TERMS.LOW}（${TERMS.OFF}）`, `${TERMS.HIGH}（${TERMS.ON}）`],
-            [`${TERMS.HIGH}（${TERMS.ON}）`, `${TERMS.LOW}（${TERMS.OFF}）`]
+            [`${TERMS.HIGH}（${TERMS.ON}）`, `${TERMS.LOW}（${TERMS.OFF}）`],
           ],
         },
         {
@@ -164,15 +163,15 @@ export const notGateStructuredLesson: StructuredLesson = {
             { text: TERMS.NOT, gate: true },
             'ゲートは入力を',
             { text: '完全に反転', bold: true },
-            'させます！'
-          ]
+            'させます！',
+          ],
         },
         {
           type: 'rich-text',
           elements: [
             { text: '📊 特徴：', bold: true },
-            '常に入力と逆の値を出力（100%反転）'  
-          ]
+            '常に入力と逆の値を出力（100%反転）',
+          ],
         },
       ],
       action: { type: 'toggle-input' },

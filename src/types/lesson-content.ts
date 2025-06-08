@@ -14,7 +14,7 @@ export type ContentType =
   | 'note'
   | 'ascii-art'
   | 'diagram'
-  | 'circuit-diagram-v2'
+  | 'circuit-diagram'
   | 'digital-signal'
   | 'voltage-signal'
   | 'bit-pattern'
@@ -114,19 +114,24 @@ export interface AsciiArtContent extends BaseContent {
 // 図表コンテンツ（ASCIIアートの代替）
 export interface DiagramContent extends BaseContent {
   type: 'diagram';
-  diagramType: 'simple-connection' | 'gate-symbol' | 'truth-table-visual' | 'signal-flow' | 'custom';
+  diagramType:
+    | 'simple-connection'
+    | 'gate-symbol'
+    | 'truth-table-visual'
+    | 'signal-flow'
+    | 'custom';
   title?: string;
   caption?: string;
-  gateType?: string;  // gate-symbolの場合
-  data?: any[][];     // truth-table-visualの場合
-  signals?: any[];    // signal-flowの場合
+  gateType?: string; // gate-symbolの場合
+  data?: any[][]; // truth-table-visualの場合
+  signals?: any[]; // signal-flowの場合
   customSvg?: string; // customの場合のSVGコード
   className?: string;
 }
 
-// 新しい回路図コンテンツ（制作モード描画システム使用）
-export interface CircuitDiagramV2Content extends BaseContent {
-  type: 'circuit-diagram-v2';
+// 回路図コンテンツ（制作モード描画システム使用）
+export interface CircuitDiagramContent extends BaseContent {
+  type: 'circuit-diagram';
   circuitId: string;
   description?: string;
   showTruthTable?: boolean;
@@ -153,19 +158,22 @@ export interface BitPatternContent extends BaseContent {
 // リッチテキストコンテンツ（強調表示付きテキスト）
 export interface RichTextContent extends BaseContent {
   type: 'rich-text';
-  elements: (string | {
-    text: string;
-    bold?: boolean;      // 太字
-    gate?: boolean;      // ゲート名（色付き）
-    emphasis?: boolean;  // 強調（背景色付き）
-  })[];
+  elements: (
+    | string
+    | {
+        text: string;
+        bold?: boolean; // 太字
+        gate?: boolean; // ゲート名（色付き）
+        emphasis?: boolean; // 強調（背景色付き）
+      }
+  )[];
 }
 
 // SVG図形コンテンツ
 export interface SvgDiagramContent extends BaseContent {
   type: 'svg-diagram';
   diagramType: 'series-circuit' | 'parallel-circuit' | 'custom';
-  customSvg?: string;  // カスタムSVGの場合
+  customSvg?: string; // カスタムSVGの場合
   width?: number;
   height?: number;
 }
@@ -184,7 +192,7 @@ export type Content =
   | NoteContent
   | AsciiArtContent
   | DiagramContent
-  | CircuitDiagramV2Content
+  | CircuitDiagramContent
   | DigitalSignalContent
   | VoltageSignalContent
   | BitPatternContent

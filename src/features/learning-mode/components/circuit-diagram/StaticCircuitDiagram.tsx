@@ -5,9 +5,10 @@ import { GateType } from '../../../../types';
 const GATE_WIDTH = 70;
 const GATE_HEIGHT = 50;
 const PIN_RADIUS = 6;
-const PIN_CLICK_RADIUS = 15;
+const PIN_OFFSET = 10; // ピンの線の長さ
 
 interface GateConfig {
+  id?: string;
   type: GateType;
   x: number;
   y: number;
@@ -24,6 +25,7 @@ interface WireConfig {
   to: { x: number; y: number };
   active?: boolean;
   label?: string;
+  type?: 'straight' | 'orthogonal' | 'bezier'; // 配線タイプ
 }
 
 interface CircuitDiagramConfig {
@@ -33,23 +35,67 @@ interface CircuitDiagramConfig {
   height?: number;
   showGrid?: boolean;
   title?: string;
+  defaultWireType?: 'straight' | 'orthogonal' | 'bezier';
 }
 
-// 基本ゲートのレンダリング（既存のBasicGateRendererのロジックを活用）
+// ゲートのピン位置を正確に計算する関数
+function getGatePinPosition(
+  gate: GateConfig,
+  pinType: 'input' | 'output',
+  index: number = 0
+): { x: number; y: number } {
+  const { type, x, y } = gate;
+
+  // INPUT（スイッチ）
+  if (type === 'INPUT') {
+    return { x: x + 25 + PIN_OFFSET, y: y };
+  }
+
+  // OUTPUT（LED）
+  if (type === 'OUTPUT') {
+    return { x: x - 20 - PIN_OFFSET, y: y };
+  }
+
+  // 基本ゲート
+  if (pinType === 'output') {
+    return { x: x + GATE_WIDTH / 2 + PIN_OFFSET, y: y };
+  } else {
+    // 入力ピン
+    const isNotGate = type === 'NOT';
+    if (isNotGate) {
+      return { x: x - GATE_WIDTH / 2 - PIN_OFFSET, y: y };
+    } else {
+      // 2入力ゲート
+      const yOffset = index === 0 ? -15 : 15;
+      return { x: x - GATE_WIDTH / 2 - PIN_OFFSET, y: y + yOffset };
+    }
+  }
+}
+
+// 基本ゲートのレンダリング
 const renderBasicGate = (config: GateConfig) => {
-  const { type, x, y, inputs = [], output = false, label, inputLabels, outputLabel } = config;
+  const {
+    type,
+    x,
+    y,
+    inputs = [],
+    output = false,
+    label,
+    inputLabels,
+    outputLabel,
+  } = config;
   const gateLabel = label || type;
-  
+
   // ゲートタイプ別の特殊処理
   const isNotGate = type === 'NOT';
   const inputCount = isNotGate ? 1 : 2;
-  
+
   return (
     <g transform={`translate(${x}, ${y})`}>
       {/* ゲート本体 */}
       <rect
-        x={-GATE_WIDTH/2}
-        y={-GATE_HEIGHT/2}
+        x={-GATE_WIDTH / 2}
+        y={-GATE_HEIGHT / 2}
         width={GATE_WIDTH}
         height={GATE_HEIGHT}
         rx={8}
@@ -58,7 +104,7 @@ const renderBasicGate = (config: GateConfig) => {
         strokeWidth={2}
         className="gate"
       />
-      
+
       {/* ゲート名 */}
       <text
         x={0}
@@ -72,19 +118,19 @@ const renderBasicGate = (config: GateConfig) => {
       >
         {gateLabel}
       </text>
-      
+
       {/* 入力ピン */}
       {Array.from({ length: inputCount }).map((_, i) => {
-        const yOffset = isNotGate ? 0 : (i === 0 ? -15 : 15);
+        const yOffset = isNotGate ? 0 : i === 0 ? -15 : 15;
         const isActive = inputs[i] || false;
-        
+
         return (
           <g key={`input-${i}`}>
             {/* ピンの線 */}
             <line
-              x1={-GATE_WIDTH/2 - 10}
+              x1={-GATE_WIDTH / 2 - PIN_OFFSET}
               y1={yOffset}
-              x2={-GATE_WIDTH/2}
+              x2={-GATE_WIDTH / 2}
               y2={yOffset}
               stroke={isActive ? '#00ff88' : '#666'}
               strokeWidth={2}
@@ -92,7 +138,7 @@ const renderBasicGate = (config: GateConfig) => {
             />
             {/* ピン */}
             <circle
-              cx={-GATE_WIDTH/2 - 10}
+              cx={-GATE_WIDTH / 2 - PIN_OFFSET}
               cy={yOffset}
               r={PIN_RADIUS}
               fill={isActive ? '#00ff88' : '#666'}
@@ -101,7 +147,7 @@ const renderBasicGate = (config: GateConfig) => {
             {/* ピンラベル */}
             {inputLabels && inputLabels[i] && (
               <text
-                x={-GATE_WIDTH/2 - 25}
+                x={-GATE_WIDTH / 2 - PIN_OFFSET - 15}
                 y={yOffset}
                 textAnchor="end"
                 dominantBaseline="middle"
@@ -114,20 +160,20 @@ const renderBasicGate = (config: GateConfig) => {
           </g>
         );
       })}
-      
+
       {/* 出力ピン */}
       <g>
         <line
-          x1={GATE_WIDTH/2}
+          x1={GATE_WIDTH / 2}
           y1={0}
-          x2={GATE_WIDTH/2 + 10}
+          x2={GATE_WIDTH / 2 + PIN_OFFSET}
           y2={0}
           stroke={output ? '#00ff88' : '#666'}
           strokeWidth={2}
           className={`pin-line ${output ? 'active' : ''}`}
         />
         <circle
-          cx={GATE_WIDTH/2 + 10}
+          cx={GATE_WIDTH / 2 + PIN_OFFSET}
           cy={0}
           r={PIN_RADIUS}
           fill={output ? '#00ff88' : '#666'}
@@ -135,7 +181,7 @@ const renderBasicGate = (config: GateConfig) => {
         />
         {outputLabel && (
           <text
-            x={GATE_WIDTH/2 + 25}
+            x={GATE_WIDTH / 2 + PIN_OFFSET + 15}
             y={0}
             textAnchor="start"
             dominantBaseline="middle"
@@ -146,11 +192,11 @@ const renderBasicGate = (config: GateConfig) => {
           </text>
         )}
       </g>
-      
+
       {/* NOTゲートの場合は反転記号を追加 */}
       {isNotGate && (
         <circle
-          cx={GATE_WIDTH/2}
+          cx={GATE_WIDTH / 2}
           cy={0}
           r={4}
           fill="none"
@@ -165,7 +211,7 @@ const renderBasicGate = (config: GateConfig) => {
 // INPUT/OUTPUTゲートのレンダリング
 const renderIOGate = (config: GateConfig) => {
   const { type, x, y, output = false, label } = config;
-  
+
   if (type === 'INPUT') {
     return (
       <g transform={`translate(${x}, ${y})`}>
@@ -181,21 +227,10 @@ const renderIOGate = (config: GateConfig) => {
           strokeWidth={2}
         />
         {/* スイッチサム */}
-        <circle
-          cx={output ? 10 : -10}
-          cy={0}
-          r={12}
-          fill="#e0e0e0"
-        />
+        <circle cx={output ? 10 : -10} cy={0} r={12} fill="#e0e0e0" />
         {/* ラベル */}
         {label && (
-          <text
-            x={0}
-            y={-25}
-            textAnchor="middle"
-            fill="#888"
-            fontSize={12}
-          >
+          <text x={0} y={-25} textAnchor="middle" fill="#888" fontSize={12}>
             {label}
           </text>
         )}
@@ -203,13 +238,13 @@ const renderIOGate = (config: GateConfig) => {
         <line
           x1={25}
           y1={0}
-          x2={35}
+          x2={25 + PIN_OFFSET}
           y2={0}
           stroke={output ? '#00ff88' : '#666'}
           strokeWidth={2}
         />
         <circle
-          cx={35}
+          cx={25 + PIN_OFFSET}
           cy={0}
           r={PIN_RADIUS}
           fill={output ? '#00ff88' : '#666'}
@@ -217,7 +252,7 @@ const renderIOGate = (config: GateConfig) => {
       </g>
     );
   }
-  
+
   if (type === 'OUTPUT') {
     return (
       <g transform={`translate(${x}, ${y})`}>
@@ -231,12 +266,7 @@ const renderIOGate = (config: GateConfig) => {
           strokeWidth={2}
         />
         {/* LED内部 */}
-        <circle
-          cx={0}
-          cy={0}
-          r={15}
-          fill={output ? '#00ff88' : '#333'}
-        />
+        <circle cx={0} cy={0} r={15} fill={output ? '#00ff88' : '#333'} />
         {/* アイコン */}
         <text
           x={0}
@@ -249,19 +279,13 @@ const renderIOGate = (config: GateConfig) => {
         </text>
         {/* ラベル */}
         {label && (
-          <text
-            x={0}
-            y={35}
-            textAnchor="middle"
-            fill="#888"
-            fontSize={12}
-          >
+          <text x={0} y={35} textAnchor="middle" fill="#888" fontSize={12}>
             {label}
           </text>
         )}
         {/* 入力ピン */}
         <line
-          x1={-35}
+          x1={-20 - PIN_OFFSET}
           y1={0}
           x2={-20}
           y2={0}
@@ -269,7 +293,7 @@ const renderIOGate = (config: GateConfig) => {
           strokeWidth={2}
         />
         <circle
-          cx={-35}
+          cx={-20 - PIN_OFFSET}
           cy={0}
           r={PIN_RADIUS}
           fill={output ? '#00ff88' : '#666'}
@@ -277,18 +301,48 @@ const renderIOGate = (config: GateConfig) => {
       </g>
     );
   }
-  
+
   return null;
 };
 
-// ワイヤーのレンダリング
-const renderWire = (wire: WireConfig) => {
-  const { from, to, active = false, label } = wire;
-  
-  // 曲線パスの計算（ベジェ曲線）
-  const midX = (from.x + to.x) / 2;
-  const path = `M ${from.x} ${from.y} Q ${midX} ${from.y} ${midX} ${(from.y + to.y) / 2} T ${to.x} ${to.y}`;
-  
+// ワイヤーのレンダリング（改善版）
+const renderWire = (
+  wire: WireConfig,
+  defaultType: 'straight' | 'orthogonal' | 'bezier' = 'straight'
+) => {
+  const { from, to, active = false, label, type = defaultType } = wire;
+
+  let path: string;
+
+  switch (type) {
+    case 'straight':
+      // 直線
+      path = `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
+      break;
+
+    case 'orthogonal':
+      // L字型（90度の折れ線）
+      if (Math.abs(to.x - from.x) > Math.abs(to.y - from.y)) {
+        // 水平方向優先
+        const midX = from.x + (to.x - from.x) * 0.7;
+        path = `M ${from.x} ${from.y} L ${midX} ${from.y} L ${midX} ${to.y} L ${to.x} ${to.y}`;
+      } else {
+        // 垂直方向優先
+        const midY = from.y + (to.y - from.y) * 0.7;
+        path = `M ${from.x} ${from.y} L ${from.x} ${midY} L ${to.x} ${midY} L ${to.x} ${to.y}`;
+      }
+      break;
+
+    case 'bezier':
+      // ベジェ曲線（既存の実装）
+      const midX = (from.x + to.x) / 2;
+      path = `M ${from.x} ${from.y} Q ${midX} ${from.y} ${midX} ${(from.y + to.y) / 2} T ${to.x} ${to.y}`;
+      break;
+
+    default:
+      path = `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
+  }
+
   return (
     <g>
       <path
@@ -310,7 +364,7 @@ const renderWire = (wire: WireConfig) => {
       )}
       {label && (
         <text
-          x={midX}
+          x={(from.x + to.x) / 2}
           y={(from.y + to.y) / 2 - 10}
           textAnchor="middle"
           fill="#888"
@@ -323,67 +377,80 @@ const renderWire = (wire: WireConfig) => {
   );
 };
 
-export const StaticCircuitDiagram: React.FC<CircuitDiagramConfig> = ({
+export const StaticCircuitDiagramV2: React.FC<CircuitDiagramConfig> = ({
   gates,
   wires,
   width = 600,
   height = 300,
   showGrid = false,
-  title
+  title,
+  defaultWireType = 'straight',
 }) => {
   return (
     <div className="static-circuit-diagram">
       {title && (
-        <h4 style={{ textAlign: 'center', marginBottom: '10px', color: '#00ff88' }}>
+        <h4
+          style={{
+            textAlign: 'center',
+            marginBottom: '10px',
+            color: '#00ff88',
+          }}
+        >
           {title}
         </h4>
       )}
-      <svg 
+      <svg
         viewBox={`0 0 ${width} ${height}`}
         width="100%"
         height="100%"
-        style={{ 
+        style={{
           maxWidth: `${width}px`,
           backgroundColor: '#1a1a1a',
           border: '2px solid #333',
-          borderRadius: '8px'
+          borderRadius: '8px',
         }}
       >
         {/* グリッド（オプション） */}
         {showGrid && (
           <>
             <defs>
-              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#333" strokeWidth="0.5"/>
+              <pattern
+                id="grid"
+                width="20"
+                height="20"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 20 0 L 0 0 0 20"
+                  fill="none"
+                  stroke="#333"
+                  strokeWidth="0.5"
+                />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" opacity={0.3} />
           </>
         )}
-        
+
         {/* ワイヤーを先に描画（ゲートの下に表示） */}
         {wires.map((wire, index) => (
           <React.Fragment key={`wire-${index}`}>
-            {renderWire(wire)}
+            {renderWire(wire, defaultWireType)}
           </React.Fragment>
         ))}
-        
+
         {/* ゲートを描画 */}
         {gates.map((gate, index) => {
-          const key = `gate-${index}`;
-          
+          const key = gate.id || `gate-${index}`;
+
           if (['INPUT', 'OUTPUT'].includes(gate.type)) {
             return (
-              <React.Fragment key={key}>
-                {renderIOGate(gate)}
-              </React.Fragment>
+              <React.Fragment key={key}>{renderIOGate(gate)}</React.Fragment>
             );
           }
-          
+
           return (
-            <React.Fragment key={key}>
-              {renderBasicGate(gate)}
-            </React.Fragment>
+            <React.Fragment key={key}>{renderBasicGate(gate)}</React.Fragment>
           );
         })}
       </svg>
@@ -391,46 +458,282 @@ export const StaticCircuitDiagram: React.FC<CircuitDiagramConfig> = ({
   );
 };
 
-// 便利な定義済み回路図
-export const predefinedCircuits = {
+// 改善された定義済み回路図（座標を自動計算）
+export const predefinedCircuitsV2 = {
   // ANDゲートの基本回路
   andGateBasic: {
     gates: [
-      { type: 'INPUT' as GateType, x: 100, y: 100, output: true, label: 'A' },
-      { type: 'INPUT' as GateType, x: 100, y: 200, output: true, label: 'B' },
-      { type: 'AND' as GateType, x: 300, y: 150, inputs: [true, true], output: true },
-      { type: 'OUTPUT' as GateType, x: 500, y: 150, output: true, label: 'Y' }
+      {
+        id: 'inputA',
+        type: 'INPUT' as GateType,
+        x: 100,
+        y: 100,
+        output: true,
+        label: 'A',
+      },
+      {
+        id: 'inputB',
+        type: 'INPUT' as GateType,
+        x: 100,
+        y: 200,
+        output: true,
+        label: 'B',
+      },
+      {
+        id: 'andGate',
+        type: 'AND' as GateType,
+        x: 300,
+        y: 150,
+        inputs: [true, true],
+        output: true,
+      },
+      {
+        id: 'output',
+        type: 'OUTPUT' as GateType,
+        x: 500,
+        y: 150,
+        output: true,
+        label: 'Y',
+      },
     ],
     wires: [
-      { from: { x: 135, y: 100 }, to: { x: 265, y: 135 }, active: true },
-      { from: { x: 135, y: 200 }, to: { x: 265, y: 165 }, active: true },
-      { from: { x: 335, y: 150 }, to: { x: 465, y: 150 }, active: true }
-    ]
+      {
+        from: getGatePinPosition(
+          { type: 'INPUT' as GateType, x: 100, y: 100 },
+          'output'
+        ),
+        to: getGatePinPosition(
+          { type: 'AND' as GateType, x: 300, y: 150 },
+          'input',
+          0
+        ),
+        active: true,
+        type: 'orthogonal' as const,
+      },
+      {
+        from: getGatePinPosition(
+          { type: 'INPUT' as GateType, x: 100, y: 200 },
+          'output'
+        ),
+        to: getGatePinPosition(
+          { type: 'AND' as GateType, x: 300, y: 150 },
+          'input',
+          1
+        ),
+        active: true,
+        type: 'orthogonal' as const,
+      },
+      {
+        from: getGatePinPosition(
+          { type: 'AND' as GateType, x: 300, y: 150 },
+          'output'
+        ),
+        to: getGatePinPosition(
+          { type: 'OUTPUT' as GateType, x: 500, y: 150 },
+          'input'
+        ),
+        active: true,
+        type: 'straight' as const,
+      },
+    ],
   },
-  
+
   // 半加算器
   halfAdder: {
     gates: [
-      { type: 'INPUT' as GateType, x: 100, y: 100, output: true, label: 'A' },
-      { type: 'INPUT' as GateType, x: 100, y: 200, output: true, label: 'B' },
-      { type: 'XOR' as GateType, x: 300, y: 100, inputs: [true, true], output: false, label: 'XOR' },
-      { type: 'AND' as GateType, x: 300, y: 200, inputs: [true, true], output: true, label: 'AND' },
-      { type: 'OUTPUT' as GateType, x: 500, y: 100, output: false, label: 'Sum' },
-      { type: 'OUTPUT' as GateType, x: 500, y: 200, output: true, label: 'Carry' }
+      {
+        id: 'inputA',
+        type: 'INPUT' as GateType,
+        x: 100,
+        y: 150,
+        output: true,
+        label: 'A',
+      },
+      {
+        id: 'inputB',
+        type: 'INPUT' as GateType,
+        x: 100,
+        y: 250,
+        output: true,
+        label: 'B',
+      },
+      {
+        id: 'xorGate',
+        type: 'XOR' as GateType,
+        x: 300,
+        y: 120,
+        inputs: [true, true],
+        output: false,
+        label: 'XOR',
+      },
+      {
+        id: 'andGate',
+        type: 'AND' as GateType,
+        x: 300,
+        y: 280,
+        inputs: [true, true],
+        output: true,
+        label: 'AND',
+      },
+      {
+        id: 'sumOut',
+        type: 'OUTPUT' as GateType,
+        x: 500,
+        y: 120,
+        output: false,
+        label: 'Sum',
+      },
+      {
+        id: 'carryOut',
+        type: 'OUTPUT' as GateType,
+        x: 500,
+        y: 280,
+        output: true,
+        label: 'Carry',
+      },
     ],
     wires: [
       // A to XOR
-      { from: { x: 135, y: 100 }, to: { x: 265, y: 85 }, active: true },
+      {
+        from: getGatePinPosition(
+          { type: 'INPUT' as GateType, x: 100, y: 150 },
+          'output'
+        ),
+        to: getGatePinPosition(
+          { type: 'XOR' as GateType, x: 300, y: 120 },
+          'input',
+          0
+        ),
+        active: true,
+        type: 'orthogonal' as const,
+      },
       // B to XOR
-      { from: { x: 135, y: 200 }, to: { x: 265, y: 115 }, active: true },
+      {
+        from: getGatePinPosition(
+          { type: 'INPUT' as GateType, x: 100, y: 250 },
+          'output'
+        ),
+        to: getGatePinPosition(
+          { type: 'XOR' as GateType, x: 300, y: 120 },
+          'input',
+          1
+        ),
+        active: true,
+        type: 'orthogonal' as const,
+      },
       // A to AND
-      { from: { x: 135, y: 100 }, to: { x: 265, y: 185 }, active: true },
+      {
+        from: getGatePinPosition(
+          { type: 'INPUT' as GateType, x: 100, y: 150 },
+          'output'
+        ),
+        to: getGatePinPosition(
+          { type: 'AND' as GateType, x: 300, y: 280 },
+          'input',
+          0
+        ),
+        active: true,
+        type: 'orthogonal' as const,
+      },
       // B to AND
-      { from: { x: 135, y: 200 }, to: { x: 265, y: 215 }, active: true },
+      {
+        from: getGatePinPosition(
+          { type: 'INPUT' as GateType, x: 100, y: 250 },
+          'output'
+        ),
+        to: getGatePinPosition(
+          { type: 'AND' as GateType, x: 300, y: 280 },
+          'input',
+          1
+        ),
+        active: true,
+        type: 'orthogonal' as const,
+      },
       // XOR to Sum
-      { from: { x: 335, y: 100 }, to: { x: 465, y: 100 }, active: false },
+      {
+        from: getGatePinPosition(
+          { type: 'XOR' as GateType, x: 300, y: 120 },
+          'output'
+        ),
+        to: getGatePinPosition(
+          { type: 'OUTPUT' as GateType, x: 500, y: 120 },
+          'input'
+        ),
+        active: false,
+        type: 'straight' as const,
+      },
       // AND to Carry
-      { from: { x: 335, y: 200 }, to: { x: 465, y: 200 }, active: true }
-    ]
-  }
+      {
+        from: getGatePinPosition(
+          { type: 'AND' as GateType, x: 300, y: 280 },
+          'output'
+        ),
+        to: getGatePinPosition(
+          { type: 'OUTPUT' as GateType, x: 500, y: 280 },
+          'input'
+        ),
+        active: true,
+        type: 'straight' as const,
+      },
+    ],
+  },
+
+  // NOTゲート
+  notGate: {
+    gates: [
+      {
+        id: 'input',
+        type: 'INPUT' as GateType,
+        x: 150,
+        y: 150,
+        output: true,
+        label: 'A',
+      },
+      {
+        id: 'notGate',
+        type: 'NOT' as GateType,
+        x: 300,
+        y: 150,
+        inputs: [true],
+        output: false,
+      },
+      {
+        id: 'output',
+        type: 'OUTPUT' as GateType,
+        x: 450,
+        y: 150,
+        output: false,
+        label: 'Y',
+      },
+    ],
+    wires: [
+      {
+        from: getGatePinPosition(
+          { type: 'INPUT' as GateType, x: 150, y: 150 },
+          'output'
+        ),
+        to: getGatePinPosition(
+          { type: 'NOT' as GateType, x: 300, y: 150 },
+          'input'
+        ),
+        active: true,
+        type: 'straight' as const,
+      },
+      {
+        from: getGatePinPosition(
+          { type: 'NOT' as GateType, x: 300, y: 150 },
+          'output'
+        ),
+        to: getGatePinPosition(
+          { type: 'OUTPUT' as GateType, x: 450, y: 150 },
+          'input'
+        ),
+        active: false,
+        type: 'straight' as const,
+      },
+    ],
+  },
 };
+
+// エクスポート
+export { getGatePinPosition };

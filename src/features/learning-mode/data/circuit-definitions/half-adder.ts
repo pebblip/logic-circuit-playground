@@ -17,7 +17,7 @@ export const halfAdderCircuit = {
       output: true,
       metadata: { name: 'A' },
     },
-    // 入力B  
+    // 入力B
     {
       id: 'input-b',
       type: 'INPUT' as const,
@@ -36,7 +36,7 @@ export const halfAdderCircuit = {
     },
     // ANDゲート（Carry用）
     {
-      id: 'and-gate', 
+      id: 'and-gate',
       type: 'AND' as const,
       position: { x: 350, y: 280 },
       inputs: [],
@@ -53,13 +53,13 @@ export const halfAdderCircuit = {
     // 出力Carry
     {
       id: 'output-carry',
-      type: 'OUTPUT' as const, 
+      type: 'OUTPUT' as const,
       position: { x: 550, y: 280 },
       inputs: [],
       metadata: { name: 'Carry' },
     },
   ] as Gate[],
-  
+
   wires: [
     // A → XOR
     {
@@ -68,7 +68,7 @@ export const halfAdderCircuit = {
       to: { gateId: 'xor-gate', pinIndex: 0 },
       isActive: false,
     },
-    // B → XOR  
+    // B → XOR
     {
       id: IdGenerator.generateWireId(),
       from: { gateId: 'input-b', pinIndex: -1 },
@@ -104,7 +104,7 @@ export const halfAdderCircuit = {
       isActive: false,
     },
   ] as Wire[],
-  
+
   layout: {
     width: 700,
     height: 400,

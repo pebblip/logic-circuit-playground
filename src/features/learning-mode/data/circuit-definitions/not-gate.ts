@@ -34,7 +34,7 @@ export const notGateCircuit = {
       metadata: { name: '出力' },
     },
   ] as Gate[],
-  
+
   wires: [
     // INPUT → NOT
     {
@@ -51,7 +51,7 @@ export const notGateCircuit = {
       isActive: false,
     },
   ] as Wire[],
-  
+
   layout: {
     width: 600,
     height: 300,
@@ -94,7 +94,7 @@ export const notGateTransistorCircuit = {
       metadata: { name: '出力' },
     },
   ] as Gate[],
-  
+
   wires: [
     // INPUT → NOT
     {
@@ -111,7 +111,7 @@ export const notGateTransistorCircuit = {
       isActive: false,
     },
   ] as Wire[],
-  
+
   layout: {
     width: 700,
     height: 400,

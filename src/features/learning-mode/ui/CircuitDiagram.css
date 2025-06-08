@@ -22,9 +22,11 @@
   justify-content: center;
   align-items: center;
   min-height: 120px;
-  background: linear-gradient(45deg, 
-    rgba(0, 255, 136, 0.01) 0%, 
-    rgba(0, 255, 136, 0.02) 100%);
+  background: linear-gradient(
+    45deg,
+    rgba(0, 255, 136, 0.01) 0%,
+    rgba(0, 255, 136, 0.02) 100%
+  );
 }
 
 .circuit-diagram {
@@ -86,9 +88,15 @@
 
 /* アニメーション */
 @keyframes pulse {
-  0% { opacity: 0.8; }
-  50% { opacity: 1; }
-  100% { opacity: 0.8; }
+  0% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.8;
+  }
 }
 
 .circuit-diagram .signal-active {
@@ -101,11 +109,11 @@
     padding: 1rem;
     min-height: 80px;
   }
-  
+
   .truth-table {
     font-size: 0.75rem;
   }
-  
+
   .truth-table th,
   .truth-table td {
     padding: 0.375rem 0.5rem;

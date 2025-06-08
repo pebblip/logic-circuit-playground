@@ -29,3 +29,6 @@ dist-ssr
 .env.production.local
 .env.development.local
 *storybook.log
+
+# Private development notes
+CLAUDE.local.md

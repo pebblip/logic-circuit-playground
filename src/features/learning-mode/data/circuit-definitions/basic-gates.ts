@@ -45,7 +45,7 @@ export const andGateCircuit = {
       metadata: { name: 'Y' },
     },
   ] as Gate[],
-  
+
   wires: [
     // A → AND
     {
@@ -69,7 +69,7 @@ export const andGateCircuit = {
       isActive: false,
     },
   ] as Wire[],
-  
+
   layout: {
     width: 600,
     height: 300,
@@ -117,7 +117,7 @@ export const orGateCircuit = {
       metadata: { name: 'Y' },
     },
   ] as Gate[],
-  
+
   wires: [
     // A → OR
     {
@@ -141,7 +141,7 @@ export const orGateCircuit = {
       isActive: false,
     },
   ] as Wire[],
-  
+
   layout: {
     width: 600,
     height: 300,
@@ -189,7 +189,7 @@ export const xorGateCircuit = {
       metadata: { name: 'Y' },
     },
   ] as Gate[],
-  
+
   wires: [
     // A → XOR
     {
@@ -213,7 +213,7 @@ export const xorGateCircuit = {
       isActive: false,
     },
   ] as Wire[],
-  
+
   layout: {
     width: 600,
     height: 300,
@@ -244,7 +244,7 @@ export const simpleConnectionCircuit = {
       metadata: { name: '出力' },
     },
   ] as Gate[],
-  
+
   wires: [
     // INPUT → OUTPUT
     {
@@ -254,7 +254,7 @@ export const simpleConnectionCircuit = {
       isActive: false,
     },
   ] as Wire[],
-  
+
   layout: {
     width: 500,
     height: 300,
@@ -301,7 +301,7 @@ export const doubleNotCircuit = {
       metadata: { name: '出力' },
     },
   ] as Gate[],
-  
+
   wires: [
     // INPUT → NOT1
     {
@@ -325,7 +325,7 @@ export const doubleNotCircuit = {
       isActive: false,
     },
   ] as Wire[],
-  
+
   layout: {
     width: 650,
     height: 300,
@@ -356,7 +356,7 @@ export const signalOffStateCircuit = {
       metadata: { name: '出力' },
     },
   ] as Gate[],
-  
+
   wires: [
     // INPUT → OUTPUT（グレーの配線）
     {
@@ -366,7 +366,7 @@ export const signalOffStateCircuit = {
       isActive: false, // グレーの配線
     },
   ] as Wire[],
-  
+
   layout: {
     width: 500,
     height: 300,
@@ -397,7 +397,7 @@ export const signalOnStateCircuit = {
       metadata: { name: '出力' },
     },
   ] as Gate[],
-  
+
   wires: [
     // INPUT → OUTPUT（緑の配線）
     {
@@ -407,7 +407,7 @@ export const signalOnStateCircuit = {
       isActive: true, // 緑の配線
     },
   ] as Wire[],
-  
+
   layout: {
     width: 500,
     height: 300,
@@ -455,7 +455,7 @@ export const signalComparisonCircuit = {
       metadata: { name: '出力' },
     },
   ] as Gate[],
-  
+
   wires: [
     // OFF状態の配線（グレー）
     {
@@ -472,7 +472,7 @@ export const signalComparisonCircuit = {
       isActive: true, // 緑の配線
     },
   ] as Wire[],
-  
+
   layout: {
     width: 500,
     height: 350,

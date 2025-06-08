@@ -29,8 +29,8 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
           elements: [
             'スマホもパソコンもAIも、すべて',
             { text: '電子回路', emphasis: true },
-            'という電気の通り道でできています。今から、その基本を一緒に作ってみましょう！'
-          ]
+            'という電気の通り道でできています。今から、その基本を一緒に作ってみましょう！',
+          ],
         },
         {
           type: 'note',
@@ -38,27 +38,19 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         },
         {
           type: 'rich-text',
-          elements: [
-            { text: '【電子回路のイメージ】', bold: true }
-          ]
+          elements: [{ text: '【電子回路のイメージ】', bold: true }],
         },
         {
           type: 'rich-text',
-          elements: [
-            '📱 スマホの中身 = 何億個もの小さなスイッチ'
-          ]
+          elements: ['📱 スマホの中身 = 何億個もの小さなスイッチ'],
         },
         {
           type: 'rich-text',
-          elements: [
-            '💻 パソコンの頭脳 = 超高速で動くスイッチの集まり'
-          ]
+          elements: ['💻 パソコンの頭脳 = 超高速で動くスイッチの集まり'],
         },
         {
           type: 'rich-text',
-          elements: [
-            '🤖 AIの仕組み = スイッチの組み合わせで計算'
-          ]
+          elements: ['🤖 AIの仕組み = スイッチの組み合わせで計算'],
         },
       ],
     },
@@ -78,8 +70,8 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
             { text: '0', bold: true },
             'と',
             { text: '1', bold: true },
-            'の2つの状態で表現する方法です。'
-          ]
+            'の2つの状態で表現する方法です。',
+          ],
         },
         {
           type: 'text',
@@ -102,16 +94,13 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
             { text: 'ON', bold: true },
             'か',
             { text: 'OFF', bold: true },
-            'しかないですよね？'  
-          ]
+            'しかないですよね？',
+          ],
         },
         {
           type: 'list',
           ordered: false,
-          items: [
-            'ON = 電気が流れる = 1',
-            'OFF = 電気が流れない = 0',
-          ],
+          items: ['ON = 電気が流れる = 1', 'OFF = 電気が流れない = 0'],
         },
         {
           type: 'note',
@@ -119,16 +108,16 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '📌 このアプリでの信号の見分け方'
+          text: '📌 このアプリでの信号の見分け方',
         },
         {
           type: 'text',
-          text: 'このアプリケーションでは、配線の色で0と1を見分けます。'
+          text: 'このアプリケーションでは、配線の色で0と1を見分けます。',
         },
         {
-          type: 'circuit-diagram-v2',
+          type: 'circuit-diagram',
           circuitId: 'signal-comparison',
-          showTruthTable: false
+          showTruthTable: false,
         },
         {
           type: 'list',
@@ -149,8 +138,8 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
           type: 'rich-text',
           elements: [
             { text: TERMS.INPUT, emphasis: true },
-            '（スイッチの役割）を配置してみましょう。'
-          ]
+            '（スイッチの役割）を配置してみましょう。',
+          ],
         },
       ],
       action: { type: 'place-gate', gateType: 'INPUT' },
@@ -164,8 +153,8 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
           type: 'rich-text',
           elements: [
             { text: TERMS.OUTPUT, emphasis: true },
-            '（ランプの役割）を配置します。'
-          ]
+            '（ランプの役割）を配置します。',
+          ],
         },
       ],
       action: { type: 'place-gate', gateType: 'OUTPUT' },
@@ -191,8 +180,8 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
             TERMS.LEFT_CIRCLE,
             '）に',
             TERMS.CONNECT,
-            'します。'
-          ]
+            'します。',
+          ],
         },
         {
           type: 'note',
@@ -206,14 +195,14 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
       instruction: '完成形を確認しよう！',
       content: [
         {
-          type: 'circuit-diagram-v2',
+          type: 'circuit-diagram',
           circuitId: 'simple-connection',
           showTruthTable: false,
         },
         {
           type: 'note',
-          text: '✅ 入力 → 出力 がワイヤーでつながっています'
-        }
+          text: '✅ 入力 → 出力 がワイヤーでつながっています',
+        },
       ],
     },
     {
@@ -226,8 +215,8 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
             { text: TERMS.INPUT, bold: true },
             'を',
             { text: TERMS.DOUBLE_CLICK, emphasis: true },
-            'して、0（OFF）と1（ON）を切り替えてみましょう。'
-          ]
+            'して、0（OFF）と1（ON）を切り替えてみましょう。',
+          ],
         },
         {
           type: 'note',

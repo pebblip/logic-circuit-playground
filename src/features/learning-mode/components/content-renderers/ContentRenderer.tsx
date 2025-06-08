@@ -12,8 +12,11 @@ import { QuizRenderer } from './QuizRenderer';
 import { NoteRenderer } from './NoteRenderer';
 import { AsciiArtRenderer } from './AsciiArtRenderer';
 import { CircuitDiagramRenderer } from './CircuitDiagramRenderer';
-import { CircuitDiagramRendererV2 } from './CircuitDiagramRendererV2';
-import { DigitalSignalRenderer, VoltageSignalRenderer, BitPatternTable } from './DigitalSignalRenderer';
+import {
+  DigitalSignalRenderer,
+  VoltageSignalRenderer,
+  BitPatternTable,
+} from './DigitalSignalRenderer';
 import { SvgDiagramRenderer } from './SvgDiagramRenderer';
 
 interface ContentRendererProps {
@@ -60,10 +63,13 @@ export const ContentRenderer: React.FC<ContentRendererProps> = ({
       return <AsciiArtRenderer content={content} />;
 
     case 'diagram':
-      return <CircuitDiagramRenderer content={content} />;
+      console.warn(
+        'diagram type is deprecated, use circuit-diagram instead'
+      );
+      return null;
 
-    case 'circuit-diagram-v2':
-      return <CircuitDiagramRendererV2 content={content} />;
+    case 'circuit-diagram':
+      return <CircuitDiagramRenderer content={content} />;
 
     case 'digital-signal':
       return <DigitalSignalRenderer {...content} />;
