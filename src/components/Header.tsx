@@ -9,6 +9,7 @@ import type { AppMode } from '../types/appMode';
 import type { CustomGateDefinition } from '../types/circuit';
 import { useMultipleDialogs } from '../hooks/useDialog';
 import { debug } from '../shared/debug';
+import { TERMS } from '../features/learning-mode/data/terms';
 
 interface HeaderProps {
   activeMode: AppMode;
@@ -81,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
     const outputGates = gates.filter(g => g.type === 'OUTPUT');
 
     if (inputGates.length === 0 || outputGates.length === 0) {
-      alert('回路にはINPUTゲートとOUTPUTゲートが必要です');
+      alert(`${TERMS.CIRCUIT}には${TERMS.INPUT}${TERMS.GATE}と${TERMS.OUTPUT}${TERMS.GATE}が${TERMS.REQUIRED}です`);
       return;
     }
 
@@ -131,52 +132,52 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
 
         <div className="mode-tabs">
           <button
-            className={`mode-tab ${activeMode === '学習モード' ? 'active' : ''}`}
-            onClick={() => onModeChange('学習モード')}
+            className={`mode-tab ${activeMode === TERMS.LEARNING_MODE ? 'active' : ''}`}
+            onClick={() => onModeChange(TERMS.LEARNING_MODE)}
           >
-            学習モード
+            {TERMS.LEARNING_MODE}
           </button>
           <button
-            className={`mode-tab ${activeMode === '自由制作' ? 'active' : ''}`}
-            onClick={() => onModeChange('自由制作')}
+            className={`mode-tab ${activeMode === TERMS.FREE_MODE ? 'active' : ''}`}
+            onClick={() => onModeChange(TERMS.FREE_MODE)}
           >
-            自由制作
+            {TERMS.FREE_MODE}
           </button>
         </div>
 
         <div className="header-actions">
           {/* 自由制作モード時のアクション */}
-          {activeMode === '自由制作' && (
+          {activeMode === TERMS.FREE_MODE && (
             <>
               <button
                 className="button"
                 onClick={() => dialogs.load.open()}
-                title="回路を読み込み"
+                title={`${TERMS.CIRCUIT}を${TERMS.LOAD}`}
               >
                 <span>📂</span>
-                <span>開く</span>
+                <span>{TERMS.OPEN}</span>
               </button>
               <button
                 className="button"
                 onClick={() => dialogs.save.open()}
-                title="回路を保存"
+                title={`${TERMS.CIRCUIT}を${TERMS.SAVE}`}
               >
                 <span>💾</span>
-                <span>保存</span>
+                <span>{TERMS.SAVE}</span>
               </button>
               <button
                 className="button"
                 onClick={handleCreateCustomGateFromCircuit}
-                title="現在の回路からカスタムゲートを作成"
+                title={`現在の${TERMS.CIRCUIT}から${TERMS.CUSTOM_GATE}を${TERMS.CREATE}`}
               >
                 <span>📦</span>
-                <span>回路→IC</span>
+                <span>{TERMS.CIRCUIT}→IC</span>
               </button>
             </>
           )}
 
           {/* 学習モード時の表示 */}
-          {activeMode === '学習モード' && (
+          {activeMode === TERMS.LEARNING_MODE && (
             <div className="learning-mode-status">
               <span className="learning-progress">
                 {/* ここに進捗表示を追加予定 */}
@@ -194,7 +195,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
           )}
 
           {/* パズルモード時の表示 */}
-          {activeMode === 'パズル・チャレンジ' && (
+          {activeMode === TERMS.PUZZLE_MODE && (
             <span
               style={{
                 color: 'rgba(255, 255, 255, 0.6)',
@@ -202,7 +203,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
                 marginRight: '12px',
               }}
             >
-              パズルモード
+              {TERMS.PUZZLE_MODE}
             </span>
           )}
 
@@ -210,10 +211,10 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
           <button
             className="button help-button"
             onClick={() => dialogs.help.open()}
-            title="ヘルプ"
+            title={TERMS.HELP}
           >
             <span>❓</span>
-            <span>ヘルプ</span>
+            <span>{TERMS.HELP}</span>
           </button>
         </div>
       </header>

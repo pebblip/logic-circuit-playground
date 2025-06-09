@@ -10,6 +10,7 @@ import { CustomGateSection } from './tool-palette/CustomGateSection';
 import { useDragGate } from './tool-palette/hooks/useDragGate';
 import { debug } from '../shared/debug';
 import { useCustomGateDialog } from './tool-palette/hooks/useCustomGateDialog';
+import { TERMS } from '../features/learning-mode/data/terms';
 
 const BASIC_GATES: { type: GateType; label: string }[] = [
   { type: 'AND', label: 'AND' },
@@ -21,9 +22,9 @@ const BASIC_GATES: { type: GateType; label: string }[] = [
 ];
 
 const IO_GATES: { type: GateType; label: string }[] = [
-  { type: 'INPUT', label: '入力' },
-  { type: 'OUTPUT', label: '出力' },
-  { type: 'CLOCK', label: 'クロック' },
+  { type: 'INPUT', label: TERMS.INPUT },
+  { type: 'OUTPUT', label: TERMS.OUTPUT },
+  { type: 'CLOCK', label: TERMS.CLOCK },
 ];
 
 // 特殊ゲート
@@ -90,7 +91,7 @@ export const ToolPalette: React.FC = () => {
     const outputGates = gates.filter(g => g.type === 'OUTPUT');
 
     if (inputGates.length === 0 || outputGates.length === 0) {
-      alert('回路にはINPUTゲートとOUTPUTゲートが必要です');
+      alert(`${TERMS.CIRCUIT}には${TERMS.INPUT}${TERMS.GATE}と${TERMS.OUTPUT}${TERMS.GATE}が${TERMS.REQUIRED}です`);
       return;
     }
 

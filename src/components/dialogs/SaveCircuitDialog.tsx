@@ -5,6 +5,7 @@ import type { CircuitStorageResult } from '../../types/circuitStorage';
 import { CircuitPreview } from '../common/CircuitPreview';
 import '../common/CircuitPreview.css';
 import './SaveCircuitDialog.css';
+import { TERMS } from '../../features/learning-mode/data/terms';
 
 interface SaveCircuitDialogProps {
   isOpen: boolean;
@@ -75,12 +76,12 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
    */
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      setError('回路名を入力してください');
+      setError(`${TERMS.CIRCUIT_NAME}を${TERMS.INPUT}してください`);
       return;
     }
 
     if (gates.length === 0) {
-      setError('保存する回路がありません');
+      setError(`${TERMS.SAVE}する${TERMS.CIRCUIT}がありません`);
       return;
     }
 
@@ -105,11 +106,11 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
         onSuccess?.(result);
         onClose();
       } else {
-        setError(result.message || '保存に失敗しました');
+        setError(result.message || `${TERMS.SAVE}に${TERMS.FAILED}しました`);
       }
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : '保存中にエラーが発生しました'
+        error instanceof Error ? error.message : `${TERMS.SAVE}中に${TERMS.ERROR}が発生しました`
       );
     } finally {
       setSaving(false);
@@ -142,7 +143,7 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
         {/* ヘッダー */}
         <div className="dialog-header">
           <h2 className="dialog-title">
-            {overwriteMode ? '📝 回路を上書き保存' : '💾 回路を保存'}
+            {overwriteMode ? `📝 ${TERMS.CIRCUIT}を上書き${TERMS.SAVE}` : `💾 ${TERMS.CIRCUIT}を${TERMS.SAVE}`}
           </h2>
           <button
             className="close-button"
@@ -174,13 +175,13 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
             {/* 回路名 */}
             <div className="form-group">
               <label htmlFor="circuit-name" className="form-label">
-                回路名 <span className="required">*</span>
+                {TERMS.CIRCUIT_NAME} <span className="required">*</span>
               </label>
               <input
                 id="circuit-name"
                 type="text"
                 className="form-input"
-                placeholder="回路名を入力..."
+                placeholder={`${TERMS.CIRCUIT_NAME}を${TERMS.INPUT}...`}
                 value={formData.name}
                 onChange={e =>
                   setFormData(prev => ({ ...prev, name: e.target.value }))
