@@ -1,6 +1,5 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
 import { TERMS } from '../terms';
-
 export const andGateStructuredLesson: StructuredLesson = {
   id: 'and-gate',
   title: 'ANDゲート - すべてが揃って初めてON！',
@@ -30,26 +29,26 @@ export const andGateStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '🎯 身近な例',
+          text: '身近な例',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '🚪 オートロック：カギも暗証番号も両方必要 → ドアが開く',
-            '🚗 車の発進：シートベルトを締めて、エンジンもON → 走れる',
-            '📱 スマホ：パスコードと指紋が一致 → ロック解除',
+            'オートロック：カギも暗証番号も両方必要 ドアが開く',
+            '車の発進：シートベルトを締めて、エンジンもON 走れる',
+            'スマホ：パスコードと指紋が一致 ロック解除',
           ],
         },
       ],
     },
     {
-      id: 'concept',
-      instruction: '【基礎知識】ANDゲートの動作原理',
+      id: 'principle',
+      instruction: 'ANDゲートの電気的仕組み',
       content: [
         {
           type: 'heading',
-          text: '🔌 なぜ「AND」というの？',
+          text: 'なぜ「AND」というの？',
         },
         {
           type: 'rich-text',
@@ -64,24 +63,29 @@ export const andGateStructuredLesson: StructuredLesson = {
           ],
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            '両方のスイッチがON → 電流が流れる → 出力がON',
-            'どちらかがOFF → 電流が遮断 → 出力がOFF',
+          type: 'heading',
+          text: '一列につないだスイッチで理解しよう',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'ANDゲートの仕組みは、',
+            { text: '2つのスイッチを一列に並べた回路', emphasis: true },
+            'と同じです。',
+            '電源→スイッチA→スイッチB→ランプ、という順番でつながっています。',
           ],
         },
         {
           type: 'heading',
-          text: '💡 スイッチの例で考える',
+          text: 'スイッチの例で考える',
         },
         {
           type: 'text',
-          text: '2つのスイッチを直列につないだ回路を想像してください。電源からランプまでの間にスイッチAとスイッチBが順番に並んでいます。',
+          text: '2つのスイッチを一列につないだ回路を想像してください。電源からランプまでの間にスイッチAとスイッチBが順番に並んでいます。',
         },
         {
           type: 'heading',
-          text: '【直列回路のイメージ】',
+          text: '【一列につないだ回路のイメージ】',
         },
         {
           type: 'svg-diagram',
@@ -92,13 +96,13 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'rich-text',
           elements: [
-            { text: '電源 → スイッチA → スイッチB → ランプ', bold: true },
+            { text: '電源 スイッチA スイッチB ランプ', bold: true },
           ],
         },
         {
           type: 'rich-text',
           elements: [
-            { text: '💡 ポイント：', bold: true },
+            { text: 'ポイント：', bold: true },
             'スイッチが',
             { text: '一列につながっている', emphasis: true },
             'ので、',
@@ -109,7 +113,7 @@ export const andGateStructuredLesson: StructuredLesson = {
         {
           type: 'rich-text',
           elements: [
-            { text: '→ ', bold: true },
+            { text: '', bold: true },
             { text: 'スイッチA', emphasis: true },
             'も',
             { text: 'スイッチB', emphasis: true },
@@ -125,164 +129,235 @@ export const andGateStructuredLesson: StructuredLesson = {
             [TERMS.OFF, TERMS.OFF, 'ランプ消灯'],
             [TERMS.OFF, TERMS.ON, 'ランプ消灯'],
             [TERMS.ON, TERMS.OFF, 'ランプ消灯'],
-            [TERMS.ON, TERMS.ON, 'ランプ点灯✨'],
+            [TERMS.ON, TERMS.ON, 'ランプ点灯'],
           ],
         },
         {
           type: 'note',
-          text: '🔌 2つのスイッチをつなげた回路：両方ONじゃないと電気は流れません！',
+          text: '2つのスイッチをつなげた回路：両方ONじゃないと電気は流れません！',
         },
       ],
     },
     {
-      id: 'place-gates',
-      instruction: `${TERMS.INPUT}、${TERMS.AND}ゲート、${TERMS.OUTPUT}を配置しましょう。`,
-      hint: `左のツールパレットから「${TERMS.INPUT}」を2つキャンバスの左側に縦に並べ、「基本ゲート」から「${TERMS.AND}」をその右側に、最後に${TERMS.OUTPUT}を${TERMS.AND}ゲートの右側に配置してください。`,
-      content: [],
-      action: { type: 'place-gate', gateType: 'AND' },
-    },
-    {
-      id: 'connect',
-      instruction: `${TERMS.WIRE}して${TERMS.CIRCUIT}を完成させましょう。`,
-      hint: `各${TERMS.INPUT}の${TERMS.OUTPUT_PIN}を${TERMS.AND}の${TERMS.INPUT_PIN}に、${TERMS.AND}の${TERMS.OUTPUT_PIN}を${TERMS.OUTPUT}の${TERMS.INPUT_PIN}に${TERMS.CONNECT}してください。`,
+      id: 'circuit-build',
+      instruction: 'AND回路を作ってみよう',
       content: [
         {
-          type: 'note',
-          text: `🔗 配線のポイント：各${TERMS.INPUT}の${TERMS.OUTPUT_PIN}（${TERMS.RIGHT_CIRCLE}）を${TERMS.AND}ゲートの${TERMS.INPUT_PIN}（${TERMS.LEFT_CIRCLE}）に${TERMS.CONNECT}します。`,
+          type: 'heading',
+          text: 'AND回路の構成',
         },
-      ],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'circuit-answer',
-      instruction: '完成形を確認しよう！',
-      content: [
+        {
+          type: 'rich-text',
+          elements: [
+            'AND回路は2つの入力が必要です：',
+            { text: '入力A', emphasis: true },
+            ' + ',
+            { text: '入力B', emphasis: true },
+            ' ',
+            { text: 'ANDゲート', emphasis: true },
+            ' ',
+            { text: '出力', emphasis: true },
+          ],
+        },
         {
           type: 'circuit-diagram',
           circuitId: 'and-gate',
           showTruthTable: false,
         },
         {
-          type: 'note',
-          text: '✅ 2つの入力 → ANDゲート → 出力 の順につながっています',
+          type: 'heading',
+          text: '作成手順',
         },
-      ],
-    },
-    {
-      id: 'predict',
-      instruction: '予測してみよう！',
-      content: [
+        {
+          type: 'list',
+          ordered: true,
+          items: [
+            '入力ゲートを2つ配置（スイッチA・Bの役割）',
+            'ANDゲートを配置（両方必要の魔法使い）',
+            '出力ゲートを配置（結果表示のランプ）',
+            '配線で3本でつなげる',
+          ],
+        },
         {
           type: 'heading',
-          text: '🤔 考えてみよう',
-        },
-        {
-          type: 'text',
-          text: '「すべてが揃って初めてON」という名前から、どんな時に出力がONになると思いますか？',
+          text: '配線のコツ',
         },
         {
           type: 'rich-text',
           elements: [
-            { text: '💭 ヒント：', bold: true },
-            '2つのスイッチが直列につながっていることを思い出してください。',
+            'ANDゲートは',
+            { text: '2つの入力ピン', emphasis: true },
+            'があります。',
+            '上下に並んだ入力ゲートの右の丸と、ANDゲートの左の2つの丸をそれぞれつなげます。',
           ],
         },
         {
           type: 'note',
-          text: '予測：きっと両方がONの時だけ、出力もONになるはず...',
+          text: '配線のポイント：入力Aの右の丸→ANDの上の丸、入力Bの右の丸→ANDの下の丸、ANDの右の丸→出力の左の丸',
         },
       ],
     },
     {
       id: 'experiment',
-      instruction: `実験と${TERMS.TRUTH_TABLE}`,
+      instruction: '予測して実験しよう！',
       content: [
+        {
+          type: 'heading',
+          text: 'まず予測してみよう',
+        },
         {
           type: 'rich-text',
           elements: [
-            { text: '💡 操作方法：', bold: true },
-            `${TERMS.INPUT}を`,
-            { text: TERMS.DOUBLE_CLICK, emphasis: true },
-            `すると、${TERMS.OFF}（${TERMS.LOW}）と${TERMS.ON}（${TERMS.HIGH}）が切り替わります。`,
+            '「両方必要」のコンセプトから、どんな時に出力がONになると思いますか？',
+            { text: 'ヒント：', bold: true },
+            '直列回路では、どちらか1つでもスイッチがOFFなら電気は流れません...',
           ],
         },
         {
-          type: 'text',
-          text: '予測が当たっているか確認してみてください！',
+          type: 'note',
+          text: '予想：両方の入力がONの時だけ、出力もONになるはず...',
         },
         {
           type: 'heading',
-          text: `📊 ${TERMS.TRUTH_TABLE}とは`,
+          text: '実験で確かめよう',
         },
         {
           type: 'rich-text',
           elements: [
-            { text: TERMS.TRUTH_TABLE, emphasis: true },
-            `とは、${TERMS.INPUT}と${TERMS.OUTPUT}のすべての組み合わせを表にしたものです。`,
+            '2つの入力をダブルクリックして、4パターンすべてを試してみましょう。',
+            '配線の色と出力の変化に注目！',
           ],
+        },
+        {
+          type: 'heading',
+          text: '真理値表（実験結果）',
         },
         {
           type: 'table',
-          headers: [`${TERMS.INPUT}A`, `${TERMS.INPUT}B`, `${TERMS.OUTPUT}`],
+          headers: ['入力A', '入力B', '出力', '説明'],
           rows: [
-            [TERMS.LOW, TERMS.LOW, TERMS.LOW],
-            [TERMS.LOW, TERMS.HIGH, TERMS.LOW],
-            [TERMS.HIGH, TERMS.LOW, TERMS.LOW],
-            [TERMS.HIGH, TERMS.HIGH, TERMS.HIGH],
+            ['0（OFF）', '0（OFF）', '0（OFF）', '両方OFFなので電気は流れない'],
+            ['0（OFF）', '1（ON）', '0（OFF）','AがOFFなので電気は流れない'],
+            ['1（ON）', '0（OFF）', '0（OFF）', 'BがOFFなので電気は流れない'],
+            ['1（ON）', '1（ON）', '1（ON）', '両方ONなので電気が流れる！'],
           ],
         },
         {
           type: 'rich-text',
           elements: [
-            { text: '💡 発見：', bold: true },
-            `${TERMS.AND}ゲートが${TERMS.ON}を出力するのは`,
-            { text: `「両方とも${TERMS.ON}」`, bold: true },
-            'の時だけ！',
+            { text: '発見：', bold: true },
+            'ANDゲートが1を出力するのは',
+            { text: '4パターン中1パターンだけ（25%）', emphasis: true },
+            'です！',
           ],
         },
         {
-          type: 'rich-text',
-          elements: [
-            { text: '📊 確率：', bold: true },
-            '4パターン中',
-            { text: '1パターンのみ', emphasis: true },
-            `${TERMS.OUTPUT}が${TERMS.ON}になる（25%）`,
-          ],
+          type: 'note',
+          text: 'この「厳しさ」が、セキュリティや安全装置にANDゲートが多用される理由です',
         },
       ],
     },
     {
-      id: 'application',
-      instruction: '【応用】ANDゲートの実用例',
+      id: 'analysis',
+      instruction: 'ANDゲートの特徴を分析しよう',
       content: [
         {
           type: 'heading',
-          text: '🔐 日常生活で見つけるANDゲート',
+          text: '他のゲートとの違い',
+        },
+        {
+          type: 'table',
+          headers: ['特徴', 'ANDゲート', 'ORゲート'],
+          rows: [
+            ['出力がONになる条件', '両方の入力がON', '少なくとも1つの入力がON'],
+            ['出力がONになる確率', '25%（1/4）', '75%（3/4）'],
+            ['電気回路の例', '直列回路', '並列回路'],
+            ['性格', '厳しい（全て必要）', '優しい（1つでOK）'],
+          ],
+        },
+        {
+          type: 'heading',
+          text: 'ANDゲートの重要性',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'ANDゲートは',
+            { text: '「確実性」と「安全性」', bold: true },
+            'を提供します。',
+            '複数の条件がすべて満たされた時だけ動作するため、誤動作を防げます。',
+          ],
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '🏦 銀行ATM：カードを入れて、暗証番号も正しく入力 → お金を引き出せる',
-            '🚗 車の発進：シートベルトを締めて、エンジンもかける → 走れる',
-            '🏠 オートロック：正しいカギを使って、正しい暗証番号も入力 → ドアが開く',
+            'セキュリティシステム（複数認証）',
+            '安全装置（複数センサー）',
+            'データ処理（条件判定）',
+            '計算回路（論理演算）',
           ],
         },
         {
-          type: 'rich-text',
-          elements: [
-            { text: '💡 重要：', bold: true },
-            'ANDゲートは',
-            { text: '「安全性」', emphasis: true },
-            'を高めるためによく使われます！',
-          ],
+          type: 'note',
+          text: 'ANDゲートを理解することは、今後学ぶより複雑な回路を作る基礎になります！',
         },
       ],
     },
     {
-      id: 'quiz',
-      instruction: '理解度チェック！',
+      id: 'applications',
+      instruction: 'ANDゲートの実用例',
       content: [
+        {
+          type: 'heading',
+          text: '日常生活で見つけるANDゲート',
+        },
+        {
+          type: 'list',
+          ordered: false,
+          items: [
+            '銀行ATM：カードを入れて、暗証番号も正しく入力 お金を引き出せる',
+            '車の発進：シートベルトを締めて、エンジンもかける 走れる',
+            'オートロック：正しいカギを使って、正しい暗証番号も入力 ドアが開く',
+          ],
+        },
+        {
+          type: 'heading',
+          text: 'コンピュータでの活用',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'コンピュータのプログラムでも、',
+            { text: '「両方の条件が必要」', bold: true },
+            'という判定にANDゲートと同じ仕組みが使われています！',
+            '例：年齢が18歳以上、かつ、免許を持っている 運転可能',
+          ],
+        },
+        {
+          type: 'note',
+          text: '身の回りのデジタル機器には、必ずANDゲートが組み込まれています',
+        },
+      ],
+    },
+    {
+      id: 'summary',
+      instruction: 'ANDゲートをマスター！',
+      content: [
+        {
+          type: 'heading',
+          text: 'ANDゲートの要点',
+        },
+        {
+          type: 'list',
+          ordered: true,
+          items: [
+            '「すべて必要」の厳格ゲート：両方ONで初めて出力ON',
+            '直列回路の原理：1つでもOFFなら電気は流れない',
+            '安全性重視：セキュリティや安全装置で大活躍',
+            '確率は25%：4パターン中1パターンのみON',
+          ],
+        },
         {
           type: 'quiz',
           question: 'ANDゲートで出力が1になるのは次のうちどれ？',
@@ -294,29 +369,16 @@ export const andGateStructuredLesson: StructuredLesson = {
           ],
           correctIndex: 1,
         },
-      ],
-    },
-    {
-      id: 'summary',
-      instruction: '【まとめ】ANDゲートの重要ポイント',
-      content: [
         {
           type: 'heading',
-          text: '🎆 今日学んだこと',
-        },
-        {
-          type: 'list',
-          ordered: true,
-          items: [
-            'ANDゲートは「全て」の条件が必要',
-            '4パターン中1つだけ出力がON',
-            'セキュリティや安全装置によく使われる',
-          ],
+          text: '次回予告',
         },
         {
           type: 'rich-text',
           elements: [
-            { text: '🚀 次は「ORゲート」を学びましょう！', bold: true },
+            { text: 'ORゲート', bold: true },
+            'で、「どれか1つでOK」の優しい論理を学びましょう！',
+            'ANDの厳しさとORの優しさ、2つの性格を理解すれば論理回路の基礎は完璧です。',
           ],
         },
       ],

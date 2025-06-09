@@ -1,6 +1,5 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
 import { TERMS } from '../terms';
-
 export const xorGateStructuredLesson: StructuredLesson = {
   id: 'xor-gate',
   title: `${TERMS.XOR}ゲート - 排他的論理和！`,
@@ -26,7 +25,7 @@ export const xorGateStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '🎮 ゲームで例えると',
+          text: 'ゲームで例えると',
         },
         {
           type: 'text',
@@ -35,108 +34,190 @@ export const xorGateStructuredLesson: StructuredLesson = {
       ],
     },
     {
-      id: 'place-gates',
-      instruction: `${TERMS.INPUT}、${TERMS.XOR}ゲート、${TERMS.OUTPUT}を配置しましょう。`,
-      hint: `左のツールパレットから「${TERMS.INPUT}」を2つキャンバスの左側に縦に並べ、「基本ゲート」から「${TERMS.XOR}」をその右側に、最後に${TERMS.OUTPUT}を${TERMS.XOR}ゲートの右側に配置してください。`,
-      content: [],
-      action: { type: 'place-gate', gateType: 'XOR' },
-    },
-    {
-      id: 'connect',
-      instruction: `${TERMS.WIRE}して${TERMS.CIRCUIT}を完成させましょう。`,
-      hint: `各${TERMS.INPUT}の${TERMS.OUTPUT_PIN}を${TERMS.XOR}の${TERMS.INPUT_PIN}に、${TERMS.XOR}の${TERMS.OUTPUT_PIN}を${TERMS.OUTPUT}の${TERMS.INPUT_PIN}に${TERMS.CONNECT}してください。`,
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'circuit-answer',
-      instruction: '完成形を確認しよう！',
+      id: 'principle',
+      instruction: 'XORゲートの電気的仕組み',
       content: [
+        {
+          type: 'heading',
+          text: 'なぜ「XOR」（エックスオア）というの？',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'XORは英語の',
+            { text: 'eXclusive OR', emphasis: true },
+            'の略です。',
+            { text: '「どちらか一方だけ」', bold: true },
+            'という意味で、両方ONのときは',
+            { text: '除外（eXclude）', emphasis: true },
+            'されるので出力がOFFになります。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '電気的な仕組み',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'XORゲートは、',
+            { text: '他の基本ゲートを組み合わせて作られています', emphasis: true },
+            '。',
+            '複雑に見えるかもしれませんが、要は「違いを見つける」ための特別な組み合わせです。',
+          ],
+        },
+        {
+          type: 'note',
+          text: '詳しい仕組み：「どちらかON」かつ「両方ONではない」という条件を実現しています',
+        },
+        {
+          type: 'heading',
+          text: 'XORの特徴',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '「違いを検出」', emphasis: true },
+            'するゲートです。',
+            '2つの入力が同じ値なら',
+            { text: 'OFF', emphasis: true },
+            '、異なる値なら',
+            { text: 'ON', emphasis: true },
+            'を出力します。',
+          ],
+        },
+        {
+          type: 'note',
+          text: 'XORゲートは、デジタル回路で「比較」や「違いの検出」に使われる重要なゲートです',
+        },
+      ],
+    },
+    {
+      id: 'circuit-build',
+      instruction: 'XOR回路を作ってみよう',
+      content: [
+        {
+          type: 'heading',
+          text: 'XOR回路の構成',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'XOR回路は2つの入力が必要です：',
+            { text: '入力A', emphasis: true },
+            ' + ',
+            { text: '入力B', emphasis: true },
+            ' ',
+            { text: 'XORゲート', emphasis: true },
+            ' ',
+            { text: '出力', emphasis: true },
+          ],
+        },
         {
           type: 'circuit-diagram',
           circuitId: 'xor-gate',
           showTruthTable: false,
         },
         {
-          type: 'note',
-          text: '✅ 2つの入力 → XORゲート → 出力 の順につながっています',
+          type: 'heading',
+          text: '作成手順',
         },
-      ],
-    },
-    {
-      id: 'predict',
-      instruction: '予測してみよう！',
-      content: [
+        {
+          type: 'list',
+          ordered: true,
+          items: [
+            '入力ゲートを2つ配置（スイッチA・Bの役割）',
+            'XORゲートを配置（違い検出の魔法使い）',
+            '出力ゲートを配置（結果表示のランプ）',
+            '配線で3本でつなげる',
+          ],
+        },
         {
           type: 'heading',
-          text: '🤔 考えてみよう',
-        },
-        {
-          type: 'text',
-          text: '「排他的論理和」という名前から、どんな時に出力がONになると思いますか？',
+          text: '配線のコツ',
         },
         {
           type: 'rich-text',
           elements: [
-            { text: '💭 ヒント：', bold: true },
-            '「違い」がキーワードです。2つの入力が同じ時と違う時を考えてみて。',
+            'XORゲートは',
+            { text: '2つの入力ピン', emphasis: true },
+            'があります。',
+            '上下に並んだ入力ゲートの右の丸と、XORゲートの左の2つの丸をそれぞれつなげます。',
           ],
         },
         {
           type: 'note',
-          text: '予測：入力が違う時（片方だけON）に出力がONになりそう...',
+          text: '配線のポイント：入力Aの右の丸→XORの上の丸、入力Bの右の丸→XORの下の丸、XORの右の丸→出力の左の丸',
         },
       ],
     },
     {
       id: 'experiment',
-      instruction: '実験で確かめよう！4つのパターンをすべて試してみましょう。',
+      instruction: '予測して実験しよう！',
       content: [
+        {
+          type: 'heading',
+          text: 'まず予測してみよう',
+        },
         {
           type: 'rich-text',
           elements: [
-            { text: TERMS.XOR, gate: true },
-            `は「どちらか片方だけ${TERMS.ON}」のときに反応します。`,
+            '「違いを検出」するゲートということから、どんな時に出力がONになると思いますか？',
+            { text: 'ヒント：', bold: true },
+            '「排他的」とは、「どちらか一方だけ」という意味です...',
           ],
         },
         {
           type: 'note',
-          text: `💡 特に「両方${TERMS.ON}」のときに注目してください！違いがあるときだけ${TERMS.ON}になります。`,
+          text: '予想：入力が違う時（片方だけON）に出力がONになりそう...',
         },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'results',
-      instruction: '【パターン分析】実験結果を整理しましょう。',
-      content: [
         {
-          type: 'table',
-          headers: [`${TERMS.INPUT}A`, `${TERMS.INPUT}B`, `${TERMS.OUTPUT}`],
-          rows: [
-            [TERMS.OFF, TERMS.OFF, TERMS.OFF],
-            [TERMS.OFF, TERMS.ON, TERMS.ON],
-            [TERMS.ON, TERMS.OFF, TERMS.ON],
-            [TERMS.ON, TERMS.ON, TERMS.OFF],
+          type: 'heading',
+          text: '実験で確かめよう',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '2つの入力をダブルクリックして、4パターンすべてを試してみましょう。',
+            '特に「両方ON」の時の動作に注目！',
           ],
         },
         {
           type: 'heading',
-          text: `💡 発見：${TERMS.INPUT}が「違う」ときだけ${TERMS.ON}を出力！`,
+          text: '真理値表（実験結果）',
         },
         {
-          type: 'text',
-          text: `覚え方：「同じなら${TERMS.OFF}、違えば${TERMS.ON}」`,
+          type: 'table',
+          headers: ['入力A', '入力B', '出力', '説明'],
+          rows: [
+            ['0（OFF）', '0（OFF）', '0（OFF）', '同じ値なので違いなし'],
+            ['0（OFF）', '1（ON）', '1（ON）', '異なる値なので違いあり！'],
+            ['1（ON）', '0（OFF）', '1（ON）', '異なる値なので違いあり！'],
+            ['1（ON）', '1（ON）', '0（OFF）', '同じ値なので違いなし'],
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '発見：', bold: true },
+            'XORゲートは入力が',
+            { text: '「異なる時だけ」', emphasis: true },
+            '1を出力します！',
+          ],
+        },
+        {
+          type: 'note',
+          text: '覚え方：「同じならOFF、違えばON」 - これがXORの魅力です！',
         },
       ],
     },
     {
-      id: 'comparison',
-      instruction: '【比較】OR、AND、XORの違いを理解しよう',
+      id: 'analysis',
+      instruction: 'XORゲートの特徴を分析しよう',
       content: [
         {
           type: 'heading',
-          text: '🎯 3つのゲートを比較',
+          text: '3つのゲートを比較',
         },
         {
           type: 'table',
@@ -151,68 +232,71 @@ export const xorGateStructuredLesson: StructuredLesson = {
             [TERMS.OFF, TERMS.OFF, TERMS.OFF, TERMS.OFF, TERMS.OFF],
             [TERMS.OFF, TERMS.ON, TERMS.OFF, TERMS.ON, TERMS.ON],
             [TERMS.ON, TERMS.OFF, TERMS.OFF, TERMS.ON, TERMS.ON],
-            [TERMS.ON, TERMS.ON, TERMS.ON, TERMS.ON, `${TERMS.OFF}✨`],
+            [TERMS.ON, TERMS.ON, TERMS.ON, TERMS.ON, `${TERMS.OFF}`],
           ],
         },
         {
           type: 'note',
-          text: `💡 「両方${TERMS.ON}」の時だけ違う！${TERMS.AND}=${TERMS.ON}、${TERMS.OR}=${TERMS.ON}、${TERMS.XOR}=${TERMS.OFF}`,
+          text: `「両方${TERMS.ON}」の時だけ違う！${TERMS.AND}=${TERMS.ON}、${TERMS.OR}=${TERMS.ON}、${TERMS.XOR}=${TERMS.OFF}`,
         },
       ],
     },
     {
-      id: 'real-world',
-      instruction: '【実用例】XORゲートはどこで使われる？',
+      id: 'applications',
+      instruction: 'XORゲートの実用例',
       content: [
         {
           type: 'heading',
-          text: '🌟 実世界での活用',
+          text: '実世界での活用',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '🧮 加算器：2進数の足し算の基本部品',
-            '🔐 暗号化：データの暗号化・復号化',
-            '🎮 ゲーム：同時押し禁止の実装',
-            '🚦 エラー検出：データの整合性チェック',
+            '計算機：0と1の足し算で使われる基本部品',
+            'セキュリティ：データを安全に保護する仕組み',
+            'ゲーム：同時押し禁止の判定',
+            'エラー検出：データが正しく送られたかチェック',
           ],
-        },
-      ],
-    },
-    {
-      id: 'quiz',
-      instruction: '理解度チェック！',
-      content: [
-        {
-          type: 'quiz',
-          question: `${TERMS.XOR}ゲートで、両方の${TERMS.INPUT}が${TERMS.ON}のとき${TERMS.OUTPUT}は？`,
-          options: [TERMS.OFF, TERMS.ON, '不定', 'エラー'],
-          correctIndex: 0,
         },
       ],
     },
     {
       id: 'summary',
-      instruction: `【まとめ】${TERMS.XOR}ゲートの重要ポイント`,
+      instruction: 'XORゲートをマスター！',
       content: [
         {
           type: 'heading',
-          text: '🎆 今日学んだこと',
+          text: 'XORゲートの要点',
         },
         {
           type: 'list',
           ordered: true,
           items: [
-            `${TERMS.XOR}は「違い」を見つけるゲート`,
-            `${TERMS.INPUT}が異なるときだけ${TERMS.ON}を出力`,
-            `両方${TERMS.OFF}または両方${TERMS.ON}のときは${TERMS.OFF}`,
-            '加算器やエラー検出に使われる',
+            '「違いを検出」する特殊ゲート：異なる値の時だけ出力ON',
+            '複合ゲートの原理：AND、OR、NOTゲートの組み合わせで実現',
+            '排他的OR：「どちらか一方だけ」という厳密な条件',
+            '確率は50%：4パターン中2パターンでON',
           ],
         },
         {
-          type: 'note',
-          text: `🚀 次は「半加算器」で${TERMS.XOR}を実際に使ってみましょう！`,
+          type: 'quiz',
+          question: 'XORゲートで、両方の入力がONの時の出力は？',
+          options: ['0（OFF）', '1（ON）', '不定', 'エラー'],
+          correctIndex: 0,
+        },
+        {
+          type: 'heading',
+          text: '次回予告',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '半加算器', bold: true },
+            'で、XORゲートが実際の計算にどう使われるかを学びましょう！',
+            '',
+            'AND、OR、XORの3つの基本ゲートをマスターしたあなたなら、きっと理解できます。',
+          ],
         },
       ],
     },

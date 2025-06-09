@@ -1,11 +1,13 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
-
+import { TERMS } from '../terms';
 export const halfAdderStructuredLesson: StructuredLesson = {
   id: 'half-adder',
-  title: '半加算器 - 2進数の足し算マシン',
-  description: '2つの1ビット数を足し算する基本回路を作ります',
+  title: '半加算器 - 論理ゲートで作る足し算マシン',
+  description: '2つのゲートだけで2進数の足し算ができる',
   objective:
-    'コンピュータが足し算を行う仕組みを理解し、基本ゲートを組み合わせて算術演算回路を構築できるようになる',
+    'XORゲートとANDゲートを組み合わせて、2進数の足し算回路を作る',
+  category: '基本回路',
+  lessonType: 'build',
   difficulty: 'intermediate',
   prerequisites: ['and-gate', 'xor-gate'],
   estimatedMinutes: 20,
@@ -13,224 +15,270 @@ export const halfAdderStructuredLesson: StructuredLesson = {
   steps: [
     {
       id: 'intro',
-      instruction: 'コンピュータはどうやって足し算をするの？',
+      instruction: 'コンピュータの数の表し方',
       content: [
         {
-          type: 'text',
-          text: '今回は、2進数の1桁同士の足し算を行う「半加算器」を作ります！',
+          type: 'heading',
+          text: '素朴な疑問',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'コンピュータは',
+            { text: '0と1しか理解できません', bold: true },
+            '。',
+            'それなのに、どうやって',
+            { text: '足し算', emphasis: true },
+            'ができるのでしょうか？',
+          ],
         },
         {
           type: 'heading',
-          text: '📊 2進数の足し算の基本',
+          text: '10進数と2進数',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '私たちは普段',
+            { text: '10進数', emphasis: true },
+            '（0〜9）を使いますが、',
+            'コンピュータは',
+            { text: '2進数', emphasis: true },
+            '（0と1）で数を表現します。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '数の対応表',
+        },
+        {
+          type: 'table',
+          headers: ['10進数', '2進数'],
+          rows: [
+            ['0', '0'],
+            ['1', '1'],
+            ['2', '10'],
+            ['3', '11'],
+          ],
+        },
+        {
+          type: 'heading',
+          text: '繰り上がりの仕組み',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '10進数', emphasis: true },
+            '：0→1→2→...→9、そして9の次は',
+            { text: '10', bold: true },
+            '（2桁になる）',
+            { text: '2進数', emphasis: true },
+            '：0→1、そして1の次は',
+            { text: '10', bold: true },
+            '（2桁になる）',
+          ],
+        },
+        {
+          type: 'note',
+          text: '2進数では「1」の次がすぐに「10」になります！',
+        },
+      ],
+    },
+    {
+      id: 'binary-addition',
+      instruction: '2進数の足し算を理解しよう',
+      content: [
+        {
+          type: 'heading',
+          text: '2進数で足し算してみよう',
+        },
+        {
+          type: 'text',
+          text: '実際に2進数どうしを足してみましょう。結果は2桁で表現しています。',
+        },
+        {
+          type: 'table',
+          headers: ['A', '+', 'B', '=', '結果'],
+          rows: [
+            ['0', '+', '0', '=', '00'],
+            ['0', '+', '1', '=', '01'],
+            ['1', '+', '0', '=', '01'],
+            ['1', '+', '1', '=', '10'],
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '注目！', bold: true },
+            ' 1 + 1 の結果は「10」になりました。',
+            'これは10進数の「2」を2進数で表したものです。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '結果を左右に分けて観察',
+        },
+        {
+          type: 'text',
+          text: '上の足し算の結果を、右の桁（1の位）と左の桁（2の位）に分けて見てみましょう。',
+        },
+        {
+          type: 'table',
+          headers: ['A', 'B', '右の桁', '左の桁'],
+          rows: [
+            ['0', '0', '0', '0'],
+            ['0', '1', '1', '0'],
+            ['1', '0', '1', '0'],
+            ['1', '1', '0', '1'],
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '気づきましたか？', bold: true },
+          ],
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '0 + 0 = 0（答え0、繰り上がり0）',
-            '0 + 1 = 1（答え1、繰り上がり0）',
-            '1 + 0 = 1（答え1、繰り上がり0）',
-            '1 + 1 = 10（答え0、繰り上がり1）← 注目！',
+            '右の桁：AとBが異なるときだけ1になる',
+            '左の桁：AとBが両方1のときだけ1になる',
           ],
         },
         {
           type: 'note',
-          text: '💡 10進数で「9 + 1 = 10」で繰り上がるように、2進数では「1 + 1 = 10」で繰り上がります！',
+          text: 'この2つのパターンが、後で使うゲートの動作と完全に一致します！',
         },
       ],
     },
     {
-      id: 'concept',
-      instruction: '半加算器の仕組みを理解しよう',
+      id: 'challenge',
+      instruction: '今日の挑戦',
       content: [
         {
           type: 'heading',
-          text: '💡 重要な発見',
+          text: '目標',
         },
         {
-          type: 'text',
-          text: '2進数の足し算を観察すると...',
-        },
-        {
-          type: 'list',
-          ordered: true,
-          items: [
-            '和（Sum）：入力が異なるときだけ1 → これはXOR！',
-            '繰り上がり（Carry）：両方1のときだけ1 → これはAND！',
+          type: 'rich-text',
+          elements: [
+            'この2進数の足し算を、',
+            { text: '論理ゲートで実現できるでしょうか？', bold: true },
           ],
         },
         {
-          type: 'note',
-          text: 'つまり、XORゲートとANDゲートがあれば足し算ができる！',
+          type: 'heading',
+          text: '使うもの',
+        },
+        {
+          type: 'list',
+          ordered: false,
+          items: [
+            `${TERMS.INPUT}2つ（A、B）`,
+            `${TERMS.OUTPUT}2つ（右の桁用、左の桁用）`,
+            `${TERMS.XOR}ゲート1つ`,
+            `${TERMS.AND}ゲート1つ`,
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'なぜこの組み合わせ？', bold: true },
+            ' それは実験してみればわかります！',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'build',
+      instruction: '回路を作ってみよう',
+      content: [
+        {
+          type: 'heading',
+          text: '完成形をイメージ',
         },
         {
           type: 'circuit-diagram',
           circuitId: 'half-adder',
-          description: '半加算器の回路構成（制作モード描画システム使用）',
           showTruthTable: false,
         },
-      ],
-    },
-    {
-      id: 'truth-table-analysis',
-      instruction: '【分析】真理値表で確認してみよう',
-      content: [
         {
           type: 'heading',
-          text: '📊 半加算器の真理値表',
-        },
-        {
-          type: 'table',
-          headers: ['A', 'B', '和(S)', '繰上(C)', '説明'],
-          rows: [
-            ['0', '0', '0', '0', '0+0=00'],
-            ['0', '1', '1', '0', '0+1=01'],
-            ['1', '0', '1', '0', '1+0=01'],
-            ['1', '1', '0', '1', '1+1=10'],
-          ],
-        },
-        {
-          type: 'text',
-          text: 'よく見ると：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: ['和(S) = A ⊕ B（XOR演算）', '繰上(C) = A ∧ B（AND演算）'],
-        },
-      ],
-    },
-    {
-      id: 'place-inputs',
-      instruction: '回路の構築を始めましょう！まず入力を配置',
-      hint: '2つの入力を縦に並べて配置してください（数値AとBを表します）',
-      content: [],
-      action: { type: 'place-gate', gateType: 'INPUT' },
-    },
-    {
-      id: 'place-xor',
-      instruction: 'XORゲートを配置（和の計算用）',
-      hint: '入力の右側にXORゲートを配置します',
-      content: [
-        {
-          type: 'text',
-          text: 'XORは「和」を計算します（繰り上がりなしの部分）',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'XOR' },
-    },
-    {
-      id: 'place-and',
-      instruction: 'ANDゲートを配置（繰り上がりの計算用）',
-      hint: 'XORの下にANDゲートを配置します',
-      content: [
-        {
-          type: 'text',
-          text: 'ANDは「繰り上がり」を計算します',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'AND' },
-    },
-    {
-      id: 'place-outputs',
-      instruction: '出力を2つ配置',
-      hint: 'XORの右に出力（和）、ANDの右に出力（繰り上がり）を配置',
-      content: [
-        {
-          type: 'note',
-          text: '上の出力が「和（Sum）」、下の出力が「繰り上がり（Carry）」です',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'OUTPUT' },
-    },
-    {
-      id: 'connect-to-xor',
-      instruction: '配線：入力をXORに接続',
-      hint: '両方の入力からXORゲートの2つの入力に接続します',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-to-and',
-      instruction: '配線：入力をANDにも接続',
-      hint: '同じ入力からANDゲートの2つの入力にも接続します',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-outputs',
-      instruction: '配線：ゲートから出力へ',
-      hint: 'XORの出力を上の出力へ、ANDの出力を下の出力へ接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'test-intro',
-      instruction: '完成！動作確認をしましょう',
-      content: [
-        {
-          type: 'text',
-          text: '半加算器が完成しました！4つのパターンをすべて試してみましょう。',
-        },
-        {
-          type: 'note',
-          text: '上のランプ = 和（Sum）、下のランプ = 繰り上がり（Carry）',
-        },
-        {
-          type: 'heading',
-          text: '🔬 実験のポイント',
+          text: '作成手順',
         },
         {
           type: 'list',
           ordered: true,
           items: [
-            '入力をダブルクリックしてON/OFFを切り替え',
-            '上の出力（和）と下の出力（繰り上がり）を観察',
-            '実際の計算結果と比較',
+            `${TERMS.INPUT}（A、B）を2つ配置`,
+            `${TERMS.XOR}ゲートを配置（上側）`,
+            `${TERMS.AND}ゲートを配置（下側）`,
+            `${TERMS.OUTPUT}を2つ配置（右の桁用と左の桁用）`,
+            'AとBから両方のゲートへ配線（分岐）',
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'ポイント：', bold: true },
+            '配線は',
+            { text: '分岐', emphasis: true },
+            'させます！1つの出力から2つのゲートへ。',
           ],
         },
       ],
     },
     {
-      id: 'test-00',
-      instruction: 'テスト1：0 + 0 を計算',
+      id: 'experiment',
+      instruction: '実験：4つのパターンを試そう',
       content: [
         {
-          type: 'text',
-          text: '両方の入力をOFF（0）にして結果を確認',
+          type: 'heading',
+          text: '実験方法',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'A、Bを',
+            { text: TERMS.DOUBLE_CLICK, emphasis: true },
+            'でON/OFF切り替えて、',
+            { text: '本当に足し算ができるか', bold: true },
+            '確認します！',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '観察のポイント',
+        },
+        {
+          type: 'list',
+          ordered: false,
+          items: [
+            '右側の出力は正しく右の桁（1の位）を表示するか？',
+            '左側の出力は正しく左の桁（2の位）を表示するか？',
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '特に注目：', bold: true },
+            ' 1 + 1 のとき、何が起こるでしょうか...？',
+          ],
         },
       ],
-      action: { type: 'toggle-input' },
     },
     {
-      id: 'test-01',
-      instruction: 'テスト2：0 + 1 を計算',
+      id: 'discovery',
+      instruction: '発見：ゲートと足し算の関係',
       content: [
         {
-          type: 'text',
-          text: '片方だけON（1）にして結果を確認',
+          type: 'heading',
+          text: '実験結果を振り返る',
         },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-11',
-      instruction: 'テスト3：1 + 1 を計算',
-      content: [
-        {
-          type: 'text',
-          text: '両方の入力をON（1）にして...繰り上がりに注目！',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'results',
-      instruction: '【結果分析】半加算器の真理値表',
-      content: [
         {
           type: 'table',
-          headers: ['入力A', '入力B', '和(S)', '繰上(C)'],
+          headers: ['A', 'B', '右の桁（1の位）', '左の桁（2の位）'],
           rows: [
             ['0', '0', '0', '0'],
             ['0', '1', '1', '0'],
@@ -240,108 +288,75 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '🎉 成功！2進数の足し算ができました！',
+          text: '驚きの発見',
         },
         {
-          type: 'text',
-          text: '1 + 1 = 10（2進数）が正しく計算されています！',
-        },
-      ],
-    },
-    {
-      id: 'applications',
-      instruction: '【応用】半加算器の使い道',
-      content: [
-        {
-          type: 'heading',
-          text: '🚀 実用例',
+          type: 'rich-text',
+          elements: [
+            '見てください！',
+          ],
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            'CPU内部の演算装置（ALU）の基本部品',
-            'デジタル計算機の足し算回路',
-            '全加算器（Full Adder）の構成要素',
-            'バイナリカウンタの基礎',
+            `${TERMS.XOR}ゲートが右の桁（1の位）を完璧に計算！`,
+            `${TERMS.AND}ゲートが左の桁（2の位）を完璧に計算！`,
           ],
         },
         {
-          type: 'note',
-          text: 'この小さな回路が、コンピュータの計算能力の基礎なのです！',
-        },
-      ],
-    },
-    {
-      id: 'limitation',
-      instruction: '【発展】半加算器の限界',
-      content: [
-        {
-          type: 'text',
-          text: '半加算器には1つ問題があります...',
-        },
-        {
-          type: 'heading',
-          text: '🤔 前の桁からの繰り上がりは？',
-        },
-        {
-          type: 'text',
-          text: '複数桁の計算では、前の桁からの繰り上がりも考慮する必要があります。',
-        },
-        {
-          type: 'note',
-          text: 'これを解決するのが「全加算器（Full Adder）」です！',
-        },
-        {
-          type: 'heading',
-          text: '📊 半加算器 vs 全加算器',
-        },
-        {
-          type: 'table',
-          headers: ['種類', '入力数', '出力数', '用途'],
-          rows: [
-            ['半加算器', '2つ', '2つ', '最下位ビットの計算'],
-            ['全加算器', '3つ', '2つ', '2ビット目以降の計算'],
+          type: 'rich-text',
+          elements: [
+            { text: 'これは偶然でしょうか？', emphasis: true },
+            'いいえ！',
+            { text: '論理演算が算術演算になった瞬間です！', bold: true },
           ],
         },
       ],
     },
     {
-      id: 'historical-note',
-      instruction: '【コラム】コンピュータの歴史',
+      id: 'summary',
+      instruction: 'まとめ：半加算器の本質',
       content: [
         {
           type: 'heading',
-          text: '📜 人類初のコンピュータ',
-        },
-        {
-          type: 'text',
-          text: '1940年代、世界初の電子コンピュータENIACは、約18,000本の真空管を使って加算器を実現していました。',
+          text: '今日の成果',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '1秒間に5000回の加算が可能（当時としては驚異的）',
-            '重さ30トン、消費電力140kW',
-            '現在のスマホは1秒間に数十億回の演算が可能',
+            '2進数の足し算を理解',
+            `${TERMS.XOR}と${TERMS.AND}で足し算回路を実現`,
+            '論理ゲートで計算ができることを発見',
+          ],
+        },
+        {
+          type: 'heading',
+          text: 'これがすごい理由',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'たった2つ', emphasis: true },
+            'の論理ゲートで、コンピュータの最も基本的な計算ができました。',
+            { text: 'これが全てのコンピュータの計算の基礎です！', bold: true },
+          ],
+        },
+        {
+          type: 'heading',
+          text: '次回予告',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '全加算器', bold: true },
+            '（3つの入力を足せる、より高度な回路）',
           ],
         },
         {
           type: 'note',
-          text: '🚀 たった80年で、計算速度は100万倍以上に！',
-        },
-      ],
-    },
-    {
-      id: 'quiz',
-      instruction: '理解度チェック！',
-      content: [
-        {
-          type: 'quiz',
-          question: '半加算器で1 + 1を計算したとき、繰り上がり出力は？',
-          options: ['0', '1', '不定', 'エラー'],
-          correctIndex: 1,
+          text: '今日の発見をベースに、さらに高度な回路へ挑戦します！',
         },
       ],
     },
