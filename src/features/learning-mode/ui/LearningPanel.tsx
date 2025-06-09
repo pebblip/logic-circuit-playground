@@ -4,6 +4,7 @@ import type { StructuredLesson } from '../../../types/lesson-content';
 import { lessons, lessonCategories, getLearningStats } from '../data/lessons';
 import { LessonStepRenderer } from '../components/LessonStepRenderer';
 import type { GateType } from '../../../types/circuit';
+import { TERMS } from '../data/terms';
 import './LearningPanel.css';
 
 // 全ての構造化レッスンをインポート
@@ -32,6 +33,7 @@ import { digitalClockStructuredLesson } from '../data/structured-lessons/digital
 interface LearningPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenHelp?: () => void;
 }
 
 // 全ての構造化レッスンを登録
@@ -71,6 +73,7 @@ const structuredLessons: { [key: string]: StructuredLesson } = {
 export const LearningPanel: React.FC<LearningPanelProps> = ({
   isOpen,
   onClose,
+  onOpenHelp,
 }) => {
   const [selectedLesson, setSelectedLesson] = useState<StructuredLesson | null>(
     null
@@ -153,10 +156,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
         JSON.stringify([...newCompleted])
       );
 
-      setTimeout(() => {
-        setSelectedLesson(null);
-        setCurrentStepIndex(0);
-      }, 3000);
+      // 自動遷移を削除（ユーザーが手動で戻るように）
     }
   }, [currentStepIndex, selectedLesson, completedLessons]);
 
@@ -169,7 +169,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
     if (lesson) {
       if (gates.length > 0 || wires.length > 0) {
         if (
-          window.confirm('現在の回路をクリアして、レッスンを開始しますか？')
+          window.confirm(`現在の${TERMS.CIRCUIT}を${TERMS.CLEAR}して、${TERMS.LESSON}を開始しますか？`)
         ) {
           clearAll();
         } else {
@@ -212,7 +212,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
         <div className="minimized-content">
           <span className="minimized-icon">🎓</span>
           <span className="minimized-title">
-            {selectedLesson ? selectedLesson.title : '学習モード'}
+            {selectedLesson ? selectedLesson.title : TERMS.LEARNING_MODE}
           </span>
           {selectedLesson && (
             <div className="minimized-progress">
@@ -227,7 +227,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
           <button
             className="expand-button"
             onClick={() => setIsMinimized(false)}
-            title="パネルを展開"
+            title={`パネルを${TERMS.EXPAND}`}
           >
             ▼
           </button>
@@ -264,14 +264,42 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                   </span>
                 )}
               </p>
+              {onOpenHelp && (
+                <button
+                  onClick={onOpenHelp}
+                  className="help-button"
+                  title={TERMS.HELP}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    padding: '4px 8px',
+                    marginRight: '8px',
+                    borderRadius: '4px',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    e.currentTarget.style.color = '#00ff88';
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
+                  }}
+                >
+                  ❓
+                </button>
+              )}
               <button
                 onClick={() => setIsMinimized(true)}
                 className="minimize-button"
-                title="最小化"
+                title={TERMS.MINIMIZE}
               >
                 ―
               </button>
-              <button onClick={onClose} className="close-button">
+              <button onClick={onClose} className="close-button" title={TERMS.CLOSE}>
                 ×
               </button>
             </div>
@@ -279,17 +307,17 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
             <div className="learning-stats">
               <div className="stat-card">
                 <div className="stat-number">{stats.completed}</div>
-                <div className="stat-label">完了レッスン</div>
+                <div className="stat-label">{TERMS.COMPLETED_LESSONS}</div>
               </div>
               <div className="stat-card">
                 <div className="stat-number">{stats.progress}%</div>
-                <div className="stat-label">進捗率</div>
+                <div className="stat-label">{TERMS.PROGRESS_RATE}</div>
               </div>
               <div className="stat-card">
                 <div className="stat-number">
                   {Math.round(stats.estimatedTime / 60)}h
                 </div>
-                <div className="stat-label">残り時間</div>
+                <div className="stat-label">{TERMS.REMAINING_TIME}</div>
               </div>
             </div>
           </div>
@@ -390,23 +418,32 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                 setCurrentStepIndex(0);
               }}
               className="header-nav-button"
-              title="レッスン一覧に戻る"
+              title={`${TERMS.LESSON_LIST}に${TERMS.BACK}`}
             >
               ←
             </button>
             <h3 className="header-title">{selectedLesson.title}</h3>
             <div className="header-actions">
+              {onOpenHelp && (
+                <button
+                  onClick={onOpenHelp}
+                  className="header-nav-button"
+                  title={TERMS.HELP}
+                >
+                  ❓
+                </button>
+              )}
               <button
                 onClick={() => setIsMinimized(true)}
                 className="header-nav-button"
-                title="最小化"
+                title={TERMS.MINIMIZE}
               >
                 ―
               </button>
               <button
                 onClick={onClose}
                 className="header-nav-button"
-                title="閉じる"
+                title={TERMS.CLOSE}
               >
                 ×
               </button>
@@ -424,21 +461,56 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
             ) : (
               // レッスン完了画面
               <div className="lesson-complete">
-                <div className="completion-animation">🎉</div>
-                <h2>レッスン完了！</h2>
-                <p>「{selectedLesson.title}」をマスターしました！</p>
-                <div className="completion-stats">
-                  <div className="completion-stat">
-                    <span className="stat-value">
-                      {selectedLesson.estimatedMinutes}分
-                    </span>
-                    <span className="stat-label">学習時間</span>
+                <div className="completion-content">
+                  <div className="completion-icon-wrapper">
+                    <div className="completion-icon">✨</div>
+                    <div className="completion-icon-bg"></div>
                   </div>
-                  <div className="completion-stat">
-                    <span className="stat-value">
-                      {selectedLesson.steps.length}
-                    </span>
-                    <span className="stat-label">ステップ数</span>
+                  <h2 className="completion-title">素晴らしい！</h2>
+                  <p className="completion-subtitle">
+                    「{selectedLesson.title}」を完全マスター
+                  </p>
+                  <div className="completion-stats">
+                    <div className="completion-stat">
+                      <div className="stat-icon">⏱️</div>
+                      <span className="stat-value">
+                        {selectedLesson.estimatedMinutes}分
+                      </span>
+                      <span className="stat-label">{TERMS.LEARNING_TIME}</span>
+                    </div>
+                    <div className="completion-stat">
+                      <div className="stat-icon">📝</div>
+                      <span className="stat-value">
+                        {selectedLesson.steps.length}
+                      </span>
+                      <span className="stat-label">{TERMS.STEP_COUNT}</span>
+                    </div>
+                    <div className="completion-stat">
+                      <div className="stat-icon">🏆</div>
+                      <span className="stat-value">
+                        {Math.round((completedLessons.size + 1) / lessons.length * 100)}%
+                      </span>
+                      <span className="stat-label">{TERMS.OVERALL_PROGRESS}</span>
+                    </div>
+                  </div>
+                  <div className="completion-actions">
+                    <button
+                      onClick={() => {
+                        setSelectedLesson(null);
+                        setCurrentStepIndex(0);
+                      }}
+                      className="completion-button primary"
+                    >
+                      {TERMS.LESSON_LIST}へ
+                    </button>
+                    {selectedLesson.id === 'half-adder' && (
+                      <button
+                        onClick={() => handleStartLesson('full-adder')}
+                        className="completion-button secondary"
+                      >
+                        {TERMS.NEXT_LESSON}へ →
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -452,9 +524,9 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                 onClick={handlePreviousStep}
                 disabled={currentStepIndex === 0}
                 className="footer-nav-button prev"
-                title="前のステップ"
+                title={TERMS.PREVIOUS_STEP}
               >
-                ◀ 前へ
+                ◀ {TERMS.PREVIOUS}
               </button>
               <div className="nav-dots">
                 {selectedLesson.steps.map((_, index) => (
@@ -473,13 +545,13 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                 className="footer-nav-button next"
                 title={
                   currentStepIndex === selectedLesson.steps.length - 1
-                    ? '完了'
-                    : '次のステップ'
+                    ? TERMS.COMPLETE
+                    : TERMS.NEXT_STEP
                 }
               >
                 {currentStepIndex === selectedLesson.steps.length - 1
-                  ? '完了 ✓'
-                  : '次へ ▶'}
+                  ? `${TERMS.COMPLETE} ✓`
+                  : `${TERMS.NEXT} ▶`}
               </button>
             </div>
           )}

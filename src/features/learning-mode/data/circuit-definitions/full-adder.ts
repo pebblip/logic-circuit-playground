@@ -6,7 +6,6 @@ import type { Gate, Wire } from '@/types/circuit';
  * 2つの半加算器とORゲートで構成
  */
 export const fullAdderCircuit = {
-  title: '全加算器回路（3ビット入力）',
   gates: [
     // 入力A
     {
@@ -33,7 +32,7 @@ export const fullAdderCircuit = {
       position: { x: 50, y: 300 },
       inputs: [],
       output: false,
-      metadata: { name: 'Cin' },
+      metadata: { name: '前の桁から' },
     },
 
     // 第1半加算器
@@ -87,7 +86,7 @@ export const fullAdderCircuit = {
       type: 'OUTPUT' as const,
       position: { x: 650, y: 150 },
       inputs: [],
-      metadata: { name: 'Sum' },
+      metadata: { name: '右の桁' },
     },
     // 出力Cout
     {
@@ -95,7 +94,7 @@ export const fullAdderCircuit = {
       type: 'OUTPUT' as const,
       position: { x: 650, y: 350 },
       inputs: [],
-      metadata: { name: 'Cout' },
+      metadata: { name: '左の桁' },
     },
   ] as Gate[],
 
@@ -193,6 +192,6 @@ export const fullAdderCircuit = {
     preferredWidth: 750,
     preferredHeight: 450,
     inputLabels: ['A', 'B', 'Cin'],
-    outputLabels: ['Sum', 'Cout'],
+    outputLabels: ['右の桁', '左の桁'],
   },
 };

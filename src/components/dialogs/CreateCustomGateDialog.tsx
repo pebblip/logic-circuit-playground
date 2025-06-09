@@ -6,6 +6,7 @@ import { BasicInfoForm } from './custom-gate-dialog/BasicInfoForm';
 import { PinEditor } from './custom-gate-dialog/PinEditor';
 import { GatePreview } from './custom-gate-dialog/GatePreview';
 import { debug } from '@/shared/debug';
+import { TERMS } from '@/features/learning-mode/data/terms';
 
 interface CreateCustomGateDialogProps {
   isOpen: boolean;
@@ -43,7 +44,7 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
 
   const handleSave = () => {
     if (!formData.gateName) {
-      alert('内部名は必須です');
+      alert(`内部名は${TERMS.REQUIRED}です`);
       return;
     }
 
@@ -147,7 +148,7 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
               color: '#00ff88',
             }}
           >
-            カスタムゲートの作成
+            {TERMS.CUSTOM_GATE}の{TERMS.CREATE}
           </h2>
           <button
             onClick={handleCancel}
@@ -261,7 +262,7 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
               cursor: 'pointer',
             }}
           >
-            作成
+            {TERMS.CREATE}
           </button>
         </div>
       </div>

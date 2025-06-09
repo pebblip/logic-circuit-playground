@@ -3,7 +3,6 @@ import { SaveCircuitDialog } from './dialogs/SaveCircuitDialog';
 import { LoadCircuitDialog } from './dialogs/LoadCircuitDialog';
 import { ExportImportDialog } from './dialogs/ExportImportDialog';
 import { CreateCustomGateDialog } from './dialogs/CreateCustomGateDialog';
-import { HelpPanel } from './HelpPanel';
 import { useCircuitStore } from '../stores/circuitStore';
 import type { AppMode } from '../types/appMode';
 import type { CustomGateDefinition } from '../types/circuit';
@@ -14,9 +13,11 @@ import { TERMS } from '../features/learning-mode/data/terms';
 interface HeaderProps {
   activeMode: AppMode;
   onModeChange: (mode: AppMode) => void;
+  onOpenHelp?: () => void;
+  onHelpDialogStateChange?: (isOpen: boolean) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
+export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange, onOpenHelp, onHelpDialogStateChange }) => {
   const {
     gates,
     wires: _wires,
@@ -210,7 +211,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
           {/* ヘルプボタンは常に表示 */}
           <button
             className="button help-button"
-            onClick={() => dialogs.help.open()}
+            onClick={onOpenHelp || (() => dialogs.help.open())}
             title={TERMS.HELP}
           >
             <span>❓</span>
@@ -239,7 +240,6 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange }) => {
         onSuccess={handleExportSuccess}
       />
 
-      <HelpPanel isOpen={dialogs.help.isOpen} onClose={dialogs.help.close} />
 
       <CreateCustomGateDialog
         isOpen={dialogs.customGate.isOpen}

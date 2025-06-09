@@ -58,6 +58,19 @@ export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({
             stroke="#00ff88"
             strokeWidth="2"
           />
+          {/* ラベル表示 */}
+          {gate.metadata?.name && (
+            <text
+              x="0"
+              y="-25"
+              textAnchor="middle"
+              fill="#00ff88"
+              fontSize="14"
+              fontWeight="bold"
+            >
+              {gate.metadata.name}
+            </text>
+          )}
         </>
       );
     } else {
@@ -111,6 +124,19 @@ export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({
             stroke="#00ff88"
             strokeWidth="2"
           />
+          {/* ラベル表示 */}
+          {gate.metadata?.name && (
+            <text
+              x="0"
+              y="-30"
+              textAnchor="middle"
+              fill="#00ff88"
+              fontSize="14"
+              fontWeight="bold"
+            >
+              {gate.metadata.name}
+            </text>
+          )}
         </>
       );
     }

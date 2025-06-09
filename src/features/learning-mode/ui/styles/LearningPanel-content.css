@@ -18,6 +18,58 @@
   filter: drop-shadow(0 0 10px var(--color-primary-border-strong));
 }
 
+/* 📝 学習コンテンツ見出しスタイル */
+.explanation-heading {
+  color: var(--color-primary);
+  font-weight: 700;
+  margin: 32px 0 16px 0;
+  display: flex;
+  align-items: center;
+  border-left: 4px solid var(--color-primary);
+  padding-left: 16px;
+  text-shadow: 0 0 10px var(--color-primary-subtle);
+}
+
+/* レベル別のフォントサイズ */
+.explanation-heading:is(h1) {
+  font-size: 24px;
+  margin: 40px 0 20px 0;
+  border-left-width: 5px;
+}
+
+.explanation-heading:is(h2) {
+  font-size: 20px;
+  margin: 32px 0 16px 0;
+  border-left-width: 4px;
+}
+
+.explanation-heading:is(h3) {
+  font-size: 18px;
+  margin: 28px 0 14px 0;
+  border-left-width: 3px;
+}
+
+.explanation-heading:is(h4) {
+  font-size: 16px;
+  margin: 24px 0 12px 0;
+  border-left-width: 2px;
+  color: #ffaa00;
+}
+
+.explanation-heading:is(h5) {
+  font-size: 15px;
+  margin: 20px 0 10px 0;
+  border-left-width: 2px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.explanation-heading:is(h6) {
+  font-size: 14px;
+  margin: 16px 0 8px 0;
+  border-left-width: 1px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
 .phase-title {
   font-size: 28px;
   font-weight: 700;
@@ -107,4 +159,65 @@
   margin: 16px 0;
   letter-spacing: 1px;
   text-align: center;
+}
+
+/* 📝 リッチテキストコンポーネントのスタイル */
+.explanation-paragraph {
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 20px;
+}
+
+.explanation-paragraph .bold {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.explanation-paragraph .emphasis {
+  background: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.explanation-paragraph .gate-name {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-shadow: 0 0 10px var(--color-primary-subtle);
+}
+
+/* 📋 リストコンポーネントのスタイル */
+.explanation-list,
+.explanation-ordered-list {
+  margin: 16px 0 20px 0;
+  padding-left: 20px;
+}
+
+/* リストマーカーを復活（reset.cssで削除されているため） */
+.explanation-list {
+  list-style-type: disc;
+}
+
+.explanation-ordered-list {
+  list-style-type: decimal;
+}
+
+.explanation-list li,
+.explanation-ordered-list li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
+  padding-left: 4px;
+}
+
+.explanation-list li::marker {
+  color: var(--color-primary);
+}
+
+.explanation-ordered-list li::marker {
+  color: var(--color-primary);
+  font-weight: 600;
 }

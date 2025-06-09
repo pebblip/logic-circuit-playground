@@ -6,7 +6,6 @@ import type { Gate, Wire } from '@/types/circuit';
  * 制作モードと同じデータ構造を使用
  */
 export const halfAdderCircuit = {
-  title: '半加算器回路（改善版）',
   gates: [
     // 入力A
     {
@@ -26,7 +25,7 @@ export const halfAdderCircuit = {
       output: true,
       metadata: { name: 'B' },
     },
-    // XORゲート（Sum用）
+    // XORゲート（1の位用）
     {
       id: 'xor-gate',
       type: 'XOR' as const,
@@ -34,7 +33,7 @@ export const halfAdderCircuit = {
       inputs: [],
       output: false,
     },
-    // ANDゲート（Carry用）
+    // ANDゲート（2の位用）
     {
       id: 'and-gate',
       type: 'AND' as const,
@@ -42,21 +41,21 @@ export const halfAdderCircuit = {
       inputs: [],
       output: false,
     },
-    // 出力Sum
+    // 出力（1の位）
     {
       id: 'output-sum',
       type: 'OUTPUT' as const,
       position: { x: 550, y: 120 },
       inputs: [],
-      metadata: { name: 'Sum' },
+      metadata: { name: '1の位' },
     },
-    // 出力Carry
+    // 出力（2の位）
     {
       id: 'output-carry',
       type: 'OUTPUT' as const,
       position: { x: 550, y: 280 },
       inputs: [],
-      metadata: { name: 'Carry' },
+      metadata: { name: '2の位' },
     },
   ] as Gate[],
 
@@ -89,14 +88,14 @@ export const halfAdderCircuit = {
       to: { gateId: 'and-gate', pinIndex: 1 },
       isActive: false,
     },
-    // XOR → Sum
+    // XOR → 1の位
     {
       id: IdGenerator.generateWireId(),
       from: { gateId: 'xor-gate', pinIndex: -1 },
       to: { gateId: 'output-sum', pinIndex: 0 },
       isActive: false,
     },
-    // AND → Carry
+    // AND → 2の位
     {
       id: IdGenerator.generateWireId(),
       from: { gateId: 'and-gate', pinIndex: -1 },
@@ -109,6 +108,6 @@ export const halfAdderCircuit = {
     width: 700,
     height: 400,
     inputLabels: ['A', 'B'],
-    outputLabels: ['Sum', 'Carry'],
+    outputLabels: ['1の位', '2の位'],
   },
 };

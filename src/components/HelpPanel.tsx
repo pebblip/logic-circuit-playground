@@ -5,6 +5,7 @@ import { TERMS } from '../features/learning-mode/data/terms';
 interface HelpPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenLearningMode?: () => void;
 }
 
 type TabId = 'quick-help' | 'troubleshooting' | 'features';
@@ -93,7 +94,7 @@ const helpContents: Record<TabId, HelpContent[]> = {
   ],
 };
 
-export const HelpPanel: React.FC<HelpPanelProps> = ({ isOpen, onClose }) => {
+export const HelpPanel: React.FC<HelpPanelProps> = ({ isOpen, onClose, onOpenLearningMode }) => {
   const [activeTab, setActiveTab] = useState<TabId>('quick-help');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
@@ -126,10 +127,39 @@ export const HelpPanel: React.FC<HelpPanelProps> = ({ isOpen, onClose }) => {
     <div className="help-panel-overlay">
       <div className="help-panel">
         <div className="help-panel-header">
-          <h2>❓ ヘルプ</h2>
-          <button className="close-button" onClick={onClose}>
-            ×
-          </button>
+          <h2>❓ {TERMS.HELP}</h2>
+          <div className="header-actions">
+            {onOpenLearningMode && (
+              <button 
+                className="learning-mode-button" 
+                onClick={onOpenLearningMode}
+                title={`${TERMS.LEARNING_MODE}を開く`}
+                style={{
+                  background: 'linear-gradient(45deg, #00ff88, #00cc6a)',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '6px 12px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  marginRight: '12px',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              >
+                🎓 {TERMS.LEARNING_MODE}
+              </button>
+            )}
+            <button className="close-button" onClick={onClose}>
+              ×
+            </button>
+          </div>
         </div>
 
         <div className="help-search">

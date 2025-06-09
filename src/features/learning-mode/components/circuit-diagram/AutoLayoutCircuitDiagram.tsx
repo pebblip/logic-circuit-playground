@@ -8,7 +8,7 @@ import {
 import type { Gate, Wire } from '@/types/circuit';
 
 interface CircuitDefinition {
-  title: string;
+  title?: string;
   gates: Gate[];
   wires: Wire[];
   layout?: {
@@ -16,6 +16,8 @@ interface CircuitDefinition {
     outputLabels?: string[];
     preferredWidth?: number;
     preferredHeight?: number;
+    width?: number;
+    height?: number;
   };
 }
 

@@ -6,6 +6,7 @@ import type {
   ExportOptions,
   ImportOptions,
 } from '../../types/circuitStorage';
+import { TERMS } from '../../features/learning-mode/data/terms';
 import './ExportImportDialog.css';
 
 interface ExportImportDialogProps {
@@ -214,13 +215,13 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
         <div className="dialog-header">
           <h2 className="dialog-title">
             {mode === 'export'
-              ? '📤 回路をエクスポート'
-              : '📥 回路をインポート'}
+              ? `📤 ${TERMS.CIRCUIT}を${TERMS.EXPORT}`
+              : `📥 ${TERMS.CIRCUIT}を${TERMS.IMPORT}`}
           </h2>
           <button
             className="close-button"
             onClick={onClose}
-            aria-label="閉じる"
+            aria-label={TERMS.CLOSE}
           >
             ✕
           </button>
@@ -233,15 +234,15 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
             <div className="export-content">
               {/* 現在の回路情報 */}
               <div className="current-circuit-info">
-                <h3>現在の回路</h3>
+                <h3>現在の{TERMS.CIRCUIT}</h3>
                 <div className="circuit-stats">
                   <span className="stat-item">
                     <span className="stat-icon">🔲</span>
-                    {gates.length} ゲート
+                    {gates.length} {TERMS.GATE}
                   </span>
                   <span className="stat-item">
                     <span className="stat-icon">🔗</span>
-                    {wires.length} 接続
+                    {wires.length} {TERMS.CONNECTION}
                   </span>
                   <span className="stat-item">
                     <span className="stat-icon">📅</span>
@@ -252,7 +253,7 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
 
               {/* エクスポート設定 */}
               <div className="export-settings">
-                <h3>エクスポート設定</h3>
+                <h3>{TERMS.EXPORT}設定</h3>
 
                 {/* 回路名 */}
                 <div className="form-group">
@@ -263,7 +264,7 @@ export const ExportImportDialog: React.FC<ExportImportDialogProps> = ({
                     id="export-name"
                     type="text"
                     className="form-input"
-                    placeholder="回路名を入力..."
+                    placeholder={`${TERMS.CIRCUIT_NAME}を${TERMS.INPUT}...`}
                     value={circuitName}
                     onChange={e => setCircuitName(e.target.value)}
                     autoFocus

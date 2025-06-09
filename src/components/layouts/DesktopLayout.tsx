@@ -5,8 +5,10 @@ import { Canvas } from '../Canvas';
 import { PropertyPanel } from '../property-panel';
 import { LearningPanel } from '../../features/learning-mode/ui/LearningPanel';
 import { CircuitVisualizerPanel } from '../CircuitVisualizerPanel';
+import { HelpPanel } from '../HelpPanel';
 import { useCircuitStore } from '../../stores/circuitStore';
 import type { AppMode } from '../../types/appMode';
+import { TERMS } from '../../features/learning-mode/data/terms';
 
 interface DesktopLayoutProps {
   children?: React.ReactNode;
@@ -28,6 +30,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   const [highlightedGateId, setHighlightedGateId] = useState<string | null>(
     null
   );
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const handleModeChange = (mode: AppMode) => {
     setAppMode(mode);
@@ -40,6 +43,15 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   const handleGateUnhighlight = () => {
     setHighlightedGateId(null);
   };
+
+  const handleOpenHelp = () => {
+    setIsHelpOpen(true);
+  };
+
+  const handleCloseHelp = () => {
+    setIsHelpOpen(false);
+  };
+
 
   // 緊急修正: 自動表示ロジックを無効化（バツボタンの妨害を防ぐ）
   // React.useEffect(() => {
@@ -57,7 +69,11 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   return (
     <div className="app-container">
       {/* ヘッダー（グリッド全幅） */}
-      <Header activeMode={appMode} onModeChange={handleModeChange} />
+      <Header 
+        activeMode={appMode} 
+        onModeChange={handleModeChange}
+        onOpenHelp={handleOpenHelp}
+      />
 
       {/* 左サイドバー - ツールパレット */}
       <aside className="sidebar-left">
@@ -141,6 +157,17 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
       <LearningPanel
         isOpen={appMode === '学習モード'}
         onClose={() => setAppMode('自由制作')}
+        onOpenHelp={handleOpenHelp}
+      />
+
+      {/* ヘルプパネル */}
+      <HelpPanel
+        isOpen={isHelpOpen}
+        onClose={handleCloseHelp}
+        onOpenLearningMode={() => {
+          handleCloseHelp();
+          setAppMode(TERMS.LEARNING_MODE);
+        }}
       />
     </div>
   );

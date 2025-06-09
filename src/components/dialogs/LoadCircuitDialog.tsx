@@ -6,6 +6,7 @@ import type {
   CircuitStorageResult,
 } from '../../types/circuitStorage';
 import type { Gate, Wire } from '../../types/circuit';
+import { TERMS } from '../../features/learning-mode/data/terms';
 import './LoadCircuitDialog.css';
 
 interface LoadCircuitDialogProps {
@@ -68,7 +69,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
       setError(
         error instanceof Error
           ? error.message
-          : '読み込み中にエラーが発生しました'
+          : `${TERMS.LOAD}中に${TERMS.ERROR}が発生しました`
       );
     } finally {
       setLoading(false);
@@ -147,7 +148,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
   const handleLoad = async (circuitId: string) => {
     if (currentGates.length > 0 || currentWires.length > 0) {
       const confirmed = window.confirm(
-        '現在の回路は失われます。\n読み込みを続行しますか？'
+        `現在の${TERMS.CIRCUIT}は失われます。\n${TERMS.LOAD}を続行しますか？`
       );
       if (!confirmed) return;
     }
@@ -189,13 +190,13 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
         onLoad?.(result);
         onClose();
       } else {
-        setError(result.message || '読み込みに失敗しました');
+        setError(result.message || `${TERMS.LOAD}に${TERMS.FAILED}しました`);
       }
     } catch (error) {
       setError(
         error instanceof Error
           ? error.message
-          : '読み込み中にエラーが発生しました'
+          : `${TERMS.LOAD}中に${TERMS.ERROR}が発生しました`
       );
     } finally {
       setLoadingCircuit(false);
@@ -212,7 +213,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
     event.stopPropagation();
 
     const confirmed = window.confirm(
-      `回路「${circuit.name}」を削除しますか？\nこの操作は取り消せません。`
+      `${TERMS.CIRCUIT}「${circuit.name}」を${TERMS.DELETE}しますか？\nこの操作は取り消せません。`
     );
 
     if (!confirmed) return;
@@ -227,11 +228,11 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
           setSelectedCircuit(null);
         }
       } else {
-        setError(result.message || '削除に失敗しました');
+        setError(result.message || `${TERMS.DELETE}に${TERMS.FAILED}しました`);
       }
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : '削除中にエラーが発生しました'
+        error instanceof Error ? error.message : `${TERMS.DELETE}中に${TERMS.ERROR}が発生しました`
       );
     }
   };
@@ -273,11 +274,11 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
       <div className="load-dialog" onClick={e => e.stopPropagation()}>
         {/* ヘッダー */}
         <div className="dialog-header">
-          <h2 className="dialog-title">📂 保存済み回路を読み込み</h2>
+          <h2 className="dialog-title">📂 保存済み{TERMS.CIRCUIT}を{TERMS.LOAD}</h2>
           <button
             className="close-button"
             onClick={onClose}
-            aria-label="閉じる"
+            aria-label={TERMS.CLOSE}
           >
             ✕
           </button>
@@ -290,7 +291,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
             <span className="search-icon">🔍</span>
             <input
               type="text"
-              placeholder="回路名、説明、タグで検索..."
+              placeholder={`${TERMS.CIRCUIT_NAME}、説明、タグで検索...`}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="search-input"

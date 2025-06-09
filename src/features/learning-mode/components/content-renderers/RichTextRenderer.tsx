@@ -11,8 +11,21 @@ export const RichTextRenderer: React.FC<RichTextRendererProps> = ({
   return (
     <p className="explanation-paragraph">
       {content.elements.map((elem, idx) => {
-        // 文字列の場合はそのまま返す
+        // 文字列の場合は改行文字を処理してから返す
         if (typeof elem === 'string') {
+          // 改行文字を<br>タグに変換
+          if (elem.includes('\n')) {
+            return (
+              <React.Fragment key={idx}>
+                {elem.split('\n').map((line, lineIdx, arr) => (
+                  <React.Fragment key={lineIdx}>
+                    {line}
+                    {lineIdx < arr.length - 1 && <br />}
+                  </React.Fragment>
+                ))}
+              </React.Fragment>
+            );
+          }
           return <React.Fragment key={idx}>{elem}</React.Fragment>;
         }
 

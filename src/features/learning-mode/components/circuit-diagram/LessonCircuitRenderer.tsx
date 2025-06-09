@@ -6,7 +6,7 @@ import type { Gate, Wire } from '@/types/circuit';
 interface LessonCircuit {
   gates: Gate[];
   wires: Wire[];
-  title: string;
+  title?: string;
   bounds?: {
     width: number;
     height: number;
@@ -43,7 +43,7 @@ export const LessonCircuitRenderer: React.FC<LessonCircuitRendererProps> = ({
 
   return (
     <div className="lesson-circuit-container">
-      <h3 className="circuit-title">{circuit.title}</h3>
+      {circuit.title && <h3 className="circuit-title">{circuit.title}</h3>}
       <svg
         viewBox={`${minX} ${minY} ${viewWidth} ${viewHeight}`}
         style={{ width: '100%', maxWidth: '800px', height: 'auto' }}

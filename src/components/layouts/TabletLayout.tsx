@@ -4,7 +4,9 @@ import { ToolPalette } from '../ToolPalette';
 import { Canvas } from '../Canvas';
 import { PropertyPanel } from '../property-panel';
 import { LearningPanel } from '../../features/learning-mode/ui/LearningPanel';
+import { HelpPanel } from '../HelpPanel';
 import { useCircuitStore } from '../../stores/circuitStore';
+import { TERMS } from '../../features/learning-mode/data/terms';
 import '../../styles/tablet-layout.css';
 
 interface TabletLayoutProps {
@@ -14,11 +16,24 @@ interface TabletLayoutProps {
 export const TabletLayout: React.FC<TabletLayoutProps> = () => {
   const [isToolPaletteOpen, setIsToolPaletteOpen] = useState(true);
   const [isPropertyPanelOpen, setIsPropertyPanelOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const { appMode, setAppMode } = useCircuitStore();
+
+  const handleOpenHelp = () => {
+    setIsHelpOpen(true);
+  };
+
+  const handleCloseHelp = () => {
+    setIsHelpOpen(false);
+  };
 
   return (
     <div className="tablet-layout">
-      <Header activeMode={appMode} onModeChange={setAppMode} />
+      <Header 
+        activeMode={appMode} 
+        onModeChange={setAppMode}
+        onOpenHelp={handleOpenHelp}
+      />
       <div className="tablet-main">
         {/* ツールパレット（折りたたみ可能） */}
         <div
@@ -58,6 +73,17 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
       <LearningPanel
         isOpen={appMode === '学習モード'}
         onClose={() => setAppMode('自由制作')}
+        onOpenHelp={handleOpenHelp}
+      />
+
+      {/* ヘルプパネル */}
+      <HelpPanel
+        isOpen={isHelpOpen}
+        onClose={handleCloseHelp}
+        onOpenLearningMode={() => {
+          handleCloseHelp();
+          setAppMode(TERMS.LEARNING_MODE);
+        }}
       />
     </div>
   );
