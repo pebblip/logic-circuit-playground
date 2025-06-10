@@ -23,22 +23,45 @@ export const PinComponent: React.FC<PinComponentProps> = ({
   onPinClick,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const { isDrawingWire, wireStart } = useCircuitStore();
+  const { isDrawingWire, wireStart, wires } = useCircuitStore();
   
   // ワイヤー描画中かつ、接続可能なピンかを判定
   const isConnectable = () => {
-    if (!isDrawingWire || !wireStart) return false;
+    if (!isDrawingWire || !wireStart) return true; // ワイヤー描画中でなければ判定しない
     
     // 同じゲートには接続不可
     if (wireStart.gateId === gate.id) return false;
     
     // 出力から入力へ、または入力から出力への接続のみ可能
     const isStartOutput = wireStart.pinIndex < 0;
-    return isStartOutput !== isOutput;
+    if (isStartOutput === isOutput) return false;
+    
+    // 入力ピンの場合、すでに接続されていたら接続不可
+    if (!isOutput) {
+      const hasConnection = wires.some(wire => 
+        wire.to.gateId === gate.id && wire.to.pinIndex === pinIndex
+      );
+      if (hasConnection) return false;
+    }
+    
+    return true;
   };
   
   const canConnect = isConnectable();
-  const showInvalidConnection = isDrawingWire && isHovered && !canConnect;
+  const showInvalidConnection = isDrawingWire && wireStart && !canConnect;
+  
+  // デバッグ用
+  if (isDrawingWire && wireStart && isHovered) {
+    console.log('Pin Debug:', {
+      gateId: gate.id,
+      isOutput,
+      canConnect,
+      showInvalidConnection,
+      wireStartGateId: wireStart.gateId,
+      wireStartPinIndex: wireStart.pinIndex,
+      isStartOutput: wireStart.pinIndex < 0
+    });
+  }
   
   // アクティブ状態の判定
   const isPinActive = isActive !== undefined ? isActive : (isOutput ? gate.output : getGateInputValue(gate, pinIndex));
@@ -58,9 +81,9 @@ export const PinComponent: React.FC<PinComponentProps> = ({
         x2={x}
         y2={y}
         className={`pin-line ${isPinActive ? 'active' : ''}`}
-        stroke={isPinActive ? '#00ff88' : '#00ff88'}
+        stroke={showInvalidConnection ? '#ff4757' : (isPinActive ? '#00ff88' : '#00ff88')}
         strokeWidth="2"
-        opacity={isPinActive ? '1' : '0.4'}
+        opacity={showInvalidConnection ? '0.8' : (isPinActive ? '1' : '0.4')}
         pointerEvents="none"
       />
       
