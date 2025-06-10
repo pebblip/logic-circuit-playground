@@ -158,7 +158,7 @@
   --gate-special-width: 100px;
   --gate-special-height: 80px;
   --gate-pin-radius: 6px;
-  --gate-pin-hit-radius: 20px;
+  --gate-pin-hit-radius: 22px; /* iOS HIG準拠の44px径タッチターゲット */
 
   /* パネル */
   --panel-width-desktop: 280px;

@@ -7,6 +7,236 @@
 @import './styles/LearningPanel-player.css';
 @import './styles/LearningPanel-tables.css';
 
+/* ========== Picture-in-Picture学習パネル ========== */
+
+.floating-learning-panel {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  user-select: none;
+}
+
+.floating-learning-panel.minimized {
+  width: auto !important;
+  height: auto !important;
+  border-radius: 24px;
+  overflow: visible;
+}
+
+.floating-panel-header {
+  transition: all 0.2s ease;
+}
+
+.floating-panel-header:hover {
+  background: rgba(0, 255, 136, 0.15) !important;
+}
+
+.header-control-button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #00ff88 !important;
+}
+
+/* 最小化時のスタイル */
+.minimized-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(10, 10, 10, 0.95);
+  border: 2px solid rgba(0, 255, 136, 0.3);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  cursor: grab;
+}
+
+.minimized-content:active {
+  cursor: grabbing;
+}
+
+.minimized-icon {
+  font-size: 16px;
+}
+
+.minimized-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #00ff88;
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.minimized-progress {
+  width: 60px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.minimized-progress-bar {
+  height: 100%;
+  background: #00ff88;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.expand-button, .close-button {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 10px;
+  transition: all 0.2s ease;
+}
+
+.expand-button:hover, .close-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #00ff88;
+}
+
+/* フローティングコンテンツのスタイル */
+.floating-learning-home {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.floating-learning-stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.compact-stat-card {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.compact-stat-card .stat-number {
+  font-size: 16px;
+  font-weight: bold;
+  color: #00ff88;
+  margin-bottom: 2px;
+}
+
+.compact-stat-card .stat-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.floating-learning-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.compact-phase-section {
+  margin-bottom: 16px;
+}
+
+.compact-phase-header h3 {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.compact-phase-progress {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.compact-phase-progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.compact-lessons-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.compact-lesson-card {
+  transition: all 0.2s ease;
+}
+
+.compact-lesson-card:hover:not(.locked) {
+  background: rgba(0, 255, 136, 0.15) !important;
+  border-color: #00ff88 !important;
+  transform: translateY(-1px);
+}
+
+.compact-lesson-card.locked {
+  opacity: 0.4;
+}
+
+/* レッスンプレイヤー（コンパクト版） */
+.floating-lesson-player {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.floating-lesson-content {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.compact-lesson-complete {
+  text-align: center;
+  padding: 16px;
+  background: rgba(0, 255, 136, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+/* スクロールバーのスタイル */
+.floating-learning-panel ::-webkit-scrollbar {
+  width: 6px;
+}
+
+.floating-learning-panel ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.floating-learning-panel ::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 136, 0.3);
+  border-radius: 3px;
+}
+
+.floating-learning-panel ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 136, 0.5);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 640px) {
+  .floating-learning-panel {
+    max-width: calc(100vw - 20px);
+    max-height: calc(100vh - 100px);
+  }
+  
+  .minimized-title {
+    max-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-learning-panel {
+    max-width: calc(100vw - 10px);
+    max-height: calc(100vh - 80px);
+  }
+}
+
 .learning-panel {
   position: fixed;
   top: 56px; /* ヘッダーの高さ分下げる */

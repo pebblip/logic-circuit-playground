@@ -1,0 +1,43 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00ff88;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0088ff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect x="0" y="0" width="64" height="64" fill="#1a1a2e" rx="12"/>
+  
+  <!-- 中央のロジックゲート -->
+  <g transform="translate(12, 16)">
+    <!-- ANDゲート本体 -->
+    <path d="M 0 8 L 20 8 Q 32 8 32 20 Q 32 32 20 32 L 0 32 Z" 
+          fill="none" 
+          stroke="url(#iconGradient)" 
+          stroke-width="3"/>
+    
+    <!-- 出力ノード -->
+    <circle cx="36" cy="20" r="3" fill="url(#iconGradient)"/>
+    
+    <!-- 入力線 -->
+    <line x1="-8" y1="14" x2="0" y2="14" stroke="url(#iconGradient)" stroke-width="3"/>
+    <line x1="-8" y1="26" x2="0" y2="26" stroke="url(#iconGradient)" stroke-width="3"/>
+    
+    <!-- 出力線 -->
+    <line x1="39" y1="20" x2="48" y2="20" stroke="url(#iconGradient)" stroke-width="3"/>
+    
+    <!-- 入力ノード -->
+    <circle cx="-8" cy="14" r="2" fill="url(#iconGradient)"/>
+    <circle cx="-8" cy="26" r="2" fill="url(#iconGradient)"/>
+    
+    <!-- 出力端 -->
+    <circle cx="48" cy="20" r="2" fill="url(#iconGradient)"/>
+  </g>
+  
+  <!-- 四隅の装飾的なドット -->
+  <circle cx="8" cy="8" r="1.5" fill="#00ff88" opacity="0.5"/>
+  <circle cx="56" cy="8" r="1.5" fill="#0088ff" opacity="0.5"/>
+  <circle cx="8" cy="56" r="1.5" fill="#0088ff" opacity="0.5"/>
+  <circle cx="56" cy="56" r="1.5" fill="#00ff88" opacity="0.5"/>
+</svg>

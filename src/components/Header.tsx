@@ -129,7 +129,9 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange, onOpen
   return (
     <>
       <header className="header">
-        <div className="logo">論理回路プレイグラウンド</div>
+        <div className="logo">
+          <img src="/logo-text.svg" alt="LogiCirc" height="32" />
+        </div>
 
         <div className="mode-tabs">
           <button

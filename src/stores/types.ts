@@ -6,6 +6,11 @@ import type {
   Position,
   CustomGateDefinition,
 } from '@/types/circuit';
+import type { AppMode } from '@/types/appMode';
+import type { ConnectionFeedback } from '@/components/ConnectionFeedback';
+
+// Re-export AppMode
+export type { AppMode };
 
 // 履歴管理用の型
 export interface HistoryState {
@@ -25,8 +30,6 @@ export interface ClipboardData {
   };
 }
 
-// アプリケーションモード
-export type AppMode = '学習モード' | '自由制作' | 'パズル・チャレンジ';
 
 // ストアの基本的な状態
 export interface CircuitStoreState extends CircuitState {
@@ -110,4 +113,12 @@ export interface CircuitStoreActions {
   saveToHistory: () => void;
 }
 
-export type CircuitStore = CircuitStoreState & CircuitStoreActions;
+// ワイヤー操作用の追加インターフェース
+export interface WireOperationsSlice {
+  connectionFeedback: ConnectionFeedback[];
+  addConnectionFeedback: (feedback: Omit<ConnectionFeedback, 'id'>) => void;
+  removeConnectionFeedback: (id: string) => void;
+  clearConnectionFeedback: () => void;
+}
+
+export type CircuitStore = CircuitStoreState & CircuitStoreActions & WireOperationsSlice;

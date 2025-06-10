@@ -10,6 +10,7 @@ import type {
 import { CIRCUIT_STORAGE_VERSION } from '../types/circuitStorage';
 import type { Gate, Wire } from '../types/circuit';
 import { IdGenerator } from '../shared/id';
+import { CONTEXT_MESSAGES, humanizeError } from '../domain/simulation/core/errorMessages';
 
 /**
  * 高性能な回路保存・読み込みサービス
@@ -141,10 +142,10 @@ export class CircuitStorageService {
         data: { id: circuitId },
       };
     } catch (error) {
-      console.error('❌ Circuit save failed:', error);
+      console.error('🙅‍♂️ 回路の保存に失敗:', error);
       return {
         success: false,
-        message: `保存に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+        message: humanizeError(error, CONTEXT_MESSAGES.CIRCUIT_SAVE.ERROR),
       };
     }
   }
@@ -161,7 +162,7 @@ export class CircuitStorageService {
       if (!savedCircuit) {
         return {
           success: false,
-          message: '回路が見つかりません',
+          message: '指定された回路が見つかりません。選択した回路が正しいか確認してください。',
         };
       }
 
@@ -177,10 +178,10 @@ export class CircuitStorageService {
         data: savedCircuit,
       };
     } catch (error) {
-      console.error('❌ Circuit load failed:', error);
+      console.error('🙅‍♂️ 回路の読み込みに失敗:', error);
       return {
         success: false,
-        message: `読み込みに失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+        message: humanizeError(error, CONTEXT_MESSAGES.CIRCUIT_LOAD.ERROR),
       };
     }
   }
@@ -263,10 +264,10 @@ export class CircuitStorageService {
         data: filteredList,
       };
     } catch (error) {
-      console.error('❌ Circuit list failed:', error);
+      console.error('🙅‍♂️ 回路一覧の取得に失敗:', error);
       return {
         success: false,
-        message: `一覧取得に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+        message: humanizeError(error, '回路一覧の取得に失敗しました。'),
       };
     }
   }
@@ -292,10 +293,10 @@ export class CircuitStorageService {
         message: '回路を削除しました',
       };
     } catch (error) {
-      console.error('❌ Circuit delete failed:', error);
+      console.error('🙅‍♂️ 回路の削除に失敗:', error);
       return {
         success: false,
-        message: `削除に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+        message: humanizeError(error, CONTEXT_MESSAGES.CIRCUIT_DELETE.ERROR),
       };
     }
   }

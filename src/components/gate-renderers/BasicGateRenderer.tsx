@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Gate } from '@/types/circuit';
 import { getGateInputValue } from '@/domain/simulation';
+import { PinComponent } from './PinComponent';
 
 interface BasicGateRendererProps {
   gate: Gate;
@@ -49,66 +50,34 @@ export const BasicGateRenderer: React.FC<BasicGateRendererProps> = ({
         </text>
       </g>
 
-      {/* 入力ピン */}
-      {Array.from({ length: inputCount }).map((_, index) => {
+      {/* 入力ピン（逆順でレンダリングして上のピンを優先） */}
+      {Array.from({ length: inputCount }).reverse().map((_, reversedIndex) => {
+        const index = inputCount - 1 - reversedIndex;
         const y = inputCount === 1 ? 0 : index === 0 ? -10 : 10;
         return (
-          <g key={`input-${index}`}>
-            {/* クリック領域を大きくするための透明な円 */}
-            <circle
-              cx="-45"
-              cy={y}
-              r="15"
-              fill="transparent"
-              className="u-cursor-crosshair"
-              onClick={e => handlePinClick(e, index, false)}
-            />
-            <circle
-              cx="-45"
-              cy={y}
-              r="6"
-              className={`pin ${getGateInputValue(gate, index) ? 'active' : ''}`}
-              pointerEvents="none"
-            />
-            <line
-              x1="-35"
-              y1={y}
-              x2="-45"
-              y2={y}
-              className={`pin-line ${getGateInputValue(gate, index) ? 'active' : ''}`}
-              pointerEvents="none"
-            />
-          </g>
+          <PinComponent
+            key={`input-${index}`}
+            gate={gate}
+            x={-45}
+            y={y}
+            pinIndex={index}
+            isOutput={false}
+            isActive={getGateInputValue(gate, index)}
+            onPinClick={handlePinClick}
+          />
         );
       })}
 
       {/* 出力ピン */}
-      <g>
-        {/* クリック領域を大きくするための透明な円 */}
-        <circle
-          cx="45"
-          cy="0"
-          r="15"
-          fill="transparent"
-          className="u-cursor-crosshair"
-          onClick={e => handlePinClick(e, 0, true)}
-        />
-        <circle
-          cx="45"
-          cy="0"
-          r="6"
-          className={`pin ${gate.output ? 'active' : ''}`}
-          pointerEvents="none"
-        />
-        <line
-          x1="35"
-          y1="0"
-          x2="45"
-          y2="0"
-          className={`pin-line ${gate.output ? 'active' : ''}`}
-          pointerEvents="none"
-        />
-      </g>
+      <PinComponent
+        gate={gate}
+        x={45}
+        y={0}
+        pinIndex={0}
+        isOutput={true}
+        isActive={gate.output}
+        onPinClick={handlePinClick}
+      />
     </>
   );
 };

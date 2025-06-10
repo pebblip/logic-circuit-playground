@@ -44,12 +44,12 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
 
   const handleSave = () => {
     if (!formData.gateName) {
-      alert(`内部名は${TERMS.REQUIRED}です`);
+      alert('カスタムゲートには名前を付けてください。\nこの名前は回路内でゲートを識別するために使用されます。');
       return;
     }
 
     if (!/^[a-zA-Z0-9_]+$/.test(formData.gateName)) {
-      alert('内部名は英数字とアンダースコアのみ使用できます');
+      alert('ゲート名には半角の英数字とアンダースコア（_）のみ使用できます。\n例：my_gate、Counter、LED_Display');
       return;
     }
 
@@ -96,93 +96,24 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div
-      className="dialog-overlay"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 2000,
-        backdropFilter: 'blur(4px)',
-      }}
-    >
-      <div
-        className="dialog-content"
-        style={{
-          width: '700px',
-          maxWidth: '90vw',
-          maxHeight: '90vh',
-          backgroundColor: '#0f1441',
-          border: '1px solid rgba(0, 255, 136, 0.5)',
-          borderRadius: '16px',
-          color: 'white',
-          overflow: 'hidden',
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column' as const,
-        }}
-      >
-        {/* ヘッダーバー */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '16px 24px',
-            backgroundColor: 'rgba(0, 255, 136, 0.05)',
-            borderBottom: '1px solid rgba(0, 255, 136, 0.2)',
-            flexShrink: 0,
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: '18px',
-              fontWeight: '600',
-              color: '#00ff88',
-            }}
-          >
+    <div className="modal-backdrop">
+      <div className="modal" style={{ maxWidth: '700px' }}>
+        {/* ヘッダー */}
+        <div className="modal__header">
+          <h2 className="modal__title">
             {TERMS.CUSTOM_GATE}の{TERMS.CREATE}
           </h2>
           <button
+            className="modal__close"
             onClick={handleCancel}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'rgba(255, 255, 255, 0.7)',
-              fontSize: '20px',
-              cursor: 'pointer',
-              padding: '4px',
-              lineHeight: 1,
-              borderRadius: '4px',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseOver={e => {
-              e.currentTarget.style.backgroundColor =
-                'rgba(255, 255, 255, 0.1)';
-            }}
-            onMouseOut={e => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
+            aria-label="閉じる"
           >
             ×
           </button>
         </div>
 
         {/* コンテンツエリア */}
-        <div
-          style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: '24px',
-          }}
-        >
+        <div className="modal__content">
           {/* 基本情報 */}
           <BasicInfoForm
             gateName={formData.gateName}
@@ -223,44 +154,17 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
         </div>
 
         {/* フッターアクション */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: '12px',
-            padding: '16px 24px',
-            backgroundColor: 'rgba(0, 0, 0, 0.2)',
-            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-            flexShrink: 0,
-          }}
-        >
+        <div className="modal__footer">
           <button
+            className="btn btn--secondary"
             onClick={handleCancel}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: 'transparent',
-              color: 'rgba(255, 255, 255, 0.7)',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              borderRadius: '6px',
-              fontSize: '14px',
-              cursor: 'pointer',
-            }}
           >
             キャンセル
           </button>
 
           <button
+            className="btn btn--primary"
             onClick={handleSave}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#00ff88',
-              color: '#000',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-            }}
           >
             {TERMS.CREATE}
           </button>

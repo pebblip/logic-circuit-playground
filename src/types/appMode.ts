@@ -1,1 +1,1 @@
-export type AppMode = '学習モード' | '自由制作' | 'パズル・チャレンジ';
+export type AppMode = '学習モード' | 'フリーモード' | 'パズルモード';

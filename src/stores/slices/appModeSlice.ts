@@ -18,7 +18,7 @@ export const createAppModeSlice: StateCreator<
   [],
   AppModeSlice
 > = (set, get) => ({
-  appMode: '自由制作',
+  appMode: 'フリーモード',
   allowedGates: null,
   isLearningMode: false,
 

@@ -162,7 +162,7 @@ const ClockGateRenderer: React.FC<SpecialGateRendererProps> = ({
         <circle
           cx="50"
           cy="0"
-          r="15"
+          r="22"
           fill="transparent"
           className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, true)}
@@ -237,7 +237,7 @@ const DFFGateRenderer: React.FC<SpecialGateRendererProps> = ({
         <circle
           cx="-60"
           cy="-20"
-          r="15"
+          r="22"
           fill="transparent"
           className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, false)}
@@ -264,7 +264,7 @@ const DFFGateRenderer: React.FC<SpecialGateRendererProps> = ({
         <circle
           cx="-60"
           cy="20"
-          r="15"
+          r="22"
           fill="transparent"
           className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 1, false)}
@@ -291,7 +291,7 @@ const DFFGateRenderer: React.FC<SpecialGateRendererProps> = ({
         <circle
           cx="60"
           cy="-20"
-          r="15"
+          r="22"
           fill="transparent"
           className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, true)}
@@ -368,7 +368,7 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
         <circle
           cx="-60"
           cy="-20"
-          r="15"
+          r="22"
           fill="transparent"
           className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, false)}
@@ -395,7 +395,7 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
         <circle
           cx="-60"
           cy="20"
-          r="15"
+          r="22"
           fill="transparent"
           className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 1, false)}
@@ -422,7 +422,7 @@ const SRLatchGateRenderer: React.FC<SpecialGateRendererProps> = ({
         <circle
           cx="60"
           cy="-20"
-          r="15"
+          r="22"
           fill="transparent"
           className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, true)}
@@ -499,7 +499,7 @@ const MuxGateRenderer: React.FC<SpecialGateRendererProps> = ({
         <circle
           cx="-60"
           cy="-25"
-          r="15"
+          r="22"
           fill="transparent"
           className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, false)}
@@ -526,7 +526,7 @@ const MuxGateRenderer: React.FC<SpecialGateRendererProps> = ({
         <circle
           cx="-60"
           cy="0"
-          r="15"
+          r="22"
           fill="transparent"
           className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 1, false)}
@@ -553,7 +553,7 @@ const MuxGateRenderer: React.FC<SpecialGateRendererProps> = ({
         <circle
           cx="-60"
           cy="25"
-          r="15"
+          r="22"
           fill="transparent"
           className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 2, false)}
@@ -580,7 +580,7 @@ const MuxGateRenderer: React.FC<SpecialGateRendererProps> = ({
         <circle
           cx="60"
           cy="0"
-          r="15"
+          r="22"
           fill="transparent"
           className="u-cursor-crosshair"
           onClick={e => handlePinClick(e, 0, true)}

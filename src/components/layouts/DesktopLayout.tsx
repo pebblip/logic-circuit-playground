@@ -3,7 +3,7 @@ import { Header } from '../Header';
 import { ToolPalette } from '../ToolPalette';
 import { Canvas } from '../Canvas';
 import { PropertyPanel } from '../property-panel';
-import { LearningPanel } from '../../features/learning-mode/ui/LearningPanel';
+import { FloatingLearningPanel } from '../../features/learning-mode/ui/FloatingLearningPanel';
 import { CircuitVisualizerPanel } from '../CircuitVisualizerPanel';
 import { HelpPanel } from '../HelpPanel';
 import { useCircuitStore } from '../../stores/circuitStore';
@@ -31,9 +31,17 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
     null
   );
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isPipLearningOpen, setIsPipLearningOpen] = useState(false);
 
   const handleModeChange = (mode: AppMode) => {
-    setAppMode(mode);
+    if (mode === '学習モード') {
+      // Picture-in-Picture学習パネルを開く
+      setIsPipLearningOpen(true);
+      // フリーモードに戻す（並行表示のため）
+      setAppMode('フリーモード');
+    } else {
+      setAppMode(mode as AppMode);
+    }
   };
 
   const handleGateHighlight = (gateId: string) => {
@@ -140,7 +148,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
 
       {/* 右サイドバー */}
       <aside className="sidebar-right">
-        {appMode === '自由制作' ? (
+        {appMode === 'フリーモード' ? (
           isVisualizerOpen ? (
             <CircuitVisualizerPanel
               isVisible={isVisualizerOpen}
@@ -153,10 +161,10 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
         ) : null}
       </aside>
 
-      {/* 学習モードパネル */}
-      <LearningPanel
-        isOpen={appMode === '学習モード'}
-        onClose={() => setAppMode('自由制作')}
+      {/* Picture-in-Picture学習パネル */}
+      <FloatingLearningPanel
+        isOpen={isPipLearningOpen}
+        onClose={() => setIsPipLearningOpen(false)}
         onOpenHelp={handleOpenHelp}
       />
 

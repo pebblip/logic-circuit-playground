@@ -108,7 +108,7 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
             <circle
               cx={x}
               cy={y}
-              r="15"
+              r="22"
               fill="transparent"
               className="u-cursor-crosshair"
               onClick={e => handlePinClick(e, index, false)}
@@ -151,7 +151,7 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
             <circle
               cx={x}
               cy={y}
-              r="15"
+              r="22"
               fill="transparent"
               className="u-cursor-crosshair"
               onClick={e => handlePinClick(e, -index - 1, true)}

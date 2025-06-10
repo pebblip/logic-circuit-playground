@@ -20,6 +20,7 @@ import {
   failure,
   createValidationError,
 } from './types';
+import { ERROR_MESSAGES, SUGGESTION_MESSAGES, humanizeError } from './errorMessages';
 
 // ===============================
 // バリデーション設定
@@ -66,7 +67,7 @@ function createViolation(
       : field.includes('wireId')
         ? { wireId: value as string }
         : {},
-    suggestion: `Please provide a valid ${field}`,
+    suggestion: field.includes('gate') ? SUGGESTION_MESSAGES.VERIFY_GATE_SETTINGS : SUGGESTION_MESSAGES.CHECK_CONNECTIONS,
   };
 }
 
@@ -82,24 +83,24 @@ export function validateGateId(
 ): Result<string, ValidationError> {
   if (typeof gateId !== 'string') {
     return failure(
-      createValidationError('Gate ID must be a string', [
-        createViolation('gateId', gateId, 'must be string'),
+      createValidationError(ERROR_MESSAGES.GATE_INVALID_ID, [
+        createViolation('gateId', gateId, ERROR_MESSAGES.GATE_INVALID_ID),
       ])
     );
   }
 
   if (gateId.trim().length === 0) {
     return failure(
-      createValidationError('Gate ID cannot be empty', [
-        createViolation('gateId', gateId, 'cannot be empty'),
+      createValidationError(ERROR_MESSAGES.GATE_EMPTY_ID, [
+        createViolation('gateId', gateId, ERROR_MESSAGES.GATE_EMPTY_ID),
       ])
     );
   }
 
   if (gateId.length > 100) {
     return failure(
-      createValidationError('Gate ID is too long (max 100 characters)', [
-        createViolation('gateId', gateId, 'too long'),
+      createValidationError(ERROR_MESSAGES.GATE_ID_TOO_LONG, [
+        createViolation('gateId', gateId, ERROR_MESSAGES.GATE_ID_TOO_LONG),
       ])
     );
   }
@@ -108,10 +109,9 @@ export function validateGateId(
   const validIdPattern = /^[a-zA-Z0-9_-]+$/;
   if (!validIdPattern.test(gateId)) {
     return failure(
-      createValidationError(
-        'Gate ID contains invalid characters (only alphanumeric, underscore, and hyphen allowed)',
-        [createViolation('gateId', gateId, 'invalid characters')]
-      )
+      createValidationError(ERROR_MESSAGES.GATE_ID_INVALID_CHARS, [
+        createViolation('gateId', gateId, ERROR_MESSAGES.GATE_ID_INVALID_CHARS),
+      ])
     );
   }
 
@@ -126,8 +126,8 @@ export function validateGateType(
 ): Result<string, ValidationError> {
   if (typeof gateType !== 'string') {
     return failure(
-      createValidationError('Gate type must be a string', [
-        createViolation('type', gateType, 'must be string'),
+      createValidationError(ERROR_MESSAGES.GATE_INVALID_TYPE, [
+        createViolation('type', gateType, ERROR_MESSAGES.GATE_INVALID_TYPE),
       ])
     );
   }
@@ -149,8 +149,8 @@ export function validateGateType(
   ];
   if (!validGateTypes.includes(gateType)) {
     return failure(
-      createValidationError(`Invalid gate type: ${gateType}`, [
-        createViolation('type', gateType, `Invalid gate type: ${gateType}`),
+      createValidationError(ERROR_MESSAGES.GATE_INVALID_TYPE, [
+        createViolation('type', gateType, ERROR_MESSAGES.GATE_INVALID_TYPE),
       ])
     );
   }

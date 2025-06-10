@@ -241,8 +241,8 @@ export const SimpleGalleryPanel: React.FC<{ isVisible: boolean }> = ({
       wireStart: null,
     });
 
-    // 自由制作モードへ
-    setAppMode('自由制作');
+    // フリーモードへ
+    setAppMode('フリーモード');
   };
 
   if (!isVisible) return null;

@@ -62,8 +62,8 @@ export const GalleryPanel: React.FC<GalleryPanelProps> = ({ isVisible }) => {
       wireStart: null,
     });
 
-    // 自由制作モードに切り替え
-    setAppMode('自由制作');
+    // フリーモードに切り替え
+    setAppMode('フリーモード');
   };
 
   // いいねボタン（デモ用）

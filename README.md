@@ -1,4 +1,4 @@
-# 🎯 Logic Circuit Playground
+# 🎯 LogiCirc (Logic Circuit Playground)
 
 > 誰でも楽しく論理回路からCPUまで学べる、直感的な教育プラットフォーム
 

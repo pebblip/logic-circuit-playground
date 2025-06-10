@@ -3,6 +3,8 @@ import { Canvas } from '../Canvas';
 import { MobileToolbar } from './MobileToolbar';
 import { MobileHeader } from './MobileHeader';
 import { FloatingActionButtons } from './FloatingActionButtons';
+import { FloatingLearningPanel } from '../../features/learning-mode/ui/FloatingLearningPanel';
+import { useCircuitStore } from '../../stores/circuitStore';
 import '../../styles/mobile-layout.css';
 
 interface MobileLayoutProps {
@@ -14,6 +16,8 @@ export const MobileLayout: React.FC<MobileLayoutProps> = () => {
   const [selectedCategory, setSelectedCategory] = useState<
     'basic' | 'special' | 'io' | 'custom'
   >('basic');
+  const [isPipLearningOpen, setIsPipLearningOpen] = useState(false);
+  const { appMode, setAppMode } = useCircuitStore();
 
   return (
     <div className="mobile-layout">
@@ -21,9 +25,30 @@ export const MobileLayout: React.FC<MobileLayoutProps> = () => {
 
       {/* モード選択（オプション） */}
       <div className="mobile-mode-selector">
-        <button className="mode-button active">学習</button>
-        <button className="mode-button">自由</button>
-        <button className="mode-button">パズル</button>
+        <button 
+          className={`mode-button ${isPipLearningOpen ? 'active' : ''}`}
+          onClick={() => setIsPipLearningOpen(true)}
+        >
+          学習
+        </button>
+        <button 
+          className={`mode-button ${appMode === 'フリーモード' && !isPipLearningOpen ? 'active' : ''}`}
+          onClick={() => {
+            setAppMode('フリーモード');
+            setIsPipLearningOpen(false);
+          }}
+        >
+          自由
+        </button>
+        <button 
+          className={`mode-button ${appMode === 'パズルモード' ? 'active' : ''}`}
+          onClick={() => {
+            setAppMode('パズルモード');
+            setIsPipLearningOpen(false);
+          }}
+        >
+          パズル
+        </button>
       </div>
 
       {/* キャンバスコンテナ */}
@@ -40,6 +65,12 @@ export const MobileLayout: React.FC<MobileLayoutProps> = () => {
         onToggle={() => setIsToolbarOpen(!isToolbarOpen)}
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
+      />
+
+      {/* Picture-in-Picture学習パネル（モバイル対応） */}
+      <FloatingLearningPanel
+        isOpen={isPipLearningOpen}
+        onClose={() => setIsPipLearningOpen(false)}
       />
     </div>
   );

@@ -129,33 +129,6 @@ export const HelpPanel: React.FC<HelpPanelProps> = ({ isOpen, onClose, onOpenLea
         <div className="help-panel-header">
           <h2>❓ {TERMS.HELP}</h2>
           <div className="header-actions">
-            {onOpenLearningMode && (
-              <button 
-                className="learning-mode-button" 
-                onClick={onOpenLearningMode}
-                title={`${TERMS.LEARNING_MODE}を開く`}
-                style={{
-                  background: 'linear-gradient(45deg, #00ff88, #00cc6a)',
-                  color: '#000',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '6px 12px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  marginRight: '12px',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseOver={e => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
-              >
-                🎓 {TERMS.LEARNING_MODE}
-              </button>
-            )}
             <button className="close-button" onClick={onClose}>
               ×
             </button>
@@ -236,9 +209,8 @@ export const HelpPanel: React.FC<HelpPanelProps> = ({ isOpen, onClose, onOpenLea
         <div className="help-footer">
           <div className="help-suggestions">
             <p><strong>💡 さらに学ぶには</strong></p>
-            <p>• <strong>${TERMS.LEARNING_MODE}</strong>：体系的な${TERMS.LOGIC_CIRCUIT}学習</p>
-            <p>• <strong>${TERMS.TUTORIAL}</strong>：基本操作の復習</p>
-            <p>• <strong>GitHub Wiki</strong>：開発者向け詳細ドキュメント</p>
+            <p>• <strong>{TERMS.LEARNING_MODE}</strong>：体系的な{TERMS.LOGIC_CIRCUIT}学習</p>
+            <p>• <strong>{TERMS.TUTORIAL}</strong>：基本操作の復習</p>
           </div>
         </div>
       </div>

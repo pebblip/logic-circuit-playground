@@ -3,10 +3,11 @@ import { Header } from '../Header';
 import { ToolPalette } from '../ToolPalette';
 import { Canvas } from '../Canvas';
 import { PropertyPanel } from '../property-panel';
-import { LearningPanel } from '../../features/learning-mode/ui/LearningPanel';
+import { FloatingLearningPanel } from '../../features/learning-mode/ui/FloatingLearningPanel';
 import { HelpPanel } from '../HelpPanel';
 import { useCircuitStore } from '../../stores/circuitStore';
 import { TERMS } from '../../features/learning-mode/data/terms';
+import type { AppMode } from '../../types/appMode';
 import '../../styles/tablet-layout.css';
 
 interface TabletLayoutProps {
@@ -17,6 +18,7 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
   const [isToolPaletteOpen, setIsToolPaletteOpen] = useState(true);
   const [isPropertyPanelOpen, setIsPropertyPanelOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isPipLearningOpen, setIsPipLearningOpen] = useState(false);
   const { appMode, setAppMode } = useCircuitStore();
 
   const handleOpenHelp = () => {
@@ -31,7 +33,14 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
     <div className="tablet-layout">
       <Header 
         activeMode={appMode} 
-        onModeChange={setAppMode}
+        onModeChange={(mode) => {
+          if (mode === '学習モード') {
+            setIsPipLearningOpen(true);
+            setAppMode('フリーモード');
+          } else {
+            setAppMode(mode as AppMode);
+          }
+        }}
         onOpenHelp={handleOpenHelp}
       />
       <div className="tablet-main">
@@ -53,8 +62,8 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
           <Canvas />
         </div>
 
-        {/* プロパティパネル（折りたたみ可能、学習モード時は非表示） */}
-        {appMode !== '学習モード' && (
+        {/* プロパティパネル（折りたたみ可能） */}
+        {
           <div
             className={`tablet-property-panel ${isPropertyPanelOpen ? 'open' : 'collapsed'}`}
           >
@@ -66,13 +75,13 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
             </button>
             {isPropertyPanelOpen && <PropertyPanel />}
           </div>
-        )}
+        }
       </div>
 
-      {/* 学習モードパネル */}
-      <LearningPanel
-        isOpen={appMode === '学習モード'}
-        onClose={() => setAppMode('自由制作')}
+      {/* Picture-in-Picture学習パネル */}
+      <FloatingLearningPanel
+        isOpen={isPipLearningOpen}
+        onClose={() => setIsPipLearningOpen(false)}
         onOpenHelp={handleOpenHelp}
       />
 

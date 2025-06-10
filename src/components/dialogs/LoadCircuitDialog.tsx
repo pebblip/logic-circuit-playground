@@ -148,7 +148,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
   const handleLoad = async (circuitId: string) => {
     if (currentGates.length > 0 || currentWires.length > 0) {
       const confirmed = window.confirm(
-        `現在の${TERMS.CIRCUIT}は失われます。\n${TERMS.LOAD}を続行しますか？`
+        '作業中の回路は保存されません。\nよろしければ保存してから新しい回路を読み込んでください。\n\n続行しますか？'
       );
       if (!confirmed) return;
     }
@@ -213,7 +213,7 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
     event.stopPropagation();
 
     const confirmed = window.confirm(
-      `${TERMS.CIRCUIT}「${circuit.name}」を${TERMS.DELETE}しますか？\nこの操作は取り消せません。`
+      `回路「${circuit.name}」を完全に削除します。\n\n⚠️ 削除した回路は復元できません。\n本当に削除しますか？`
     );
 
     if (!confirmed) return;

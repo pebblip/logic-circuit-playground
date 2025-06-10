@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Gate } from '@/types/circuit';
 import { getGateInputValue } from '@/domain/simulation';
+import { PinComponent } from './PinComponent';
 
 interface IOGateRendererProps {
   gate: Gate;
@@ -60,31 +61,15 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
         </g>
 
         {/* 出力ピン */}
-        <g>
-          <circle
-            cx="35"
-            cy="0"
-            r="15"
-            fill="transparent"
-            className="u-cursor-crosshair"
-            onClick={e => handlePinClick(e, 0, true)}
-          />
-          <circle
-            cx="35"
-            cy="0"
-            r="6"
-            className={`pin output-pin ${gate.output ? 'active' : ''}`}
-            pointerEvents="none"
-          />
-          <line
-            x1="25"
-            y1="0"
-            x2="35"
-            y2="0"
-            className={`pin-line ${gate.output ? 'active' : ''}`}
-            pointerEvents="none"
-          />
-        </g>
+        <PinComponent
+          gate={gate}
+          x={35}
+          y={0}
+          pinIndex={0}
+          isOutput={true}
+          isActive={gate.output}
+          onPinClick={handlePinClick}
+        />
       </>
     );
   } else if (gate.type === 'OUTPUT') {
@@ -96,6 +81,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
           onClick={handleGateClick}
           className="u-cursor-grab"
         >
+          {/* 外側の円（枠） */}
           <circle
             cx="0"
             cy="0"
@@ -104,43 +90,29 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
             stroke={isSelected ? '#00aaff' : '#444'}
             strokeWidth={isSelected ? '3' : '2'}
           />
+          {/* 内側の円（光る部分） */}
           <circle
             cx="0"
             cy="0"
             r="15"
             fill={getGateInputValue(gate, 0) ? '#00ff88' : '#333'}
           />
+          {/* 電球アイコン */}
           <text x="0" y="5" className="gate-text u-text-xl">
             💡
           </text>
         </g>
 
         {/* 入力ピン */}
-        <g>
-          <circle
-            cx="-30"
-            cy="0"
-            r="15"
-            fill="transparent"
-            className="u-cursor-crosshair"
-            onClick={e => handlePinClick(e, 0, false)}
-          />
-          <circle
-            cx="-30"
-            cy="0"
-            r="6"
-            className={`pin input-pin ${getGateInputValue(gate, 0) ? 'active' : ''}`}
-            pointerEvents="none"
-          />
-          <line
-            x1="-20"
-            y1="0"
-            x2="-30"
-            y2="0"
-            className={`pin-line ${getGateInputValue(gate, 0) ? 'active' : ''}`}
-            pointerEvents="none"
-          />
-        </g>
+        <PinComponent
+          gate={gate}
+          x={-30}
+          y={0}
+          pinIndex={0}
+          isOutput={false}
+          isActive={getGateInputValue(gate, 0)}
+          onPinClick={handlePinClick}
+        />
       </>
     );
   }
