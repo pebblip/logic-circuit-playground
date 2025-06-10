@@ -126,6 +126,24 @@ export const createCustomGateSlice: StateCreator<
       truthTable[inputBits] = outputBits;
     }
 
+    // 入力/出力マッピングを作成
+    const inputMappings: Record<number, { gateId: string; pinIndex: number }> = {};
+    const outputMappings: Record<number, { gateId: string; pinIndex: number }> = {};
+    
+    // 入力マッピング: 外部ピンインデックス → INPUTゲート
+    inputPins.forEach((pin, index) => {
+      if (pin.gateId) {
+        inputMappings[index] = { gateId: pin.gateId, pinIndex: 0 };
+      }
+    });
+    
+    // 出力マッピング: 外部ピンインデックス → OUTPUTゲート
+    outputPins.forEach((pin, index) => {
+      if (pin.gateId) {
+        outputMappings[index] = { gateId: pin.gateId, pinIndex: 0 };
+      }
+    });
+
     // カスタムゲート定義を作成
     const definition: CustomGateDefinition = {
       id: IdGenerator.generateCustomGateId(),
@@ -138,6 +156,13 @@ export const createCustomGateSlice: StateCreator<
       inputs: inputPins,
       outputs: outputPins,
       truthTable,
+      // 内部回路構造を保存
+      internalCircuit: {
+        gates: [...gates],
+        wires: [...state.wires],
+        inputMappings,
+        outputMappings,
+      },
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };

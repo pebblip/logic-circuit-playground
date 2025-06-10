@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Gate } from '@/types/circuit';
 import { getGateInputValue } from '@/domain/simulation';
 import { isCustomGate } from '@/types/gates';
+import { ViewCustomGateDialog } from '../dialogs/ViewCustomGateDialog';
 
 interface CustomGateRendererProps {
   gate: Gate;
@@ -24,9 +25,38 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
   handlePinClick,
   handleGateClick,
 }) => {
+  const [showInternalCircuit, setShowInternalCircuit] = useState(false);
+
   if (!isCustomGate(gate) || !gate.customGateDefinition) {
     return null;
   }
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowInternalCircuit(true);
+  };
+
+  // タッチデバイス用の長押し処理
+  let touchTimer: NodeJS.Timeout | null = null;
+  
+  const handleTouchStartCustom = (e: React.TouchEvent) => {
+    // 元のタッチスタート処理
+    handleTouchStart(e);
+    
+    // 長押しタイマー開始（500ms）
+    touchTimer = setTimeout(() => {
+      setShowInternalCircuit(true);
+    }, 500);
+  };
+  
+  const handleTouchEnd = () => {
+    // タイマーをクリア
+    if (touchTimer) {
+      clearTimeout(touchTimer);
+      touchTimer = null;
+    }
+  };
 
   const definition = gate.customGateDefinition;
   const width = definition.width || 100;
@@ -56,8 +86,11 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
     <>
       <g
         onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
+        onTouchStart={handleTouchStartCustom}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
         onClick={handleGateClick}
+        onDoubleClick={handleDoubleClick}
         className="u-cursor-grab custom-gate"
       >
         <rect
@@ -96,6 +129,19 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
         <text className="gate-text custom-gate-icon" x="0" y="10" fontSize="14">
           {definition.icon || '🔧'}
         </text>
+        {/* ダブルクリックのヒント（内部回路がある場合のみ表示） */}
+        {definition.internalCircuit && (
+          <text 
+            x="0" 
+            y={height / 2 - 8} 
+            fontSize="8" 
+            fill="#666" 
+            textAnchor="middle"
+            pointerEvents="none"
+          >
+            ダブルクリックで内部回路
+          </text>
+        )}
       </g>
 
       {/* 入力ピン */}
@@ -184,6 +230,14 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
           </g>
         );
       })}
+
+      {/* 内部回路表示ダイアログ */}
+      {showInternalCircuit && (
+        <ViewCustomGateDialog
+          definition={definition}
+          onClose={() => setShowInternalCircuit(false)}
+        />
+      )}
     </>
   );
 };

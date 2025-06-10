@@ -651,3 +651,36 @@
     transform: scale(1);
   }
 }
+
+/* ========== カスタムゲート内部表示ダイアログ ========== */
+.large-dialog {
+  max-width: 800px;
+  width: 90%;
+}
+
+.circuit-preview-container {
+  margin: 20px 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.circuit-preview {
+  display: block;
+}
+
+.dialog-info {
+  padding: 20px;
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.dialog-info p {
+  margin: 8px 0;
+  color: #ccc;
+}
+
+.dialog-info strong {
+  color: #00ff88;
+}
