@@ -7,7 +7,6 @@ import type {
   CustomGateDefinition,
 } from '@/types/circuit';
 import type { AppMode } from '@/types/appMode';
-import type { ConnectionFeedback } from '@/components/ConnectionFeedback';
 
 // Re-export AppMode
 export type { AppMode };
@@ -113,12 +112,4 @@ export interface CircuitStoreActions {
   saveToHistory: () => void;
 }
 
-// ワイヤー操作用の追加インターフェース
-export interface WireOperationsSlice {
-  connectionFeedback: ConnectionFeedback[];
-  addConnectionFeedback: (feedback: Omit<ConnectionFeedback, 'id'>) => void;
-  removeConnectionFeedback: (id: string) => void;
-  clearConnectionFeedback: () => void;
-}
-
-export type CircuitStore = CircuitStoreState & CircuitStoreActions & WireOperationsSlice;
+export type CircuitStore = CircuitStoreState & CircuitStoreActions;

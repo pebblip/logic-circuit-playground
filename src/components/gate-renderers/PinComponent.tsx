@@ -38,7 +38,7 @@ export const PinComponent: React.FC<PinComponentProps> = ({
   };
   
   const canConnect = isConnectable();
-  const shouldHighlight = isHovered && (canConnect || !isDrawingWire);
+  const showInvalidConnection = isDrawingWire && isHovered && !canConnect;
   
   // アクティブ状態の判定
   const isPinActive = isActive !== undefined ? isActive : (isOutput ? gate.output : getGateInputValue(gate, pinIndex));
@@ -64,23 +64,6 @@ export const PinComponent: React.FC<PinComponentProps> = ({
         pointerEvents="none"
       />
       
-      {/* ホバー時のハイライト表示 */}
-      {shouldHighlight && (
-        <circle
-          cx={x}
-          cy={y}
-          r="12"
-          fill="none"
-          stroke="#00ff88"
-          strokeWidth="2"
-          opacity="0.6"
-          className="pin-hover-highlight"
-          style={{
-            animation: 'pulse 1s infinite',
-          }}
-        />
-      )}
-      
       {/* ピンの視覚表現 */}
       <circle
         cx={x}
@@ -88,9 +71,9 @@ export const PinComponent: React.FC<PinComponentProps> = ({
         r="6"
         className={`pin ${isOutput ? 'output-pin' : 'input-pin'} ${isPinActive ? 'active' : ''}`}
         fill={isPinActive ? '#00ff88' : 'none'}
-        stroke={shouldHighlight ? '#00ff88' : '#00ff88'}
-        strokeWidth={shouldHighlight ? '3' : '2'}
-        opacity={shouldHighlight ? '1' : '0.8'}
+        stroke={showInvalidConnection ? '#ff4757' : '#00ff88'}
+        strokeWidth={isHovered ? '3' : '2'}
+        opacity={isHovered ? '1' : '0.8'}
         pointerEvents="none"
       />
       

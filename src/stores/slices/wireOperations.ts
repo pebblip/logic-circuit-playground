@@ -13,17 +13,12 @@ import {
   getOutputPinPosition,
 } from '@domain/analysis/pinPositionCalculator';
 import { WireConnectionService } from '@/services/WireConnectionService';
-import type { ConnectionFeedback } from '@/components/ConnectionFeedback';
 
 export interface WireOperationsSlice {
   startWireDrawing: (gateId: string, pinIndex: number) => void;
   endWireDrawing: (gateId: string, pinIndex: number) => void;
   cancelWireDrawing: () => void;
   deleteWire: (wireId: string) => void;
-  connectionFeedback: ConnectionFeedback[];
-  addConnectionFeedback: (feedback: Omit<ConnectionFeedback, 'id'>) => void;
-  removeConnectionFeedback: (id: string) => void;
-  clearConnectionFeedback: () => void;
 }
 
 export const createWireOperationsSlice: StateCreator<
@@ -75,25 +70,11 @@ export const createWireOperationsSlice: StateCreator<
         state.wires
       );
 
-      // 接続エラーフィードバックを表示
+      // 接続不可の場合は終了
       if (!connectionCheck.valid) {
-        const errorPosition = isEndOutput 
-          ? getOutputPinPosition(endGate, Math.abs(pinIndex) - 1)
-          : getInputPinPosition(endGate, pinIndex);
-        
-        // エラーフィードバックを追加
-        const errorFeedback: ConnectionFeedback = {
-          id: `error-${Date.now()}`,
-          type: 'error',
-          position: errorPosition,
-          message: connectionCheck.reason,
-          duration: 2000,
-        };
-        
         return { 
           isDrawingWire: false, 
-          wireStart: null,
-          connectionFeedback: [...state.connectionFeedback, errorFeedback]
+          wireStart: null
         };
       }
 
@@ -153,26 +134,12 @@ export const createWireOperationsSlice: StateCreator<
       const circuit: Circuit = { gates: state.gates, wires: updatedWires };
       const result = evaluateCircuit(circuit, defaultConfig);
 
-      // 成功フィードバックを表示
-      const successPosition = isEndOutput 
-        ? getOutputPinPosition(endGate, Math.abs(pinIndex) - 1)
-        : getInputPinPosition(endGate, pinIndex);
-      
-      const successFeedback: ConnectionFeedback = {
-        id: `success-${Date.now()}`,
-        type: 'success',
-        position: successPosition,
-        message: '接続が完了しました',
-        duration: 1000,
-      };
-
       if (isSuccess(result)) {
         return {
           gates: [...result.data.circuit.gates],
           wires: [...result.data.circuit.wires],
           isDrawingWire: false,
-          wireStart: null,
-          connectionFeedback: [...state.connectionFeedback, successFeedback]
+          wireStart: null
         };
       } else {
         console.warn('Circuit evaluation failed:', result.error.message);
@@ -180,8 +147,7 @@ export const createWireOperationsSlice: StateCreator<
           gates: state.gates,
           wires: updatedWires,
           isDrawingWire: false,
-          wireStart: null,
-          connectionFeedback: [...state.connectionFeedback, successFeedback]
+          wireStart: null
         };
       }
     });
@@ -223,25 +189,4 @@ export const createWireOperationsSlice: StateCreator<
     get().saveToHistory();
   },
 
-  // フィードバック管理メソッド
-  connectionFeedback: [],
-  
-  addConnectionFeedback: (feedback) => {
-    set(state => ({
-      connectionFeedback: [...state.connectionFeedback, {
-        ...feedback,
-        id: `feedback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      }]
-    }));
-  },
-  
-  removeConnectionFeedback: (id) => {
-    set(state => ({
-      connectionFeedback: state.connectionFeedback.filter(fb => fb.id !== id)
-    }));
-  },
-  
-  clearConnectionFeedback: () => {
-    set({ connectionFeedback: [] });
-  },
 });

@@ -3,7 +3,6 @@ import { useCircuitStore } from '../stores/circuitStore';
 import { GateComponent } from './Gate';
 import { WireComponent } from './Wire';
 import { QuickTutorial } from './QuickTutorial';
-import { ConnectionFeedback, WirePreview } from './ConnectionFeedback';
 import {
   evaluateCircuit,
   defaultConfig,
@@ -70,8 +69,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     addGate,
     addCustomGateInstance,
     moveMultipleGates: _moveMultipleGates,
-    connectionFeedback,
-    removeConnectionFeedback,
   } = useCircuitStore();
 
   // カスタムフックの使用
@@ -613,10 +610,16 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
 
         {/* 描画中のワイヤープレビュー */}
         {isDrawingWire && wireStart && (
-          <WirePreview
-            startPosition={wireStart.position}
-            endPosition={mousePosition}
-            isValid={true} // TODO: 接続妥当性チェックを実装
+          <line
+            x1={wireStart.position.x}
+            y1={wireStart.position.y}
+            x2={mousePosition.x}
+            y2={mousePosition.y}
+            stroke="#00ff88"
+            strokeWidth="2"
+            strokeDasharray="5,5"
+            opacity="0.6"
+            pointerEvents="none"
           />
         )}
 
@@ -629,11 +632,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
           />
         ))}
 
-        {/* 接続フィードバック */}
-        <ConnectionFeedback
-          feedback={connectionFeedback}
-          onFeedbackComplete={removeConnectionFeedback}
-        />
 
         {/* 選択矩形 */}
         {selectionRect && (
