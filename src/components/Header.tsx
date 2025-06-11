@@ -23,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange, onOpen
     wires: _wires,
     addCustomGate,
     isLearningMode: _isLearningMode,
+    viewMode,
   } = useCircuitStore();
 
   // 統一ダイアログ管理

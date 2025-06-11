@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Wire } from '../types/circuit';
+import type { Wire, Gate } from '../types/circuit';
 import { useCircuitStore } from '../stores/circuitStore';
 import {
   getInputPinPosition,
@@ -8,11 +8,15 @@ import {
 
 interface WireComponentProps {
   wire: Wire;
+  gates?: Gate[]; // プレビューモード用にオプショナルに
 }
 
-export const WireComponent: React.FC<WireComponentProps> = ({ wire }) => {
-  const gates = useCircuitStore(state => state.gates);
+export const WireComponent: React.FC<WireComponentProps> = ({ wire, gates: propGates }) => {
+  const storeGates = useCircuitStore(state => state.gates);
   const deleteWire = useCircuitStore(state => state.deleteWire);
+  
+  // プロパティで渡されたゲートがあればそれを使用、なければstoreから取得
+  const gates = propGates || storeGates;
 
   const fromGate = gates.find(g => g.id === wire.from.gateId);
   const toGate = gates.find(g => g.id === wire.to.gateId);

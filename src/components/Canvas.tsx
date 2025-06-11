@@ -112,6 +112,38 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     viewBox,
     setViewBox
   );
+  
+  // プレビューモード開始時にビューをリセット
+  useEffect(() => {
+    if (viewMode === 'custom-gate-preview' && displayData.displayGates.length > 0) {
+      // 内部回路の境界を計算
+      const gatesArray = displayData.displayGates;
+      if (gatesArray.length === 0) return;
+      
+      const minX = Math.min(...gatesArray.map(g => g.position.x)) - 200;
+      const maxX = Math.max(...gatesArray.map(g => g.position.x)) + 200;
+      const minY = Math.min(...gatesArray.map(g => g.position.y)) - 200;
+      const maxY = Math.max(...gatesArray.map(g => g.position.y)) + 200;
+      
+      const width = maxX - minX;
+      const height = maxY - minY;
+      
+      // ビューボックスを中央に配置
+      const centerX = (minX + maxX) / 2;
+      const centerY = (minY + maxY) / 2;
+      
+      setViewBox({
+        x: centerX - 600,
+        y: centerY - 400,
+        width: 1200,
+        height: 800
+      });
+      
+      // ズームもリセット
+      resetZoom();
+    }
+  }, [viewMode, displayData.displayGates, resetZoom]);
+  
   const { isPanning, handlePanStart, handlePan, handlePanEnd } = useCanvasPan(
     svgRef,
     viewBox,
@@ -676,7 +708,11 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
 
         {/* ワイヤー */}
         {displayData.displayWires.map(wire => (
-          <WireComponent key={wire.id} wire={wire} />
+          <WireComponent 
+            key={wire.id} 
+            wire={wire} 
+            gates={displayData.isReadOnly ? displayData.displayGates : undefined}
+          />
         ))}
 
         {/* 描画中のワイヤープレビュー（プレビューモードでは非表示） */}
