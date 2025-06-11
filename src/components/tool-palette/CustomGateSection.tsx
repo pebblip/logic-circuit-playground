@@ -2,6 +2,7 @@ import React from 'react';
 import type { GateType, CustomGateDefinition } from '@/types/circuit';
 import { GateCard } from './GateCard';
 import { useCircuitStore } from '@/stores/circuitStore';
+import { debug } from '@/shared/debug';
 
 interface CustomGateSectionProps {
   demoCustomGates: CustomGateDefinition[];
@@ -27,19 +28,21 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
   onContextMenu,
   onGateClick,
 }) => {
-  const enterCustomGatePreview = useCircuitStore(state => state.enterCustomGatePreview);
-  
+  const enterCustomGatePreview = useCircuitStore(
+    state => state.enterCustomGatePreview
+  );
+
   const handleCardDoubleClick = (customGate: CustomGateDefinition) => {
-    console.log('[CustomGateSection] Double click:', customGate.id);
+    debug.log('[CustomGateSection] Double click:', customGate.id);
     enterCustomGatePreview(customGate.id);
   };
-  
+
   const handleCardClick = (customGate: CustomGateDefinition) => {
     if (onGateClick) {
       onGateClick(customGate.id);
     }
   };
-  
+
   return (
     <>
       <div className="section-title">
@@ -54,7 +57,10 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
             type="CUSTOM"
             label={definition.displayName}
             customDefinition={definition}
-            isSelected={selectedGateType === 'CUSTOM' && selectedCustomGateId === definition.id}
+            isSelected={
+              selectedGateType === 'CUSTOM' &&
+              selectedCustomGateId === definition.id
+            }
             onDragStart={(_, customDef) => onDragStart('CUSTOM', customDef)}
             onDragEnd={onDragEnd}
             onClick={() => handleCardClick(definition)}
@@ -69,7 +75,10 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
             type="CUSTOM"
             label={definition.displayName}
             customDefinition={definition}
-            isSelected={selectedGateType === 'CUSTOM' && selectedCustomGateId === definition.id}
+            isSelected={
+              selectedGateType === 'CUSTOM' &&
+              selectedCustomGateId === definition.id
+            }
             onDragStart={(_, customDef) => onDragStart('CUSTOM', customDef)}
             onDragEnd={onDragEnd}
             onContextMenu={e => {

@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand';
 import type { CircuitStore, AppMode } from '../types';
 import type { GateType } from '@/types/circuit';
 import type { ViewMode } from '@/types/appMode';
+import { debug } from '@/shared/debug';
 
 export interface AppModeSlice {
   appMode: AppMode;
@@ -10,12 +11,12 @@ export interface AppModeSlice {
   // ビューモード（カスタムゲートプレビュー用）
   viewMode: ViewMode;
   previewingCustomGateId: string | null;
-  
+
   setAppMode: (mode: AppMode) => void;
   setAllowedGates: (gates: GateType[] | null) => void;
   setIsLearningMode: (isLearning: boolean) => void;
   clearAll: () => void;
-  
+
   // カスタムゲートプレビュー用アクション
   enterCustomGatePreview: (customGateId: string) => void;
   exitCustomGatePreview: () => void;
@@ -63,7 +64,7 @@ export const createAppModeSlice: StateCreator<
   },
 
   enterCustomGatePreview: (customGateId: string) => {
-    console.log('[AppModeSlice] Entering custom gate preview:', customGateId);
+    debug.log('[AppModeSlice] Entering custom gate preview:', customGateId);
     set({
       viewMode: 'custom-gate-preview',
       previewingCustomGateId: customGateId,
@@ -71,7 +72,7 @@ export const createAppModeSlice: StateCreator<
   },
 
   exitCustomGatePreview: () => {
-    console.log('[AppModeSlice] Exiting custom gate preview');
+    debug.log('[AppModeSlice] Exiting custom gate preview');
     set({
       viewMode: 'normal',
       previewingCustomGateId: null,
