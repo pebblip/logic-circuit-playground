@@ -19,41 +19,41 @@ const helpContents: Record<TabId, HelpContent[]> = {
   'quick-help': [
     {
       question: `🏗️ ${TERMS.CIRCUIT}を作る基本手順`,
-      answer: `1. ツールパレットから${TERMS.GATE}を選択して${TERMS.DRAG_AND_DROP}\n2. ${TERMS.GATE}の${TERMS.PIN}を${TERMS.CLICK}して${TERMS.CONNECTION}（${TERMS.OUTPUT}→${TERMS.INPUT}の順）\n3. ${TERMS.INPUT_GATE}で${TERMS.SIGNAL}を制御し、${TERMS.OUTPUT_GATE}で結果を確認\n4. 複雑な${TERMS.CIRCUIT}は小さな部分から段階的に構築`,
+      answer: `【手順1】ツールパレットから${TERMS.GATE}を選択して${TERMS.DRAG_AND_DROP}【手順2】${TERMS.GATE}の${TERMS.PIN}を${TERMS.CLICK}して${TERMS.CONNECTION}（${TERMS.OUTPUT}→${TERMS.INPUT}の順）【手順3】${TERMS.INPUT_GATE}で${TERMS.SIGNAL}を制御し、${TERMS.OUTPUT_GATE}で結果を確認【手順4】複雑な${TERMS.CIRCUIT}は小さな部分から段階的に構築【${TERMS.WIRE}削除】右クリック（macOS: Ctrl+${TERMS.CLICK}）`,
     },
     {
       question: `⌨️ キーボードショートカット`,
-      answer: `【${TERMS.COPY}&${TERMS.PASTE}】Ctrl+C/V（Mac: Cmd+C/V）\n【${TERMS.UNDO}/${TERMS.REDO}】Ctrl+Z/Y（Mac: Cmd+Z/Y）\n【${TERMS.DELETE}】Delete/Backspace\n【${TERMS.SAVE}】Ctrl+S（Mac: Cmd+S）\n【${TERMS.MULTI_SELECT}】Shift+${TERMS.CLICK}または${TERMS.DRAG}`,
+      answer: `【${TERMS.COPY}&${TERMS.PASTE}】Ctrl+C/V（Mac: Cmd+C/V）【${TERMS.UNDO}/${TERMS.REDO}】Ctrl+Z/Y（Mac: Cmd+Z/Y）【${TERMS.DELETE}】Delete/Backspace【${TERMS.SAVE}】Ctrl+S（Mac: Cmd+S）【${TERMS.MULTI_SELECT}】Shift+${TERMS.CLICK}または${TERMS.DRAG}【パンモード】スペースキー長押し【キャンセル】Escキー（${TERMS.WIRE}描画・プレビュー終了）`,
     },
     {
       question: `🔍 表示操作`,
-      answer: `【${TERMS.ZOOM}】マウスホイール、+/-キー\n【${TERMS.PAN}】スペース+${TERMS.DRAG}、中クリック${TERMS.DRAG}\n【${TERMS.RANGE_SELECT}】${TERMS.DRAG}で範囲選択\n【${TERMS.MULTI_SELECT}】Shift+${TERMS.CLICK}で複数選択`,
+      answer: `【${TERMS.ZOOM}】マウスホイール（マウス位置中心）、+/-キー（画面中央）【${TERMS.PAN}】スペース+${TERMS.DRAG}、中クリック${TERMS.DRAG}【${TERMS.RANGE_SELECT}】${TERMS.DRAG}で範囲選択【${TERMS.MULTI_SELECT}】Shift+${TERMS.CLICK}で複数選択`,
     },
     {
       question: `📱 タッチ操作`,
-      answer: `【基本操作】短いタップで選択、長押しでメニュー\n【${TERMS.ZOOM}】2本指でピンチ\n【${TERMS.PAN}】1本指で${TERMS.DRAG}\n【${TERMS.CONNECTION}】${TERMS.PIN}を正確にタップ\n【推奨】横向き表示での使用`,
+      answer: `【基本操作】短いタップで選択【${TERMS.ZOOM}】2本指でピンチ【${TERMS.PAN}】1本指で${TERMS.DRAG}【${TERMS.CONNECTION}】${TERMS.PIN}を正確にタップ【${TERMS.WIRE}削除】二本指タップまたは設定でCtrl+タップ【推奨】横向き表示での使用`,
     },
     {
       question: `🎓 さらに学ぶには`,
-      answer: `【${TERMS.LEARNING_MODE}】体系的な${TERMS.LOGIC_CIRCUIT}学習\n【${TERMS.TUTORIAL}】基本操作の復習\n【${TERMS.CUSTOM_GATE}】複雑な${TERMS.CIRCUIT}の部品化\n【${TERMS.TRUTH_TABLE}】${TERMS.CIRCUIT}の動作確認`,
+      answer: `【${TERMS.LEARNING_MODE}】体系的な${TERMS.LOGIC_CIRCUIT}学習【${TERMS.TUTORIAL}】基本操作の復習【${TERMS.PUZZLE_MODE}】制約条件下での問題解決【${TERMS.GALLERY_MODE}】サンプル${TERMS.CIRCUIT}の閲覧【シミュレーションモード】リアルタイム動作確認（準備中）【コラボレーションモード】共同編集機能（準備中）【${TERMS.CUSTOM_GATE}】複雑な${TERMS.CIRCUIT}の部品化【${TERMS.TRUTH_TABLE}】${TERMS.CIRCUIT}の動作確認`,
     },
   ],
   troubleshooting: [
     {
       question: `🔌 ${TERMS.WIRE}が${TERMS.CONNECTION}できない`,
-      answer: `【原因1】方向性エラー: ${TERMS.SIGNAL}は「${TERMS.OUTPUT}→${TERMS.INPUT}」の方向にのみ流れます\n【原因2】重複${TERMS.CONNECTION}: 1つの${TERMS.INPUT_PIN}には1本の${TERMS.WIRE}のみ${TERMS.CONNECTION}可能\n【原因3】同一${TERMS.GATE}内${TERMS.CONNECTION}: 同じ${TERMS.GATE}の${TERMS.OUTPUT}と${TERMS.INPUT}は${TERMS.CONNECTION}不可`,
+      answer: `【原因1】方向性エラー: ${TERMS.SIGNAL}は「${TERMS.OUTPUT}→${TERMS.INPUT}」の方向にのみ流れます【原因2】重複${TERMS.CONNECTION}: 1つの${TERMS.INPUT_PIN}には1本の${TERMS.WIRE}のみ${TERMS.CONNECTION}可能【原因3】同一${TERMS.GATE}内${TERMS.CONNECTION}: 同じ${TERMS.GATE}の${TERMS.OUTPUT}と${TERMS.INPUT}は${TERMS.CONNECTION}不可`,
     },
     {
       question: `🔧 ${TERMS.CIRCUIT}が期待通りに動作しない`,
-      answer: `【チェック1】未${TERMS.CONNECTION}の${TERMS.PIN}: すべての${TERMS.INPUT_PIN}に${TERMS.SIGNAL}が供給されているか確認\n【チェック2】${TERMS.LOGIC_OPERATION}の理解: ${TERMS.AND}は「すべて${TERMS.ON}」、${TERMS.OR}は「一つでも${TERMS.ON}」\n【チェック3】${TERMS.SIGNAL}の流れ: ${TERMS.INPUT}から順序立てて${TERMS.SIGNAL}が流れているか色で確認\n【チェック4】フィードバックループ: 循環${TERMS.CIRCUIT}になっていないか`,
+      answer: `【チェック1】未${TERMS.CONNECTION}の${TERMS.PIN}: すべての${TERMS.INPUT_PIN}に${TERMS.SIGNAL}が供給されているか確認【チェック2】${TERMS.LOGIC_OPERATION}の理解: ${TERMS.AND}は「すべて${TERMS.ON}」、${TERMS.OR}は「一つでも${TERMS.ON}」【チェック3】${TERMS.SIGNAL}の流れ: ${TERMS.INPUT}から順序立てて${TERMS.SIGNAL}が流れているか色で確認【チェック4】フィードバックループ: 循環${TERMS.CIRCUIT}になっていないか`,
     },
     {
       question: `🎯 ${TERMS.GATE}を${TERMS.SELECT}・${TERMS.MOVE}できない`,
-      answer: `【解決法1】正確な${TERMS.CLICK}: ${TERMS.GATE}の中央部分を${TERMS.CLICK}（${TERMS.PIN}や${TERMS.WIRE}ではなく）\n【解決法2】重なり問題: 複数の${TERMS.GATE}が重なっている場合は${TERMS.ZOOM}して分離\n【解決法3】${TERMS.RANGE_SELECT}: ${TERMS.DRAG}で${TERMS.RANGE_SELECT}してからまとめて${TERMS.MOVE}`,
+      answer: `【解決法1】正確な${TERMS.CLICK}: ${TERMS.GATE}の中央部分を${TERMS.CLICK}（${TERMS.PIN}や${TERMS.WIRE}ではなく）【解決法2】重なり問題: 複数の${TERMS.GATE}が重なっている場合は${TERMS.ZOOM}して分離【解決法3】${TERMS.RANGE_SELECT}: ${TERMS.DRAG}で${TERMS.RANGE_SELECT}してからまとめて${TERMS.MOVE}`,
     },
     {
       question: `💾 データの${TERMS.SAVE}・${TERMS.LOAD}問題`,
-      answer: `【${TERMS.SAVE}先】ブラウザのローカルストレージ（プライベートモードでは${TERMS.SAVE}されない）\n【データ消失】ブラウザのキャッシュクリアで消える場合あり。重要な${TERMS.CIRCUIT}は${TERMS.EXPORT}機能でファイル${TERMS.SAVE}を推奨\n【互換性】異なるブラウザ間ではデータは共有されない`,
+      answer: `【${TERMS.SAVE}先】ブラウザのローカルストレージ（プライベートモードでは${TERMS.SAVE}されない）【データ消失】ブラウザのキャッシュクリアで消える場合あり。重要な${TERMS.CIRCUIT}は${TERMS.EXPORT}機能でファイル${TERMS.SAVE}を推奨【互換性】異なるブラウザ間ではデータは共有されない`,
     },
     {
       question: `⚡ パフォーマンスが重い`,
@@ -63,19 +63,39 @@ const helpContents: Record<TabId, HelpContent[]> = {
   features: [
     {
       question: `⚙️ ${TERMS.CUSTOM_GATE}機能`,
-      answer: `【${TERMS.CREATE}方法】${TERMS.CREATE}した${TERMS.CIRCUIT}を${TERMS.SELECT}して「${TERMS.CUSTOM_GATE}として${TERMS.SAVE}」\n【再利用】ツールパレットから通常の${TERMS.GATE}と同様に${TERMS.PLACE}可能\n【内部回路表示】ツールパレットの${TERMS.CUSTOM_GATE}をダブルクリックで内部回路を表示\n【${TERMS.TRUTH_TABLE}】右クリックで${TERMS.TRUTH_TABLE}を表示\n【階層化】複雑な${TERMS.CIRCUIT}を整理し、見通しを向上`,
+      answer: `【${TERMS.CREATE}方法】${TERMS.CREATE}した${TERMS.CIRCUIT}を${TERMS.SELECT}して「${TERMS.CUSTOM_GATE}として${TERMS.SAVE}」【再利用】ツールパレットから通常の${TERMS.GATE}と同様に${TERMS.PLACE}可能【内部回路表示】ツールパレットの${TERMS.CUSTOM_GATE}をダブルクリックで内部回路を表示【${TERMS.TRUTH_TABLE}】ツールパレットで右クリック（macOS: Ctrl+${TERMS.CLICK}）して${TERMS.TRUTH_TABLE}を表示【階層化】複雑な${TERMS.CIRCUIT}を整理し、見通しを向上`,
     },
     {
       question: `⏰ タイミング制御`,
-      answer: `【${TERMS.CLOCK}${TERMS.GATE}】1Hz〜10Hzの周波数で定期的に${TERMS.ON}/${TERMS.OFF}\n【${TERMS.D_FF}${TERMS.GATE}】${TERMS.CLOCK_SIGNAL}の立ち上がりで${TERMS.INPUT}を記憶\n【${TERMS.SR_LATCH}${TERMS.GATE}】Set/Reset${TERMS.SIGNAL}で状態を制御\n【シーケンシャル${TERMS.CIRCUIT}】時間的な動作を持つ${TERMS.CIRCUIT}設計が可能`,
+      answer: `【${TERMS.CLOCK}${TERMS.GATE}】1Hz〜10Hzの周波数で定期的に${TERMS.ON}/${TERMS.OFF}【${TERMS.D_FF}${TERMS.GATE}】${TERMS.CLOCK_SIGNAL}の立ち上がりで${TERMS.INPUT}を記憶【${TERMS.SR_LATCH}${TERMS.GATE}】Set/Reset${TERMS.SIGNAL}で状態を制御【シーケンシャル${TERMS.CIRCUIT}】時間的な動作を持つ${TERMS.CIRCUIT}設計が可能`,
     },
     {
       question: `🔄 データの入出力`,
-      answer: `【${TERMS.SAVE}/${TERMS.LOAD}】ブラウザローカルストレージに自動${TERMS.SAVE}\n【${TERMS.EXPORT}】JSONファイルとして${TERMS.CIRCUIT}データを出力\n【${TERMS.IMPORT}】他の環境で${TERMS.CREATE}した${TERMS.CIRCUIT}を${TERMS.LOAD}\n【URL共有】${TERMS.CIRCUIT}をURLとして共有（準備中）\n【画像出力】${TERMS.CIRCUIT}図をPNG画像として出力（準備中）`,
+      answer: `【${TERMS.SAVE}/${TERMS.LOAD}】ブラウザローカルストレージに自動${TERMS.SAVE}【${TERMS.EXPORT}】JSONファイルとして${TERMS.CIRCUIT}データを出力【${TERMS.IMPORT}】他の環境で${TERMS.CREATE}した${TERMS.CIRCUIT}を${TERMS.LOAD}【URL共有】${TERMS.CIRCUIT}をURLとして共有（準備中）【画像出力】${TERMS.CIRCUIT}図をPNG画像として出力（準備中）`,
     },
     {
       question: `📊 解析・検証機能`,
-      answer: `【${TERMS.TRUTH_TABLE}】任意の${TERMS.CIRCUIT}の完全な${TERMS.TRUTH_TABLE}を自動生成\n【${TERMS.SIGNAL}フロー】リアルタイムで${TERMS.SIGNAL}の流れを視覚化\n【${TERMS.CIRCUIT}検証】${TERMS.LOGIC_OPERATION}エラーや${TERMS.CONNECTION}問題を自動チェック（準備中）\n【パフォーマンス計測】${TERMS.GATE}数、遅延時間等の${TERMS.CIRCUIT}特性を表示（準備中）`,
+      answer: `【${TERMS.TRUTH_TABLE}】任意の${TERMS.CIRCUIT}の完全な${TERMS.TRUTH_TABLE}を自動生成【${TERMS.SIGNAL}フロー】リアルタイムで${TERMS.SIGNAL}の流れを視覚化【${TERMS.CIRCUIT}検証】${TERMS.LOGIC_OPERATION}エラーや${TERMS.CONNECTION}問題を自動チェック（準備中）【パフォーマンス計測】${TERMS.GATE}数、遅延時間等の${TERMS.CIRCUIT}特性を表示（準備中）`,
+    },
+    {
+      question: `🎯 ${TERMS.PUZZLE_MODE}詳細`,
+      answer: `【制約設計】${TERMS.GATE}数制限・${TERMS.WIRE}数制限・使用可能${TERMS.GATE}制限【自動検証】全入力パターンでのテスト実行【段階ヒント】問題解決の段階的ガイド【学習目標】各パズルの教育目的を明確化`,
+    },
+    {
+      question: `🎨 ${TERMS.GALLERY_MODE}詳細`,
+      answer: `【サンプル回路】基本から応用まで段階的な実例【検索・フィルタ】カテゴリ・複雑度・タグでの絞り込み【ワンクリック読み込み】${TERMS.GALLERY_MODE}から直接${TERMS.FREE_MODE}で開く【学習リソース】回路の仕組み・応用例の詳細説明`,
+    },
+    {
+      question: `🎓 ${TERMS.LEARNING_MODE}パネル操作`,
+      answer: `【移動】ヘッダーを${TERMS.DRAG}【リサイズ】右下角を${TERMS.DRAG}【最小化】―ボタン【復元】▼ボタン【閉じる】×ボタン【Picture-in-Picture】${TERMS.FREE_MODE}と並行学習が可能`,
+    },
+    {
+      question: `📊 ビジュアライザー機能`,
+      answer: `【回路統計】${TERMS.GATE}数・${TERMS.WIRE}数・アクティブ${TERMS.GATE}数の表示【パターン認識】回路パターンの自動認識【リアルタイム更新】回路変更に連動した表示更新【${TERMS.GATE}ハイライト】マウスオーバーで${TERMS.GATE}強調【デスクトップ専用】画面右側パネルで利用可能`,
+    },
+    {
+      question: `🚀 未実装機能・将来計画`,
+      answer: `【シミュレーションモード】タイムライン機能付きシミュレーション（開発中）【コラボレーションモード】リアルタイム共同編集（計画中）【エクスポート拡張】PNG画像・PDF出力（準備中）【URL共有】回路をURLで共有（準備中）【AI支援】回路設計アシスタント（研究中）【モバイル最適化】タッチ操作の更なる改善（継続中）`,
     },
   ],
 };

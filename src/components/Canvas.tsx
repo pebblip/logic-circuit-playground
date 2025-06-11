@@ -318,37 +318,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
           svgRef.current.style.cursor = 'grab';
         }
       }
-      // Deleteキーで選択中のゲートを削除
-      if (
-        (event.key === 'Delete' || event.key === 'Backspace') &&
-        selectedGateIds.length > 0
-      ) {
-        event.preventDefault();
-        const deleteGate = useCircuitStore.getState().deleteGate;
-        selectedGateIds.forEach(gateId => deleteGate(gateId));
-        clearSelectionRect(); // 削除後は選択矩形をクリア
-      }
-      // Ctrl+C でコピー
-      if (
-        (event.ctrlKey || event.metaKey) &&
-        event.key === 'c' &&
-        selectedGateIds.length > 0
-      ) {
-        event.preventDefault();
-        const copySelection = useCircuitStore.getState().copySelection;
-        copySelection();
-
-        // コピーフィードバック（選択枠を一瞬光らせる）
-        // TODO: 視覚的フィードバックの実装
-      }
-      // Ctrl+V でペースト
-      if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
-        event.preventDefault();
-        const { paste, canPaste } = useCircuitStore.getState();
-        if (canPaste()) {
-          paste(mousePosition);
-        }
-      }
+      // 重複するキーボードショートカットはuseKeyboardShortcuts.tsに一元化済み
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
@@ -367,9 +337,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   }, [
     isDrawingWire,
     cancelWireDrawing,
-    selectedGateIds,
-    mousePosition,
-    clearSelectionRect,
     handlePanEnd,
     viewMode,
     exitCustomGatePreview,
