@@ -430,6 +430,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-sm);
+  padding: var(--spacing-xs);  /* 上下左右のパディングで選択時のボーダー見切れ防止 */
   margin-bottom: var(--spacing-xl);
   min-height: fit-content;
 }

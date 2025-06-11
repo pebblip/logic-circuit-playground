@@ -170,22 +170,25 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
         // 新しい回路を読み込み
         const circuit = result.data.circuit;
 
-        // ゲートを追加
-        circuit.gates.forEach((gateData: Gate) => {
-          store.addGate(gateData.type, gateData.position);
+        // 直接状態を設定（IDを保持するため）
+        useCircuitStore.setState({
+          gates: [...circuit.gates],  // スプレッド構文でmutable配列へ変換
+          wires: [...circuit.wires],  // スプレッド構文でmutable配列へ変換
         });
 
-        // ワイヤーを復元（少し複雑）
-        setTimeout(() => {
-          circuit.wires.forEach((wireData: Wire) => {
-            // ワイヤーの接続を再現
-            store.startWireDrawing(
-              wireData.from.gateId,
-              wireData.from.pinIndex
-            );
-            store.endWireDrawing(wireData.to.gateId, wireData.to.pinIndex);
+        // 回路の評価を強制的に実行
+        const { evaluateCircuit, defaultConfig } = await import('@domain/simulation/core');
+        const evaluatedCircuit = await evaluateCircuit(
+          { gates: circuit.gates, wires: circuit.wires },
+          defaultConfig
+        );
+        
+        if (evaluatedCircuit.success) {
+          useCircuitStore.setState({
+            gates: [...evaluatedCircuit.data.circuit.gates],  // スプレッド構文でmutable配列へ変換
+            wires: [...evaluatedCircuit.data.circuit.wires],  // スプレッド構文でmutable配列へ変換
           });
-        }, 100);
+        }
 
         onLoad?.(result);
         onClose();

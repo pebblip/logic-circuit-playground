@@ -34,16 +34,22 @@
   z-index: 100;
 }
 
-/* 既存のツールパレットスタイルを維持 */
+/* ツールパレットコンテナ */
 .tool-palette {
   background: rgba(15, 15, 15, 0.98);
-  padding: 20px;
-  overflow-y: auto;
   height: 100%;
   display: flex;
   position: relative;
   z-index: var(--z-sidebar); /* デスクトップサイドバー */
   flex-direction: column;
+  overflow: hidden;
+}
+
+/* ツールパレットセクションコンテナ */
+.tool-palette-sections {
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  flex: 1;
 }
 
 /* 既存のプロパティパネルスタイルを維持 */

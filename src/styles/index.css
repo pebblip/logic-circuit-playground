@@ -18,10 +18,13 @@
 /* 5. ゲート・回路スタイル */
 @import './circuit.css';
 
-/* 6. アニメーション */
+/* 6. ツールパレット */
+@import './tool-palette.css';
+
+/* 7. アニメーション */
 @import './animations.css';
 
-/* 7. ユーティリティ */
+/* 8. ユーティリティ */
 @import './utilities.css';
 
 /* 8. プリント用スタイル */

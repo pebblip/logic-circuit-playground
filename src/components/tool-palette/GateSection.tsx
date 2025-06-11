@@ -7,8 +7,10 @@ interface GateSectionProps {
   icon: string;
   gates: Array<{ type: GateType; label: string }>;
   allowedGates: GateType[] | null;
+  selectedGateType: GateType | 'CUSTOM' | null;
   onDragStart: (type: GateType) => void;
   onDragEnd: () => void;
+  onGateClick: (type: GateType) => void;
 }
 
 export const GateSection: React.FC<GateSectionProps> = ({
@@ -16,8 +18,10 @@ export const GateSection: React.FC<GateSectionProps> = ({
   icon,
   gates,
   allowedGates,
+  selectedGateType,
   onDragStart,
   onDragEnd,
+  onGateClick,
 }) => {
   return (
     <>
@@ -35,8 +39,10 @@ export const GateSection: React.FC<GateSectionProps> = ({
               type={type}
               label={label}
               isDisabled={isDisabled}
+              isSelected={selectedGateType === type}
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
+              onClick={() => !isDisabled && onGateClick(type)}
             />
           );
         })}

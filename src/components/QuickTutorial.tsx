@@ -16,6 +16,7 @@ interface TutorialStep {
   content: string;
   highlight?:
     | 'tool-palette'
+    | 'basic-gates'
     | 'canvas'
     | 'input-gate'
     | 'output-gate'
@@ -75,7 +76,7 @@ const tutorialSteps: TutorialStep[] = [
     title: `ステップ 5/5：${TERMS.LOGIC_GATE}を体験`,
     content:
       `最後に、${TERMS.AND}${TERMS.GATE}を体験してみましょう！まず、もう一つ${TERMS.INPUT}を追加し、次に「${TERMS.AND}」${TERMS.GATE}を${TERMS.PLACE}して、2つの${TERMS.INPUT}を${TERMS.AND}${TERMS.GATE}に${TERMS.CONNECTION}してください。両方の${TERMS.INPUT}が${TERMS.ON}の時だけ${TERMS.OUTPUT}が光ることを確認しましょう。`,
-    highlight: 'tool-palette',
+    highlight: 'basic-gates',
     checkCondition: (gates, wires) => {
       const hasAndGate = gates.some(g => g.type === 'AND');
       const hasMultipleInputs = gates.filter(g => g.type === 'INPUT').length >= 2;
@@ -187,6 +188,43 @@ export const QuickTutorial: React.FC<QuickTutorialProps> = ({
               top: `${rect.top - 16}px`, // より大きめの余白
               left: `${rect.left - 16}px`,
               width: `${rect.width + 32}px`, // 左右により大きな余白
+              height: `${(gridRect?.bottom || rect.bottom) - rect.top + 32}px`, // 上下により大きな余白
+            });
+          }
+          break;
+        }
+
+        case 'basic-gates': {
+          // 基本ゲートセクションを動的に探す
+          const sections = document.querySelectorAll('.section-title');
+          let basicSection: Element | null = null;
+          sections.forEach(section => {
+            const text = section.textContent || '';
+            if (
+              text.includes('基本ゲート') ||
+              text.includes('基本') ||
+              text.includes('BASIC')
+            ) {
+              basicSection = section;
+            }
+          });
+
+          if (basicSection) {
+            const rect = (basicSection as HTMLElement).getBoundingClientRect();
+            const toolsGrid = (basicSection as HTMLElement)
+              .nextElementSibling as HTMLElement | null;
+            const gridRect = toolsGrid?.getBoundingClientRect();
+
+            debug.log('基本ゲートセクション位置:', {
+              section: rect,
+              grid: gridRect,
+              text: (basicSection as HTMLElement).textContent,
+            });
+
+            setHighlightStyle({
+              top: `${rect.top - 16}px`, // より大きめの余白
+              left: `${rect.left - 16}px`,
+              width: `${rect.width + 32}px`, // 左右より大きな余白
               height: `${(gridRect?.bottom || rect.bottom) - rect.top + 32}px`, // 上下により大きな余白
             });
           }

@@ -2,10 +2,8 @@ import React from 'react';
 import { SaveCircuitDialog } from './dialogs/SaveCircuitDialog';
 import { LoadCircuitDialog } from './dialogs/LoadCircuitDialog';
 import { ExportImportDialog } from './dialogs/ExportImportDialog';
-import { CreateCustomGateDialog } from './dialogs/CreateCustomGateDialog';
 import { useCircuitStore } from '../stores/circuitStore';
 import type { AppMode } from '../types/appMode';
-import type { CustomGateDefinition } from '../types/circuit';
 import { useMultipleDialogs } from '../hooks/useDialog';
 import { debug } from '../shared/debug';
 import { TERMS } from '../features/learning-mode/data/terms';
@@ -20,9 +18,6 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange, onOpenHelp, onHelpDialogStateChange }) => {
   const {
     gates,
-    wires: _wires,
-    addCustomGate,
-    isLearningMode: _isLearningMode,
     viewMode,
   } = useCircuitStore();
 
@@ -32,7 +27,6 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange, onOpen
     load: {},
     export: {},
     help: {},
-    customGate: {},
   });
 
   const handleSaveSuccess = () => {
@@ -62,22 +56,7 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange, onOpen
     // TODO: 回路整形機能は後で実装
   };
 
-  // 回路からカスタムゲート作成
-  type GatePinInfo = {
-    name: string;
-    index: number;
-    gateId: string;
-  };
-
-  const [customGateDialogData, setCustomGateDialogData] = React.useState<{
-    initialInputs: GatePinInfo[];
-    initialOutputs: GatePinInfo[];
-    isReadOnly: boolean;
-  }>({
-    initialInputs: [],
-    initialOutputs: [],
-    isReadOnly: false,
-  });
+  // 不要になった状態管理を削除
 
   const handleCreateCustomGateFromCircuit = () => {
     const inputGates = gates.filter(g => g.type === 'INPUT');
@@ -101,31 +80,18 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange, onOpen
       gateId: gate.id,
     }));
 
-    const newData = {
-      initialInputs,
-      initialOutputs,
-      isReadOnly: true, // 回路から作成する場合はピン編集を無効化
-    };
-
-    debug.log('=== Header: Setting customGateDialogData ===');
-    debug.log('newData:', newData);
-
-    setCustomGateDialogData(newData);
-    dialogs.customGate.open();
-  };
-
-  const handleCustomGateCreate = (definition: CustomGateDefinition) => {
-    addCustomGate(definition);
-    dialogs.customGate.close();
-    debug.log('✅ カスタムゲートが作成されました');
-
-    // ダイアログを閉じる際にデータをリセット
-    setCustomGateDialogData({
-      initialInputs: [],
-      initialOutputs: [],
-      isReadOnly: false,
+    // カスタムイベントを発火してダイアログを開く
+    const event = new CustomEvent('open-custom-gate-dialog', {
+      detail: {
+        initialInputs,
+        initialOutputs,
+        isFullCircuit: true,
+      },
     });
+    window.dispatchEvent(event);
   };
+
+  // 不要になったハンドラーを削除（createCustomGateFromCurrentCircuitを使用）
 
   return (
     <>
@@ -244,22 +210,6 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange, onOpen
       />
 
 
-      <CreateCustomGateDialog
-        isOpen={dialogs.customGate.isOpen}
-        onClose={() => {
-          dialogs.customGate.close();
-          // ダイアログを閉じる際にデータをリセット
-          setCustomGateDialogData({
-            initialInputs: [],
-            initialOutputs: [],
-            isReadOnly: false,
-          });
-        }}
-        onSave={handleCustomGateCreate}
-        initialInputs={customGateDialogData.initialInputs}
-        initialOutputs={customGateDialogData.initialOutputs}
-        isReadOnly={customGateDialogData.isReadOnly}
-      />
     </>
   );
 };

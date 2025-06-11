@@ -1,0 +1,7 @@
+/* ツールパレット選択状態 */
+.tool-card.selected {
+  border: 2px solid var(--color-primary);
+  background-color: rgba(0, 255, 136, 0.1);
+  transform: scale(1.05);
+}
+

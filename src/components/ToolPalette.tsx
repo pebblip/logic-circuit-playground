@@ -71,6 +71,9 @@ export const ToolPalette: React.FC = () => {
     gates,
     wires: _wires,
     allowedGates,
+    selectedToolGateType,
+    selectedToolCustomGateId,
+    selectToolGate,
   } = useCircuitStore();
 
   const { startDrag, endDrag } = useDragGate();
@@ -310,40 +313,51 @@ export const ToolPalette: React.FC = () => {
 
   return (
     <aside className="tool-palette">
-      <GateSection
-        title="基本ゲート"
-        icon="🔲"
-        gates={BASIC_GATES}
-        allowedGates={allowedGates}
-        onDragStart={startDrag}
-        onDragEnd={endDrag}
-      />
+      <div className="tool-palette-sections">
+        <GateSection
+          title="基本ゲート"
+          icon="🔲"
+          gates={BASIC_GATES}
+          allowedGates={allowedGates}
+          selectedGateType={selectedToolGateType}
+          onDragStart={startDrag}
+          onDragEnd={endDrag}
+          onGateClick={(type) => selectToolGate(type)}
+        />
 
-      <GateSection
-        title="入出力"
-        icon="🔌"
-        gates={IO_GATES}
-        allowedGates={allowedGates}
-        onDragStart={startDrag}
-        onDragEnd={endDrag}
-      />
+        <GateSection
+          title="入出力"
+          icon="🔌"
+          gates={IO_GATES}
+          allowedGates={allowedGates}
+          selectedGateType={selectedToolGateType}
+          onDragStart={startDrag}
+          onDragEnd={endDrag}
+          onGateClick={(type) => selectToolGate(type)}
+        />
 
-      <GateSection
-        title="特殊ゲート"
-        icon="⚙️"
-        gates={SPECIAL_GATES}
-        allowedGates={allowedGates}
-        onDragStart={startDrag}
-        onDragEnd={endDrag}
-      />
+        <GateSection
+          title="特殊ゲート"
+          icon="⚙️"
+          gates={SPECIAL_GATES}
+          allowedGates={allowedGates}
+          selectedGateType={selectedToolGateType}
+          onDragStart={startDrag}
+          onDragEnd={endDrag}
+          onGateClick={(type) => selectToolGate(type)}
+        />
 
-      <CustomGateSection
-        demoCustomGates={DEMO_CUSTOM_GATES}
-        userCustomGates={customGates || []}
-        onDragStart={startDrag}
-        onDragEnd={endDrag}
-        onContextMenu={handleContextMenu}
-      />
+        <CustomGateSection
+          demoCustomGates={DEMO_CUSTOM_GATES}
+          userCustomGates={customGates || []}
+          selectedGateType={selectedToolGateType}
+          selectedCustomGateId={selectedToolCustomGateId}
+          onDragStart={startDrag}
+          onDragEnd={endDrag}
+          onContextMenu={handleContextMenu}
+          onGateClick={(customGateId) => selectToolGate('CUSTOM', customGateId)}
+        />
+      </div>
 
       {/* カスタムゲート作成ダイアログ */}
       <CreateCustomGateDialog

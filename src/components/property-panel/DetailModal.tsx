@@ -4,17 +4,28 @@ import { isCustomGate } from '@/types/gates';
 import { GateDescription } from './GateDescription';
 
 interface DetailModalProps {
-  selectedGate: Gate;
+  selectedGate?: Gate;
+  gateType?: string;
+  customGateDefinition?: any;
   showDetailModal: boolean;
   onClose: () => void;
 }
 
 export const DetailModal: React.FC<DetailModalProps> = ({
   selectedGate,
+  gateType,
+  customGateDefinition,
   showDetailModal,
   onClose,
 }) => {
   if (!showDetailModal) return null;
+  
+  // ゲートタイプを決定
+  const displayGateType = gateType || selectedGate?.type;
+  const customDef = customGateDefinition || (selectedGate && isCustomGate(selectedGate) ? selectedGate.customGateDefinition : undefined);
+  const displayName = customDef
+    ? customDef.displayName
+    : `${displayGateType}${displayGateType?.match(/^(INPUT|OUTPUT|CLOCK)$/) ? '' : 'ゲート'}`;
 
   return (
     <div
@@ -25,33 +36,27 @@ export const DetailModal: React.FC<DetailModalProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: 'var(--color-bg-overlay)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 10000,
         padding: '20px',
-        backdropFilter: 'blur(8px)',
       }}
     >
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          background:
-            'linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a1f2e 100%)',
-          borderRadius: '20px',
+          backgroundColor: 'var(--color-bg-secondary)',
+          borderRadius: 'var(--border-radius-lg)',
           width: '100%',
-          maxWidth: '700px',
-          maxHeight: '85vh',
+          maxWidth: 'var(--modal-width-md)',
+          maxHeight: '80vh',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          border: '1px solid rgba(0, 255, 136, 0.3)',
-          boxShadow:
-            '0 25px 80px rgba(0, 0, 0, 0.6), ' +
-            '0 0 0 1px rgba(0, 255, 136, 0.2), ' +
-            'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(20px)',
+          border: '1px solid var(--color-border-subtle)',
+          boxShadow: 'var(--shadow-xl)',
         }}
       >
         {/* ヘッダー */}
@@ -60,71 +65,49 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '24px 32px',
-            background:
-              'linear-gradient(90deg, rgba(0, 255, 136, 0.08) 0%, transparent 100%)',
-            borderBottom: '1px solid rgba(0, 255, 136, 0.2)',
-            borderRadius: '20px 20px 0 0',
+            padding: 'var(--spacing-lg) var(--spacing-lg)',
+            borderBottom: '1px solid var(--color-border-subtle)',
             flexShrink: 0,
           }}
         >
           <h2
             style={{
               margin: 0,
-              fontSize: '22px',
-              fontWeight: '700',
-              background: 'linear-gradient(45deg, #00ff88, #00ffdd)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              textShadow: '0 0 20px rgba(0, 255, 136, 0.3)',
+              fontSize: 'var(--font-size-lg)',
+              fontWeight: 'var(--font-weight-semibold)',
+              color: 'var(--color-text-primary)',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
+              gap: 'var(--spacing-sm)',
             }}
           >
-            <span style={{ fontSize: '24px' }}>📖</span>
-            {isCustomGate(selectedGate) && selectedGate.customGateDefinition
-              ? selectedGate.customGateDefinition.displayName
-              : `${selectedGate.type}ゲート`}{' '}
-            の詳細説明
+            <span style={{ color: 'var(--color-primary)' }}>📖</span>
+            {displayName}
           </h2>
           <button
-            onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-              onClose();
-            }}
+            onClick={onClose}
             style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              color: 'rgba(255, 255, 255, 0.7)',
-              fontSize: '20px',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--color-text-tertiary)',
+              fontSize: 'var(--font-size-xl)',
               cursor: 'pointer',
-              padding: '12px',
-              width: '44px',
-              height: '44px',
+              padding: '0',
+              width: '32px',
+              height: '32px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: '12px',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              backdropFilter: 'blur(10px)',
+              borderRadius: 'var(--border-radius-sm)',
+              transition: 'var(--transition-base)',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(255, 0, 100, 0.1)';
-              e.currentTarget.style.borderColor = 'rgba(255, 0, 100, 0.3)';
-              e.currentTarget.style.color = '#ff0064';
-              e.currentTarget.style.transform = 'scale(1.05)';
-              e.currentTarget.style.boxShadow =
-                '0 4px 20px rgba(255, 0, 100, 0.2)';
+              e.currentTarget.style.backgroundColor = 'var(--color-bg-glass)';
+              e.currentTarget.style.color = 'var(--color-text-primary)';
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-              e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = 'var(--color-text-tertiary)';
             }}
           >
             ×
@@ -135,12 +118,14 @@ export const DetailModal: React.FC<DetailModalProps> = ({
         <div
           style={{
             flex: 1,
-            overflow: 'auto',
-            padding: '32px',
-            background: 'rgba(0, 0, 0, 0.2)',
+            overflowY: 'auto',
+            padding: 'var(--spacing-lg)',
           }}
         >
-          <GateDescription gateType={selectedGate.type} />
+          <GateDescription 
+            gateType={displayGateType || ''} 
+            customGateDefinition={customDef}
+          />
         </div>
       </div>
     </div>

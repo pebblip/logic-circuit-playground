@@ -74,7 +74,7 @@ const helpContents: Record<TabId, HelpContent[]> = {
     {
       question: `⚙️ ${TERMS.CUSTOM_GATE}機能`,
       answer:
-        `【${TERMS.CREATE}方法】${TERMS.CREATE}した${TERMS.CIRCUIT}を${TERMS.SELECT}して「${TERMS.CUSTOM_GATE}として${TERMS.SAVE}」\n【再利用】ツールパレットから通常の${TERMS.GATE}と同様に${TERMS.PLACE}可能\n【階層化】複雑な${TERMS.CIRCUIT}を整理し、見通しを向上\n【${TERMS.TRUTH_TABLE}】${TERMS.CUSTOM_GATE}も自動的に${TERMS.TRUTH_TABLE}を生成`,
+        `【${TERMS.CREATE}方法】${TERMS.CREATE}した${TERMS.CIRCUIT}を${TERMS.SELECT}して「${TERMS.CUSTOM_GATE}として${TERMS.SAVE}」\n【再利用】ツールパレットから通常の${TERMS.GATE}と同様に${TERMS.PLACE}可能\n【内部回路表示】ツールパレットの${TERMS.CUSTOM_GATE}をダブルクリックで内部回路を表示\n【${TERMS.TRUTH_TABLE}】右クリックで${TERMS.TRUTH_TABLE}を表示\n【階層化】複雑な${TERMS.CIRCUIT}を整理し、見通しを向上`,
     },
     {
       question: `⏰ タイミング制御`,

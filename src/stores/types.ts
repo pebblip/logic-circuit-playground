@@ -50,6 +50,10 @@ export interface CircuitStoreState extends CircuitState {
 
   // 複数選択
   selectedGateIds: string[];
+  
+  // ツールパレット選択
+  selectedToolGateType: GateType | 'CUSTOM' | null;
+  selectedToolCustomGateId: string | null;
 }
 
 // ストアのアクション
@@ -118,6 +122,10 @@ export interface CircuitStoreActions {
 
   // 履歴管理（内部用）
   saveToHistory: () => void;
+  
+  // ツールパレット選択
+  selectToolGate: (type: GateType | 'CUSTOM', customGateId?: string) => void;
+  clearToolSelection: () => void;
 }
 
 export type CircuitStore = CircuitStoreState & CircuitStoreActions;

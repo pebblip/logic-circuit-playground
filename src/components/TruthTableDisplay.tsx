@@ -7,20 +7,52 @@ import {
 import { displayStateToBoolean } from '../domain/simulation';
 
 interface TruthTableDisplayProps {
-  result: TruthTableResult;
+  result?: TruthTableResult;
+  gateType?: string;
+  truthTable?: Record<string, string>;
   inputNames: string[];
   outputNames: string[];
   gateName?: string;
   onClose?: () => void;
+  inline?: boolean;
 }
 
 export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
-  result,
+  result: resultProp,
+  gateType,
+  truthTable,
   inputNames,
   outputNames,
   gateName = 'カスタムゲート',
   onClose,
+  inline = false,
 }) => {
+  // truthTableからresultを生成
+  const result: TruthTableResult = resultProp || (() => {
+    if (!truthTable) {
+      return {
+        table: [],
+        inputCount: 0,
+        outputCount: 0,
+        isSequential: false,
+      };
+    }
+    
+    const table = Object.entries(truthTable).map(([inputs, outputs]) => ({
+      inputs,
+      outputs,
+      inputValues: inputs.split('').map(bit => displayStateToBoolean(bit)),
+      outputValues: outputs.split('').map(bit => displayStateToBoolean(bit)),
+    }));
+    
+    return {
+      table,
+      inputCount: inputNames.length,
+      outputCount: outputNames.length,
+      isSequential: false,
+    };
+  })();
+  
   const stats = calculateTruthTableStats(result);
 
   // outputNamesが空や不正な場合のフォールバック
@@ -45,6 +77,138 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
     document.body.removeChild(link);
   };
 
+  // インライン表示用のテーブルコンポーネント
+  const TableComponent = () => (
+    <div style={{ overflowX: 'auto', minWidth: '100%' }}>
+      <table
+        style={{
+          width: '100%',
+          borderCollapse: 'collapse',
+          fontSize: inline ? '12px' : (safeOutputNames.length > 5 ? '12px' : '14px'),
+          tableLayout: 'fixed',
+        }}
+      >
+        <thead>
+          <tr
+            style={{
+              backgroundColor: 'rgba(0, 255, 136, 0.1)',
+            }}
+          >
+            {inputNames.map((name, index) => (
+              <th
+                key={`input-${index}`}
+                style={{
+                  padding: inline ? '6px' : '12px 8px',
+                  textAlign: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: '#00ff88',
+                  fontSize: inline ? '11px' : '12px',
+                  fontWeight: '600',
+                  width: inline ? '60px' : '80px',
+                }}
+              >
+                {name}
+              </th>
+            ))}
+            <th
+              style={{
+                padding: '0',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                width: inline ? '15px' : '20px',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              }}
+            ></th>
+            {safeOutputNames.map((name, index) => {
+              const displayName = name || `出力${index + 1}`;
+              return (
+                <th
+                  key={`output-${index}`}
+                  style={{
+                    padding: inline ? '6px' : (safeOutputNames.length > 4 ? '8px 6px' : '12px 8px'),
+                    textAlign: 'center',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    color: '#ff6699',
+                    fontSize: inline ? '11px' : (safeOutputNames.length > 6 ? '10px' : '12px'),
+                    fontWeight: '600',
+                    width: inline ? '60px' : '80px',
+                  }}
+                >
+                  {displayName}
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {result.table.map((row, rowIndex) => (
+            <tr
+              key={rowIndex}
+              style={{
+                backgroundColor:
+                  rowIndex % 2 === 0
+                    ? 'rgba(255, 255, 255, 0.02)'
+                    : 'transparent',
+              }}
+            >
+              {row.inputs.split('').map((input, colIndex) => (
+                <td
+                  key={`input-${rowIndex}-${colIndex}`}
+                  style={{
+                    padding: inline ? '4px' : '10px 8px',
+                    textAlign: 'center',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    fontFamily: 'monospace',
+                    fontSize: inline ? '12px' : '16px',
+                    fontWeight: '600',
+                    color: displayStateToBoolean(input)
+                      ? '#00ff88'
+                      : 'rgba(255, 255, 255, 0.5)',
+                    width: inline ? '60px' : '80px',
+                  }}
+                >
+                  {input}
+                </td>
+              ))}
+              <td
+                style={{
+                  padding: '0',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  width: inline ? '15px' : '20px',
+                }}
+              ></td>
+              {row.outputs.split('').map((output, colIndex) => (
+                <td
+                  key={`output-${rowIndex}-${colIndex}`}
+                  style={{
+                    padding: inline ? '4px' : (safeOutputNames.length > 4 ? '8px 6px' : '10px 8px'),
+                    textAlign: 'center',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    fontFamily: 'monospace',
+                    fontSize: inline ? '12px' : (safeOutputNames.length > 6 ? '14px' : '16px'),
+                    fontWeight: '600',
+                    color: displayStateToBoolean(output)
+                      ? '#ff6699'
+                      : 'rgba(255, 255, 255, 0.5)',
+                    width: inline ? '60px' : '80px',
+                  }}
+                >
+                  {output}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  // インライン表示の場合
+  if (inline) {
+    return <TableComponent />;
+  }
+
+  // モーダル表示の場合
   return (
     <div
       style={{
@@ -64,7 +228,7 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
       <div
         style={{
           width: '95vw',
-          maxWidth: '800px', // 固定最大幅
+          maxWidth: '800px',
           maxHeight: '90vh',
           backgroundColor: '#0f1441',
           border: '1px solid rgba(0, 255, 136, 0.5)',
@@ -179,139 +343,7 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
             padding: '16px',
           }}
         >
-          <div style={{ overflowX: 'auto', minWidth: '100%' }}>
-            <table
-              style={{
-                width: '100%',
-                minWidth: '400px',
-                maxWidth: '800px', // 最大幅を制限
-                borderCollapse: 'collapse',
-                fontSize: safeOutputNames.length > 5 ? '12px' : '14px',
-                tableLayout: 'fixed', // 固定レイアウトで列幅を制御
-              }}
-            >
-              <thead>
-                <tr
-                  style={{
-                    backgroundColor: 'rgba(0, 255, 136, 0.1)',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1,
-                  }}
-                >
-                  {inputNames.map((name, index) => (
-                    <th
-                      key={`input-${index}`}
-                      style={{
-                        padding: '12px 8px',
-                        textAlign: 'center',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        color: '#00ff88',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        width: '80px', // 固定幅
-                      }}
-                    >
-                      {name}
-                    </th>
-                  ))}
-                  <th
-                    style={{
-                      padding: '0',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      width: '20px', // セパレータ列の幅
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    }}
-                  ></th>
-                  {safeOutputNames.map((name, index) => {
-                    // name が空の場合のフォールバック
-                    const displayName = name || `出力${index + 1}`;
-
-                    return (
-                      <th
-                        key={`output-${index}`}
-                        style={{
-                          padding:
-                            safeOutputNames.length > 4 ? '8px 6px' : '12px 8px',
-                          textAlign: 'center',
-                          border: '1px solid rgba(255, 255, 255, 0.2)',
-                          color: '#ff6699',
-                          fontSize:
-                            safeOutputNames.length > 6 ? '10px' : '12px',
-                          fontWeight: '600',
-                          width: '80px', // 固定幅
-                        }}
-                      >
-                        {displayName}
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {result.table.map((row, rowIndex) => (
-                  <tr
-                    key={rowIndex}
-                    style={{
-                      backgroundColor:
-                        rowIndex % 2 === 0
-                          ? 'rgba(255, 255, 255, 0.02)'
-                          : 'transparent',
-                    }}
-                  >
-                    {row.inputs.split('').map((input, colIndex) => (
-                      <td
-                        key={`input-${rowIndex}-${colIndex}`}
-                        style={{
-                          padding: '10px 8px',
-                          textAlign: 'center',
-                          border: '1px solid rgba(255, 255, 255, 0.1)',
-                          fontFamily: 'monospace',
-                          fontSize: '16px',
-                          fontWeight: '600',
-                          color: displayStateToBoolean(input)
-                            ? '#00ff88'
-                            : 'rgba(255, 255, 255, 0.5)',
-                          width: '80px', // 固定幅
-                        }}
-                      >
-                        {input}
-                      </td>
-                    ))}
-                    <td
-                      style={{
-                        padding: '0',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        width: '20px', // セパレータ列の幅
-                      }}
-                    ></td>
-                    {row.outputs.split('').map((output, colIndex) => (
-                      <td
-                        key={`output-${rowIndex}-${colIndex}`}
-                        style={{
-                          padding:
-                            safeOutputNames.length > 4 ? '8px 6px' : '10px 8px',
-                          textAlign: 'center',
-                          border: '1px solid rgba(255, 255, 255, 0.1)',
-                          fontFamily: 'monospace',
-                          fontSize:
-                            safeOutputNames.length > 6 ? '14px' : '16px',
-                          fontWeight: '600',
-                          color: displayStateToBoolean(output)
-                            ? '#ff6699'
-                            : 'rgba(255, 255, 255, 0.5)',
-                          width: '80px', // 固定幅
-                        }}
-                      >
-                        {output}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <TableComponent />
         </div>
 
         {/* フッター */}

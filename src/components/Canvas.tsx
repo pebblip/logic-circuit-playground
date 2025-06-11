@@ -42,6 +42,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     width: 1200,
     height: 800,
   });
+  const [savedViewBox, setSavedViewBox] = useState<ViewBox | null>(null);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
   const [isDraggingSelection, setIsDraggingSelection] = useState(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(
@@ -81,6 +82,18 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     if (viewMode === 'custom-gate-preview' && previewingCustomGateId) {
       const customGate = customGates.find(g => g.id === previewingCustomGateId);
       
+      console.log('[Canvas] Looking for custom gate:', {
+        previewingCustomGateId,
+        totalCustomGates: customGates.length,
+        customGate: customGate ? {
+          id: customGate.id,
+          name: customGate.displayName,
+          hasInternalCircuit: !!customGate.internalCircuit,
+          internalGatesCount: customGate.internalCircuit?.gates?.length || 0,
+          internalWiresCount: customGate.internalCircuit?.wires?.length || 0
+        } : null
+      });
+      
       // エラーハンドリング
       if (!customGate?.internalCircuit) {
         console.error('[Canvas] Internal circuit not found:', previewingCustomGateId);
@@ -91,11 +104,25 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         };
       }
       
-      console.log('[Canvas] Showing custom gate preview:', customGate.displayName);
+      console.log('[Canvas] Showing custom gate preview:', {
+        displayName: customGate.displayName,
+        gatesLength: customGate.internalCircuit.gates.length,
+        wiresLength: customGate.internalCircuit.wires.length,
+        gates: customGate.internalCircuit.gates,
+        wires: customGate.internalCircuit.wires
+      });
+      
+      // ゲートが配列であることを確認
+      const gates = Array.isArray(customGate.internalCircuit.gates) 
+        ? customGate.internalCircuit.gates 
+        : [];
+      const wires = Array.isArray(customGate.internalCircuit.wires) 
+        ? customGate.internalCircuit.wires 
+        : [];
       
       return {
-        displayGates: customGate.internalCircuit.gates,
-        displayWires: customGate.internalCircuit.wires,
+        displayGates: gates,
+        displayWires: wires,
         isReadOnly: true
       };
     }
@@ -116,10 +143,37 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   
   // プレビューモード開始時にビューをリセット
   useEffect(() => {
-    if (viewMode === 'custom-gate-preview' && displayData.displayGates.length > 0) {
+    if (viewMode === 'custom-gate-preview') {
+      console.log('[Canvas] Preview mode useEffect triggered:', {
+        viewMode,
+        displayGatesLength: displayData.displayGates.length,
+        displayGates: displayData.displayGates
+      });
+      
       // 内部回路の境界を計算（ゲートのサイズを考慮）
       const gatesArray = displayData.displayGates;
-      if (gatesArray.length === 0) return;
+      if (gatesArray.length === 0) {
+        console.warn('[Canvas] No gates to display in preview mode');
+        return;
+      }
+      
+      console.log('[Canvas] Preview mode details:', {
+        customGateId: previewingCustomGateId,
+        totalGates: gatesArray.length,
+        gates: gatesArray.map(g => ({
+          id: g.id,
+          type: g.type,
+          position: g.position,
+          inputs: g.inputs,
+          output: g.output
+        }))
+      });
+      
+      // INPUT/OUTPUTゲートの詳細確認
+      const inputGates = gatesArray.filter(g => g.type === 'INPUT');
+      const outputGates = gatesArray.filter(g => g.type === 'OUTPUT');
+      console.log('[Canvas] INPUT gates:', inputGates.length, inputGates);
+      console.log('[Canvas] OUTPUT gates:', outputGates.length, outputGates);
       
       // 各ゲートのサイズを考慮した正確な境界を計算
       const bounds = gatesArray.reduce((acc, gate) => {
@@ -156,6 +210,20 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         maxY: -Infinity,
       });
       
+      // 境界が正しく計算されているか確認
+      if (!isFinite(bounds.minX) || !isFinite(bounds.maxX) || !isFinite(bounds.minY) || !isFinite(bounds.maxY)) {
+        console.error('[Canvas] Invalid bounds calculated:', bounds);
+        // フォールバック: デフォルトビュー
+        setViewBox({
+          x: -600,
+          y: -400,
+          width: 1200,
+          height: 800
+        });
+        resetZoom();
+        return;
+      }
+      
       // パディングを追加（均等に）
       const padding = 150;
       const circuitWidth = bounds.maxX - bounds.minX;
@@ -165,29 +233,72 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       const centerX = (bounds.minX + bounds.maxX) / 2;
       const centerY = (bounds.minY + bounds.maxY) / 2;
       
-      // viewBoxのサイズ（固定）
-      const viewBoxWidth = 1200;
-      const viewBoxHeight = 800;
+      // viewBoxのサイズ（回路に合わせて調整）
+      const minViewBoxSize = 400;
+      const viewBoxWidth = Math.max(circuitWidth + padding * 2, minViewBoxSize);
+      const viewBoxHeight = Math.max(circuitHeight + padding * 2, minViewBoxSize);
       
       // 回路を画面中央に配置するため、viewBoxの左上座標を計算
       // viewBoxの中心を回路の中心に合わせる
       const viewBoxX = centerX - viewBoxWidth / 2;
       const viewBoxY = centerY - viewBoxHeight / 2;
       
-      setViewBox({
-        x: viewBoxX,
-        y: viewBoxY,
-        width: viewBoxWidth,
-        height: viewBoxHeight
+      // ゲートの平均位置を計算（フォールバック用）
+      const avgX = gatesArray.reduce((sum, g) => sum + g.position.x, 0) / gatesArray.length;
+      const avgY = gatesArray.reduce((sum, g) => sum + g.position.y, 0) / gatesArray.length;
+      
+      console.log('[Canvas] Positions:', {
+        avgPosition: { x: avgX, y: avgY },
+        calculatedCenter: { x: centerX, y: centerY },
+        bounds
       });
+      
+      // デバッグ: 原点周辺を表示するオプション
+      const showOrigin = false; // true にすると原点周辺を表示（デバッグ用）
+      const useAvgPosition = true; // true にすると平均位置を使用
+      
+      // ゲートが1つもない場合は早期リターン
+      if (gatesArray.length === 0) {
+        console.error('[Canvas] No gates in internal circuit!');
+        setViewBox({ x: 0, y: 0, width: 1200, height: 800 });
+        resetZoom();
+        return;
+      }
+      
+      if (showOrigin) {
+        // より広い範囲を表示
+        setViewBox({
+          x: -2000,
+          y: -2000,
+          width: 4000,
+          height: 4000
+        });
+      } else if (useAvgPosition && isFinite(avgX) && isFinite(avgY)) {
+        // 平均位置を中心に表示
+        setViewBox({
+          x: avgX - viewBoxWidth / 2,
+          y: avgY - viewBoxHeight / 2,
+          width: viewBoxWidth,
+          height: viewBoxHeight
+        });
+      } else {
+        setViewBox({
+          x: viewBoxX,
+          y: viewBoxY,
+          width: viewBoxWidth,
+          height: viewBoxHeight
+        });
+      }
       
       // ズームもリセット
       resetZoom();
       
       console.log('[Canvas] Preview bounds:', {
+        gates: gatesArray.length,
         bounds,
         center: { x: centerX, y: centerY },
-        circuit: { width: circuitWidth, height: circuitHeight }
+        circuit: { width: circuitWidth, height: circuitHeight },
+        viewBox: { x: viewBoxX, y: viewBoxY, width: viewBoxWidth, height: viewBoxHeight }
       });
     }
   }, [viewMode, displayData.displayGates, resetZoom]);

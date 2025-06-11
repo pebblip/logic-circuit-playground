@@ -132,50 +132,6 @@ export const GateInfo: React.FC<GateInfoProps> = ({ selectedGate }) => {
         </div>
       </div>
 
-      {/* カスタムゲートの詳細情報 */}
-      {isCustomGate(selectedGate) && selectedGate.customGateDefinition && (
-        <div className="property-group">
-          <div className="section-title">
-            <span>🎨</span>
-            <span>カスタムゲート詳細</span>
-          </div>
-          {selectedGate.customGateDefinition.description && (
-            <div
-              style={{
-                padding: '12px',
-                backgroundColor: 'rgba(102, 51, 153, 0.1)',
-                border: '1px solid rgba(102, 51, 153, 0.3)',
-                borderRadius: '6px',
-                fontSize: '13px',
-                lineHeight: '1.6',
-                color: 'rgba(255, 255, 255, 0.9)',
-              }}
-            >
-              {selectedGate.customGateDefinition.description}
-            </div>
-          )}
-          <div className="property-row">
-            <span className="property-label">入力ピン数</span>
-            <span className="property-value">
-              {selectedGate.customGateDefinition.inputs.length}
-            </span>
-          </div>
-          <div className="property-row">
-            <span className="property-label">出力ピン数</span>
-            <span className="property-value">
-              {selectedGate.customGateDefinition.outputs.length}
-            </span>
-          </div>
-          {selectedGate.customGateDefinition.truthTable && (
-            <div className="property-row">
-              <span className="property-label">真理値表</span>
-              <span className="property-value" style={{ color: '#00ff88' }}>
-                定義済み
-              </span>
-            </div>
-          )}
-        </div>
-      )}
     </>
   );
 };
