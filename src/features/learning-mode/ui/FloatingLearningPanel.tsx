@@ -78,9 +78,11 @@ const structuredLessons: { [key: string]: StructuredLesson } = {
 export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
   isOpen,
   onClose,
-  onOpenHelp,
+  onOpenHelp: _onOpenHelp,
 }) => {
-  const [selectedLesson, setSelectedLesson] = useState<StructuredLesson | null>(null);
+  const [selectedLesson, setSelectedLesson] = useState<StructuredLesson | null>(
+    null
+  );
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(
     new Set(JSON.parse(localStorage.getItem('completedLessons') || '[]'))
@@ -99,33 +101,43 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
   const { gates, wires, clearAll, setAllowedGates } = useCircuitStore();
 
   const isDebugMode = import.meta.env.VITE_DEBUG_MODE === 'true';
-  const lockedLessonsCount = isDebugMode
-    ? lessons.filter(lesson =>
-        lesson.prerequisites.some(prereq => !completedLessons.has(prereq))
-      ).length
-    : 0;
 
   const stats = getLearningStats(completedLessons);
 
   // ドラッグ開始
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('floating-panel-header')) {
-      setIsDragging(true);
-      setDragStart({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y,
-      });
-    }
-  }, [position]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (
+        e.target === e.currentTarget ||
+        (e.target as HTMLElement).classList.contains('floating-panel-header')
+      ) {
+        setIsDragging(true);
+        setDragStart({
+          x: e.clientX - position.x,
+          y: e.clientY - position.y,
+        });
+      }
+    },
+    [position]
+  );
 
   // ドラッグ処理
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (isDragging) {
-      const newX = Math.max(0, Math.min(window.innerWidth - size.width, e.clientX - dragStart.x));
-      const newY = Math.max(0, Math.min(window.innerHeight - size.height, e.clientY - dragStart.y));
-      setPosition({ x: newX, y: newY });
-    }
-  }, [isDragging, dragStart, size]);
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (isDragging) {
+        const newX = Math.max(
+          0,
+          Math.min(window.innerWidth - size.width, e.clientX - dragStart.x)
+        );
+        const newY = Math.max(
+          0,
+          Math.min(window.innerHeight - size.height, e.clientY - dragStart.y)
+        );
+        setPosition({ x: newX, y: newY });
+      }
+    },
+    [isDragging, dragStart, size]
+  );
 
   // ドラッグ終了
   const handleMouseUp = useCallback(() => {
@@ -147,23 +159,29 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
   }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
 
   // リサイズハンドル
-  const handleResizeStart = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsResizing(true);
-    setDragStart({
-      x: e.clientX - size.width,
-      y: e.clientY - size.height,
-    });
-  }, [size]);
+  const handleResizeStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setIsResizing(true);
+      setDragStart({
+        x: e.clientX - size.width,
+        y: e.clientY - size.height,
+      });
+    },
+    [size]
+  );
 
   // リサイズ処理
-  const handleResizeMove = useCallback((e: MouseEvent) => {
-    if (isResizing) {
-      const newWidth = Math.max(MIN_SIZE.width, e.clientX - position.x);
-      const newHeight = Math.max(MIN_SIZE.height, e.clientY - position.y);
-      setSize({ width: newWidth, height: newHeight });
-    }
-  }, [isResizing, position]);
+  const handleResizeMove = useCallback(
+    (e: MouseEvent) => {
+      if (isResizing) {
+        const newWidth = Math.max(MIN_SIZE.width, e.clientX - position.x);
+        const newHeight = Math.max(MIN_SIZE.height, e.clientY - position.y);
+        setSize({ width: newWidth, height: newHeight });
+      }
+    },
+    [isResizing, position]
+  );
 
   useEffect(() => {
     if (isResizing) {
@@ -223,7 +241,7 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
         requiredGates.size > 0 ? Array.from(requiredGates) : null;
       setAllowedGates(allowedGatesList);
     }
-  }, [selectedLesson, setAllowedGates]);
+  }, [selectedLesson, setAllowedGates, currentStepIndex]);
 
   // レッスン完了処理
   useEffect(() => {
@@ -247,7 +265,9 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
     if (lesson) {
       if (gates.length > 0 || wires.length > 0) {
         if (
-          window.confirm(`現在の${TERMS.CIRCUIT}を${TERMS.CLEAR}して、${TERMS.LESSON}を開始しますか？`)
+          window.confirm(
+            `現在の${TERMS.CIRCUIT}を${TERMS.CLEAR}して、${TERMS.LESSON}を開始しますか？`
+          )
         ) {
           clearAll();
         } else {
@@ -286,7 +306,7 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
   // 最小化時の表示（Picture-in-Picture風）
   if (isMinimized) {
     return (
-      <div 
+      <div
         className="floating-learning-panel minimized"
         style={{
           left: position.x,
@@ -315,7 +335,7 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
           )}
           <button
             className="expand-button"
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               setIsMinimized(false);
             }}
@@ -366,13 +386,15 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '16px' }}>🎓</span>
-          <span style={{ color: '#00ff88', fontWeight: 'bold', fontSize: '14px' }}>
+          <span
+            style={{ color: '#00ff88', fontWeight: 'bold', fontSize: '14px' }}
+          >
             {selectedLesson ? selectedLesson.title : TERMS.LEARNING_MODE}
           </span>
         </div>
         <div style={{ display: 'flex', gap: '4px' }}>
           <button
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               setIsMinimized(true);
             }}
@@ -391,7 +413,7 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
             ―
           </button>
           <button
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               onClose();
             }}
@@ -413,7 +435,7 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
       </div>
 
       {/* スクロール可能なコンテンツエリア */}
-      <div 
+      <div
         style={{
           flex: 1,
           overflow: 'auto',
@@ -435,106 +457,126 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
             </div>
 
             <div className="floating-learning-content">
-              {Object.entries(lessonCategories).map(([categoryKey, category]) => (
-                <div key={categoryKey} className="compact-phase-section">
-                  <div className="compact-phase-header">
-                    <h3 style={{ fontSize: '14px', margin: '0 0 8px 0' }}>{category.title}</h3>
-                    <div className="compact-phase-progress">
-                      <div
-                        className="compact-phase-progress-bar"
-                        style={{
-                          width: `${(category.lessons.filter(id => completedLessons.has(id)).length / category.lessons.length) * 100}%`,
-                          backgroundColor: category.color,
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="compact-lessons-grid">
-                    {category.lessons.map(lessonId => {
-                      const lesson =
-                        structuredLessons[lessonId] ||
-                        lessons.find(l => l.id === lessonId);
-                      if (!lesson) return null;
-
-                      const isCompleted = completedLessons.has(lessonId);
-                      const isLocked =
-                        !isDebugMode &&
-                        lesson.prerequisites.some(
-                          (prereq: string) => !completedLessons.has(prereq)
-                        );
-                      const isNewFormat = lessonId in structuredLessons;
-
-                      return (
+              {Object.entries(lessonCategories).map(
+                ([categoryKey, category]) => (
+                  <div key={categoryKey} className="compact-phase-section">
+                    <div className="compact-phase-header">
+                      <h3 style={{ fontSize: '14px', margin: '0 0 8px 0' }}>
+                        {category.title}
+                      </h3>
+                      <div className="compact-phase-progress">
                         <div
-                          key={lessonId}
-                          className={`compact-lesson-card ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`}
-                          onClick={() => !isLocked && handleStartLesson(lessonId)}
+                          className="compact-phase-progress-bar"
                           style={{
-                            padding: '8px',
-                            margin: '4px 0',
-                            borderRadius: '6px',
-                            cursor: isLocked ? 'not-allowed' : 'pointer',
-                            background: isCompleted 
-                              ? 'rgba(0, 255, 136, 0.1)' 
-                              : 'rgba(255, 255, 255, 0.05)',
-                            border: `1px solid ${isCompleted ? category.color : 'rgba(255, 255, 255, 0.1)'}`,
-                            opacity: isLocked ? 0.5 : 1,
+                            width: `${(category.lessons.filter(id => completedLessons.has(id)).length / category.lessons.length) * 100}%`,
+                            backgroundColor: category.color,
                           }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '16px' }}>
-                              {isCompleted
-                                ? '✅'
-                                : isLocked && !isDebugMode
-                                  ? '🔒'
-                                  : lesson.icon}
-                            </span>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ 
-                                fontSize: '12px', 
-                                fontWeight: 'bold', 
-                                color: '#fff',
-                                marginBottom: '2px',
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                              }}>
-                                {lesson.title}
-                                {isNewFormat && (
-                                  <span style={{ 
-                                    marginLeft: '4px',
-                                    fontSize: '10px',
-                                    background: '#00ff88',
-                                    color: '#000',
-                                    padding: '1px 4px',
-                                    borderRadius: '2px',
-                                  }}>NEW</span>
-                                )}
-                              </div>
-                              <div style={{ 
-                                fontSize: '10px', 
-                                color: 'rgba(255, 255, 255, 0.6)',
+                        />
+                      </div>
+                    </div>
+
+                    <div className="compact-lessons-grid">
+                      {category.lessons.map(lessonId => {
+                        const lesson =
+                          structuredLessons[lessonId] ||
+                          lessons.find(l => l.id === lessonId);
+                        if (!lesson) return null;
+
+                        const isCompleted = completedLessons.has(lessonId);
+                        const isLocked =
+                          !isDebugMode &&
+                          lesson.prerequisites.some(
+                            (prereq: string) => !completedLessons.has(prereq)
+                          );
+                        const isNewFormat = lessonId in structuredLessons;
+
+                        return (
+                          <div
+                            key={lessonId}
+                            className={`compact-lesson-card ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`}
+                            onClick={() =>
+                              !isLocked && handleStartLesson(lessonId)
+                            }
+                            style={{
+                              padding: '8px',
+                              margin: '4px 0',
+                              borderRadius: '6px',
+                              cursor: isLocked ? 'not-allowed' : 'pointer',
+                              background: isCompleted
+                                ? 'rgba(0, 255, 136, 0.1)'
+                                : 'rgba(255, 255, 255, 0.05)',
+                              border: `1px solid ${isCompleted ? category.color : 'rgba(255, 255, 255, 0.1)'}`,
+                              opacity: isLocked ? 0.5 : 1,
+                            }}
+                          >
+                            <div
+                              style={{
                                 display: 'flex',
+                                alignItems: 'center',
                                 gap: '8px',
-                              }}>
-                                <span>
-                                  {lesson.difficulty === 'beginner'
-                                    ? '初級'
-                                    : lesson.difficulty === 'intermediate'
-                                      ? '中級'
-                                      : '上級'}
-                                </span>
-                                <span>{lesson.estimatedMinutes}分</span>
+                              }}
+                            >
+                              <span style={{ fontSize: '16px' }}>
+                                {isCompleted
+                                  ? '✅'
+                                  : isLocked && !isDebugMode
+                                    ? '🔒'
+                                    : lesson.icon}
+                              </span>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div
+                                  style={{
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    color: '#fff',
+                                    marginBottom: '2px',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                  }}
+                                >
+                                  {lesson.title}
+                                  {isNewFormat && (
+                                    <span
+                                      style={{
+                                        marginLeft: '4px',
+                                        fontSize: '10px',
+                                        background: '#00ff88',
+                                        color: '#000',
+                                        padding: '1px 4px',
+                                        borderRadius: '2px',
+                                      }}
+                                    >
+                                      NEW
+                                    </span>
+                                  )}
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: '10px',
+                                    color: 'rgba(255, 255, 255, 0.6)',
+                                    display: 'flex',
+                                    gap: '8px',
+                                  }}
+                                >
+                                  <span>
+                                    {lesson.difficulty === 'beginner'
+                                      ? '初級'
+                                      : lesson.difficulty === 'intermediate'
+                                        ? '中級'
+                                        : '上級'}
+                                  </span>
+                                  <span>{lesson.estimatedMinutes}分</span>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         ) : (
@@ -571,9 +613,19 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
                 // レッスン完了画面（コンパクト版）
                 <div className="compact-lesson-complete">
                   <div style={{ textAlign: 'center', padding: '16px' }}>
-                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>✨</div>
-                    <h3 style={{ margin: '0 0 8px 0', fontSize: '16px' }}>素晴らしい！</h3>
-                    <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: 'rgba(255, 255, 255, 0.7)' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>
+                      ✨
+                    </div>
+                    <h3 style={{ margin: '0 0 8px 0', fontSize: '16px' }}>
+                      素晴らしい！
+                    </h3>
+                    <p
+                      style={{
+                        margin: '0 0 16px 0',
+                        fontSize: '12px',
+                        color: 'rgba(255, 255, 255, 0.7)',
+                      }}
+                    >
                       「{selectedLesson.title}」を完全マスター
                     </p>
                     <button
@@ -600,75 +652,93 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
             </div>
 
             {/* コンパクトナビゲーション */}
-            {selectedLesson && currentStepIndex < selectedLesson.steps.length && (
-              <div style={{
-                marginTop: '16px',
-                padding: '12px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '8px',
-              }}>
-                <button
-                  onClick={handlePreviousStep}
-                  disabled={currentStepIndex === 0}
+            {selectedLesson &&
+              currentStepIndex < selectedLesson.steps.length && (
+                <div
                   style={{
-                    background: currentStepIndex === 0 ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 255, 136, 0.2)',
-                    border: 'none',
-                    color: currentStepIndex === 0 ? 'rgba(255, 255, 255, 0.3)' : '#fff',
-                    padding: '6px 12px',
-                    borderRadius: '4px',
-                    cursor: currentStepIndex === 0 ? 'not-allowed' : 'pointer',
-                    fontSize: '11px',
+                    marginTop: '16px',
+                    padding: '12px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '8px',
                   }}
-                  title={TERMS.PREVIOUS_STEP}
                 >
-                  ◀ {TERMS.PREVIOUS}
-                </button>
-                
-                <div style={{ 
-                  fontSize: '11px', 
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  textAlign: 'center',
-                }}>
-                  {currentStepIndex + 1} / {selectedLesson.steps.length}
+                  <button
+                    onClick={handlePreviousStep}
+                    disabled={currentStepIndex === 0}
+                    style={{
+                      background:
+                        currentStepIndex === 0
+                          ? 'rgba(255, 255, 255, 0.1)'
+                          : 'rgba(0, 255, 136, 0.2)',
+                      border: 'none',
+                      color:
+                        currentStepIndex === 0
+                          ? 'rgba(255, 255, 255, 0.3)'
+                          : '#fff',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      cursor:
+                        currentStepIndex === 0 ? 'not-allowed' : 'pointer',
+                      fontSize: '11px',
+                    }}
+                    title={TERMS.PREVIOUS_STEP}
+                  >
+                    ◀ {TERMS.PREVIOUS}
+                  </button>
+
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {currentStepIndex + 1} / {selectedLesson.steps.length}
+                  </div>
+
+                  <button
+                    onClick={handleNextStep}
+                    disabled={
+                      currentStep?.content?.some(c => c.type === 'quiz') &&
+                      !quizAnswered
+                    }
+                    style={{
+                      background:
+                        currentStep?.content?.some(c => c.type === 'quiz') &&
+                        !quizAnswered
+                          ? 'rgba(255, 255, 255, 0.1)'
+                          : 'rgba(0, 255, 136, 0.2)',
+                      border: 'none',
+                      color:
+                        currentStep?.content?.some(c => c.type === 'quiz') &&
+                        !quizAnswered
+                          ? 'rgba(255, 255, 255, 0.3)'
+                          : '#fff',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      cursor:
+                        currentStep?.content?.some(c => c.type === 'quiz') &&
+                        !quizAnswered
+                          ? 'not-allowed'
+                          : 'pointer',
+                      fontSize: '11px',
+                    }}
+                    title={
+                      currentStepIndex === selectedLesson.steps.length - 1
+                        ? TERMS.COMPLETE
+                        : TERMS.NEXT_STEP
+                    }
+                  >
+                    {currentStepIndex === selectedLesson.steps.length - 1
+                      ? `${TERMS.COMPLETE} ✓`
+                      : `${TERMS.NEXT} ▶`}
+                  </button>
                 </div>
-                
-                <button
-                  onClick={handleNextStep}
-                  disabled={
-                    currentStep?.content?.some(c => c.type === 'quiz') &&
-                    !quizAnswered
-                  }
-                  style={{
-                    background: (currentStep?.content?.some(c => c.type === 'quiz') && !quizAnswered)
-                      ? 'rgba(255, 255, 255, 0.1)'
-                      : 'rgba(0, 255, 136, 0.2)',
-                    border: 'none',
-                    color: (currentStep?.content?.some(c => c.type === 'quiz') && !quizAnswered)
-                      ? 'rgba(255, 255, 255, 0.3)'
-                      : '#fff',
-                    padding: '6px 12px',
-                    borderRadius: '4px',
-                    cursor: (currentStep?.content?.some(c => c.type === 'quiz') && !quizAnswered)
-                      ? 'not-allowed'
-                      : 'pointer',
-                    fontSize: '11px',
-                  }}
-                  title={
-                    currentStepIndex === selectedLesson.steps.length - 1
-                      ? TERMS.COMPLETE
-                      : TERMS.NEXT_STEP
-                  }
-                >
-                  {currentStepIndex === selectedLesson.steps.length - 1
-                    ? `${TERMS.COMPLETE} ✓`
-                    : `${TERMS.NEXT} ▶`}
-                </button>
-              </div>
-            )}
+              )}
           </div>
         )}
       </div>
@@ -687,15 +757,17 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
         }}
         onMouseDown={handleResizeStart}
       >
-        <div style={{
-          position: 'absolute',
-          bottom: '4px',
-          right: '4px',
-          width: '0',
-          height: '0',
-          borderLeft: '8px solid transparent',
-          borderBottom: '8px solid rgba(255, 255, 255, 0.3)',
-        }} />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '4px',
+            right: '4px',
+            width: '0',
+            height: '0',
+            borderLeft: '8px solid transparent',
+            borderBottom: '8px solid rgba(255, 255, 255, 0.3)',
+          }}
+        />
       </div>
     </div>
   );

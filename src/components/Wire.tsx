@@ -11,10 +11,13 @@ interface WireComponentProps {
   gates?: Gate[]; // プレビューモード用にオプショナルに
 }
 
-export const WireComponent: React.FC<WireComponentProps> = ({ wire, gates: propGates }) => {
+export const WireComponent: React.FC<WireComponentProps> = ({
+  wire,
+  gates: propGates,
+}) => {
   const storeGates = useCircuitStore(state => state.gates);
   const deleteWire = useCircuitStore(state => state.deleteWire);
-  
+
   // プロパティで渡されたゲートがあればそれを使用、なければstoreから取得
   const gates = propGates || storeGates;
 

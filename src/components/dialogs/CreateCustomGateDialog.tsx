@@ -44,12 +44,16 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
 
   const handleSave = () => {
     if (!formData.gateName) {
-      alert('カスタムゲートには名前を付けてください。\nこの名前は回路内でゲートを識別するために使用されます。');
+      alert(
+        'カスタムゲートには名前を付けてください。\nこの名前は回路内でゲートを識別するために使用されます。'
+      );
       return;
     }
 
     if (!/^[a-zA-Z0-9_]+$/.test(formData.gateName)) {
-      alert('ゲート名には半角の英数字とアンダースコア（_）のみ使用できます。\n例：my_gate、Counter、LED_Display');
+      alert(
+        'ゲート名には半角の英数字とアンダースコア（_）のみ使用できます。\n例：my_gate、Counter、LED_Display'
+      );
       return;
     }
 
@@ -155,17 +159,11 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
 
         {/* フッターアクション */}
         <div className="modal__footer">
-          <button
-            className="btn btn--secondary"
-            onClick={handleCancel}
-          >
+          <button className="btn btn--secondary" onClick={handleCancel}>
             キャンセル
           </button>
 
-          <button
-            className="btn btn--primary"
-            onClick={handleSave}
-          >
+          <button className="btn btn--primary" onClick={handleSave}>
             {TERMS.CREATE}
           </button>
         </div>

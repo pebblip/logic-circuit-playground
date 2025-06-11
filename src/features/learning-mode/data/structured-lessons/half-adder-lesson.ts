@@ -5,7 +5,8 @@ export const halfAdderStructuredLesson: StructuredLesson = {
   id: 'half-adder',
   title: '半加算器 - 電卓の心臓部を作ろう！',
   description: 'たった2つのゲートで足し算ができる魔法の回路',
-  objective: 'XORとANDゲートを組み合わせて、0と1の足し算回路を作り、コンピュータの計算原理を理解する',
+  objective:
+    'XORとANDゲートを組み合わせて、0と1の足し算回路を作り、コンピュータの計算原理を理解する',
   category: '基本回路',
   lessonType: 'build',
   difficulty: 'intermediate',
@@ -226,7 +227,14 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         },
         {
           type: 'table',
-          headers: ['A', 'B', 'S（和）', 'C（繰り上がり）', '2進数結果', '10進数'],
+          headers: [
+            'A',
+            'B',
+            'S（和）',
+            'C（繰り上がり）',
+            '2進数結果',
+            '10進数',
+          ],
           rows: [
             ['0', '0', '0', '0', '00', '0'],
             ['0', '1', '1', '0', '01', '1'],
@@ -381,13 +389,9 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         },
         {
           type: 'quiz',
-          question: '半加算器で「1 + 1」を計算した時、出力S（和）と出力C（繰り上がり）の値は？',
-          options: [
-            'S=1、C=1',
-            'S=0、C=1',
-            'S=1、C=0', 
-            'S=0、C=0',
-          ],
+          question:
+            '半加算器で「1 + 1」を計算した時、出力S（和）と出力C（繰り上がり）の値は？',
+          options: ['S=1、C=1', 'S=0、C=1', 'S=1、C=0', 'S=0、C=0'],
           correctIndex: 1,
         },
         {

@@ -25,13 +25,13 @@ export const MobileLayout: React.FC<MobileLayoutProps> = () => {
 
       {/* モード選択（オプション） */}
       <div className="mobile-mode-selector">
-        <button 
+        <button
           className={`mode-button ${isPipLearningOpen ? 'active' : ''}`}
           onClick={() => setIsPipLearningOpen(true)}
         >
           学習
         </button>
-        <button 
+        <button
           className={`mode-button ${appMode === 'フリーモード' && !isPipLearningOpen ? 'active' : ''}`}
           onClick={() => {
             setAppMode('フリーモード');
@@ -40,7 +40,7 @@ export const MobileLayout: React.FC<MobileLayoutProps> = () => {
         >
           自由
         </button>
-        <button 
+        <button
           className={`mode-button ${appMode === 'パズルモード' ? 'active' : ''}`}
           onClick={() => {
             setAppMode('パズルモード');

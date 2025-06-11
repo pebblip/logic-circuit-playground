@@ -1,5 +1,5 @@
 import React from 'react';
-import { GateType } from '../../../../types';
+import type { GateType } from '../../../../types';
 
 // 既存のレンダラーからインポートされるスタイルを模倣
 const GATE_WIDTH = 70;
@@ -315,12 +315,13 @@ const renderWire = (
   let path: string;
 
   switch (type) {
-    case 'straight':
+    case 'straight': {
       // 直線
       path = `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
       break;
+    }
 
-    case 'orthogonal':
+    case 'orthogonal': {
       // L字型（90度の折れ線）
       if (Math.abs(to.x - from.x) > Math.abs(to.y - from.y)) {
         // 水平方向優先
@@ -332,15 +333,18 @@ const renderWire = (
         path = `M ${from.x} ${from.y} L ${from.x} ${midY} L ${to.x} ${midY} L ${to.x} ${to.y}`;
       }
       break;
+    }
 
-    case 'bezier':
+    case 'bezier': {
       // ベジェ曲線（既存の実装）
       const midX = (from.x + to.x) / 2;
       path = `M ${from.x} ${from.y} Q ${midX} ${from.y} ${midX} ${(from.y + to.y) / 2} T ${to.x} ${to.y}`;
       break;
+    }
 
-    default:
+    default: {
       path = `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
+    }
   }
 
   return (

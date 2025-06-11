@@ -20,7 +20,7 @@ import {
   failure,
   createValidationError,
 } from './types';
-import { ERROR_MESSAGES, SUGGESTION_MESSAGES, humanizeError } from './errorMessages';
+import { ERROR_MESSAGES, SUGGESTION_MESSAGES } from './errorMessages';
 
 // ===============================
 // バリデーション設定
@@ -67,7 +67,9 @@ function createViolation(
       : field.includes('wireId')
         ? { wireId: value as string }
         : {},
-    suggestion: field.includes('gate') ? SUGGESTION_MESSAGES.VERIFY_GATE_SETTINGS : SUGGESTION_MESSAGES.CHECK_CONNECTIONS,
+    suggestion: field.includes('gate')
+      ? SUGGESTION_MESSAGES.VERIFY_GATE_SETTINGS
+      : SUGGESTION_MESSAGES.CHECK_CONNECTIONS,
   };
 }
 
@@ -164,9 +166,9 @@ export function validateGateType(
 export function validateGatePosition(
   position: unknown
 ): Result<{ x: number; y: number }, ValidationError> {
-  if (!position || typeof position !== 'object') {
+  if (!position || typeof position !== 'object' || Array.isArray(position)) {
     return failure(
-      createValidationError('Gate position must be an object', [
+      createValidationError(ERROR_MESSAGES.GATE_INVALID_POSITION, [
         createViolation('position', position, 'must be object with x and y'),
       ])
     );
@@ -176,7 +178,7 @@ export function validateGatePosition(
 
   if (typeof pos.x !== 'number' || typeof pos.y !== 'number') {
     return failure(
-      createValidationError('Gate position x and y must be numbers', [
+      createValidationError(ERROR_MESSAGES.GATE_POSITION_NOT_NUMBER, [
         createViolation('position.x', pos.x, 'must be number'),
         createViolation('position.y', pos.y, 'must be number'),
       ])
@@ -185,13 +187,10 @@ export function validateGatePosition(
 
   if (!Number.isFinite(pos.x) || !Number.isFinite(pos.y)) {
     return failure(
-      createValidationError(
-        'Gate position coordinates must be finite numbers',
-        [
-          createViolation('position.x', pos.x, 'must be finite'),
-          createViolation('position.y', pos.y, 'must be finite'),
-        ]
-      )
+      createValidationError(ERROR_MESSAGES.GATE_POSITION_NOT_FINITE, [
+        createViolation('position.x', pos.x, 'must be finite'),
+        createViolation('position.y', pos.y, 'must be finite'),
+      ])
     );
   }
 
@@ -199,12 +198,59 @@ export function validateGatePosition(
 }
 
 /**
- * ゲート入力の妥当性を検証
+ * ゲート入力の妥当性を検証（オーバーロード）
  */
+export function validateGateInputs(
+  inputs: unknown,
+  type: string,
+  customDef?: CustomGateDefinition
+): Result<void, ValidationError>;
+// eslint-disable-next-line no-redeclare
 export function validateGateInputs(
   gate: Readonly<Gate>,
   inputs: readonly boolean[]
+): Result<void, ValidationError>;
+
+/**
+ * ゲート入力の妥当性を検証（実装）
+ */
+// eslint-disable-next-line no-redeclare
+export function validateGateInputs(
+  gateOrInputs: unknown,
+  typeOrInputs?: string | readonly boolean[],
+  customDef?: CustomGateDefinition
 ): Result<void, ValidationError> {
+  // オーバーロードの判定
+  let gate: Readonly<Gate>;
+  let inputs: readonly boolean[];
+
+  if (typeof typeOrInputs === 'string') {
+    // 簡易版の呼び出し (inputs, type, customDef?)
+    if (!Array.isArray(gateOrInputs)) {
+      return failure(
+        createValidationError(ERROR_MESSAGES.GATE_INPUTS_NOT_ARRAY, [
+          createViolation('inputs', gateOrInputs, 'must be array'),
+        ])
+      );
+    }
+
+    // 簡易的なゲートオブジェクトを作成
+    gate = {
+      id: 'temp',
+      type: typeOrInputs,
+      position: { x: 0, y: 0 },
+      inputs: [],
+      output: false,
+      ...(typeOrInputs === 'CUSTOM' && customDef
+        ? { customGateDefinition: customDef }
+        : {}),
+    } as Gate;
+    inputs = gateOrInputs as boolean[];
+  } else {
+    // 完全版の呼び出し (gate, inputs)
+    gate = gateOrInputs as Readonly<Gate>;
+    inputs = typeOrInputs as readonly boolean[];
+  }
   const violations: ValidationViolation[] = [];
 
   // 期待する入力数を計算
@@ -247,12 +293,19 @@ export function validateGateInputs(
 
   // 入力数チェック
   if (inputs.length !== expectedInputCount) {
+    const message = ERROR_MESSAGES.INPUT_COUNT_MISMATCH(
+      expectedInputCount,
+      inputs.length
+    );
     violations.push({
       severity: 'ERROR',
       code: 'INVALID_INPUT_COUNT',
-      message: `Expected ${expectedInputCount} inputs, got ${inputs.length}`,
+      message,
       location: { gateId: gate.id },
-      suggestion: `Provide exactly ${expectedInputCount} inputs for ${gate.type} gate`,
+      suggestion: ERROR_MESSAGES.INPUT_PROVIDE_CORRECT_COUNT(
+        expectedInputCount,
+        gate.type
+      ),
     });
   }
 
@@ -262,7 +315,7 @@ export function validateGateInputs(
       violations.push({
         severity: 'ERROR',
         code: 'INVALID_INPUT_TYPE',
-        message: `Input at index ${index} must be boolean`,
+        message: ERROR_MESSAGES.INPUT_TYPE_INVALID(index),
         location: { gateId: gate.id, pinIndex: index },
         suggestion: 'Ensure all inputs are boolean values',
       });
@@ -272,7 +325,7 @@ export function validateGateInputs(
   if (violations.length > 0) {
     return failure(
       createValidationError(
-        `Invalid inputs for gate ${gate.id} (${gate.type})`,
+        violations[0].message, // Use first violation message as main message
         violations,
         { gateId: gate.id }
       )
@@ -332,7 +385,7 @@ export function validateGate(gate: unknown): Result<Gate, ValidationError> {
     violations.push({
       severity: 'ERROR',
       code: 'INVALID_INPUTS_TYPE',
-      message: 'Gate inputs must be an array',
+      message: ERROR_MESSAGES.GATE_INPUTS_NOT_ARRAY,
       location: { gateId: String(g.id) },
       suggestion: 'Provide inputs as an array',
     });
@@ -343,7 +396,7 @@ export function validateGate(gate: unknown): Result<Gate, ValidationError> {
     violations.push({
       severity: 'ERROR',
       code: 'INVALID_OUTPUT_TYPE',
-      message: 'Gate output must be boolean',
+      message: ERROR_MESSAGES.GATE_OUTPUT_NOT_BOOLEAN,
       location: { gateId: String(g.id) },
       suggestion: 'Ensure gate output is a boolean value',
     });
@@ -355,7 +408,7 @@ export function validateGate(gate: unknown): Result<Gate, ValidationError> {
       violations.push({
         severity: 'ERROR',
         code: 'MISSING_CUSTOM_GATE_DEFINITION',
-        message: 'Custom gate must have definition',
+        message: ERROR_MESSAGES.GATE_MISSING_CUSTOM_DEFINITION,
         location: { gateId: String(g.id) },
         suggestion: 'Provide a valid customGateDefinition for custom gates',
       });
@@ -372,7 +425,7 @@ export function validateGate(gate: unknown): Result<Gate, ValidationError> {
   if (violations.length > 0) {
     return failure(
       createValidationError(
-        `Invalid gate: ${String(g.id) || 'unknown'}`,
+        violations[0].message, // Use first violation message as main message
         violations,
         {
           gateId: String(g.id),
@@ -473,8 +526,7 @@ export function validateCustomGateDefinition(
     violations.push({
       severity: 'ERROR',
       code: 'NO_IMPLEMENTATION_DEFINED',
-      message:
-        'Custom gate definition must have either truthTable or internalCircuit',
+      message: ERROR_MESSAGES.CUSTOM_GATE_NO_IMPLEMENTATION,
       location: {},
       suggestion:
         'Provide either a truth table or internal circuit for the custom gate',
@@ -484,7 +536,7 @@ export function validateCustomGateDefinition(
   if (violations.length > 0) {
     return failure(
       createValidationError(
-        `Invalid custom gate definition: ${def.name || def.id || 'unknown'}`,
+        violations[0].message, // Use first violation message as main message
         violations
       )
     );
@@ -663,7 +715,10 @@ export function validateCircuit(
     violations.push({
       severity: 'ERROR',
       code: 'CIRCUIT_TOO_LARGE',
-      message: `Circuit has too many gates (${circuit.gates.length} > ${validationConfig.maxGateCount})`,
+      message: ERROR_MESSAGES.CIRCUIT_TOO_LARGE(
+        circuit.gates.length,
+        validationConfig.maxGateCount
+      ),
       location: {},
     });
   }
@@ -672,7 +727,10 @@ export function validateCircuit(
     violations.push({
       severity: 'ERROR',
       code: 'CIRCUIT_TOO_COMPLEX',
-      message: `Circuit has too many wires (${circuit.wires.length} > ${validationConfig.maxWireCount})`,
+      message: ERROR_MESSAGES.CIRCUIT_TOO_COMPLEX(
+        circuit.wires.length,
+        validationConfig.maxWireCount
+      ),
       location: {},
     });
   }
@@ -697,7 +755,7 @@ export function validateCircuit(
       violations.push({
         severity: 'ERROR',
         code: 'DUPLICATE_GATE_ID',
-        message: `Duplicate gate ID: ${gate.id}`,
+        message: ERROR_MESSAGES.GATE_DUPLICATE_ID,
         location: { gateId: gate.id },
       });
     } else {
@@ -737,7 +795,7 @@ export function validateCircuit(
       violations.push({
         severity: 'ERROR',
         code: 'MISSING_SOURCE_GATE',
-        message: `Wire ${wire.id} references non-existent source gate: ${wire.from.gateId}`,
+        message: ERROR_MESSAGES.WIRE_FROM_GATE_MISSING,
         location: { wireId: wire.id, gateId: wire.from.gateId },
       });
     }
@@ -746,7 +804,7 @@ export function validateCircuit(
       violations.push({
         severity: 'ERROR',
         code: 'MISSING_TARGET_GATE',
-        message: `Wire ${wire.id} references non-existent target gate: ${wire.to.gateId}`,
+        message: ERROR_MESSAGES.WIRE_TO_GATE_MISSING,
         location: { wireId: wire.id, gateId: wire.to.gateId },
       });
     }
@@ -759,7 +817,7 @@ export function validateCircuit(
       violations.push({
         severity: 'ERROR',
         code: 'CIRCULAR_DEPENDENCY',
-        message: `Circular dependency detected: ${cycle.join(' -> ')}`,
+        message: ERROR_MESSAGES.CIRCUIT_CIRCULAR_DEPENDENCY(cycle),
         location: {},
       });
     });
@@ -804,24 +862,23 @@ export function validateCircuit(
   const outputGates = circuit.gates.filter(g => g.type === 'OUTPUT');
 
   if (inputGates.length === 0) {
-    suggestions.push('Consider adding INPUT gates to provide external signals');
+    suggestions.push(SUGGESTION_MESSAGES.ADD_INPUT_GATES);
   }
 
   if (outputGates.length === 0) {
-    suggestions.push('Consider adding OUTPUT gates to observe circuit results');
+    suggestions.push(SUGGESTION_MESSAGES.ADD_OUTPUT_GATES);
   }
 
   if (
     circuit.gates.length > 100 &&
     circuit.wires.length > circuit.gates.length * 3
   ) {
-    suggestions.push(
-      'Large circuit detected. Consider using custom gates to simplify the design'
-    );
+    suggestions.push(SUGGESTION_MESSAGES.USE_CUSTOM_GATES);
   }
 
   const endTime = Date.now();
-  const isValid = violations.filter(v => v.severity === 'ERROR').length === 0;
+  const errors = violations.filter(v => v.severity === 'ERROR');
+  const isValid = errors.length === 0;
 
   const result: ValidationResult = {
     isValid,
@@ -838,6 +895,11 @@ export function validateCircuit(
       ],
     },
   };
+
+  // Return failure if there are errors
+  if (!isValid) {
+    return failure(createValidationError(errors[0].message, violations));
+  }
 
   return success(result);
 }

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Header } from '@components/Header';
 import { useCircuitStore } from '@/stores/circuitStore';
 import { AppMode } from '@/types/appMode';
+import { TERMS } from '@/features/learning-mode/data/terms';
 
 // モック
 vi.mock('@/stores/circuitStore');
@@ -76,33 +77,33 @@ describe('Header Component', () => {
 
   describe('1. Render all buttons', () => {
     it('should render all main buttons', () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
-      // ヘッダータイトル
-      expect(screen.getByText('論理回路プレイグラウンド')).toBeInTheDocument();
+      // ロゴ画像のalt属性でタイトルを確認
+      expect(screen.getByAltText('LogiCirc')).toBeInTheDocument();
       
       // モードタブ
-      expect(screen.getByText('学習モード')).toBeInTheDocument();
-      expect(screen.getByText('自由制作')).toBeInTheDocument();
+      expect(screen.getByText(TERMS.LEARNING_MODE)).toBeInTheDocument();
+      expect(screen.getByText(TERMS.FREE_MODE)).toBeInTheDocument();
       
       // アクションボタン
-      expect(screen.getByTitle('回路を読み込み')).toBeInTheDocument();
-      expect(screen.getByTitle('回路を保存')).toBeInTheDocument();
-      expect(screen.getByTitle('ヘルプ')).toBeInTheDocument();
+      expect(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.LOAD}`)).toBeInTheDocument();
+      expect(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`)).toBeInTheDocument();
+      expect(screen.getByTitle(TERMS.HELP)).toBeInTheDocument();
     });
 
     it('should display button icons and labels', () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
-      const openButton = screen.getByTitle('回路を読み込み');
+      const openButton = screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.LOAD}`);
       expect(within(openButton).getByText('📂')).toBeInTheDocument();
       expect(within(openButton).getByText('開く')).toBeInTheDocument();
       
-      const saveButton = screen.getByTitle('回路を保存');
+      const saveButton = screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`);
       expect(within(saveButton).getByText('💾')).toBeInTheDocument();
       expect(within(saveButton).getByText('保存')).toBeInTheDocument();
       
-      const helpButton = screen.getByTitle('ヘルプ');
+      const helpButton = screen.getByTitle(TERMS.HELP);
       expect(within(helpButton).getByText('❓')).toBeInTheDocument();
       expect(within(helpButton).getByText('ヘルプ')).toBeInTheDocument();
     });
@@ -110,37 +111,38 @@ describe('Header Component', () => {
 
   describe('2. Button click handlers', () => {
     it('should open save dialog when save button is clicked', async () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
-      const saveButton = screen.getByTitle('回路を保存');
+      const saveButton = screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`);
       await userEvent.click(saveButton);
       
       expect(screen.getByTestId('save-dialog')).toBeInTheDocument();
     });
 
     it('should open load dialog when load button is clicked', async () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
-      const loadButton = screen.getByTitle('回路を読み込み');
+      const loadButton = screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.LOAD}`);
       await userEvent.click(loadButton);
       
       expect(screen.getByTestId('load-dialog')).toBeInTheDocument();
     });
 
-    it('should open help panel when help button is clicked', async () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+    it('should call onOpenHelp when help button is clicked', async () => {
+      const mockOnOpenHelp = vi.fn();
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} onOpenHelp={mockOnOpenHelp} />);
       
-      const helpButton = screen.getByTitle('ヘルプ');
+      const helpButton = screen.getByTitle(TERMS.HELP);
       await userEvent.click(helpButton);
       
-      expect(screen.getByTestId('help-panel')).toBeInTheDocument();
+      expect(mockOnOpenHelp).toHaveBeenCalled();
     });
 
     it('should close dialogs when cancel is clicked', async () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
       // Save dialog
-      await userEvent.click(screen.getByTitle('回路を保存'));
+      await userEvent.click(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`));
       expect(screen.getByTestId('save-dialog')).toBeInTheDocument();
       await userEvent.click(screen.getByText('Cancel'));
       expect(screen.queryByTestId('save-dialog')).not.toBeInTheDocument();
@@ -156,7 +158,7 @@ describe('Header Component', () => {
   describe('3. Disabled states', () => {
     it('should handle undo/redo buttons when not present in current implementation', () => {
       // 現在の実装にはundo/redoボタンがないため、将来の実装のためのプレースホルダー
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
       // 現在の実装ではundo/redoボタンが存在しないことを確認
       expect(screen.queryByTitle('元に戻す')).not.toBeInTheDocument();
@@ -166,27 +168,27 @@ describe('Header Component', () => {
 
   describe('4. Mode switching', () => {
     it('should show active mode with active class', () => {
-      render(<Header activeMode="学習モード" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.LEARNING_MODE} onModeChange={mockOnModeChange} />);
       
-      const learningModeButton = screen.getByText('学習モード');
-      const freeModeButton = screen.getByText('自由制作');
+      const learningModeButton = screen.getByText(TERMS.LEARNING_MODE);
+      const freeModeButton = screen.getByText(TERMS.FREE_MODE);
       
       expect(learningModeButton.className).toContain('active');
       expect(freeModeButton.className).not.toContain('active');
     });
 
     it('should call onModeChange when mode tab is clicked', async () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
-      await userEvent.click(screen.getByText('学習モード'));
-      expect(mockOnModeChange).toHaveBeenCalledWith('学習モード');
+      await userEvent.click(screen.getByText(TERMS.LEARNING_MODE));
+      expect(mockOnModeChange).toHaveBeenCalledWith(TERMS.LEARNING_MODE);
       
-      await userEvent.click(screen.getByText('自由制作'));
-      expect(mockOnModeChange).toHaveBeenCalledWith('自由制作');
+      await userEvent.click(screen.getByText(TERMS.FREE_MODE));
+      expect(mockOnModeChange).toHaveBeenCalledWith(TERMS.FREE_MODE);
     });
 
     it('should support all app modes', () => {
-      const modes: AppMode[] = ['学習モード', '自由制作'];
+      const modes: AppMode[] = [TERMS.LEARNING_MODE, TERMS.FREE_MODE];
       
       modes.forEach(mode => {
         const { unmount } = render(<Header activeMode={mode} onModeChange={mockOnModeChange} />);
@@ -201,31 +203,31 @@ describe('Header Component', () => {
     it('should maintain button visibility on different screen sizes', () => {
       // デスクトップサイズ
       global.innerWidth = 1024;
-      const { rerender } = render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      const { rerender } = render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
-      expect(screen.getByTitle('回路を保存')).toBeVisible();
-      expect(screen.getByTitle('回路を読み込み')).toBeVisible();
-      expect(screen.getByTitle('ヘルプ')).toBeVisible();
+      expect(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`)).toBeVisible();
+      expect(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.LOAD}`)).toBeVisible();
+      expect(screen.getByTitle(TERMS.HELP)).toBeVisible();
       
       // モバイルサイズ
       global.innerWidth = 375;
-      rerender(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      rerender(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
       // 現在の実装では全てのボタンが常に表示される
-      expect(screen.getByTitle('回路を保存')).toBeVisible();
-      expect(screen.getByTitle('回路を読み込み')).toBeVisible();
-      expect(screen.getByTitle('ヘルプ')).toBeVisible();
+      expect(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`)).toBeVisible();
+      expect(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.LOAD}`)).toBeVisible();
+      expect(screen.getByTitle(TERMS.HELP)).toBeVisible();
     });
   });
 
   describe('6. Keyboard shortcut hints in tooltips', () => {
     it('should show tooltips on buttons', () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
       // タイトル属性でツールチップが実装されている
-      expect(screen.getByTitle('回路を読み込み')).toHaveAttribute('title', '回路を読み込み');
-      expect(screen.getByTitle('回路を保存')).toHaveAttribute('title', '回路を保存');
-      expect(screen.getByTitle('ヘルプ')).toHaveAttribute('title', 'ヘルプ');
+      expect(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.LOAD}`)).toHaveAttribute('title', `${TERMS.CIRCUIT}を${TERMS.LOAD}`);
+      expect(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`)).toHaveAttribute('title', `${TERMS.CIRCUIT}を${TERMS.SAVE}`);
+      expect(screen.getByTitle(TERMS.HELP)).toHaveAttribute('title', TERMS.HELP);
     });
   });
 
@@ -249,34 +251,34 @@ describe('Header Component', () => {
     it('should handle dialog errors gracefully', async () => {
       // このテストケースは、実際のエラーハンドリングの実装に合わせて調整が必要
       // 現在の実装では、ダイアログ内でのエラーは各ダイアログコンポーネントで処理される
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
       // ダイアログが正常に開けることを確認
-      await userEvent.click(screen.getByTitle('回路を保存'));
+      await userEvent.click(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`));
       expect(screen.getByTestId('save-dialog')).toBeInTheDocument();
     });
   });
 
   describe('9. Accessibility', () => {
     it('should have accessible button labels', () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
       // ボタンにはタイトル属性とテキストラベルがある
-      const saveButton = screen.getByTitle('回路を保存');
+      const saveButton = screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`);
       expect(saveButton).toHaveTextContent('保存');
       
-      const loadButton = screen.getByTitle('回路を読み込み');
+      const loadButton = screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.LOAD}`);
       expect(loadButton).toHaveTextContent('開く');
       
-      const helpButton = screen.getByTitle('ヘルプ');
+      const helpButton = screen.getByTitle(TERMS.HELP);
       expect(helpButton).toHaveTextContent('ヘルプ');
     });
 
     it('should support keyboard navigation', async () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
-      const saveButton = screen.getByTitle('回路を保存');
-      const loadButton = screen.getByTitle('回路を読み込み');
+      const saveButton = screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`);
+      const loadButton = screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.LOAD}`);
       
       // Tabキーでナビゲーション可能
       saveButton.focus();
@@ -291,7 +293,7 @@ describe('Header Component', () => {
     });
 
     it('should have proper button roles', () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(0);
@@ -304,29 +306,29 @@ describe('Header Component', () => {
 
   describe('10. Visual feedback on hover/active states', () => {
     it('should have appropriate CSS classes for buttons', () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
-      const saveButton = screen.getByTitle('回路を保存');
+      const saveButton = screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`);
       expect(saveButton).toHaveClass('button');
       
-      const helpButton = screen.getByTitle('ヘルプ');
+      const helpButton = screen.getByTitle(TERMS.HELP);
       expect(helpButton).toHaveClass('button', 'help-button');
     });
 
     it('should have mode-tab class for mode buttons', () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
-      const learningModeButton = screen.getByText('学習モード');
-      const freeModeButton = screen.getByText('自由制作');
+      const learningModeButton = screen.getByText(TERMS.LEARNING_MODE);
+      const freeModeButton = screen.getByText(TERMS.FREE_MODE);
       
       expect(learningModeButton).toHaveClass('mode-tab');
       expect(freeModeButton).toHaveClass('mode-tab', 'active');
     });
 
     it('should handle mouse events for visual feedback', async () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
-      const saveButton = screen.getByTitle('回路を保存');
+      const saveButton = screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`);
       
       // マウスホバー
       fireEvent.mouseEnter(saveButton);
@@ -347,10 +349,10 @@ describe('Header Component', () => {
   describe('Integration tests', () => {
     it('should handle complete user flow for saving circuit', async () => {
       const consoleLogSpy = vi.spyOn(console, 'log');
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
       // 1. 保存ボタンをクリック
-      await userEvent.click(screen.getByTitle('回路を保存'));
+      await userEvent.click(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`));
       
       // 2. ダイアログが表示される
       expect(screen.getByTestId('save-dialog')).toBeInTheDocument();
@@ -363,27 +365,27 @@ describe('Header Component', () => {
     });
 
     it('should handle complete user flow for mode switching', async () => {
-      const { rerender } = render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      const { rerender } = render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
       // 1. 初期状態の確認
-      expect(screen.getByText('自由制作')).toHaveClass('active');
-      expect(screen.getByText('学習モード')).not.toHaveClass('active');
+      expect(screen.getByText(TERMS.FREE_MODE)).toHaveClass('active');
+      expect(screen.getByText(TERMS.LEARNING_MODE)).not.toHaveClass('active');
       
       // 2. 学習モードに切り替え
-      await userEvent.click(screen.getByText('学習モード'));
-      expect(mockOnModeChange).toHaveBeenCalledWith('学習モード');
+      await userEvent.click(screen.getByText(TERMS.LEARNING_MODE));
+      expect(mockOnModeChange).toHaveBeenCalledWith(TERMS.LEARNING_MODE);
       
       // 3. 状態が更新されたことを確認（親コンポーネントから）
-      rerender(<Header activeMode="学習モード" onModeChange={mockOnModeChange} />);
-      expect(screen.getByText('学習モード')).toHaveClass('active');
-      expect(screen.getByText('自由制作')).not.toHaveClass('active');
+      rerender(<Header activeMode={TERMS.LEARNING_MODE} onModeChange={mockOnModeChange} />);
+      expect(screen.getByText(TERMS.LEARNING_MODE)).toHaveClass('active');
+      expect(screen.getByText(TERMS.FREE_MODE)).not.toHaveClass('active');
     });
 
     it('should handle multiple dialogs without interference', async () => {
-      render(<Header activeMode="自由制作" onModeChange={mockOnModeChange} />);
+      render(<Header activeMode={TERMS.FREE_MODE} onModeChange={mockOnModeChange} />);
       
       // 保存ダイアログを開く
-      await userEvent.click(screen.getByTitle('回路を保存'));
+      await userEvent.click(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.SAVE}`));
       expect(screen.getByTestId('save-dialog')).toBeInTheDocument();
       expect(screen.queryByTestId('load-dialog')).not.toBeInTheDocument();
       
@@ -392,7 +394,7 @@ describe('Header Component', () => {
       expect(screen.queryByTestId('save-dialog')).not.toBeInTheDocument();
       
       // ロードダイアログを開く
-      await userEvent.click(screen.getByTitle('回路を読み込み'));
+      await userEvent.click(screen.getByTitle(`${TERMS.CIRCUIT}を${TERMS.LOAD}`));
       expect(screen.getByTestId('load-dialog')).toBeInTheDocument();
       expect(screen.queryByTestId('save-dialog')).not.toBeInTheDocument();
     });

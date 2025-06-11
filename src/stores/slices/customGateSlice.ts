@@ -127,16 +127,18 @@ export const createCustomGateSlice: StateCreator<
     }
 
     // 入力/出力マッピングを作成
-    const inputMappings: Record<number, { gateId: string; pinIndex: number }> = {};
-    const outputMappings: Record<number, { gateId: string; pinIndex: number }> = {};
-    
+    const inputMappings: Record<number, { gateId: string; pinIndex: number }> =
+      {};
+    const outputMappings: Record<number, { gateId: string; pinIndex: number }> =
+      {};
+
     // 入力マッピング: 外部ピンインデックス → INPUTゲート
     inputPins.forEach((pin, index) => {
       if (pin.gateId) {
         inputMappings[index] = { gateId: pin.gateId, pinIndex: 0 };
       }
     });
-    
+
     // 出力マッピング: 外部ピンインデックス → OUTPUTゲート
     outputPins.forEach((pin, index) => {
       if (pin.gateId) {

@@ -61,7 +61,6 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
     setIsHelpOpen(false);
   };
 
-
   // 緊急修正: 自動表示ロジックを無効化（バツボタンの妨害を防ぐ）
   // React.useEffect(() => {
   //   if (gates.length >= 3 && !isVisualizerOpen) {
@@ -78,8 +77,8 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   return (
     <div className="app-container">
       {/* ヘッダー（グリッド全幅） */}
-      <Header 
-        activeMode={appMode} 
+      <Header
+        activeMode={appMode}
         onModeChange={handleModeChange}
         onOpenHelp={handleOpenHelp}
       />

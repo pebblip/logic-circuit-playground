@@ -40,7 +40,7 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
     // 元のタッチスタート処理のみ実行
     handleTouchStart(e);
   };
-  
+
   const handleTouchEnd = () => {
     // 何もしない
   };
@@ -84,7 +84,7 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
           ? definition.displayName.substring(0, 12) + '...'
           : definition.displayName || definition.name}
       </text>
-      
+
       <g
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStartCustom}

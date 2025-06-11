@@ -9,7 +9,11 @@ interface PinComponentProps {
   pinIndex: number;
   isOutput: boolean;
   isActive?: boolean;
-  onPinClick: (event: React.MouseEvent, pinIndex: number, isOutput: boolean) => void;
+  onPinClick: (
+    event: React.MouseEvent,
+    pinIndex: number,
+    isOutput: boolean
+  ) => void;
 }
 
 export const PinComponent: React.FC<PinComponentProps> = ({
@@ -22,16 +26,21 @@ export const PinComponent: React.FC<PinComponentProps> = ({
   onPinClick,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  
+
   // アクティブ状態の判定
-  const isPinActive = isActive !== undefined ? isActive : (isOutput ? gate.output : getGateInputValue(gate, pinIndex));
-  
+  const isPinActive =
+    isActive !== undefined
+      ? isActive
+      : isOutput
+        ? gate.output
+        : getGateInputValue(gate, pinIndex);
+
   // ゲート本体からピンまでの線の計算
   const lineX1 = isOutput ? x - 10 : x + 10;
-  
+
   // デバッグモード（開発環境でのみ有効）
   const showDebugArea = import.meta.env.DEV && false; // falseに設定して通常は非表示
-  
+
   return (
     <g>
       {/* 接続線（ゲート本体からピンまで） */}
@@ -46,7 +55,7 @@ export const PinComponent: React.FC<PinComponentProps> = ({
         opacity={isPinActive ? '1' : '0.4'}
         pointerEvents="none"
       />
-      
+
       {/* ピンの視覚表現 */}
       <circle
         cx={x}
@@ -59,7 +68,7 @@ export const PinComponent: React.FC<PinComponentProps> = ({
         opacity={isHovered ? '1' : '0.8'}
         pointerEvents="none"
       />
-      
+
       {/* デバッグ用クリック領域表示 */}
       {showDebugArea && (
         <ellipse
@@ -73,7 +82,7 @@ export const PinComponent: React.FC<PinComponentProps> = ({
           pointerEvents="none"
         />
       )}
-      
+
       {/* クリック領域（拡大された当たり判定） */}
       <ellipse
         cx={x}

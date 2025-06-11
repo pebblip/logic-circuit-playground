@@ -61,7 +61,10 @@ export const xorGateStructuredLesson: StructuredLesson = {
           type: 'rich-text',
           elements: [
             'XORゲートは、',
-            { text: '他の基本ゲートを組み合わせて作られています', emphasis: true },
+            {
+              text: '他の基本ゲートを組み合わせて作られています',
+              emphasis: true,
+            },
             '。',
             '複雑に見えるかもしれませんが、要は「違いを見つける」ための特別な組み合わせです。',
           ],

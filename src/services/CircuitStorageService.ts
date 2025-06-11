@@ -10,7 +10,10 @@ import type {
 import { CIRCUIT_STORAGE_VERSION } from '../types/circuitStorage';
 import type { Gate, Wire } from '../types/circuit';
 import { IdGenerator } from '../shared/id';
-import { CONTEXT_MESSAGES, humanizeError } from '../domain/simulation/core/errorMessages';
+import {
+  CONTEXT_MESSAGES,
+  humanizeError,
+} from '../domain/simulation/core/errorMessages';
 
 /**
  * 高性能な回路保存・読み込みサービス
@@ -162,7 +165,8 @@ export class CircuitStorageService {
       if (!savedCircuit) {
         return {
           success: false,
-          message: '指定された回路が見つかりません。選択した回路が正しいか確認してください。',
+          message:
+            '指定された回路が見つかりません。選択した回路が正しいか確認してください。',
         };
       }
 

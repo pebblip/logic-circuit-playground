@@ -31,9 +31,9 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
 
   return (
     <div className="tablet-layout">
-      <Header 
-        activeMode={appMode} 
-        onModeChange={(mode) => {
+      <Header
+        activeMode={appMode}
+        onModeChange={mode => {
           if (mode === '学習モード') {
             setIsPipLearningOpen(true);
             setAppMode('フリーモード');

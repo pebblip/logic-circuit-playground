@@ -95,9 +95,7 @@ export const andGateStructuredLesson: StructuredLesson = {
         },
         {
           type: 'rich-text',
-          elements: [
-            { text: '電源 スイッチA スイッチB ランプ', bold: true },
-          ],
+          elements: [{ text: '電源 スイッチA スイッチB ランプ', bold: true }],
         },
         {
           type: 'rich-text',
@@ -237,7 +235,7 @@ export const andGateStructuredLesson: StructuredLesson = {
           headers: ['入力A', '入力B', '出力', '説明'],
           rows: [
             ['0（OFF）', '0（OFF）', '0（OFF）', '両方OFFなので電気は流れない'],
-            ['0（OFF）', '1（ON）', '0（OFF）','AがOFFなので電気は流れない'],
+            ['0（OFF）', '1（ON）', '0（OFF）', 'AがOFFなので電気は流れない'],
             ['1（ON）', '0（OFF）', '0（OFF）', 'BがOFFなので電気は流れない'],
             ['1（ON）', '1（ON）', '1（ON）', '両方ONなので電気が流れる！'],
           ],

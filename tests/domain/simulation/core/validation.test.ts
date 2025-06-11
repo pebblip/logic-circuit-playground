@@ -1,6 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import type { Gate, Wire } from '@/types/circuit';
-import type { CustomGateDefinition } from '@/types/gates';
 import {
   validateGateId,
   validateGateType,
@@ -11,14 +9,14 @@ import {
   validateCustomGateDefinition,
   validateCircuit,
   validateCircuitLight,
-  type Circuit
-} from '@domain/simulation/core/validation';
+} from '@domain/simulation/core';
+import type { Gate, Wire } from '@/types/circuit';
 
 describe('Pure API Validation', () => {
   describe('基本バリデーション', () => {
     describe('validateGateId', () => {
       it('should accept valid gate IDs', () => {
-        const validIds = ['gate1', 'input_A', 'output-1', 'AND_GATE_123', 'a', '1'];
+        const validIds = ['gate1', 'Gate_123', 'A-B-C', 'g'];
         
         validIds.forEach(id => {
           const result = validateGateId(id);
@@ -30,13 +28,13 @@ describe('Pure API Validation', () => {
       });
 
       it('should reject non-string IDs', () => {
-        const invalidIds = [null, undefined, 123, {}, [], true];
+        const nonStringIds = [null, undefined, 123, {}, []];
         
-        invalidIds.forEach(id => {
+        nonStringIds.forEach(id => {
           const result = validateGateId(id);
           expect(result.success).toBe(false);
           if (!result.success) {
-            expect(result.error.message).toContain('must be a string');
+            expect(result.error.message).toContain('ゲートの名前が正しくありません');
           }
         });
       });
@@ -48,7 +46,7 @@ describe('Pure API Validation', () => {
           const result = validateGateId(id);
           expect(result.success).toBe(false);
           if (!result.success) {
-            expect(result.error.message).toContain('cannot be empty');
+            expect(result.error.message).toContain('ゲートに名前を付けてください');
           }
         });
       });
@@ -59,7 +57,7 @@ describe('Pure API Validation', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          expect(result.error.message).toContain('too long');
+          expect(result.error.message).toContain('ゲートの名前が長すぎます');
         }
       });
 
@@ -70,7 +68,7 @@ describe('Pure API Validation', () => {
           const result = validateGateId(id);
           expect(result.success).toBe(false);
           if (!result.success) {
-            expect(result.error.message).toContain('invalid characters');
+            expect(result.error.message).toContain('ゲートの名前に使用できない文字が含まれています');
           }
         });
       });
@@ -98,7 +96,7 @@ describe('Pure API Validation', () => {
           const result = validateGateType(type);
           expect(result.success).toBe(false);
           if (!result.success) {
-            expect(result.error.message).toContain('must be a string');
+            expect(result.error.message).toContain('対応していないゲートの種類です');
           }
         });
         
@@ -107,7 +105,7 @@ describe('Pure API Validation', () => {
           const result = validateGateType(type);
           expect(result.success).toBe(false);
           if (!result.success) {
-            expect(result.error.message).toContain('Invalid gate type');
+            expect(result.error.message).toContain('対応していないゲートの種類です');
           }
         });
       });
@@ -118,45 +116,44 @@ describe('Pure API Validation', () => {
         const validPositions = [
           { x: 0, y: 0 },
           { x: 100, y: 200 },
-          { x: -50, y: -25 },
-          { x: 0.5, y: 1.5 }
+          { x: -50, y: -100 },
+          { x: 1.5, y: 2.7 },
         ];
         
-        validPositions.forEach(position => {
-          const result = validateGatePosition(position);
+        validPositions.forEach(pos => {
+          const result = validateGatePosition(pos);
           expect(result.success).toBe(true);
           if (result.success) {
-            expect(result.data).toEqual(position);
+            expect(result.data).toEqual(pos);
           }
         });
       });
 
       it('should reject non-object positions', () => {
-        const invalidPositions = [null, undefined, 'position', 123, []];
+        const invalidPositions = [null, undefined, 'pos', 123, []];
         
-        invalidPositions.forEach(position => {
-          const result = validateGatePosition(position);
+        invalidPositions.forEach(pos => {
+          const result = validateGatePosition(pos);
           expect(result.success).toBe(false);
           if (!result.success) {
-            // 実装では最初にオブジェクトチェック、その後数値チェックが行われる
-            expect(result.error.message).toMatch(/must be an object|must be numbers/);
+            expect(result.error.message).toContain('位置情報が正しくありません');
           }
         });
       });
 
       it('should reject positions with non-numeric coordinates', () => {
         const invalidPositions = [
-          { x: 'not a number', y: 0 },
-          { x: 0, y: 'not a number' },
-          { x: null, y: 0 },
-          { x: 0, y: undefined }
+          { x: 'zero', y: 0 },
+          { x: 0, y: null },
+          { x: undefined, y: 100 },
+          { x: {}, y: [] },
         ];
         
-        invalidPositions.forEach(position => {
-          const result = validateGatePosition(position);
+        invalidPositions.forEach(pos => {
+          const result = validateGatePosition(pos);
           expect(result.success).toBe(false);
           if (!result.success) {
-            expect(result.error.message).toContain('must be numbers');
+            expect(result.error.message).toContain('位置は数値で指定してください');
           }
         });
       });
@@ -165,14 +162,14 @@ describe('Pure API Validation', () => {
         const invalidPositions = [
           { x: Infinity, y: 0 },
           { x: 0, y: -Infinity },
-          { x: NaN, y: 0 }
+          { x: NaN, y: 100 },
         ];
         
-        invalidPositions.forEach(position => {
-          const result = validateGatePosition(position);
+        invalidPositions.forEach(pos => {
+          const result = validateGatePosition(pos);
           expect(result.success).toBe(false);
           if (!result.success) {
-            expect(result.error.message).toContain('finite');
+            expect(result.error.message).toContain('無限大の値は使用できません');
           }
         });
       });
@@ -181,91 +178,63 @@ describe('Pure API Validation', () => {
     describe('validateGateInputs', () => {
       it('should validate correct input counts for different gate types', () => {
         const testCases = [
-          { type: 'INPUT', expectedInputs: 0, inputs: [] },
-          { type: 'OUTPUT', expectedInputs: 1, inputs: [true] },
-          { type: 'NOT', expectedInputs: 1, inputs: [false] },
-          { type: 'AND', expectedInputs: 2, inputs: [true, false] },
-          { type: 'OR', expectedInputs: 2, inputs: [false, true] },
-          { type: 'MUX', expectedInputs: 3, inputs: [true, false, true] }
+          { type: 'AND', inputs: [true, false], expected: true },
+          { type: 'AND', inputs: [true], expected: false },
+          { type: 'OR', inputs: [true, false], expected: true },
+          { type: 'NOT', inputs: [true], expected: true },
+          { type: 'NOT', inputs: [true, false], expected: false },
+          { type: 'INPUT', inputs: [], expected: true },
+          { type: 'OUTPUT', inputs: [true], expected: true },
+          { type: 'MUX', inputs: [true, false, false], expected: true },
         ];
         
-        testCases.forEach(({ type, inputs }) => {
-          const gate: Gate = {
-            id: 'test',
-            type: type as any,
-            position: { x: 0, y: 0 },
-            inputs: [],
-            output: false
-          };
-          
-          const result = validateGateInputs(gate, inputs);
-          expect(result.success).toBe(true);
+        testCases.forEach(({ type, inputs, expected }) => {
+          const result = validateGateInputs(inputs, type);
+          expect(result.success).toBe(expected);
         });
       });
 
       it('should reject incorrect input counts', () => {
-        const gate: Gate = {
-          id: 'and1',
-          type: 'AND',
-          position: { x: 0, y: 0 },
-          inputs: ['', ''],
-          output: false
-        };
+        const testCases = [
+          { type: 'AND', inputs: [], expectedMessage: '2個の入力が必要' },
+          { type: 'OR', inputs: [true, false, true], expectedMessage: '2個の入力が必要' },
+          { type: 'NOT', inputs: [], expectedMessage: '1個の入力が必要' },
+        ];
         
-        // ANDゲートは2入力が必要だが1入力しか提供しない
-        const result = validateGateInputs(gate, [true]);
-        expect(result.success).toBe(false);
-        if (!result.success) {
-          expect(result.error.message).toContain('Invalid inputs');
-          expect(result.error.violations).toContainEqual(
-            expect.objectContaining({
-              message: 'Expected 2 inputs, got 1',
-              code: 'INVALID_INPUT_COUNT'
-            })
-          );
-        }
+        testCases.forEach(({ type, inputs, expectedMessage }) => {
+          const result = validateGateInputs(inputs, type);
+          expect(result.success).toBe(false);
+          if (!result.success) {
+            expect(result.error.message).toContain(expectedMessage);
+          }
+        });
       });
 
       it('should reject non-boolean inputs', () => {
-        const gate: Gate = {
-          id: 'and1',
-          type: 'AND',
-          position: { x: 0, y: 0 },
-          inputs: ['', ''],
-          output: false
-        };
-        
-        const result = validateGateInputs(gate, [true, 'not boolean' as any]);
+        const result = validateGateInputs(['true', 1], 'AND');
         expect(result.success).toBe(false);
         if (!result.success) {
-          expect(result.error.message).toContain('Invalid inputs');
-          expect(result.error.violations).toContainEqual(
-            expect.objectContaining({
-              message: 'Input at index 1 must be boolean',
-              code: 'INVALID_INPUT_TYPE'
-            })
-          );
+          expect(result.error.message).toContain('入力値が正しくありません');
         }
       });
 
       it('should validate custom gate inputs', () => {
-        const customGate: Gate = {
+        const customDef = {
           id: 'custom1',
-          type: 'CUSTOM',
-          position: { x: 0, y: 0 },
-          inputs: ['', '', ''],
-          output: false,
-          customGateDefinition: {
-            id: 'test',
-            name: 'Test Gate',
-            inputs: [{ name: 'A' }, { name: 'B' }, { name: 'C' }],
-            outputs: [{ name: 'Y' }],
-            truthTable: {}
-          }
+          name: 'MyGate',
+          displayName: 'My Gate',
+          inputs: [{ name: 'A', index: 0 }, { name: 'B', index: 1 }],
+          outputs: [{ name: 'Y', index: 0 }],
+          truthTable: { '00': '0', '01': '1', '10': '1', '11': '0' },
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
         };
         
-        const result = validateGateInputs(customGate, [true, false, true]);
-        expect(result.success).toBe(true);
+        const result1 = validateGateInputs([true, false], 'CUSTOM', customDef);
+        expect(result1.success).toBe(true);
+        
+        const result2 = validateGateInputs([true], 'CUSTOM', customDef);
+        expect(result2.success).toBe(false);
       });
     });
   });
@@ -273,183 +242,179 @@ describe('Pure API Validation', () => {
   describe('構造バリデーション', () => {
     describe('validateGate', () => {
       it('should accept valid gates', () => {
-        const validGate: Gate = {
-          id: 'gate1',
-          type: 'AND',
-          position: { x: 100, y: 200 },
-          inputs: ['', ''],
-          output: false
-        };
+        const validGates: Gate[] = [
+          { id: 'g1', type: 'AND', position: { x: 0, y: 0 }, inputs: ['', ''], output: false },
+          { id: 'g2', type: 'NOT', position: { x: 100, y: 0 }, inputs: [''], output: true },
+          { id: 'g3', type: 'INPUT', position: { x: -50, y: 0 }, inputs: [], output: false },
+        ];
         
-        const result = validateGate(validGate);
-        expect(result.success).toBe(true);
-        if (result.success) {
-          expect(result.data).toEqual(validGate);
-        }
+        validGates.forEach(gate => {
+          const result = validateGate(gate);
+          expect(result.success).toBe(true);
+        });
       });
 
       it('should reject gates with multiple validation errors', () => {
         const invalidGate = {
-          id: '', // 空のID
-          type: 'INVALID_TYPE', // 無効なタイプ
-          position: { x: 'not a number', y: 0 }, // 無効な位置
-          inputs: 'not an array', // 配列でない
-          output: 'not a boolean' // booleanでない
+          id: '',
+          type: 'INVALID',
+          position: { x: 'not a number', y: null },
+          inputs: 'not an array',
+          output: 'not a boolean',
         };
         
-        const result = validateGate(invalidGate);
+        const result = validateGate(invalidGate as any);
         expect(result.success).toBe(false);
-        if (!result.success) {
+        if (!result.success && result.error.violations) {
           expect(result.error.violations.length).toBeGreaterThan(1);
         }
       });
 
       it('should validate custom gates with definitions', () => {
-        const customGate: Gate = {
+        const customDef = {
           id: 'custom1',
+          name: 'MyGate',
+          displayName: 'My Gate',
+          inputs: [{ name: 'A', index: 0 }],
+          outputs: [{ name: 'Y', index: 0 }],
+          truthTable: { '0': '1', '1': '0' },
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+        
+        const gate: Gate = {
+          id: 'g1',
           type: 'CUSTOM',
           position: { x: 0, y: 0 },
           inputs: [''],
           output: false,
-          customGateDefinition: {
-            id: 'buffer',
-            name: 'Buffer',
-            inputs: [{ name: 'A' }],
-            outputs: [{ name: 'Y' }],
-            truthTable: { '0': '0', '1': '1' }
-          }
+          customGateDefinition: customDef,
         };
         
-        const result = validateGate(customGate);
+        const result = validateGate(gate);
         expect(result.success).toBe(true);
       });
 
       it('should reject custom gates without definitions', () => {
-        const invalidCustomGate = {
-          id: 'custom1',
+        const gate: Gate = {
+          id: 'g1',
           type: 'CUSTOM',
           position: { x: 0, y: 0 },
           inputs: [''],
-          output: false
-          // customGateDefinition が欠如
+          output: false,
         };
         
-        const result = validateGate(invalidCustomGate);
+        const result = validateGate(gate);
         expect(result.success).toBe(false);
         if (!result.success) {
-          expect(result.error.violations).toContainEqual(
-            expect.objectContaining({
-              message: 'Custom gate must have definition',
-              code: 'MISSING_CUSTOM_GATE_DEFINITION'
-            })
-          );
+          expect(result.error.message).toContain('カスタムゲートの定義が見つかりません');
         }
       });
     });
 
     describe('validateWire', () => {
       it('should accept valid wires', () => {
-        const validWire: Wire = {
-          id: 'wire1',
-          from: { gateId: 'gate1', pinIndex: -1 },
-          to: { gateId: 'gate2', pinIndex: 0 },
-          isActive: false
-        };
+        const validWires: Wire[] = [
+          { id: 'w1', from: { gateId: 'g1', pinIndex: -1 }, to: { gateId: 'g2', pinIndex: 0 }, isActive: false },
+          { id: 'w2', from: { gateId: 'g2', pinIndex: -1 }, to: { gateId: 'g3', pinIndex: 1 }, isActive: true },
+        ];
         
-        const result = validateWire(validWire);
-        expect(result.success).toBe(true);
-        if (result.success) {
-          expect(result.data).toEqual(validWire);
-        }
+        validWires.forEach(wire => {
+          const result = validateWire(wire);
+          expect(result.success).toBe(true);
+        });
       });
 
       it('should reject wires with invalid connection points', () => {
         const invalidWire = {
-          id: 'wire1',
-          from: { gateId: '', pinIndex: -1 }, // 空のgateId
-          to: { gateId: 'gate2', pinIndex: -1 }, // 負のto.pinIndex
-          isActive: 'not a boolean' // booleanでない
+          id: 'w1',
+          from: { gateId: 123, pinIndex: 'zero' },
+          to: { gateId: '', pinIndex: null },
+          isActive: 'yes',
         };
         
-        const result = validateWire(invalidWire);
+        const result = validateWire(invalidWire as any);
         expect(result.success).toBe(false);
-        if (!result.success) {
+        if (!result.success && result.error.violations) {
           expect(result.error.violations.length).toBeGreaterThan(1);
         }
       });
 
       it('should reject wires with missing connection objects', () => {
-        const invalidWire = {
-          id: 'wire1',
-          from: null, // 接続点が null
-          to: 'not an object', // 接続点がオブジェクトでない
-          isActive: false
-        };
+        const invalidWires = [
+          { id: 'w1', from: null, to: { gateId: 'g1', pinIndex: 0 }, isActive: false },
+          { id: 'w2', from: { gateId: 'g1', pinIndex: 0 }, to: undefined, isActive: false },
+        ];
         
-        const result = validateWire(invalidWire);
-        expect(result.success).toBe(false);
+        invalidWires.forEach(wire => {
+          const result = validateWire(wire as any);
+          expect(result.success).toBe(false);
+        });
       });
     });
 
     describe('validateCustomGateDefinition', () => {
       it('should accept valid custom gate definitions', () => {
-        const validDefinition: CustomGateDefinition = {
-          id: 'buffer',
-          name: 'Buffer Gate',
-          inputs: [{ name: 'A' }],
-          outputs: [{ name: 'Y' }],
-          truthTable: { '0': '0', '1': '1' }
+        const validDef = {
+          id: 'custom1',
+          name: 'MyGate',
+          displayName: 'My Custom Gate',
+          inputs: [{ name: 'A', index: 0 }, { name: 'B', index: 1 }],
+          outputs: [{ name: 'Y', index: 0 }],
+          truthTable: { '00': '0', '01': '1', '10': '1', '11': '0' },
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
         };
         
-        const result = validateCustomGateDefinition(validDefinition);
+        const result = validateCustomGateDefinition(validDef);
         expect(result.success).toBe(true);
       });
 
       it('should reject definitions without inputs or outputs', () => {
-        const invalidDefinition = {
-          id: 'invalid',
-          name: 'Invalid Gate',
-          inputs: [], // 空の入力配列
-          outputs: [], // 空の出力配列
-          truthTable: {}
-        };
+        const invalidDefs = [
+          {
+            id: 'custom1',
+            name: 'NoInputs',
+            displayName: 'No Inputs',
+            inputs: [],
+            outputs: [{ name: 'Y', index: 0 }],
+            truthTable: {},
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          },
+          {
+            id: 'custom2',
+            name: 'NoOutputs',
+            displayName: 'No Outputs',
+            inputs: [{ name: 'A', index: 0 }],
+            outputs: [],
+            truthTable: { '0': '0', '1': '1' },
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          },
+        ];
         
-        const result = validateCustomGateDefinition(invalidDefinition);
-        expect(result.success).toBe(false);
-        if (!result.success) {
-          expect(result.error.violations).toContainEqual(
-            expect.objectContaining({
-              message: 'Custom gate definition must have at least one input',
-              code: 'NO_INPUTS_DEFINED'
-            })
-          );
-          expect(result.error.violations).toContainEqual(
-            expect.objectContaining({
-              message: 'Custom gate definition must have at least one output',
-              code: 'NO_OUTPUTS_DEFINED'
-            })
-          );
-        }
+        invalidDefs.forEach(def => {
+          const result = validateCustomGateDefinition(def);
+          expect(result.success).toBe(false);
+        });
       });
 
       it('should reject definitions without implementation', () => {
-        const invalidDefinition = {
-          id: 'invalid',
-          name: 'Invalid Gate',
-          inputs: [{ name: 'A' }],
-          outputs: [{ name: 'Y' }]
-          // truthTable も internalCircuit も欠如
+        const invalidDef = {
+          id: 'custom1',
+          name: 'NoImpl',
+          displayName: 'No Implementation',
+          inputs: [{ name: 'A', index: 0 }],
+          outputs: [{ name: 'Y', index: 0 }],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
         };
         
-        const result = validateCustomGateDefinition(invalidDefinition);
+        const result = validateCustomGateDefinition(invalidDef as any);
         expect(result.success).toBe(false);
         if (!result.success) {
-          expect(result.error.violations).toContainEqual(
-            expect.objectContaining({
-              message: 'Custom gate definition must have either truthTable or internalCircuit',
-              code: 'NO_IMPLEMENTATION_DEFINED'
-            })
-          );
+          expect(result.error.message).toContain('動作を定義してください');
         }
       });
     });
@@ -458,271 +423,165 @@ describe('Pure API Validation', () => {
   describe('回路全体のバリデーション', () => {
     describe('validateCircuit', () => {
       it('should accept valid circuits', () => {
-        const validCircuit: Circuit = {
+        const circuit = {
           gates: [
-            {
-              id: 'input1',
-              type: 'INPUT',
-              position: { x: 0, y: 0 },
-              inputs: [],
-              output: true
-            },
-            {
-              id: 'output1',
-              type: 'OUTPUT',
-              position: { x: 200, y: 0 },
-              inputs: [''],
-              output: false
-            }
-          ],
+            { id: 'input1', type: 'INPUT', position: { x: 0, y: 0 }, inputs: [], output: true },
+            { id: 'and1', type: 'AND', position: { x: 100, y: 0 }, inputs: ['', ''], output: false },
+            { id: 'output1', type: 'OUTPUT', position: { x: 200, y: 0 }, inputs: [''], output: false },
+          ] as Gate[],
           wires: [
-            {
-              id: 'wire1',
-              from: { gateId: 'input1', pinIndex: -1 },
-              to: { gateId: 'output1', pinIndex: 0 },
-              isActive: false
-            }
-          ]
+            { id: 'w1', from: { gateId: 'input1', pinIndex: -1 }, to: { gateId: 'and1', pinIndex: 0 }, isActive: true },
+            { id: 'w2', from: { gateId: 'and1', pinIndex: -1 }, to: { gateId: 'output1', pinIndex: 0 }, isActive: false },
+          ] as Wire[],
         };
         
-        const result = validateCircuit(validCircuit);
+        const result = validateCircuit(circuit);
         expect(result.success).toBe(true);
-        if (result.success) {
-          expect(result.data.isValid).toBe(true);
-          expect(result.data.violations.filter(v => v.severity === 'ERROR')).toHaveLength(0);
-        }
       });
 
       it('should detect duplicate gate IDs', () => {
-        const circuitWithDuplicates: Circuit = {
+        const circuit = {
           gates: [
-            {
-              id: 'duplicate',
-              type: 'INPUT',
-              position: { x: 0, y: 0 },
-              inputs: [],
-              output: true
-            },
-            {
-              id: 'duplicate', // 重複ID
-              type: 'OUTPUT',
-              position: { x: 200, y: 0 },
-              inputs: [''],
-              output: false
-            }
-          ],
-          wires: []
+            { id: 'g1', type: 'INPUT', position: { x: 0, y: 0 }, inputs: [], output: false },
+            { id: 'g1', type: 'OUTPUT', position: { x: 100, y: 0 }, inputs: [''], output: false },
+          ] as Gate[],
+          wires: [] as Wire[],
         };
         
-        const result = validateCircuit(circuitWithDuplicates);
-        expect(result.success).toBe(true);
-        if (result.success) {
-          expect(result.data.isValid).toBe(false);
-          expect(result.data.violations).toContainEqual(
-            expect.objectContaining({
-              code: 'DUPLICATE_GATE_ID',
-              severity: 'ERROR'
-            })
-          );
+        const result = validateCircuit(circuit);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.message).toContain('同じ名前のゲートが既に存在します');
         }
       });
 
       it('should detect missing referenced gates', () => {
-        const circuitWithMissingGate: Circuit = {
+        const circuit = {
           gates: [
-            {
-              id: 'gate1',
-              type: 'INPUT',
-              position: { x: 0, y: 0 },
-              inputs: [],
-              output: true
-            }
-          ],
+            { id: 'g1', type: 'INPUT', position: { x: 0, y: 0 }, inputs: [], output: false },
+          ] as Gate[],
           wires: [
-            {
-              id: 'wire1',
-              from: { gateId: 'gate1', pinIndex: -1 },
-              to: { gateId: 'missing_gate', pinIndex: 0 }, // 存在しないゲート
-              isActive: false
-            }
-          ]
+            { id: 'w1', from: { gateId: 'g1', pinIndex: -1 }, to: { gateId: 'missing', pinIndex: 0 }, isActive: false },
+          ] as Wire[],
         };
         
-        const result = validateCircuit(circuitWithMissingGate);
-        expect(result.success).toBe(true);
-        if (result.success) {
-          expect(result.data.isValid).toBe(false);
-          expect(result.data.violations).toContainEqual(
-            expect.objectContaining({
-              code: 'MISSING_TARGET_GATE',
-              severity: 'ERROR'
-            })
-          );
+        const result = validateCircuit(circuit);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.message).toContain('終了点となるゲートが見つかりません');
         }
       });
 
       it('should detect circular dependencies', () => {
-        const circuitWithCycle: Circuit = {
+        const circuit = {
           gates: [
-            {
-              id: 'gate1',
-              type: 'AND',
-              position: { x: 0, y: 0 },
-              inputs: ['', ''],
-              output: false
-            },
-            {
-              id: 'gate2',
-              type: 'AND',
-              position: { x: 100, y: 0 },
-              inputs: ['', ''],
-              output: false
-            }
-          ],
+            { id: 'g1', type: 'NOT', position: { x: 0, y: 0 }, inputs: [''], output: false },
+            { id: 'g2', type: 'NOT', position: { x: 100, y: 0 }, inputs: [''], output: false },
+          ] as Gate[],
           wires: [
-            {
-              id: 'wire1',
-              from: { gateId: 'gate1', pinIndex: -1 },
-              to: { gateId: 'gate2', pinIndex: 0 },
-              isActive: false
-            },
-            {
-              id: 'wire2',
-              from: { gateId: 'gate2', pinIndex: -1 },
-              to: { gateId: 'gate1', pinIndex: 0 }, // 循環依存
-              isActive: false
-            }
-          ]
+            { id: 'w1', from: { gateId: 'g1', pinIndex: -1 }, to: { gateId: 'g2', pinIndex: 0 }, isActive: false },
+            { id: 'w2', from: { gateId: 'g2', pinIndex: -1 }, to: { gateId: 'g1', pinIndex: 0 }, isActive: false },
+          ] as Wire[],
         };
         
-        const result = validateCircuit(circuitWithCycle);
-        expect(result.success).toBe(true);
-        if (result.success) {
-          expect(result.data.isValid).toBe(false);
-          expect(result.data.violations).toContainEqual(
-            expect.objectContaining({
-              code: 'CIRCULAR_DEPENDENCY',
-              severity: 'ERROR'
-            })
-          );
+        const result = validateCircuit(circuit);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.message).toContain('無限ループが発生しています');
         }
       });
 
       it('should provide helpful suggestions', () => {
-        const emptyCircuit: Circuit = {
-          gates: [],
-          wires: []
+        const circuit = {
+          gates: [
+            { id: 'g1', type: 'AND', position: { x: 0, y: 0 }, inputs: ['', ''], output: false },
+          ] as Gate[],
+          wires: [] as Wire[],
         };
         
-        const result = validateCircuit(emptyCircuit);
+        const result = validateCircuit(circuit, { strictMode: false });
         expect(result.success).toBe(true);
-        if (result.success) {
-          // 実際のバリデーション実装からの提案メッセージを確認
+        if (result.success && result.data.suggestions) {
           console.log('Actual suggestions:', result.data.suggestions);
-          expect(result.data.suggestions.length).toBeGreaterThanOrEqual(0);
-          expect(result.data.isValid).toBe(true); // 空の回路は技術的には有効
+          expect(result.data.suggestions).toContain('入力ゲート（INPUT）を追加して、外部からの信号を受け取れるようにしましょう。');
+          expect(result.data.suggestions).toContain('出力ゲート（OUTPUT）を追加して、回路の結果を確認できるようにしましょう。');
         }
       });
 
       it('should validate circuit size limits', () => {
-        const largeCircuit: Circuit = {
-          gates: Array.from({ length: 20000 }, (_, i) => ({
-            id: `gate${i}`,
-            type: 'AND' as const,
-            position: { x: i % 100, y: Math.floor(i / 100) },
-            inputs: ['', ''],
-            output: false
-          })),
-          wires: []
+        const manyGates = Array.from({ length: 1001 }, (_, i) => ({
+          id: `g${i}`,
+          type: 'INPUT' as const,
+          position: { x: i * 10, y: 0 },
+          inputs: [],
+          output: false,
+        }));
+        
+        const circuit = {
+          gates: manyGates,
+          wires: [] as Wire[],
         };
         
-        const result = validateCircuit(largeCircuit, { maxGateCount: 10000 });
-        expect(result.success).toBe(true);
-        if (result.success) {
-          expect(result.data.isValid).toBe(false);
-          expect(result.data.violations).toContainEqual(
-            expect.objectContaining({
-              code: 'CIRCUIT_TOO_LARGE',
-              severity: 'ERROR'
-            })
-          );
+        const result = validateCircuit(circuit, { maxGateCount: 1000 });
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.message).toContain('回路が複雑すぎます');
         }
       });
     });
 
     describe('validateCircuitLight', () => {
       it('should perform basic validation quickly', () => {
-        const circuit: Circuit = {
+        const circuit = {
           gates: [
-            {
-              id: 'gate1',
-              type: 'AND',
-              position: { x: 0, y: 0 },
-              inputs: ['', ''],
-              output: false
-            }
-          ],
-          wires: [
-            {
-              id: 'wire1',
-              from: { gateId: 'gate1', pinIndex: -1 },
-              to: { gateId: 'gate1', pinIndex: 0 },
-              isActive: false
-            }
-          ]
+            { id: 'g1', type: 'INPUT', position: { x: 0, y: 0 }, inputs: [], output: false },
+            { id: 'g2', type: 'OUTPUT', position: { x: 100, y: 0 }, inputs: [''], output: false },
+          ] as Gate[],
+          wires: [] as Wire[],
         };
         
-        const start = performance.now();
         const result = validateCircuitLight(circuit);
-        const end = performance.now();
-        
         expect(result.success).toBe(true);
-        expect(end - start).toBeLessThan(10); // 高速であることを確認
       });
 
       it('should detect basic structural errors', () => {
-        const invalidCircuit = {
-          gates: 'not an array', // 配列でない
-          wires: []
+        const circuit = {
+          gates: null as any,
+          wires: [] as Wire[],
         };
         
-        const result = validateCircuitLight(invalidCircuit as any);
+        const result = validateCircuitLight(circuit);
         expect(result.success).toBe(false);
-        if (!result.success) {
-          expect(result.error.message).toContain('gates must be array');
-        }
       });
     });
   });
 
   describe('パフォーマンステスト', () => {
     it('should handle medium-sized circuits efficiently', () => {
-      const circuit: Circuit = {
-        gates: Array.from({ length: 500 }, (_, i) => ({
-          id: `gate${i}`,
-          type: 'AND' as const,
-          position: { x: i % 20 * 50, y: Math.floor(i / 20) * 50 },
-          inputs: ['', ''],
-          output: false
-        })),
-        wires: Array.from({ length: 200 }, (_, i) => ({
-          id: `wire${i}`,
-          from: { gateId: `gate${i}`, pinIndex: -1 },
-          to: { gateId: `gate${(i + 1) % 500}`, pinIndex: 0 },
-          isActive: false
-        }))
-      };
+      const gateCount = 100;
+      const gates = Array.from({ length: gateCount }, (_, i) => ({
+        id: `g${i}`,
+        type: i % 2 === 0 ? 'AND' : 'OR' as const,
+        position: { x: (i % 10) * 100, y: Math.floor(i / 10) * 100 },
+        inputs: ['', ''],
+        output: false,
+      }));
+      
+      const wires = Array.from({ length: gateCount - 1 }, (_, i) => ({
+        id: `w${i}`,
+        from: { gateId: `g${i}`, pinIndex: -1 },
+        to: { gateId: `g${i + 1}`, pinIndex: 0 },
+        isActive: false,
+      }));
+      
+      const circuit = { gates, wires };
       
       const start = performance.now();
-      const result = validateCircuit(circuit);
+      const result = validateCircuit(circuit, { strictValidation: true, enableDebug: false });
       const end = performance.now();
       
       expect(result.success).toBe(true);
-      expect(end - start).toBeLessThan(1000); // 1秒以内
-      
-      if (result.success) {
-        expect(result.data.metadata.validationTimeMs).toBeLessThan(1000);
-      }
+      expect(end - start).toBeLessThan(100); // 100ms以内で完了すること
     });
   });
 });

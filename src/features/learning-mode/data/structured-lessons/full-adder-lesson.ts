@@ -1,11 +1,11 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
-import { TERMS } from '../terms';
 
 export const fullAdderStructuredLesson: StructuredLesson = {
   id: 'full-adder',
   title: '全加算器 - 本物の計算機への進化！',
   description: '3つの数を同時に足せる、より実用的な足し算回路',
-  objective: '半加算器を組み合わせて、繰り上がりも含めた完全な足し算回路を作り、複数桁の計算原理を理解する',
+  objective:
+    '半加算器を組み合わせて、繰り上がりも含めた完全な足し算回路を作り、複数桁の計算原理を理解する',
   category: '基本回路',
   lessonType: 'build',
   difficulty: 'intermediate',
@@ -38,9 +38,7 @@ export const fullAdderStructuredLesson: StructuredLesson = {
         },
         {
           type: 'rich-text',
-          elements: [
-            '筆算を思い出してください：',
-          ],
+          elements: ['筆算を思い出してください：'],
         },
         {
           type: 'table',
@@ -262,7 +260,12 @@ export const fullAdderStructuredLesson: StructuredLesson = {
           headers: ['状況', '半加算器1', '半加算器2', 'OR結果'],
           rows: [
             ['3つとも0か1つだけ1', '繰り上がりなし', '繰り上がりなし', '0'],
-            ['2つが1（どの組み合わせでも）', 'どちらかで発生', 'もう片方は0', '1'],
+            [
+              '2つが1（どの組み合わせでも）',
+              'どちらかで発生',
+              'もう片方は0',
+              '1',
+            ],
             ['3つとも1', '繰り上がり発生', '繰り上がり発生', '1'],
           ],
         },
@@ -384,12 +387,7 @@ export const fullAdderStructuredLesson: StructuredLesson = {
         {
           type: 'quiz',
           question: '全加算器で「1 + 1 + 1」を計算した時の出力は？',
-          options: [
-            'S=0、Cout=0',
-            'S=1、Cout=0',
-            'S=0、Cout=1',
-            'S=1、Cout=1',
-          ],
+          options: ['S=0、Cout=0', 'S=1、Cout=0', 'S=0、Cout=1', 'S=1、Cout=1'],
           correctIndex: 3,
         },
         {

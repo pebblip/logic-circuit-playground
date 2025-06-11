@@ -148,11 +148,10 @@ describe('GateComponent', () => {
       const gate = createTestGate('AND');
       const { container } = render(<GateComponent gate={gate} />);
       
-      // Find input pin click areas (transparent circles)
-      const inputClickAreas = container.querySelectorAll('circle[fill="transparent"]');
-      const firstInputArea = Array.from(inputClickAreas).find(el => 
-        (el as SVGCircleElement).getAttribute('cx') === '-45'
-      );
+      // Find input pin click areas (transparent ellipses)
+      const inputClickAreas = container.querySelectorAll('ellipse[fill="transparent"]');
+      // For AND gate, pins are rendered in reverse order, so the second ellipse is for pin index 0
+      const firstInputArea = Array.from(inputClickAreas)[1]; // Index 1 is the first input (pin 0)
       
       expect(firstInputArea).toBeInTheDocument();
       fireEvent.click(firstInputArea!);
@@ -164,9 +163,9 @@ describe('GateComponent', () => {
       const gate = createTestGate('OR');
       const { container } = render(<GateComponent gate={gate} />);
       
-      const outputClickAreas = container.querySelectorAll('circle[fill="transparent"]');
+      const outputClickAreas = container.querySelectorAll('ellipse[fill="transparent"]');
       const outputArea = Array.from(outputClickAreas).find(el => 
-        ['35', '45', '55', '60'].includes((el as SVGCircleElement).getAttribute('cx') || '')
+        (el as SVGEllipseElement).getAttribute('cx') === '45'
       );
       
       expect(outputArea).toBeInTheDocument();
@@ -180,16 +179,16 @@ describe('GateComponent', () => {
       const gate = createTestGate('CUSTOM', { x: 100, y: 100 }, customDef);
       const { container } = render(<GateComponent gate={gate} />);
       
-      // Click second input pin
-      const inputClickAreas = container.querySelectorAll('circle[fill="transparent"]');
-      const secondInputArea = Array.from(inputClickAreas)[1]; // Second transparent circle
+      // Click second input pin (custom gates use circle elements)
+      const clickAreas = container.querySelectorAll('circle[fill="transparent"]');
+      const secondInputArea = clickAreas[1]; // Second transparent circle (index 1)
       
       fireEvent.click(secondInputArea);
       expect(mockStore.startWireDrawing).toHaveBeenCalledWith(gate.id, 1);
       
-      // Click first output pin  
-      const outputAreas = Array.from(inputClickAreas).slice(-2); // Last 2 are outputs
-      fireEvent.click(outputAreas[0]);
+      // Click first output pin (outputs are after inputs)
+      const firstOutputArea = clickAreas[3]; // First output (after 3 input circles)
+      fireEvent.click(firstOutputArea);
       expect(mockStore.startWireDrawing).toHaveBeenCalledWith(gate.id, -1);
     });
 
@@ -198,7 +197,7 @@ describe('GateComponent', () => {
       const gate = createTestGate('NOT');
       const { container } = render(<GateComponent gate={gate} />);
       
-      const outputArea = container.querySelector('circle[cx="45"][fill="transparent"]');
+      const outputArea = container.querySelector('ellipse[cx="45"][fill="transparent"]');
       fireEvent.click(outputArea!);
       
       expect(mockStore.endWireDrawing).toHaveBeenCalledWith(gate.id, -1);

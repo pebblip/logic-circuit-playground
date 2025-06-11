@@ -15,11 +15,13 @@ interface HeaderProps {
   onHelpDialogStateChange?: (isOpen: boolean) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange, onOpenHelp, onHelpDialogStateChange }) => {
-  const {
-    gates,
-    viewMode,
-  } = useCircuitStore();
+export const Header: React.FC<HeaderProps> = ({
+  activeMode,
+  onModeChange,
+  onOpenHelp,
+  onHelpDialogStateChange: _onHelpDialogStateChange,
+}) => {
+  const { gates } = useCircuitStore();
 
   // 統一ダイアログ管理
   const dialogs = useMultipleDialogs({
@@ -44,18 +46,6 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange, onOpen
     debug.log('✅ 回路がエクスポートされました');
   };
 
-  const _handleShare = () => {
-    // 回路共有機能は後で実装
-  };
-
-  const _handleFormatCircuit = async () => {
-    if (gates.length === 0) {
-      return;
-    }
-
-    // TODO: 回路整形機能は後で実装
-  };
-
   // 不要になった状態管理を削除
 
   const handleCreateCustomGateFromCircuit = () => {
@@ -63,7 +53,9 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange, onOpen
     const outputGates = gates.filter(g => g.type === 'OUTPUT');
 
     if (inputGates.length === 0 || outputGates.length === 0) {
-      alert(`${TERMS.CIRCUIT}には${TERMS.INPUT}${TERMS.GATE}と${TERMS.OUTPUT}${TERMS.GATE}が${TERMS.REQUIRED}です`);
+      alert(
+        `${TERMS.CIRCUIT}には${TERMS.INPUT}${TERMS.GATE}と${TERMS.OUTPUT}${TERMS.GATE}が${TERMS.REQUIRED}です`
+      );
       return;
     }
 
@@ -208,8 +200,6 @@ export const Header: React.FC<HeaderProps> = ({ activeMode, onModeChange, onOpen
         mode="export"
         onSuccess={handleExportSuccess}
       />
-
-
     </>
   );
 };

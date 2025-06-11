@@ -110,7 +110,9 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
       }
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : `${TERMS.SAVE}中に${TERMS.ERROR}が発生しました`
+        error instanceof Error
+          ? error.message
+          : `${TERMS.SAVE}中に${TERMS.ERROR}が発生しました`
       );
     } finally {
       setSaving(false);
@@ -143,7 +145,9 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
         {/* ヘッダー */}
         <div className="dialog-header">
           <h2 className="dialog-title">
-            {overwriteMode ? `📝 ${TERMS.CIRCUIT}を上書き${TERMS.SAVE}` : `💾 ${TERMS.CIRCUIT}を${TERMS.SAVE}`}
+            {overwriteMode
+              ? `📝 ${TERMS.CIRCUIT}を上書き${TERMS.SAVE}`
+              : `💾 ${TERMS.CIRCUIT}を${TERMS.SAVE}`}
           </h2>
           <button
             className="close-button"

@@ -111,6 +111,17 @@ export interface AsciiArtContent extends BaseContent {
   className?: string;
 }
 
+// 真理値表データの型定義 - シンプルな文字列配列をサポート
+export type TruthTableRow = string[];
+
+// 信号データの型定義
+export interface SignalData {
+  name: string;
+  value: string | number | boolean;
+  timestamp?: number;
+  color?: string;
+}
+
 // 図表コンテンツ（ASCIIアートの代替）
 export interface DiagramContent extends BaseContent {
   type: 'diagram';
@@ -123,8 +134,8 @@ export interface DiagramContent extends BaseContent {
   title?: string;
   caption?: string;
   gateType?: string; // gate-symbolの場合
-  data?: any[][]; // truth-table-visualの場合
-  signals?: any[]; // signal-flowの場合
+  data?: TruthTableRow[]; // truth-table-visualの場合（ヘッダーとデータを含む文字列配列の配列）
+  signals?: SignalData[]; // signal-flowの場合
   customSvg?: string; // customの場合のSVGコード
   className?: string;
 }

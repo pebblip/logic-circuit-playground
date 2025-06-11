@@ -29,7 +29,6 @@ export interface ClipboardData {
   };
 }
 
-
 // ストアの基本的な状態
 export interface CircuitStoreState extends CircuitState {
   // 履歴管理
@@ -43,14 +42,14 @@ export interface CircuitStoreState extends CircuitState {
   appMode: AppMode;
   allowedGates: GateType[] | null; // null = 全て許可
   isLearningMode: boolean;
-  
+
   // ビューモード（カスタムゲートプレビュー）
   viewMode: ViewMode;
   previewingCustomGateId: string | null;
 
   // 複数選択
   selectedGateIds: string[];
-  
+
   // ツールパレット選択
   selectedToolGateType: GateType | 'CUSTOM' | null;
   selectedToolCustomGateId: string | null;
@@ -62,7 +61,7 @@ export interface CircuitStoreActions {
   setAppMode: (mode: AppMode) => void;
   setAllowedGates: (gates: GateType[] | null) => void;
   setIsLearningMode: (isLearning: boolean) => void;
-  
+
   // カスタムゲートプレビュー
   enterCustomGatePreview: (customGateId: string) => void;
   exitCustomGatePreview: () => void;
@@ -122,7 +121,7 @@ export interface CircuitStoreActions {
 
   // 履歴管理（内部用）
   saveToHistory: () => void;
-  
+
   // ツールパレット選択
   selectToolGate: (type: GateType | 'CUSTOM', customGateId?: string) => void;
   clearToolSelection: () => void;

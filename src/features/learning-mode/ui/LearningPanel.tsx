@@ -143,7 +143,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
         requiredGates.size > 0 ? Array.from(requiredGates) : null;
       setAllowedGates(allowedGatesList);
     }
-  }, [selectedLesson, setAllowedGates]);
+  }, [selectedLesson, setAllowedGates, currentStepIndex]);
 
   // レッスン完了処理
   useEffect(() => {
@@ -169,7 +169,9 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
     if (lesson) {
       if (gates.length > 0 || wires.length > 0) {
         if (
-          window.confirm(`現在の${TERMS.CIRCUIT}を${TERMS.CLEAR}して、${TERMS.LESSON}を開始しますか？`)
+          window.confirm(
+            `現在の${TERMS.CIRCUIT}を${TERMS.CLEAR}して、${TERMS.LESSON}を開始しますか？`
+          )
         ) {
           clearAll();
         } else {
@@ -281,7 +283,8 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                     transition: 'all 0.2s ease',
                   }}
                   onMouseOver={e => {
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    e.currentTarget.style.backgroundColor =
+                      'rgba(255, 255, 255, 0.1)';
                     e.currentTarget.style.color = '#00ff88';
                   }}
                   onMouseOut={e => {
@@ -299,7 +302,11 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
               >
                 ―
               </button>
-              <button onClick={onClose} className="close-button" title={TERMS.CLOSE}>
+              <button
+                onClick={onClose}
+                className="close-button"
+                title={TERMS.CLOSE}
+              >
                 ×
               </button>
             </div>
@@ -488,9 +495,14 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                     <div className="completion-stat">
                       <div className="stat-icon">🏆</div>
                       <span className="stat-value">
-                        {Math.round((completedLessons.size + 1) / lessons.length * 100)}%
+                        {Math.round(
+                          ((completedLessons.size + 1) / lessons.length) * 100
+                        )}
+                        %
                       </span>
-                      <span className="stat-label">{TERMS.OVERALL_PROGRESS}</span>
+                      <span className="stat-label">
+                        {TERMS.OVERALL_PROGRESS}
+                      </span>
                     </div>
                   </div>
                   <div className="completion-actions">

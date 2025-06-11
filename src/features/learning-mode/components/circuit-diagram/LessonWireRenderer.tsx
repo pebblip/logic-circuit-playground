@@ -44,7 +44,7 @@ export const LessonWireRenderer: React.FC<LessonWireRendererProps> = ({
   const cornerRadius = 15;
 
   // 角を丸めた直交配線のパス（より美しい見た目）
-  const roundedPath = `
+  const _roundedPath = `
     M ${from.x} ${from.y} 
     L ${cornerX - cornerRadius} ${from.y}
     Q ${cornerX} ${from.y} ${cornerX} ${from.y + (to.y > from.y ? cornerRadius : -cornerRadius)}

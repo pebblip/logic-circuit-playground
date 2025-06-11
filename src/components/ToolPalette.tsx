@@ -94,7 +94,9 @@ export const ToolPalette: React.FC = () => {
     const outputGates = gates.filter(g => g.type === 'OUTPUT');
 
     if (inputGates.length === 0 || outputGates.length === 0) {
-      alert(`${TERMS.CIRCUIT}には${TERMS.INPUT}${TERMS.GATE}と${TERMS.OUTPUT}${TERMS.GATE}が${TERMS.REQUIRED}です`);
+      alert(
+        `${TERMS.CIRCUIT}には${TERMS.INPUT}${TERMS.GATE}と${TERMS.OUTPUT}${TERMS.GATE}が${TERMS.REQUIRED}です`
+      );
       return;
     }
 
@@ -322,7 +324,7 @@ export const ToolPalette: React.FC = () => {
           selectedGateType={selectedToolGateType}
           onDragStart={startDrag}
           onDragEnd={endDrag}
-          onGateClick={(type) => selectToolGate(type)}
+          onGateClick={type => selectToolGate(type)}
         />
 
         <GateSection
@@ -333,7 +335,7 @@ export const ToolPalette: React.FC = () => {
           selectedGateType={selectedToolGateType}
           onDragStart={startDrag}
           onDragEnd={endDrag}
-          onGateClick={(type) => selectToolGate(type)}
+          onGateClick={type => selectToolGate(type)}
         />
 
         <GateSection
@@ -344,7 +346,7 @@ export const ToolPalette: React.FC = () => {
           selectedGateType={selectedToolGateType}
           onDragStart={startDrag}
           onDragEnd={endDrag}
-          onGateClick={(type) => selectToolGate(type)}
+          onGateClick={type => selectToolGate(type)}
         />
 
         <CustomGateSection
@@ -355,7 +357,7 @@ export const ToolPalette: React.FC = () => {
           onDragStart={startDrag}
           onDragEnd={endDrag}
           onContextMenu={handleContextMenu}
-          onGateClick={(customGateId) => selectToolGate('CUSTOM', customGateId)}
+          onGateClick={customGateId => selectToolGate('CUSTOM', customGateId)}
         />
       </div>
 

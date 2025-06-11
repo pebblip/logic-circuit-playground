@@ -93,10 +93,7 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
         {
           type: 'list',
           ordered: false,
-          items: [
-            'ON = 電気が流れる = 1',
-            'OFF = 電気が流れない = 0',
-          ],
+          items: ['ON = 電気が流れる = 1', 'OFF = 電気が流れない = 0'],
         },
         {
           type: 'heading',
@@ -360,7 +357,7 @@ export const digitalBasicsStructuredLesson: StructuredLesson = {
           ordered: false,
           items: [
             '「AかつB」→ANDゲート',
-            '「AまたはB」→ORゲート', 
+            '「AまたはB」→ORゲート',
             '「Aではない」→NOTゲート',
           ],
         },

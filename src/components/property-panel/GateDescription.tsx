@@ -1,9 +1,10 @@
 import React from 'react';
 import { getGateDescription } from '@/data/gateDescriptions';
+import type { CustomGateDefinition } from '@/types/circuit';
 
 interface GateDescriptionProps {
   gateType: string;
-  customGateDefinition?: any;
+  customGateDefinition?: CustomGateDefinition;
 }
 
 export const GateDescription: React.FC<GateDescriptionProps> = ({
@@ -20,7 +21,6 @@ export const GateDescription: React.FC<GateDescriptionProps> = ({
           color: 'rgba(255, 255, 255, 0.9)',
         }}
       >
-
         {/* 説明 */}
         <div style={{ marginBottom: 'var(--spacing-lg)' }}>
           <h3
@@ -34,7 +34,8 @@ export const GateDescription: React.FC<GateDescriptionProps> = ({
             説明
           </h3>
           <p style={{ margin: 0 }}>
-            {customGateDefinition.description || 'このカスタムゲートの説明は登録されていません。'}
+            {customGateDefinition.description ||
+              'このカスタムゲートの説明は登録されていません。'}
           </p>
         </div>
 
@@ -50,44 +51,72 @@ export const GateDescription: React.FC<GateDescriptionProps> = ({
           >
             入出力構成
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 'var(--spacing-md)',
+            }}
+          >
             <div>
-              <h4 style={{ margin: '0 0 var(--spacing-sm) 0', fontSize: 'var(--font-size-base)', color: 'var(--color-text-secondary)' }}>
+              <h4
+                style={{
+                  margin: '0 0 var(--spacing-sm) 0',
+                  fontSize: 'var(--font-size-base)',
+                  color: 'var(--color-text-secondary)',
+                }}
+              >
                 入力ピン ({customGateDefinition.inputs.length}個)
               </h4>
-              <ul style={{ 
-                margin: 0, 
-                paddingLeft: 'var(--spacing-lg)',
-                listStyleType: 'disc',
-                listStylePosition: 'outside',
-              }}>
-                {customGateDefinition.inputs.map((pin: any, index: number) => (
-                  <li key={index} style={{ 
-                    fontSize: 'var(--font-size-base)', 
-                    marginBottom: 'var(--spacing-xs)',
-                    color: 'var(--color-text-primary)',
-                  }}>
+              <ul
+                style={{
+                  margin: 0,
+                  paddingLeft: 'var(--spacing-lg)',
+                  listStyleType: 'disc',
+                  listStylePosition: 'outside',
+                }}
+              >
+                {customGateDefinition.inputs.map((pin, index: number) => (
+                  <li
+                    key={index}
+                    style={{
+                      fontSize: 'var(--font-size-base)',
+                      marginBottom: 'var(--spacing-xs)',
+                      color: 'var(--color-text-primary)',
+                    }}
+                  >
                     {pin.name || `入力${index + 1}`}
                   </li>
                 ))}
               </ul>
             </div>
             <div>
-              <h4 style={{ margin: '0 0 var(--spacing-sm) 0', fontSize: 'var(--font-size-base)', color: 'var(--color-text-secondary)' }}>
+              <h4
+                style={{
+                  margin: '0 0 var(--spacing-sm) 0',
+                  fontSize: 'var(--font-size-base)',
+                  color: 'var(--color-text-secondary)',
+                }}
+              >
                 出力ピン ({customGateDefinition.outputs.length}個)
               </h4>
-              <ul style={{ 
-                margin: 0, 
-                paddingLeft: 'var(--spacing-lg)',
-                listStyleType: 'disc',
-                listStylePosition: 'outside',
-              }}>
-                {customGateDefinition.outputs.map((pin: any, index: number) => (
-                  <li key={index} style={{ 
-                    fontSize: 'var(--font-size-base)', 
-                    marginBottom: 'var(--spacing-xs)',
-                    color: 'var(--color-text-primary)',
-                  }}>
+              <ul
+                style={{
+                  margin: 0,
+                  paddingLeft: 'var(--spacing-lg)',
+                  listStyleType: 'disc',
+                  listStylePosition: 'outside',
+                }}
+              >
+                {customGateDefinition.outputs.map((pin, index: number) => (
+                  <li
+                    key={index}
+                    style={{
+                      fontSize: 'var(--font-size-base)',
+                      marginBottom: 'var(--spacing-xs)',
+                      color: 'var(--color-text-primary)',
+                    }}
+                  >
                     {pin.name || `出力${index + 1}`}
                   </li>
                 ))}
@@ -106,11 +135,14 @@ export const GateDescription: React.FC<GateDescriptionProps> = ({
           }}
         >
           <p style={{ margin: '0 0 4px 0' }}>
-            作成日時: {new Date(customGateDefinition.createdAt).toLocaleString('ja-JP')}
+            作成日時:{' '}
+            {new Date(customGateDefinition.createdAt).toLocaleString('ja-JP')}
           </p>
-          {customGateDefinition.updatedAt !== customGateDefinition.createdAt && (
+          {customGateDefinition.updatedAt !==
+            customGateDefinition.createdAt && (
             <p style={{ margin: 0 }}>
-              更新日時: {new Date(customGateDefinition.updatedAt).toLocaleString('ja-JP')}
+              更新日時:{' '}
+              {new Date(customGateDefinition.updatedAt).toLocaleString('ja-JP')}
             </p>
           )}
         </div>
@@ -129,7 +161,6 @@ export const GateDescription: React.FC<GateDescriptionProps> = ({
         color: 'var(--color-text-primary)',
       }}
     >
-
       {/* 基本動作 */}
       <div style={{ marginBottom: '24px' }}>
         <h3
@@ -143,9 +174,7 @@ export const GateDescription: React.FC<GateDescriptionProps> = ({
         >
           基本動作
         </h3>
-        <p style={{ margin: 0 }}>
-          {data.basicOperation}
-        </p>
+        <p style={{ margin: 0 }}>{data.basicOperation}</p>
         {data.truthTableNote && (
           <div
             style={{
@@ -174,12 +203,14 @@ export const GateDescription: React.FC<GateDescriptionProps> = ({
         >
           日常的な例
         </h3>
-        <ul style={{ 
-          margin: 0, 
-          paddingLeft: 'var(--spacing-lg)',
-          listStyleType: 'disc',
-          listStylePosition: 'outside',
-        }}>
+        <ul
+          style={{
+            margin: 0,
+            paddingLeft: 'var(--spacing-lg)',
+            listStyleType: 'disc',
+            listStylePosition: 'outside',
+          }}
+        >
           {data.realWorldAnalogy.map((analogy, index) => (
             <li
               key={index}
@@ -224,9 +255,7 @@ export const GateDescription: React.FC<GateDescriptionProps> = ({
           >
             技術的洞察
           </h3>
-          <p style={{ margin: 0 }}>
-            {data.technicalInsight}
-          </p>
+          <p style={{ margin: 0 }}>{data.technicalInsight}</p>
         </div>
       )}
 

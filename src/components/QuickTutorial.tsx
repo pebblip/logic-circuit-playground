@@ -29,15 +29,13 @@ const tutorialSteps: TutorialStep[] = [
   {
     id: 'welcome',
     title: '🎯 ようこそ！実際に操作しながら学びましょう',
-    content:
-      `これから5つのステップで、${TERMS.LOGIC_CIRCUIT}の基本操作を体験します。ESCキーでいつでも終了できます。`,
+    content: `これから5つのステップで、${TERMS.LOGIC_CIRCUIT}の基本操作を体験します。ESCキーでいつでも終了できます。`,
     position: 'center',
   },
   {
     id: 'place-input',
     title: `ステップ 1/5：${TERMS.INPUT}を配置`,
-    content:
-      `左のツールパレットから「${TERMS.INPUT}」を${TERMS.DRAG_AND_DROP}して、キャンバスの左側にドロップしてください。`,
+    content: `左のツールパレットから「${TERMS.INPUT}」を${TERMS.DRAG_AND_DROP}して、キャンバスの左側にドロップしてください。`,
     highlight: 'tool-palette',
     checkCondition: gates => gates.some(g => g.type === 'INPUT'),
     position: 'top-left',
@@ -53,8 +51,7 @@ const tutorialSteps: TutorialStep[] = [
   {
     id: 'connect-wire',
     title: `ステップ 3/5：${TERMS.CONNECTION}する`,
-    content:
-      `${TERMS.INPUT}の${TERMS.RIGHT_CIRCLE}（${TERMS.OUTPUT_PIN}）を${TERMS.CLICK}して、${TERMS.OUTPUT}の${TERMS.LEFT_CIRCLE}（${TERMS.INPUT_PIN}）を${TERMS.CLICK}すると${TERMS.CONNECTION}できます。`,
+    content: `${TERMS.INPUT}の${TERMS.RIGHT_CIRCLE}（${TERMS.OUTPUT_PIN}）を${TERMS.CLICK}して、${TERMS.OUTPUT}の${TERMS.LEFT_CIRCLE}（${TERMS.INPUT_PIN}）を${TERMS.CLICK}すると${TERMS.CONNECTION}できます。`,
     highlight: 'gates-area',
     checkCondition: (gates, wires) => wires.length > 0,
     position: 'bottom',
@@ -62,8 +59,7 @@ const tutorialSteps: TutorialStep[] = [
   {
     id: 'toggle-input',
     title: `ステップ 4/5：動作を確認`,
-    content:
-      `${TERMS.INPUT}を${TERMS.DOUBLE_CLICK}すると、${TERMS.OFF}（0）から${TERMS.ON}（1）に切り替わり、${TERMS.OUTPUT}も連動して光ります！試してみてください。`,
+    content: `${TERMS.INPUT}を${TERMS.DOUBLE_CLICK}すると、${TERMS.OFF}（0）から${TERMS.ON}（1）に切り替わり、${TERMS.OUTPUT}も連動して光ります！試してみてください。`,
     highlight: 'input-gate',
     checkCondition: gates => {
       const inputGate = gates.find(g => g.type === 'INPUT');
@@ -74,12 +70,12 @@ const tutorialSteps: TutorialStep[] = [
   {
     id: 'and-gate-experience',
     title: `ステップ 5/5：${TERMS.LOGIC_GATE}を体験`,
-    content:
-      `最後に、${TERMS.AND}${TERMS.GATE}を体験してみましょう！まず、もう一つ${TERMS.INPUT}を追加し、次に「${TERMS.AND}」${TERMS.GATE}を${TERMS.PLACE}して、2つの${TERMS.INPUT}を${TERMS.AND}${TERMS.GATE}に${TERMS.CONNECTION}してください。両方の${TERMS.INPUT}が${TERMS.ON}の時だけ${TERMS.OUTPUT}が光ることを確認しましょう。`,
+    content: `最後に、${TERMS.AND}${TERMS.GATE}を体験してみましょう！まず、もう一つ${TERMS.INPUT}を追加し、次に「${TERMS.AND}」${TERMS.GATE}を${TERMS.PLACE}して、2つの${TERMS.INPUT}を${TERMS.AND}${TERMS.GATE}に${TERMS.CONNECTION}してください。両方の${TERMS.INPUT}が${TERMS.ON}の時だけ${TERMS.OUTPUT}が光ることを確認しましょう。`,
     highlight: 'basic-gates',
     checkCondition: (gates, wires) => {
       const hasAndGate = gates.some(g => g.type === 'AND');
-      const hasMultipleInputs = gates.filter(g => g.type === 'INPUT').length >= 2;
+      const hasMultipleInputs =
+        gates.filter(g => g.type === 'INPUT').length >= 2;
       const hasConnections = wires.length >= 3; // 入力2つ→AND, AND→出力
       return hasAndGate && hasMultipleInputs && hasConnections;
     },
@@ -88,8 +84,7 @@ const tutorialSteps: TutorialStep[] = [
   {
     id: 'complete',
     title: `🌟 ${TERMS.LOGIC_CIRCUIT}マスター！`,
-    content:
-      `おめでとうございます！基本操作と${TERMS.LOGIC_GATE}の動作を理解しました。\n\n次は${TERMS.LEARNING_MODE}で21の体系的な${TERMS.LESSON}を受講するか、${TERMS.FREE_MODE}で自由に${TERMS.CIRCUIT}を作成してください。\n\n${TERMS.LOGIC_CIRCUIT}の世界は奥深く、創造性次第で無限の可能性があります！`,
+    content: `おめでとうございます！基本操作と${TERMS.LOGIC_GATE}の動作を理解しました。\n\n次は${TERMS.LEARNING_MODE}で21の体系的な${TERMS.LESSON}を受講するか、${TERMS.FREE_MODE}で自由に${TERMS.CIRCUIT}を作成してください。\n\n${TERMS.LOGIC_CIRCUIT}の世界は奥深く、創造性次第で無限の可能性があります！`,
     position: 'center',
   },
 ];

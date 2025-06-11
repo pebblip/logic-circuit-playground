@@ -14,7 +14,7 @@ export const createToolPaletteSlice: StateCreator<
   [],
   [],
   ToolPaletteSlice
-> = (_set) => ({
+> = _set => ({
   selectedToolGateType: null,
   selectedToolCustomGateId: null,
 

@@ -23,8 +23,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
         expect(result.error.type).toBe('VALIDATION_ERROR');
-        expect(result.error.violations).toBeDefined();
-        expect(result.error.violations?.some(v => v.message.includes('cannot be empty'))).toBe(true);
+        expect(result.error.message).toContain('ゲートに名前を付けてください');
       }
     });
 
@@ -44,7 +43,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
         expect(result.error.type).toBe('VALIDATION_ERROR');
-        expect(result.error.violations?.some(v => v.message.includes('must be string'))).toBe(true);
+        expect(result.error.message).toContain('対応していないゲートの種類です');
       }
     });
 
@@ -63,10 +62,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
         expect(result.error.type).toBe('VALIDATION_ERROR');
-        expect(result.error.violations?.some(v => v.message && (
-          v.message.includes('Wire from.gateId must be a non-empty string') ||
-          v.message.includes('non-existent source gate')
-        ))).toBe(true);
+        expect(result.error.message).toContain('Wire from.gateId must be a non-empty string');
       }
     });
 
@@ -85,7 +81,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
         expect(result.error.type).toBe('VALIDATION_ERROR');
-        expect(result.error.violations?.some(v => v.message.includes('Wire ID must be a non-empty string'))).toBe(true);
+        expect(result.error.message).toContain('Wire ID must be a non-empty string');
       }
     });
   });
@@ -114,7 +110,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
         expect(result.error.type).toBe('VALIDATION_ERROR');
-        expect(result.error.violations?.some(v => v.message.includes('Duplicate gate ID'))).toBe(true);
+        expect(result.error.message).toContain('同じ名前のゲートが既に存在します');
       }
     });
 
@@ -156,7 +152,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
         expect(result.error.type).toBe('VALIDATION_ERROR');
-        expect(result.error.violations?.some(v => v.message.includes('Duplicate wire ID'))).toBe(true);
+        expect(result.error.message).toContain('Duplicate wire ID');
       }
     });
   });
@@ -187,7 +183,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
         expect(result.error.type).toBe('VALIDATION_ERROR');
-        expect(result.error.message).toContain('missing_gate');
+        expect(result.error.message).toContain('配線の開始点となるゲートが見つかりません');
       }
     });
 
@@ -216,7 +212,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
         expect(result.error.type).toBe('VALIDATION_ERROR');
-        expect(result.error.message).toContain('missing_gate');
+        expect(result.error.message).toContain('配線の終了点となるゲートが見つかりません');
       }
     });
   });
@@ -260,8 +256,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
         expect(result.error.type).toBe('VALIDATION_ERROR');
-        expect(result.error.violations).toBeDefined();
-        expect(result.error.violations?.some(v => v.code === 'CIRCULAR_DEPENDENCY')).toBe(true);
+        expect(result.error.message).toContain('回路に無限ループが発生しています');
       }
     });
 
@@ -316,8 +311,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
         expect(result.error.type).toBe('VALIDATION_ERROR');
-        expect(result.error.violations).toBeDefined();
-        expect(result.error.violations?.some(v => v.code === 'CIRCULAR_DEPENDENCY')).toBe(true);
+        expect(result.error.message).toContain('回路に無限ループが発生しています');
       }
     });
   });
@@ -398,7 +392,7 @@ describe('Circuit Simulation Error Handling - New API', () => {
       expect(isFailure(result)).toBe(true);
       if (isFailure(result)) {
         expect(result.error.type).toBe('VALIDATION_ERROR');
-        expect(result.error.violations?.some(v => v.message.includes('Invalid pin index'))).toBe(true);
+        expect(result.error.message).toContain('Invalid pin index');
       }
     });
   });

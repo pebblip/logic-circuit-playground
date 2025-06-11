@@ -5,7 +5,6 @@ import type {
   CircuitMetadata,
   CircuitStorageResult,
 } from '../../types/circuitStorage';
-import type { Gate, Wire } from '../../types/circuit';
 import { TERMS } from '../../features/learning-mode/data/terms';
 import './LoadCircuitDialog.css';
 
@@ -172,21 +171,23 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
 
         // 直接状態を設定（IDを保持するため）
         useCircuitStore.setState({
-          gates: [...circuit.gates],  // スプレッド構文でmutable配列へ変換
-          wires: [...circuit.wires],  // スプレッド構文でmutable配列へ変換
+          gates: [...circuit.gates], // スプレッド構文でmutable配列へ変換
+          wires: [...circuit.wires], // スプレッド構文でmutable配列へ変換
         });
 
         // 回路の評価を強制的に実行
-        const { evaluateCircuit, defaultConfig } = await import('@domain/simulation/core');
+        const { evaluateCircuit, defaultConfig } = await import(
+          '@domain/simulation/core'
+        );
         const evaluatedCircuit = await evaluateCircuit(
           { gates: circuit.gates, wires: circuit.wires },
           defaultConfig
         );
-        
+
         if (evaluatedCircuit.success) {
           useCircuitStore.setState({
-            gates: [...evaluatedCircuit.data.circuit.gates],  // スプレッド構文でmutable配列へ変換
-            wires: [...evaluatedCircuit.data.circuit.wires],  // スプレッド構文でmutable配列へ変換
+            gates: [...evaluatedCircuit.data.circuit.gates], // スプレッド構文でmutable配列へ変換
+            wires: [...evaluatedCircuit.data.circuit.wires], // スプレッド構文でmutable配列へ変換
           });
         }
 
@@ -235,7 +236,9 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
       }
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : `${TERMS.DELETE}中に${TERMS.ERROR}が発生しました`
+        error instanceof Error
+          ? error.message
+          : `${TERMS.DELETE}中に${TERMS.ERROR}が発生しました`
       );
     }
   };
@@ -277,7 +280,9 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
       <div className="load-dialog" onClick={e => e.stopPropagation()}>
         {/* ヘッダー */}
         <div className="dialog-header">
-          <h2 className="dialog-title">📂 保存済み{TERMS.CIRCUIT}を{TERMS.LOAD}</h2>
+          <h2 className="dialog-title">
+            📂 保存済み{TERMS.CIRCUIT}を{TERMS.LOAD}
+          </h2>
           <button
             className="close-button"
             onClick={onClose}

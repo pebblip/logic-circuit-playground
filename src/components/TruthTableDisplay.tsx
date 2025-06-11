@@ -19,7 +19,7 @@ interface TruthTableDisplayProps {
 
 export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
   result: resultProp,
-  gateType,
+  gateType: _gateType,
   truthTable,
   inputNames,
   outputNames,
@@ -28,31 +28,33 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
   inline = false,
 }) => {
   // truthTableからresultを生成
-  const result: TruthTableResult = resultProp || (() => {
-    if (!truthTable) {
+  const result: TruthTableResult =
+    resultProp ||
+    (() => {
+      if (!truthTable) {
+        return {
+          table: [],
+          inputCount: 0,
+          outputCount: 0,
+          isSequential: false,
+        };
+      }
+
+      const table = Object.entries(truthTable).map(([inputs, outputs]) => ({
+        inputs,
+        outputs,
+        inputValues: inputs.split('').map(bit => displayStateToBoolean(bit)),
+        outputValues: outputs.split('').map(bit => displayStateToBoolean(bit)),
+      }));
+
       return {
-        table: [],
-        inputCount: 0,
-        outputCount: 0,
+        table,
+        inputCount: inputNames.length,
+        outputCount: outputNames.length,
         isSequential: false,
       };
-    }
-    
-    const table = Object.entries(truthTable).map(([inputs, outputs]) => ({
-      inputs,
-      outputs,
-      inputValues: inputs.split('').map(bit => displayStateToBoolean(bit)),
-      outputValues: outputs.split('').map(bit => displayStateToBoolean(bit)),
-    }));
-    
-    return {
-      table,
-      inputCount: inputNames.length,
-      outputCount: outputNames.length,
-      isSequential: false,
-    };
-  })();
-  
+    })();
+
   const stats = calculateTruthTableStats(result);
 
   // outputNamesが空や不正な場合のフォールバック
@@ -84,7 +86,11 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
         style={{
           width: '100%',
           borderCollapse: 'collapse',
-          fontSize: inline ? '12px' : (safeOutputNames.length > 5 ? '12px' : '14px'),
+          fontSize: inline
+            ? '12px'
+            : safeOutputNames.length > 5
+              ? '12px'
+              : '14px',
           tableLayout: 'fixed',
         }}
       >
@@ -124,11 +130,19 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
                 <th
                   key={`output-${index}`}
                   style={{
-                    padding: inline ? '6px' : (safeOutputNames.length > 4 ? '8px 6px' : '12px 8px'),
+                    padding: inline
+                      ? '6px'
+                      : safeOutputNames.length > 4
+                        ? '8px 6px'
+                        : '12px 8px',
                     textAlign: 'center',
                     border: '1px solid rgba(255, 255, 255, 0.2)',
                     color: '#ff6699',
-                    fontSize: inline ? '11px' : (safeOutputNames.length > 6 ? '10px' : '12px'),
+                    fontSize: inline
+                      ? '11px'
+                      : safeOutputNames.length > 6
+                        ? '10px'
+                        : '12px',
                     fontWeight: '600',
                     width: inline ? '60px' : '80px',
                   }}
@@ -181,11 +195,19 @@ export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
                 <td
                   key={`output-${rowIndex}-${colIndex}`}
                   style={{
-                    padding: inline ? '4px' : (safeOutputNames.length > 4 ? '8px 6px' : '10px 8px'),
+                    padding: inline
+                      ? '4px'
+                      : safeOutputNames.length > 4
+                        ? '8px 6px'
+                        : '10px 8px',
                     textAlign: 'center',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     fontFamily: 'monospace',
-                    fontSize: inline ? '12px' : (safeOutputNames.length > 6 ? '14px' : '16px'),
+                    fontSize: inline
+                      ? '12px'
+                      : safeOutputNames.length > 6
+                        ? '14px'
+                        : '16px',
                     fontWeight: '600',
                     color: displayStateToBoolean(output)
                       ? '#ff6699'

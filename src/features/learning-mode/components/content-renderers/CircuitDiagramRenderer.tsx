@@ -34,9 +34,9 @@ interface CircuitDiagramRendererProps {
  * - 統一されたピン配置
  * - 保守性の高い設計
  */
-export const CircuitDiagramRenderer: React.FC<
-  CircuitDiagramRendererProps
-> = ({ content }) => {
+export const CircuitDiagramRenderer: React.FC<CircuitDiagramRendererProps> = ({
+  content,
+}) => {
   // 回路定義マッピング
   const getCircuitDefinition = (circuitId: string) => {
     switch (circuitId) {
@@ -78,7 +78,8 @@ export const CircuitDiagramRenderer: React.FC<
     return null;
   }
 
-  const circuitId = (content as any).circuitId || 'half-adder';
+  const circuitDiagramContent = content as CircuitDiagramContent;
+  const circuitId = circuitDiagramContent.circuitId || 'half-adder';
   const circuitDefinition = getCircuitDefinition(circuitId);
 
   if (!circuitDefinition) {
@@ -93,12 +94,12 @@ export const CircuitDiagramRenderer: React.FC<
     <div className="circuit-diagram-v2">
       <AutoLayoutCircuitDiagram
         circuit={circuitDefinition}
-        showTruthTable={(content as any).showTruthTable || false}
+        showTruthTable={circuitDiagramContent.showTruthTable || false}
       />
 
-      {(content as any).description && (
+      {circuitDiagramContent.description && (
         <div className="circuit-description">
-          <p>{(content as any).description}</p>
+          <p>{circuitDiagramContent.description}</p>
         </div>
       )}
     </div>

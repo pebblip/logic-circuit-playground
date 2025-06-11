@@ -1,12 +1,12 @@
 import React from 'react';
-import type { Gate } from '@/types/circuit';
+import type { Gate, CustomGateDefinition } from '@/types/circuit';
 import { isCustomGate } from '@/types/gates';
 import { GateDescription } from './GateDescription';
 
 interface DetailModalProps {
   selectedGate?: Gate;
   gateType?: string;
-  customGateDefinition?: any;
+  customGateDefinition?: CustomGateDefinition;
   showDetailModal: boolean;
   onClose: () => void;
 }
@@ -19,10 +19,14 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   onClose,
 }) => {
   if (!showDetailModal) return null;
-  
+
   // ゲートタイプを決定
   const displayGateType = gateType || selectedGate?.type;
-  const customDef = customGateDefinition || (selectedGate && isCustomGate(selectedGate) ? selectedGate.customGateDefinition : undefined);
+  const customDef =
+    customGateDefinition ||
+    (selectedGate && isCustomGate(selectedGate)
+      ? selectedGate.customGateDefinition
+      : undefined);
   const displayName = customDef
     ? customDef.displayName
     : `${displayGateType}${displayGateType?.match(/^(INPUT|OUTPUT|CLOCK)$/) ? '' : 'ゲート'}`;
@@ -122,8 +126,8 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             padding: 'var(--spacing-lg)',
           }}
         >
-          <GateDescription 
-            gateType={displayGateType || ''} 
+          <GateDescription
+            gateType={displayGateType || ''}
             customGateDefinition={customDef}
           />
         </div>

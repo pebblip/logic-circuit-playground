@@ -263,9 +263,7 @@ export const notGateStructuredLesson: StructuredLesson = {
         },
         {
           type: 'rich-text',
-          elements: [
-            'NOTゲートは意外なところで活躍しています！',
-          ],
+          elements: ['NOTゲートは意外なところで活躍しています！'],
         },
         {
           type: 'list',

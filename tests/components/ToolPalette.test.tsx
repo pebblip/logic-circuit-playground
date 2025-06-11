@@ -124,7 +124,7 @@ describe('ToolPalette', () => {
       render(<ToolPalette />);
       
       const andGate = screen.getByTestId('gate-AND');
-      expect(andGate).toHaveAttribute('title', 'ドラッグしてキャンバスに配置');
+      expect(andGate).toHaveAttribute('title', '左クリック: 詳細表示 | ドラッグしてキャンバスに配置');
     });
 
     it('学習モードで禁止されたゲートは無効化される', () => {
@@ -419,7 +419,7 @@ describe('ToolPalette', () => {
       
       const andGate = screen.getByTestId('gate-AND');
       const style = window.getComputedStyle(andGate);
-      expect(andGate.style.cursor).toBe('grab');
+      expect(style.cursor).toBe('pointer');
     });
   });
 

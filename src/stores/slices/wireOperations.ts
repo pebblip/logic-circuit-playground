@@ -52,14 +52,13 @@ export const createWireOperationsSlice: StateCreator<
 
       const startGate = state.gates.find(g => g.id === state.wireStart!.gateId);
       const endGate = state.gates.find(g => g.id === gateId);
-      
+
       if (!startGate || !endGate) {
         return { isDrawingWire: false, wireStart: null };
       }
 
       const startPinIndex = state.wireStart.pinIndex;
       const isStartOutput = startPinIndex < 0;
-      const isEndOutput = pinIndex < 0;
 
       // 接続可能性をチェック
       const connectionCheck = WireConnectionService.canConnect(
@@ -72,9 +71,9 @@ export const createWireOperationsSlice: StateCreator<
 
       // 接続不可の場合は終了
       if (!connectionCheck.valid) {
-        return { 
-          isDrawingWire: false, 
-          wireStart: null
+        return {
+          isDrawingWire: false,
+          wireStart: null,
         };
       }
 
@@ -139,7 +138,7 @@ export const createWireOperationsSlice: StateCreator<
           gates: [...result.data.circuit.gates],
           wires: [...result.data.circuit.wires],
           isDrawingWire: false,
-          wireStart: null
+          wireStart: null,
         };
       } else {
         console.warn('Circuit evaluation failed:', result.error.message);
@@ -147,7 +146,7 @@ export const createWireOperationsSlice: StateCreator<
           gates: state.gates,
           wires: updatedWires,
           isDrawingWire: false,
-          wireStart: null
+          wireStart: null,
         };
       }
     });
@@ -188,5 +187,4 @@ export const createWireOperationsSlice: StateCreator<
     // 履歴に追加
     get().saveToHistory();
   },
-
 });

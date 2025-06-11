@@ -3,8 +3,10 @@ import type { StructuredLesson } from '../../../../types/lesson-content';
 export const fourBitAdderStructuredLesson: StructuredLesson = {
   id: '4bit-adder',
   title: '4ビット加算器 - もっと大きな足し算をしよう！',
-  description: '全加算器を4つ連結して、より大きな数の足し算ができる実用的な計算回路を作ります',
-  objective: '複数の全加算器を連結して大きな数の計算を可能にし、実際の計算機の仕組みを理解する',
+  description:
+    '全加算器を4つ連結して、より大きな数の足し算ができる実用的な計算回路を作ります',
+  objective:
+    '複数の全加算器を連結して大きな数の計算を可能にし、実際の計算機の仕組みを理解する',
   difficulty: 'intermediate',
   prerequisites: ['full-adder'],
   estimatedMinutes: 30,
@@ -72,7 +74,7 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
           ordered: false,
           items: [
             'A：最初の数',
-            'B：2番目の数', 
+            'B：2番目の数',
             '前の桁からの繰り上がり（あれば）',
           ],
         },
@@ -87,10 +89,7 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         {
           type: 'list',
           ordered: false,
-          items: [
-            '和（この桁の答え）',
-            '次の桁への繰り上がり（あれば）',
-          ],
+          items: ['和（この桁の答え）', '次の桁への繰り上がり（あれば）'],
         },
         {
           type: 'table',
@@ -354,7 +353,15 @@ A3 B3   A2 B2   A1 B1   A0 B0  ← 入力（各桁のA,B）
         },
         {
           type: 'table',
-          headers: ['桁', 'A', 'B', '前繰り上がり', '計算', '和', '次繰り上がり'],
+          headers: [
+            '桁',
+            'A',
+            'B',
+            '前繰り上がり',
+            '計算',
+            '和',
+            '次繰り上がり',
+          ],
           rows: [
             ['1の位', '1', '1', '0', '1+1+0=2', '0', '1'],
             ['2の位', '1', '0', '1', '1+0+1=2', '0', '1'],
@@ -391,7 +398,15 @@ A3 B3   A2 B2   A1 B1   A0 B0  ← 入力（各桁のA,B）
         },
         {
           type: 'table',
-          headers: ['桁', 'A', 'B', '前繰り上がり', '計算', '和', '次繰り上がり'],
+          headers: [
+            '桁',
+            'A',
+            'B',
+            '前繰り上がり',
+            '計算',
+            '和',
+            '次繰り上がり',
+          ],
           rows: [
             ['1の位', '1', '1', '0', '1+1+0=2', '0', '1'],
             ['2の位', '1', '1', '1', '1+1+1=3', '1', '1'],

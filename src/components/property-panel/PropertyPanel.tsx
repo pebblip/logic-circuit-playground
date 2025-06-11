@@ -9,28 +9,30 @@ import { isCustomGate } from '@/types/gates';
 import { gateDescriptions } from '@/data/gateDescriptions';
 
 export const PropertyPanel: React.FC = () => {
-  const { 
-    gates, 
-    selectedGateId, 
+  const {
+    gates,
+    selectedGateId,
     updateClockFrequency,
     selectedToolGateType,
     selectedToolCustomGateId,
-    customGates 
+    customGates,
   } = useCircuitStore();
-  
+
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showTruthTableModal, setShowTruthTableModal] = useState(false);
-  
+
   const selectedGate = gates.find(g => g.id === selectedGateId);
-  
+
   // ツールパレットでゲートが選択されているかチェック
   const isToolPaletteSelection = selectedToolGateType !== null && !selectedGate;
-  
+
   // 選択対象に応じたタイトルを取得
   const getTitle = () => {
     if (isToolPaletteSelection) {
       if (selectedToolGateType === 'CUSTOM' && selectedToolCustomGateId) {
-        const customGate = customGates.find(g => g.id === selectedToolCustomGateId);
+        const customGate = customGates.find(
+          g => g.id === selectedToolCustomGateId
+        );
         return customGate?.displayName || 'カスタムゲート';
       }
       return `${selectedToolGateType}${selectedToolGateType.match(/^(INPUT|OUTPUT|CLOCK)$/) ? '' : 'ゲート'}`;
@@ -70,10 +72,15 @@ export const PropertyPanel: React.FC = () => {
 
   // ツールパレットのゲートが選択されている場合
   if (isToolPaletteSelection) {
-    const hasDescription = selectedToolGateType && 
-                          (selectedToolGateType === 'CUSTOM' || gateDescriptions[selectedToolGateType]);
-    const hasTruthTable = selectedToolGateType === 'CUSTOM' || 
-                         ['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'].includes(selectedToolGateType || '');
+    const hasDescription =
+      selectedToolGateType &&
+      (selectedToolGateType === 'CUSTOM' ||
+        gateDescriptions[selectedToolGateType]);
+    const hasTruthTable =
+      selectedToolGateType === 'CUSTOM' ||
+      ['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'].includes(
+        selectedToolGateType || ''
+      );
 
     return (
       <aside className="property-panel">
@@ -112,7 +119,7 @@ export const PropertyPanel: React.FC = () => {
                   📖 詳細説明を表示
                 </button>
               )}
-              
+
               {hasTruthTable && (
                 <button
                   onClick={() => setShowTruthTableModal(true)}
@@ -184,7 +191,9 @@ export const PropertyPanel: React.FC = () => {
         <DetailModal
           selectedGate={selectedGate}
           customGateDefinition={
-            isCustomGate(selectedGate) ? selectedGate.customGateDefinition : undefined
+            isCustomGate(selectedGate)
+              ? selectedGate.customGateDefinition
+              : undefined
           }
           showDetailModal={showDetailModal}
           onClose={() => setShowDetailModal(false)}
@@ -197,7 +206,7 @@ export const PropertyPanel: React.FC = () => {
       </aside>
     );
   }
-  
+
   // フォールバック（到達しないはず）
   return null;
 };

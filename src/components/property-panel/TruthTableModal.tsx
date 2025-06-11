@@ -1,6 +1,7 @@
 import React from 'react';
 import { TruthTableDisplay } from '@/components/TruthTableDisplay';
 import { useCircuitStore } from '@/stores/circuitStore';
+import type { Gate } from '@/types/circuit';
 
 export interface TruthTableResult {
   table: Array<{
@@ -15,7 +16,7 @@ export interface TruthTableResult {
 }
 
 interface TruthTableModalProps {
-  selectedGate?: any;
+  selectedGate?: Gate;
   gateType?: string;
   customGateId?: string | null;
   showTruthTableModal: boolean;
@@ -40,7 +41,7 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
   truthTableData,
 }) => {
   const { customGates } = useCircuitStore();
-  
+
   if (!showTruthTableModal) return null;
 
   // ツールパレットから選択された場合の処理
@@ -69,7 +70,7 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
     if (truthTable) {
       const inputNames = gateType === 'NOT' ? ['入力'] : ['A', 'B'];
       const outputNames = ['出力'];
-      
+
       return (
         <TruthTableDisplay
           gateType={gateType}
@@ -86,9 +87,13 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
     if (gateType === 'CUSTOM' && customGateId) {
       const customGate = customGates.find(g => g.id === customGateId);
       if (customGate && customGate.truthTable) {
-        const inputNames = customGate.inputs.map(pin => pin.name || `入力${pin.index + 1}`);
-        const outputNames = customGate.outputs.map(pin => pin.name || `出力${pin.index + 1}`);
-        
+        const inputNames = customGate.inputs.map(
+          pin => pin.name || `入力${pin.index + 1}`
+        );
+        const outputNames = customGate.outputs.map(
+          pin => pin.name || `出力${pin.index + 1}`
+        );
+
         return (
           <TruthTableDisplay
             gateType="CUSTOM"

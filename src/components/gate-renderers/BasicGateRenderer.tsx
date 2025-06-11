@@ -51,22 +51,24 @@ export const BasicGateRenderer: React.FC<BasicGateRendererProps> = ({
       </g>
 
       {/* 入力ピン（逆順でレンダリングして上のピンを優先） */}
-      {Array.from({ length: inputCount }).reverse().map((_, reversedIndex) => {
-        const index = inputCount - 1 - reversedIndex;
-        const y = inputCount === 1 ? 0 : index === 0 ? -10 : 10;
-        return (
-          <PinComponent
-            key={`input-${index}`}
-            gate={gate}
-            x={-45}
-            y={y}
-            pinIndex={index}
-            isOutput={false}
-            isActive={getGateInputValue(gate, index)}
-            onPinClick={handlePinClick}
-          />
-        );
-      })}
+      {Array.from({ length: inputCount })
+        .reverse()
+        .map((_, reversedIndex) => {
+          const index = inputCount - 1 - reversedIndex;
+          const y = inputCount === 1 ? 0 : index === 0 ? -10 : 10;
+          return (
+            <PinComponent
+              key={`input-${index}`}
+              gate={gate}
+              x={-45}
+              y={y}
+              pinIndex={index}
+              isOutput={false}
+              isActive={getGateInputValue(gate, index)}
+              onPinClick={handlePinClick}
+            />
+          );
+        })}
 
       {/* 出力ピン */}
       <PinComponent

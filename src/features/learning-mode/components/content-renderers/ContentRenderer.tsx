@@ -63,9 +63,7 @@ export const ContentRenderer: React.FC<ContentRendererProps> = ({
       return <AsciiArtRenderer content={content} />;
 
     case 'diagram':
-      console.warn(
-        'diagram type is deprecated, use circuit-diagram instead'
-      );
+      console.warn('diagram type is deprecated, use circuit-diagram instead');
       return null;
 
     case 'circuit-diagram':

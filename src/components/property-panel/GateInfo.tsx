@@ -131,7 +131,6 @@ export const GateInfo: React.FC<GateInfoProps> = ({ selectedGate }) => {
           </div>
         </div>
       </div>
-
     </>
   );
 };
