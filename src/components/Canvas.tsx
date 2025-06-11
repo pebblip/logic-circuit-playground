@@ -20,6 +20,7 @@ import {
   mouseEventToSVGCoordinates,
 } from '@infrastructure/ui/svgCoordinates';
 import type { GateType, CustomGateDefinition } from '../types/gates';
+import { GATE_SIZES } from '../types/gates';
 
 interface ViewBox {
   x: number;
@@ -116,31 +117,78 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   // プレビューモード開始時にビューをリセット
   useEffect(() => {
     if (viewMode === 'custom-gate-preview' && displayData.displayGates.length > 0) {
-      // 内部回路の境界を計算
+      // 内部回路の境界を計算（ゲートのサイズを考慮）
       const gatesArray = displayData.displayGates;
       if (gatesArray.length === 0) return;
       
-      const minX = Math.min(...gatesArray.map(g => g.position.x)) - 200;
-      const maxX = Math.max(...gatesArray.map(g => g.position.x)) + 200;
-      const minY = Math.min(...gatesArray.map(g => g.position.y)) - 200;
-      const maxY = Math.max(...gatesArray.map(g => g.position.y)) + 200;
+      // 各ゲートのサイズを考慮した正確な境界を計算
+      const bounds = gatesArray.reduce((acc, gate) => {
+        // ゲートサイズを取得
+        let gateWidth: number;
+        let gateHeight: number;
+        
+        if (gate.type === 'CUSTOM' && gate.customGateDefinition) {
+          gateWidth = gate.customGateDefinition.width || GATE_SIZES.CUSTOM.width;
+          gateHeight = gate.customGateDefinition.height || GATE_SIZES.CUSTOM.height;
+        } else if (gate.type in GATE_SIZES) {
+          const size = GATE_SIZES[gate.type as keyof typeof GATE_SIZES];
+          gateWidth = size.width;
+          gateHeight = size.height;
+        } else {
+          // フォールバック
+          gateWidth = 70;
+          gateHeight = 50;
+        }
+        
+        // ピンの突き出し分も考慮（左右に10px）
+        const pinExtension = 10;
+        
+        return {
+          minX: Math.min(acc.minX, gate.position.x - gateWidth / 2 - pinExtension),
+          maxX: Math.max(acc.maxX, gate.position.x + gateWidth / 2 + pinExtension),
+          minY: Math.min(acc.minY, gate.position.y - gateHeight / 2),
+          maxY: Math.max(acc.maxY, gate.position.y + gateHeight / 2),
+        };
+      }, {
+        minX: Infinity,
+        maxX: -Infinity,
+        minY: Infinity,
+        maxY: -Infinity,
+      });
       
-      const width = maxX - minX;
-      const height = maxY - minY;
+      // パディングを追加（均等に）
+      const padding = 150;
+      const circuitWidth = bounds.maxX - bounds.minX;
+      const circuitHeight = bounds.maxY - bounds.minY;
       
-      // ビューボックスを中央に配置
-      const centerX = (minX + maxX) / 2;
-      const centerY = (minY + maxY) / 2;
+      // 回路の中心点
+      const centerX = (bounds.minX + bounds.maxX) / 2;
+      const centerY = (bounds.minY + bounds.maxY) / 2;
+      
+      // viewBoxのサイズ（固定）
+      const viewBoxWidth = 1200;
+      const viewBoxHeight = 800;
+      
+      // 回路を画面中央に配置するため、viewBoxの左上座標を計算
+      // viewBoxの中心を回路の中心に合わせる
+      const viewBoxX = centerX - viewBoxWidth / 2;
+      const viewBoxY = centerY - viewBoxHeight / 2;
       
       setViewBox({
-        x: centerX - 600,
-        y: centerY - 400,
-        width: 1200,
-        height: 800
+        x: viewBoxX,
+        y: viewBoxY,
+        width: viewBoxWidth,
+        height: viewBoxHeight
       });
       
       // ズームもリセット
       resetZoom();
+      
+      console.log('[Canvas] Preview bounds:', {
+        bounds,
+        center: { x: centerX, y: centerY },
+        circuit: { width: circuitWidth, height: circuitHeight }
+      });
     }
   }, [viewMode, displayData.displayGates, resetZoom]);
   
