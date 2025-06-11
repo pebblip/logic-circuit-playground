@@ -7,7 +7,7 @@
 ### 修正する時の鉄則
 ```bash
 # 1. 現状確認（必須）
-npx cypress run --spec cypress/e2e/ui-screenshot.cy.js
+npx cypress run --spec cypress/e2e/app-smoke-test.cy.js
 
 # 2. 修正実装
 
@@ -39,13 +39,14 @@ git commit -m "fix: 具体的な修正内容"
 ### 問題発生時
 1. **現状把握**
    ```bash
-   npx cypress run --spec cypress/e2e/ui-screenshot.cy.js
+   npx cypress run --spec cypress/e2e/app-smoke-test.cy.js
    ```
 
 2. **問題特定**
    ```bash
-   # デバッグログ追加
-   console.log('[Component] State:', state);
+   # デバッグログ追加（src/shared/debug/index.ts使用）
+   import { debug } from '@/shared/debug';
+   debug.log('[Component] State:', state);
    
    # 再現テスト作成
    describe('問題再現', () => {
@@ -62,15 +63,49 @@ git commit -m "fix: 具体的な修正内容"
    ```
 
 ### デバッグ手法
+
+#### 推奨：debug.log()による開発時デバッグ
 ```typescript
+// デバッグユーティリティの使用（推奨）
+import { debug } from '@/shared/debug';
+
 // UI状態の確認
-console.log('[Gate] Pins:', gate.inputPins.length, gate.outputPins.length);
-console.log('[Render] Position:', position);
+debug.log('[Gate] Pins:', gate.inputPins.length, gate.outputPins.length);
+debug.log('[Render] Position:', position);
 
 // イベントの確認
-const handleClick = (e) => {
-  console.log('[Event] Click:', e.target, e.clientX, e.clientY);
+const handleClick = (e: MouseEvent) => {
+  debug.log('[Event] Click:', e.target, e.clientX, e.clientY);
 };
+
+// パフォーマンス測定
+debug.time('Render Time');
+// 処理
+debug.timeEnd('Render Time');
+
+// 複雑なデータ構造の確認
+debug.table(gateConnections);
+
+// エラー・警告の出力（本番環境でも出力される）
+debug.error('Critical error:', errorDetails);
+debug.warn('Warning:', warningMessage);
+```
+
+#### デバッグユーティリティの利点
+- **開発環境のみ**: 本番ビルドでは自動的に無効化
+- **型安全**: TypeScriptで適切に型付け
+- **統一された形式**: プロジェクト全体で一貫したデバッグ出力
+- **技術的負債の回避**: console.logの放置を防ぐ
+
+#### 禁止：console.logの直接使用
+```typescript
+// ❌ 技術的負債の原因となるため禁止
+console.log('Debug info');  // 本番環境に残る可能性
+console.log(data);          // 型安全でない
+
+// ✅ 代わりにdebug.log()を使用
+debug.log('Debug info');    // 自動的に本番では無効化
+debug.log(data);            // 型安全
 ```
 
 ---
@@ -87,38 +122,108 @@ npm run build      # ビルドエラー: 0個
 
 ### テスト戦略
 ```bash
-# UI確認テスト（UI変更時は必須）
-npx cypress run --spec cypress/e2e/ui-screenshot.cy.js
+# 基本動作テスト（UI変更時は必須）
+npx cypress run --spec cypress/e2e/app-smoke-test.cy.js
 
-# 機能テスト（関連機能修正時）
-npx cypress run --spec cypress/e2e/simple-wire-test.cy.js
+# カスタムゲート機能テスト（関連機能修正時）
+npx cypress run --spec cypress/e2e/test-custom-gate-final.cy.js
 
-# コア機能テスト（重要な変更時）
-npx cypress run --spec cypress/e2e/core-flow.cy.js
+# 最小構成テスト（重要な変更時）
+npx cypress run --spec cypress/e2e/final-minimalist-check.cy.js
+
+# 視覚化機能テスト（新機能追加時）
+npx cypress run --spec cypress/e2e/new-visualizer-test.cy.js
 ```
 
 ### パフォーマンス
 - バンドルサイズ: 500KB以下（gzip）
 - ビルド時間: 30秒以内
-- テスト実行時間: 60秒以内
+- テスト実行時間: 60秒以内（単体テスト）、120秒以内（E2Eテスト）
+
+### テスト実行の注意事項
+⚠️ **重要**: ユーザー指示により、テスト実行が長すぎる場合は失敗とみなし中断する
+```bash
+# 単体テストが60秒を超える場合は中断し、原因分析
+npm run test  # 60秒以内を期待
+
+# E2Eテストが120秒を超える場合は中断し、原因分析
+npm run test:e2e  # 120秒以内を期待
+
+# 特定のテストファイルのみ実行して問題を特定
+npm run test -- tests/問題のあるファイル.test.tsx
+```
 
 ---
 
 ## 💻 コーディング規約
 
 ### TypeScript
+
+#### 型安全性の重要性
 ```typescript
-// ✅ 良い例
+// ✅ 良い例: 型安全な実装
 interface GateProps {
   gate: BaseGate;
   isSelected: boolean;
   onSelect: () => void;
 }
 
-// ❌ 悪い例
-interface GateProps {
-  gate: any;  // any禁止
-  selected: boolean;  // 命名不統一
+const GateComponent = ({ gate, isSelected, onSelect }: GateProps) => {
+  // IDEサポート: 自動補完、型チェック、リファクタリング支援
+  const pinCount = gate.inputPins.length; // ✅ 型安全
+  return <g onClick={onSelect}>...</g>;
+};
+```
+
+#### any型の問題と代替手段
+```typescript
+// ❌ any型の問題
+interface BadGateProps {
+  gate: any;  // 🚨 any禁止の理由：
+              // 1. 型安全性の喪失（ランタイムエラーの温床）
+              // 2. IDEサポートなし（自動補完、リファクタリング不可）
+              // 3. 保守性の低下（コードの意図が不明）
+              // 4. テストの困難（型による検証ができない）
+  selected: boolean;  // ❌ 命名不統一（isSelectedが統一ルール）
+}
+
+// ✅ any型の適切な代替手段
+interface GoodGateProps {
+  // 1. ユニオン型（最も推奨）
+  gate: BaseGate | SpecialGate;
+  
+  // 2. 事前定義済み型
+  gate: TypedGate;
+  
+  // 3. ジェネリック型
+  gate: Gate<TMetadata>;
+  
+  // 4. どうしても必要な場合のみ
+  metadata: Record<string, unknown>; // インデックスシグネチャ
+  dynamicProps: { [key: string]: unknown }; // プロパティが動的な場合
+}
+```
+
+#### 実際のプロジェクトでの型活用例
+```typescript
+// ✅ このプロジェクトでの型安全な実装例
+import type { ClockGate, TypedGate } from '@/types/specialGates';
+
+// 型ガード関数の活用
+function processGate(gate: TypedGate) {
+  if (isClockGate(gate)) {
+    // gate.metadata は ClockMetadata 型として推論される
+    const frequency = gate.metadata.frequency; // ✅ 型安全
+    debug.log('Clock frequency:', frequency);
+  }
+}
+
+// Result<T, E>パターンでエラーハンドリング
+const result = evaluateCircuit(circuit);
+if (result.success) {
+  const { gates } = result.data; // ✅ 型安全なデータアクセス
+} else {
+  debug.error('Evaluation failed:', result.error.message);
 }
 ```
 
@@ -133,8 +238,8 @@ export const Gate = React.memo(({ gate }: GateProps) => {
   return <g onClick={handleClick}>{/* ... */}</g>;
 });
 
-// ❌ 悪い例: 毎回再作成
-export const Gate = ({ gate }) => {
+// ❌ 悪い例: 毎回再作成、型なし
+export const Gate = ({ gate }: any) => {
   return <g onClick={() => onSelect()}>{/* ... */}</g>;
 };
 ```
@@ -214,7 +319,7 @@ it('works', () => {
 ### 重大問題発生時
 ```bash
 # 1. 即座の現状把握
-npx cypress run --spec cypress/e2e/ui-screenshot.cy.js
+npx cypress run --spec cypress/e2e/app-smoke-test.cy.js
 
 # 2. 影響範囲の確認
 git log --oneline -10  # 最近の変更を確認
@@ -234,9 +339,10 @@ describe('Debug: Unknown Issue', () => {
     // 現在の状態をキャプチャ
     cy.screenshot('debug-unknown-issue');
     
-    // コンソールログを確認
+    // デバッグログを確認
     cy.window().then((win) => {
-      cy.wrap(win.console).invoke('log', 'Debug test executed');
+      // デバッグ関数の実行確認
+      cy.wrap(win).its('debug').should('exist');
     });
   });
 });
