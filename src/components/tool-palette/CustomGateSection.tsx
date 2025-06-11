@@ -1,6 +1,7 @@
 import React from 'react';
 import type { GateType, CustomGateDefinition } from '@/types/circuit';
 import { GateCard } from './GateCard';
+import { useCircuitStore } from '@/stores/circuitStore';
 
 interface CustomGateSectionProps {
   demoCustomGates: CustomGateDefinition[];
@@ -20,6 +21,13 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
   onDragEnd,
   onContextMenu,
 }) => {
+  const enterCustomGatePreview = useCircuitStore(state => state.enterCustomGatePreview);
+  
+  const handleCardDoubleClick = (customGate: CustomGateDefinition) => {
+    console.log('[CustomGateSection] Double click:', customGate.id);
+    enterCustomGatePreview(customGate.id);
+  };
+  
   return (
     <>
       <div className="section-title">
@@ -36,6 +44,7 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
             customDefinition={definition}
             onDragStart={(_, customDef) => onDragStart('CUSTOM', customDef)}
             onDragEnd={onDragEnd}
+            onDoubleClick={() => handleCardDoubleClick(definition)}
           />
         ))}
 
@@ -52,6 +61,7 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
               e.preventDefault();
               onContextMenu(definition);
             }}
+            onDoubleClick={() => handleCardDoubleClick(definition)}
           />
         ))}
       </div>

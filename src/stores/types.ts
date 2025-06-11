@@ -6,7 +6,7 @@ import type {
   Position,
   CustomGateDefinition,
 } from '@/types/circuit';
-import type { AppMode } from '@/types/appMode';
+import type { AppMode, ViewMode } from '@/types/appMode';
 
 // Re-export AppMode
 export type { AppMode };
@@ -43,6 +43,10 @@ export interface CircuitStoreState extends CircuitState {
   appMode: AppMode;
   allowedGates: GateType[] | null; // null = 全て許可
   isLearningMode: boolean;
+  
+  // ビューモード（カスタムゲートプレビュー）
+  viewMode: ViewMode;
+  previewingCustomGateId: string | null;
 
   // 複数選択
   selectedGateIds: string[];
@@ -54,6 +58,10 @@ export interface CircuitStoreActions {
   setAppMode: (mode: AppMode) => void;
   setAllowedGates: (gates: GateType[] | null) => void;
   setIsLearningMode: (isLearning: boolean) => void;
+  
+  // カスタムゲートプレビュー
+  enterCustomGatePreview: (customGateId: string) => void;
+  exitCustomGatePreview: () => void;
 
   // 複数選択
   setSelectedGates: (gateIds: string[]) => void;

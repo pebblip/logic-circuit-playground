@@ -13,6 +13,7 @@ interface GateCardProps {
   ) => void;
   onDragEnd: () => void;
   onContextMenu?: (e: React.MouseEvent) => void;
+  onDoubleClick?: (e: React.MouseEvent) => void;
   testId?: string;
 }
 
@@ -24,6 +25,7 @@ export const GateCard: React.FC<GateCardProps> = ({
   onDragStart,
   onDragEnd,
   onContextMenu,
+  onDoubleClick,
   testId,
 }) => {
   const handleDragStart = (e: React.DragEvent) => {
@@ -37,7 +39,7 @@ export const GateCard: React.FC<GateCardProps> = ({
   const title = isDisabled
     ? '学習モードではこのゲートは使用できません'
     : type === 'CUSTOM'
-      ? '左クリック: 配置 | 右クリック: 真理値表表示'
+      ? '左クリック: 配置 | 右クリック: 真理値表表示 | ダブルクリック: 内部回路表示'
       : 'ドラッグしてキャンバスに配置';
 
   return (
@@ -50,6 +52,7 @@ export const GateCard: React.FC<GateCardProps> = ({
       onDragStart={handleDragStart}
       onDragEnd={onDragEnd}
       onContextMenu={onContextMenu}
+      onDoubleClick={onDoubleClick}
       style={{ cursor: isDisabled ? 'not-allowed' : 'grab' }}
     >
       <GateThumbnail type={type} customDefinition={customDefinition} />

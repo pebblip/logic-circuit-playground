@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useCircuitStore } from '../stores/circuitStore';
 import { GateComponent } from './Gate';
 import { WireComponent } from './Wire';
@@ -69,7 +69,42 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     addGate,
     addCustomGateInstance,
     moveMultipleGates: _moveMultipleGates,
+    viewMode,
+    previewingCustomGateId,
+    customGates,
+    exitCustomGatePreview,
   } = useCircuitStore();
+
+  // 表示データの切り替え（プレビューモード対応）
+  const displayData = useMemo(() => {
+    if (viewMode === 'custom-gate-preview' && previewingCustomGateId) {
+      const customGate = customGates.find(g => g.id === previewingCustomGateId);
+      
+      // エラーハンドリング
+      if (!customGate?.internalCircuit) {
+        console.error('[Canvas] Internal circuit not found:', previewingCustomGateId);
+        return { 
+          displayGates: [], 
+          displayWires: [], 
+          isReadOnly: true 
+        };
+      }
+      
+      console.log('[Canvas] Showing custom gate preview:', customGate.displayName);
+      
+      return {
+        displayGates: customGate.internalCircuit.gates,
+        displayWires: customGate.internalCircuit.wires,
+        isReadOnly: true
+      };
+    }
+    
+    return {
+      displayGates: gates,
+      displayWires: wires,
+      isReadOnly: false
+    };
+  }, [viewMode, previewingCustomGateId, customGates, gates, wires]);
 
   // カスタムフックの使用
   const { scale, handleZoom, resetZoom, zoomIn, zoomOut } = useCanvasZoom(
@@ -93,13 +128,18 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     clearSelection: clearSelectionRect,
     moveSelectionRect: _moveSelectionRect,
     setSelectionRect,
-  } = useCanvasSelection(gates, setSelectedGates, selectedGateIds);
+  } = useCanvasSelection(displayData.displayGates, setSelectedGates, selectedGateIds);
 
   // キーボードイベント処理
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isDrawingWire) {
-        cancelWireDrawing();
+      if (event.key === 'Escape') {
+        if (isDrawingWire) {
+          cancelWireDrawing();
+        }
+        if (viewMode === 'custom-gate-preview') {
+          exitCustomGatePreview();
+        }
       }
       // スペースキーでパンモード
       if (event.key === ' ' && !event.repeat) {
@@ -162,12 +202,17 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     mousePosition,
     clearSelectionRect,
     handlePanEnd,
+    viewMode,
+    exitCustomGatePreview,
   ]);
 
   // CLOCKゲートがある場合、定期的に回路を更新
   React.useEffect(() => {
+    // プレビューモードでは更新しない
+    if (displayData.isReadOnly) return;
+    
     // 実行中のCLOCKゲートがあるか確認
-    const hasRunningClockGate = gates.some(
+    const hasRunningClockGate = displayData.displayGates.some(
       gate => gate.type === 'CLOCK' && gate.metadata?.isRunning
     );
 
@@ -195,7 +240,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     return () => {
       clearInterval(interval);
     };
-  }, [gates]);
+  }, [displayData]);
 
   const handleMouseMove = (event: React.MouseEvent) => {
     if (!svgRef.current) return;
@@ -222,6 +267,11 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   };
 
   const handleClick = (event: React.MouseEvent) => {
+    // プレビューモードでは操作不可
+    if (displayData.isReadOnly) {
+      return;
+    }
+    
     // ドラッグ中の場合はクリックイベントを無視
     if (isDraggingSelection) {
       return;
@@ -515,6 +565,12 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
 
+    // プレビューモードでは配置不可
+    if (displayData.isReadOnly) {
+      console.log('[Canvas] Drop ignored in preview mode');
+      return;
+    }
+
     const draggedGateData = (window as Window & { _draggedGate?: unknown })
       ._draggedGate;
     if (!draggedGateData || !svgRef.current) return;
@@ -547,9 +603,24 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
 
   return (
     <div className="canvas-container">
+      {/* プレビューモードヘッダー */}
+      {viewMode === 'custom-gate-preview' && previewingCustomGateId && (
+        <div className="preview-mode-header">
+          <button 
+            className="btn btn--secondary"
+            onClick={exitCustomGatePreview}
+          >
+            ← 戻る
+          </button>
+          <span className="preview-mode-title">
+            {customGates.find(g => g.id === previewingCustomGateId)?.displayName || 'カスタムゲート'} - 内部回路
+          </span>
+          <span className="preview-mode-badge">読み取り専用</span>
+        </div>
+      )}
       <svg
         ref={svgRef}
-        className="canvas"
+        className={`canvas ${displayData.isReadOnly ? 'canvas--preview-mode' : ''}`}
         data-testid="canvas"
         viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
         onMouseMove={handleMouseMove}
@@ -604,12 +675,12 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         />
 
         {/* ワイヤー */}
-        {wires.map(wire => (
+        {displayData.displayWires.map(wire => (
           <WireComponent key={wire.id} wire={wire} />
         ))}
 
-        {/* 描画中のワイヤープレビュー */}
-        {isDrawingWire && wireStart && (
+        {/* 描画中のワイヤープレビュー（プレビューモードでは非表示） */}
+        {!displayData.isReadOnly && isDrawingWire && wireStart && (
           <line
             x1={wireStart.position.x}
             y1={wireStart.position.y}
@@ -624,7 +695,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         )}
 
         {/* ゲート */}
-        {gates.map(gate => (
+        {displayData.displayGates.map(gate => (
           <GateComponent
             key={gate.id}
             gate={gate}
