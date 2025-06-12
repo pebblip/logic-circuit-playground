@@ -19,10 +19,6 @@ export const createToolPaletteSlice: StateCreator<
   selectedToolCustomGateId: null,
 
   selectToolGate: (type, customGateId) => {
-    console.log('[toolPaletteSlice] selectToolGate called:', {
-      type,
-      customGateId,
-    });
     _set({
       selectedToolGateType: type,
       selectedToolCustomGateId: customGateId || null,

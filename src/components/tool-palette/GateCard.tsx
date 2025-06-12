@@ -57,15 +57,7 @@ export const GateCard: React.FC<GateCardProps> = ({
       onDragEnd={onDragEnd}
       onContextMenu={onContextMenu}
       onDoubleClick={onDoubleClick}
-      onClick={(e) => {
-        console.log('[GateCard] onClick event:', {
-          type,
-          label,
-          hasOnClick: !!onClick,
-          customDefId: customDefinition?.id,
-        });
-        onClick?.(e);
-      }}
+      onClick={onClick}
       style={{ cursor: isDisabled ? 'not-allowed' : 'pointer' }}
     >
       <GateThumbnail type={type} customDefinition={customDefinition} />

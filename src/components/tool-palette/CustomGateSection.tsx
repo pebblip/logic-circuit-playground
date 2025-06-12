@@ -38,11 +38,6 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
   };
 
   const handleCardClick = (customGate: CustomGateDefinition) => {
-    console.log('[CustomGateSection] Card clicked:', {
-      customGateId: customGate.id,
-      customGateName: customGate.displayName,
-      hasOnGateClick: !!onGateClick,
-    });
     if (onGateClick) {
       onGateClick(customGate.id);
     }
@@ -68,11 +63,7 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
             }
             onDragStart={(_, customDef) => onDragStart('CUSTOM', customDef)}
             onDragEnd={onDragEnd}
-            onClick={(e) => {
-              console.log('[CustomGateSection] GateCard onClick triggered for:', definition.displayName);
-              e.stopPropagation();
-              handleCardClick(definition);
-            }}
+            onClick={() => handleCardClick(definition)}
             onDoubleClick={() => handleCardDoubleClick(definition)}
             testId={`gate-card-${definition.id}`}
           />
@@ -95,11 +86,7 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
               e.preventDefault();
               onContextMenu(definition);
             }}
-            onClick={(e) => {
-              console.log('[CustomGateSection] GateCard onClick triggered for:', definition.displayName);
-              e.stopPropagation();
-              handleCardClick(definition);
-            }}
+            onClick={() => handleCardClick(definition)}
             onDoubleClick={() => handleCardDoubleClick(definition)}
             testId={`gate-card-${definition.id}`}
           />
