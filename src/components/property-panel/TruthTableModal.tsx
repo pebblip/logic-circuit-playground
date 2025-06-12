@@ -93,6 +93,12 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
 
     // カスタムゲートの場合
     if (gateType === 'CUSTOM' && customGateId) {
+      console.log('[TruthTableModal] Looking for custom gate:', {
+        customGateId,
+        demoGatesIds: DEMO_CUSTOM_GATES.map(g => g.id),
+        userGatesIds: customGates.map(g => g.id),
+      });
+      
       // デモカスタムゲートから検索
       let customGate = DEMO_CUSTOM_GATES.find(g => g.id === customGateId);
       
@@ -100,6 +106,12 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
       if (!customGate) {
         customGate = customGates.find(g => g.id === customGateId);
       }
+      
+      console.log('[TruthTableModal] Found custom gate:', {
+        found: !!customGate,
+        customGate,
+        hasTruthTable: customGate?.truthTable,
+      });
 
       if (customGate && customGate.truthTable) {
         const inputNames = customGate.inputs.map(

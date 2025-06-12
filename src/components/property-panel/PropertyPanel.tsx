@@ -86,6 +86,19 @@ export const PropertyPanel: React.FC = () => {
       customGatesCount: customGates.length,
       demoCustomGatesCount: DEMO_CUSTOM_GATES.length,
     });
+    
+    // カスタムゲートの定義を取得するデバッグ
+    if (selectedToolGateType === 'CUSTOM' && selectedToolCustomGateId) {
+      const foundInDemo = DEMO_CUSTOM_GATES.find(g => g.id === selectedToolCustomGateId);
+      const foundInUser = customGates.find(g => g.id === selectedToolCustomGateId);
+      console.log('[PropertyPanel] Custom gate lookup:', {
+        selectedToolCustomGateId,
+        foundInDemo: !!foundInDemo,
+        foundInUser: !!foundInUser,
+        demoGate: foundInDemo,
+        userGate: foundInUser,
+      });
+    }
     const hasDescription =
       selectedToolGateType &&
       (selectedToolGateType === 'CUSTOM' ||

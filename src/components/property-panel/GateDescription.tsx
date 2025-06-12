@@ -11,6 +11,12 @@ export const GateDescription: React.FC<GateDescriptionProps> = ({
   gateType,
   customGateDefinition,
 }) => {
+  console.log('[GateDescription] Props:', {
+    gateType,
+    customGateDefinition,
+    hasCustomDef: !!customGateDefinition,
+  });
+  
   // カスタムゲートの場合は専用の表示
   if (gateType === 'CUSTOM' && customGateDefinition) {
     return (
