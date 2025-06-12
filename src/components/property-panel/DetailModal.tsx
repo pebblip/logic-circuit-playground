@@ -27,6 +27,13 @@ export const DetailModal: React.FC<DetailModalProps> = ({
     (selectedGate && isCustomGate(selectedGate)
       ? selectedGate.customGateDefinition
       : undefined);
+  
+  console.log('[DetailModal] Props:', {
+    gateType,
+    customGateDefinition,
+    customDef,
+    displayGateType,
+  });
   const displayName = customDef
     ? customDef.displayName
     : `${displayGateType}${displayGateType?.match(/^(INPUT|OUTPUT|CLOCK)$/) ? '' : 'ゲート'}`;

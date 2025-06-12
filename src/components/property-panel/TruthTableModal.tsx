@@ -2,6 +2,7 @@ import React from 'react';
 import { TruthTableDisplay } from '@/components/TruthTableDisplay';
 import { useCircuitStore } from '@/stores/circuitStore';
 import type { Gate } from '@/types/circuit';
+import { DEMO_CUSTOM_GATES } from '@/components/tool-palette/gateDefinitions';
 
 export interface TruthTableResult {
   table: Array<{
@@ -44,6 +45,13 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
 
   if (!showTruthTableModal) return null;
 
+  console.log('[TruthTableModal] Props:', {
+    gateType,
+    customGateId,
+    selectedGate,
+    truthTableData,
+  });
+
   // ツールパレットから選択された場合の処理
   if (gateType && !selectedGate) {
     // 基本ゲートの真理値表
@@ -85,7 +93,14 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
 
     // カスタムゲートの場合
     if (gateType === 'CUSTOM' && customGateId) {
-      const customGate = customGates.find(g => g.id === customGateId);
+      // デモカスタムゲートから検索
+      let customGate = DEMO_CUSTOM_GATES.find(g => g.id === customGateId);
+      
+      // ユーザー作成のカスタムゲートからも検索
+      if (!customGate) {
+        customGate = customGates.find(g => g.id === customGateId);
+      }
+
       if (customGate && customGate.truthTable) {
         const inputNames = customGate.inputs.map(
           pin => pin.name || `入力${pin.index + 1}`

@@ -24,6 +24,9 @@ export const createSelectionSlice: StateCreator<
     set({
       selectedGateId: gateId,
       selectedGateIds: gateId ? [gateId] : [],
+      // 配置済みゲートを選択した場合、ツールパレットの選択をクリア
+      selectedToolGateType: null,
+      selectedToolCustomGateId: null,
     });
   },
 

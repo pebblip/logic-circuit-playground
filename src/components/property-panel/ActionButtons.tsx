@@ -48,6 +48,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
             selectedGate.customGateDefinition?.truthTable)) && (
           <button
             onClick={onShowTruthTable}
+            title="入力と出力の関係を表で確認できます"
             style={{
               padding: '12px 16px',
               backgroundColor: 'rgba(255, 102, 153, 0.1)',
@@ -64,6 +65,9 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
             }}
           >
             📊 真理値表を表示
+            <span style={{ fontSize: '12px', opacity: 0.7 }}>
+              （入出力の関係表）
+            </span>
           </button>
         )}
       </div>

@@ -22,6 +22,9 @@ export const createToolPaletteSlice: StateCreator<
     _set({
       selectedToolGateType: type,
       selectedToolCustomGateId: customGateId || null,
+      // ツールパレットでゲートを選択した場合、配置済みゲートの選択をクリア
+      selectedGateId: null,
+      selectedGateIds: [],
     });
   },
 

@@ -7,6 +7,7 @@ import { DetailModal } from './DetailModal';
 import { TruthTableModal } from './TruthTableModal';
 import { isCustomGate } from '@/types/gates';
 import { gateDescriptions } from '@/data/gateDescriptions';
+import { DEMO_CUSTOM_GATES } from '@/components/tool-palette/gateDefinitions';
 
 export const PropertyPanel: React.FC = () => {
   const {
@@ -30,9 +31,16 @@ export const PropertyPanel: React.FC = () => {
   const getTitle = () => {
     if (isToolPaletteSelection) {
       if (selectedToolGateType === 'CUSTOM' && selectedToolCustomGateId) {
-        const customGate = customGates.find(
+        // デモカスタムゲートから検索
+        let customGate = DEMO_CUSTOM_GATES.find(
           g => g.id === selectedToolCustomGateId
         );
+        // ユーザー作成のカスタムゲートからも検索
+        if (!customGate) {
+          customGate = customGates.find(
+            g => g.id === selectedToolCustomGateId
+          );
+        }
         return customGate?.displayName || 'カスタムゲート';
       }
       return `${selectedToolGateType}${selectedToolGateType.match(/^(INPUT|OUTPUT|CLOCK)$/) ? '' : 'ゲート'}`;
@@ -72,6 +80,12 @@ export const PropertyPanel: React.FC = () => {
 
   // ツールパレットのゲートが選択されている場合
   if (isToolPaletteSelection) {
+    console.log('[PropertyPanel] Tool palette selection:', {
+      selectedToolGateType,
+      selectedToolCustomGateId,
+      customGatesCount: customGates.length,
+      demoCustomGatesCount: DEMO_CUSTOM_GATES.length,
+    });
     const hasDescription =
       selectedToolGateType &&
       (selectedToolGateType === 'CUSTOM' ||
@@ -123,6 +137,7 @@ export const PropertyPanel: React.FC = () => {
               {hasTruthTable && (
                 <button
                   onClick={() => setShowTruthTableModal(true)}
+                  title="入力と出力の関係を表で確認できます"
                   style={{
                     padding: '12px 16px',
                     backgroundColor: 'rgba(255, 102, 153, 0.1)',
@@ -139,6 +154,9 @@ export const PropertyPanel: React.FC = () => {
                   }}
                 >
                   📊 真理値表を表示
+                  <span style={{ fontSize: '12px', opacity: 0.7 }}>
+                    （入出力の関係表）
+                  </span>
                 </button>
               )}
             </div>
@@ -151,7 +169,15 @@ export const PropertyPanel: React.FC = () => {
             gateType={selectedToolGateType}
             customGateDefinition={
               selectedToolGateType === 'CUSTOM' && selectedToolCustomGateId
-                ? customGates.find(g => g.id === selectedToolCustomGateId)
+                ? (() => {
+                    // デモカスタムゲートから検索
+                    let customGate = DEMO_CUSTOM_GATES.find(g => g.id === selectedToolCustomGateId);
+                    // ユーザー作成のカスタムゲートからも検索
+                    if (!customGate) {
+                      customGate = customGates.find(g => g.id === selectedToolCustomGateId);
+                    }
+                    return customGate;
+                  })()
                 : undefined
             }
             showDetailModal={showDetailModal}
@@ -181,28 +207,7 @@ export const PropertyPanel: React.FC = () => {
           selectedGate={selectedGate}
           updateClockFrequency={updateClockFrequency}
         />
-        <ActionButtons
-          selectedGate={selectedGate}
-          onShowDetail={() => setShowDetailModal(true)}
-          onShowTruthTable={() => setShowTruthTableModal(true)}
-        />
-
-        {/* 配置済みゲート選択時のモーダル */}
-        <DetailModal
-          selectedGate={selectedGate}
-          customGateDefinition={
-            isCustomGate(selectedGate)
-              ? selectedGate.customGateDefinition
-              : undefined
-          }
-          showDetailModal={showDetailModal}
-          onClose={() => setShowDetailModal(false)}
-        />
-        <TruthTableModal
-          selectedGate={selectedGate}
-          showTruthTableModal={showTruthTableModal}
-          onClose={() => setShowTruthTableModal(false)}
-        />
+        {/* 配置済みゲートには学習リソースボタンを表示しない */}
       </aside>
     );
   }

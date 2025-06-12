@@ -55,6 +55,34 @@ const DEMO_CUSTOM_GATES: CustomGateDefinition[] = [
       '10': '10', // 1+0 = 1 (carry=0)
       '11': '01', // 1+1 = 0 (carry=1)
     },
+    // 内部回路：XORゲートとANDゲート
+    internalCircuit: {
+      gates: [
+        {
+          id: 'xor1',
+          type: 'XOR',
+          position: { x: 200, y: 150 },
+          inputs: ['input0', 'input1'],
+          output: false,
+        },
+        {
+          id: 'and1',
+          type: 'AND',
+          position: { x: 200, y: 250 },
+          inputs: ['input0', 'input1'],
+          output: false,
+        },
+      ],
+      wires: [],
+      inputMappings: {
+        0: { gateId: 'input0', pinIndex: 0 },
+        1: { gateId: 'input1', pinIndex: 0 },
+      },
+      outputMappings: {
+        0: { gateId: 'xor1', pinIndex: 0 },
+        1: { gateId: 'and1', pinIndex: 0 },
+      },
+    },
     icon: '➕',
     category: 'arithmetic',
     width: 100,
@@ -251,7 +279,8 @@ export const ToolPalette: React.FC = () => {
   };
 
   const handleContextMenu = (definition: CustomGateDefinition) => {
-    if (definition.internalCircuit && definition.truthTable) {
+    // internalCircuitがないデモカスタムゲートも真理値表を表示できるように修正
+    if (definition.truthTable) {
       const inputNames = definition.inputs.map(
         (input, index) => input.name || `IN${index + 1}`
       );

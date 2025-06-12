@@ -44,7 +44,7 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
   };
 
   return (
-    <>
+    <div data-testid="custom-gate-section">
       <div className="section-title">
         <span>🔧</span>
         <span>カスタムゲート</span>
@@ -65,6 +65,7 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
             onDragEnd={onDragEnd}
             onClick={() => handleCardClick(definition)}
             onDoubleClick={() => handleCardDoubleClick(definition)}
+            testId={`gate-card-${definition.id}`}
           />
         ))}
 
@@ -87,9 +88,10 @@ export const CustomGateSection: React.FC<CustomGateSectionProps> = ({
             }}
             onClick={() => handleCardClick(definition)}
             onDoubleClick={() => handleCardDoubleClick(definition)}
+            testId={`gate-card-${definition.id}`}
           />
         ))}
       </div>
-    </>
+    </div>
   );
 };
