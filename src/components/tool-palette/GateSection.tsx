@@ -42,7 +42,15 @@ export const GateSection: React.FC<GateSectionProps> = ({
               isSelected={selectedGateType === type}
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
-              onClick={() => !isDisabled && onGateClick(type)}
+              onClick={() => {
+                console.log('[GateSection] Gate clicked:', {
+                  type,
+                  label,
+                  isDisabled,
+                  hasOnGateClick: !!onGateClick,
+                });
+                !isDisabled && onGateClick(type);
+              }}
             />
           );
         })}
