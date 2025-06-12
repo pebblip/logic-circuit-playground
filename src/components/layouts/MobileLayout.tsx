@@ -4,6 +4,7 @@ import { MobileToolbar } from './MobileToolbar';
 import { MobileHeader } from './MobileHeader';
 import { FloatingActionButtons } from './FloatingActionButtons';
 import { FloatingLearningPanel } from '../../features/learning-mode/ui/FloatingLearningPanel';
+import { MobileWarningBanner } from '../MobileWarningBanner';
 import { useCircuitStore } from '../../stores/circuitStore';
 import '../../styles/mobile-layout.css';
 
@@ -21,7 +22,16 @@ export const MobileLayout: React.FC<MobileLayoutProps> = () => {
 
   return (
     <div className="mobile-layout">
-      <MobileHeader />
+      <MobileWarningBanner />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          paddingTop: '60px', // 警告バナーの高さを考慮
+        }}
+      >
+        <MobileHeader />
 
       {/* モード選択（オプション） */}
       <div className="mobile-mode-selector">
@@ -67,11 +77,12 @@ export const MobileLayout: React.FC<MobileLayoutProps> = () => {
         onCategoryChange={setSelectedCategory}
       />
 
-      {/* Picture-in-Picture学習パネル（モバイル対応） */}
-      <FloatingLearningPanel
-        isOpen={isPipLearningOpen}
-        onClose={() => setIsPipLearningOpen(false)}
-      />
+        {/* Picture-in-Picture学習パネル（モバイル対応） */}
+        <FloatingLearningPanel
+          isOpen={isPipLearningOpen}
+          onClose={() => setIsPipLearningOpen(false)}
+        />
+      </div>
     </div>
   );
 };
