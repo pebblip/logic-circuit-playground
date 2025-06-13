@@ -1,344 +1,332 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
+import { TERMS } from '../terms';
 
 export const encoderStructuredLesson: StructuredLesson = {
   id: 'encoder',
-  title: 'エンコーダ - 信号の暗号化装置',
-  description: '複数の入力から対応するコードを生成する回路を作ります',
+  title: 'エンコーダ - 入力を数値に変換',
+  description: '複数の入力から対応するバイナリコードを生成する回路を作ります',
+  objective: 'ボタン入力をバイナリコードに変換する原理を理解し、デジタル入力システムの基礎を習得する',
+  category: '基本回路',
+  lessonType: 'build',
   difficulty: 'intermediate',
   prerequisites: ['comparator'],
-  estimatedMinutes: 20,
+  estimatedMinutes: 15,
   availableGates: ['INPUT', 'OUTPUT', 'OR'],
   steps: [
     {
       id: 'intro',
-      instruction: '情報を効率的にコード化しよう！',
+      instruction: 'たくさんのボタンを効率的に処理する方法',
       content: [
         {
+          type: 'heading',
+          text: '身近な例で考える',
+        },
+        {
           type: 'text',
-          text: '10個のボタンがあるキーボードから、4ビットのコードを生成するには？',
+          text: 'エレベーターのボタンパネルを思い出してください。10個以上のボタンがありますが、内部では各ボタンを数字として処理しています。10本の配線ではなく、4本で済むのはなぜでしょう？',
         },
         {
           type: 'heading',
-          text: '🤔 エンコーダとは？',
+          text: 'エンコーダとは',
         },
         {
           type: 'text',
-          text: '「どのボタンが押されたか」を「バイナリコード」に変換する装置です。',
+          text: '「どのボタンが押されたか」を「バイナリコード（2進数）」に変換する装置です。10個のボタンなら4ビット（16通り）で表現でき、配線を大幅に削減できます。',
         },
         {
           type: 'note',
-          text: '例：0〜9の数字キー → 4ビット（0000〜1001）に変換',
+          text: 'キーボード、電話、ATMなど、ボタン入力がある機器すべてで使われています',
         },
       ],
     },
     {
-      id: 'concept',
-      instruction: 'エンコーダの基本原理',
+      id: 'principle',
+      instruction: 'エンコーダの電気的仕組み',
       content: [
         {
           type: 'heading',
-          text: '🎯 4-to-2エンコーダ',
+          text: '4-to-2エンコーダの構造',
         },
         {
           type: 'text',
-          text: '4つの入力（I0〜I3）から2ビットのコード（Y1,Y0）を生成',
+          text: '4つの入力（I0〜I3）から2ビットのコード（Y1,Y0）を生成します。各入力は「ボタン0」〜「ボタン3」に対応し、一度に1つだけがONになることを前提とします。',
+        },
+        {
+          type: 'heading',
+          text: '変換の規則',
         },
         {
           type: 'table',
-          headers: ['入力', 'I3', 'I2', 'I1', 'I0', '出力Y1', '出力Y0'],
+          headers: ['押されたボタン', '入力状態', '出力Y1Y0', '10進数'],
           rows: [
-            ['ボタン0', '0', '0', '0', '1', '0', '0'],
-            ['ボタン1', '0', '0', '1', '0', '0', '1'],
-            ['ボタン2', '0', '1', '0', '0', '1', '0'],
-            ['ボタン3', '1', '0', '0', '0', '1', '1'],
+            ['ボタン0', 'I0=1, 他は0', '00', '0'],
+            ['ボタン1', 'I1=1, 他は0', '01', '1'],
+            ['ボタン2', 'I2=1, 他は0', '10', '2'],
+            ['ボタン3', 'I3=1, 他は0', '11', '3'],
+          ],
+        },
+        {
+          type: 'heading',
+          text: '論理式の導出',
+        },
+        {
+          type: 'text',
+          text: 'Y0は「ボタン1またはボタン3」で1になるため、Y0 = I1 OR I3。Y1は「ボタン2またはボタン3」で1になるため、Y1 = I2 OR I3。ORゲートだけで実現できます。',
+        },
+        {
+          type: 'note',
+          text: '各出力ビットは、特定の入力の組み合わせで1になるパターンを持ちます',
+        },
+      ],
+    },
+    {
+      id: 'circuit-build',
+      instruction: '4-to-2エンコーダ回路を作ってみよう',
+      content: [
+        {
+          type: 'heading',
+          text: '手順１：入力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'で',
+            { text: `${TERMS.INPUT}ゲート`, emphasis: true },
+            'を4つ配置します。',
+            '上からI0（ボタン0）、I1（ボタン1）、I2（ボタン2）、I3（ボタン3）です。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順２：対象ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.OR}ゲート`, emphasis: true },
+            'を2つ配置します。',
+            '上のORゲートがY1（上位ビット）用、',
+            '下のORゲートがY0（下位ビット）用です。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順３：出力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.OUTPUT}ゲート`, emphasis: true },
+            'を2つ配置します。',
+            '上がY1（2の位）、下がY0（1の位）の出力です。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順４：配線でつなげる',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'Y0の配線：I1とI3を下のORゲートに接続、その出力をY0へ。',
+            'Y1の配線：I2とI3を上のORゲートに接続、その出力をY1へ。',
+            '注意：I0はどこにも接続しません（00の出力のため）。',
+            'I3は両方のORゲートに接続（11の出力のため）。',
           ],
         },
         {
           type: 'note',
-          text: '一度に1つの入力だけがアクティブ（ワンホット）',
+          text: '配線のコツ：各ボタンの2進数表現を考えると配線パターンが見えてきます',
         },
       ],
     },
     {
-      id: 'logic-design',
-      instruction: '論理設計を理解しよう',
+      id: 'experiment',
+      instruction: '予測して実験しよう',
       content: [
         {
           type: 'heading',
-          text: '🔧 出力の論理式',
+          text: 'まず予測してみよう',
         },
         {
-          type: 'list',
-          ordered: false,
-          items: ['Y0 = I1 OR I3（奇数番号で1）', 'Y1 = I2 OR I3（2以上で1）'],
+          type: 'text',
+          text: '各ボタンを押したとき、2ビットの出力がどうなるか予測してください。ボタン0→00、ボタン1→01、ボタン2→10、ボタン3→11になるはずです。',
         },
         {
           type: 'heading',
-          text: '💡 パターンの発見',
+          text: '実験で確かめよう',
         },
         {
-          type: 'text',
-          text: '各出力ビットは、特定の入力の組み合わせでオンになります。',
-        },
-      ],
-    },
-    {
-      id: 'place-inputs',
-      instruction: '4つの入力スイッチを配置',
-      hint: 'I0, I1, I2, I3 の4つのINPUTを縦に配置',
-      content: [
-        {
-          type: 'text',
-          text: '各入力は「ボタン0」「ボタン1」「ボタン2」「ボタン3」を表します。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'INPUT' },
-    },
-    {
-      id: 'place-or-gates',
-      instruction: 'ORゲートを2つ配置',
-      hint: 'Y0とY1の生成用に2つのORゲート',
-      content: [
-        {
-          type: 'text',
-          text: '複数の入力をまとめるORゲートが必要です。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'OR' },
-    },
-    {
-      id: 'place-outputs',
-      instruction: '2ビット出力を配置',
-      hint: 'Y1（上位ビット）とY0（下位ビット）の2つのOUTPUT',
-      content: [
-        {
-          type: 'text',
-          text: '2ビットで00〜11（0〜3）を表現します。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'OUTPUT' },
-    },
-    {
-      id: 'connect-y0',
-      instruction: '配線：Y0（下位ビット）',
-      hint: 'I1とI3を下のORゲートに接続し、OUTPUT Y0へ',
-      content: [
-        {
-          type: 'text',
-          text: 'ボタン1またはボタン3が押されたときY0=1',
-        },
-      ],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-y1',
-      instruction: '配線：Y1（上位ビット）',
-      hint: 'I2とI3を上のORゲートに接続し、OUTPUT Y1へ',
-      content: [
-        {
-          type: 'text',
-          text: 'ボタン2またはボタン3が押されたときY1=1',
-        },
-      ],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'test-button0',
-      instruction: 'テスト1：ボタン0（I0=1）',
-      content: [
-        {
-          type: 'text',
-          text: 'I0だけをONにして、出力が00になることを確認',
-        },
-        {
-          type: 'binary-expression',
-          expressions: [
-            {
-              left: 'I0=1',
-              operator: '→',
-              right: '',
-              result: '00',
-            },
+          type: 'rich-text',
+          elements: [
+            '1. すべての入力を0にして初期状態を確認（出力：00）。',
+            '2. I0だけを',
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'してON→出力は00のまま。',
+            '3. I0を戻し、I1をON→出力が01に変化。',
+            '4. I1を戻し、I2をON→出力が10に変化。',
+            '5. I2を戻し、I3をON→出力が11に変化。',
           ],
         },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-button1',
-      instruction: 'テスト2：ボタン1（I1=1）',
-      content: [
-        {
-          type: 'text',
-          text: 'I1だけをONにして、出力が01になることを確認',
-        },
-        {
-          type: 'binary-expression',
-          expressions: [
-            {
-              left: 'I1=1',
-              operator: '→',
-              right: '',
-              result: '01',
-            },
-          ],
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-button2',
-      instruction: 'テスト3：ボタン2（I2=1）',
-      content: [
-        {
-          type: 'text',
-          text: 'I2だけをONにして、出力が10になることを確認',
-        },
-        {
-          type: 'binary-expression',
-          expressions: [
-            {
-              left: 'I2=1',
-              operator: '→',
-              right: '',
-              result: '10',
-            },
-          ],
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-button3',
-      instruction: 'テスト4：ボタン3（I3=1）',
-      content: [
-        {
-          type: 'text',
-          text: 'I3だけをONにして、出力が11になることを確認',
-        },
-        {
-          type: 'binary-expression',
-          expressions: [
-            {
-              left: 'I3=1',
-              operator: '→',
-              right: '',
-              result: '11',
-            },
-          ],
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'priority-encoder',
-      instruction: '【発展】優先エンコーダ',
-      content: [
         {
           type: 'heading',
-          text: '🎯 複数入力への対応',
+          text: '実験結果の確認',
         },
         {
-          type: 'text',
-          text: '複数のボタンが同時に押された場合は？',
+          type: 'table',
+          headers: ['ボタン', 'I3I2I1I0', 'Y1Y0', '正しい？'],
+          rows: [
+            ['ボタン0', '0001', '00', '✓'],
+            ['ボタン1', '0010', '01', '✓'],
+            ['ボタン2', '0100', '10', '✓'],
+            ['ボタン3', '1000', '11', '✓'],
+          ],
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            '優先順位を決める（例：大きい番号優先）',
-            '最高優先度の入力だけをエンコード',
-            'エラー信号を追加で出力',
+          type: 'rich-text',
+          elements: [
+            { text: '発見：', bold: true },
+            '4つの入力状態が正確に2ビットのコードに',
+            { text: '圧縮', emphasis: true },
+            'されています。',
           ],
         },
         {
           type: 'note',
-          text: '実用的なエンコーダは優先順位付きが一般的',
+          text: '複数のボタンを同時に押すと予期しない出力になります（次の分析で詳しく）',
+        },
+      ],
+    },
+    {
+      id: 'analysis',
+      instruction: 'エンコーダの特徴を分析しよう',
+      content: [
+        {
+          type: 'heading',
+          text: '同時押しの問題',
+        },
+        {
+          type: 'text',
+          text: 'I1とI2を同時にONにすると、Y0=1（I1の影響）、Y1=1（I2の影響）となり、出力は11（ボタン3と同じ）になります。これは設計上の制限です。',
+        },
+        {
+          type: 'heading',
+          text: '優先エンコーダという解決策',
+        },
+        {
+          type: 'table',
+          headers: ['種類', '複数入力時', '回路規模', '用途'],
+          rows: [
+            ['通常エンコーダ', '誤動作', 'シンプル', '排他的入力が保証される場合'],
+            ['優先エンコーダ', '最高優先度を出力', '複雑', 'キーボード、割り込み処理'],
+          ],
+        },
+        {
+          type: 'heading',
+          text: '拡張性の考察',
+        },
+        {
+          type: 'table',
+          headers: ['入力数', '必要ビット数', 'ゲート数', '配線削減率'],
+          rows: [
+            ['4個', '2ビット', 'OR×2', '50%（4→2本）'],
+            ['8個', '3ビット', 'OR×3', '62.5%（8→3本）'],
+            ['16個', '4ビット', 'OR×4', '75%（16→4本）'],
+            ['64個', '6ビット', 'OR×6', '90.6%（64→6本）'],
+          ],
+        },
+        {
+          type: 'heading',
+          text: '確率的な視点',
+        },
+        {
+          type: 'text',
+          text: '各ボタンが等確率で押される場合、出力の各ビットが1になる確率は50%です（Y0はI1,I3で、Y1はI2,I3で1になるため）。',
+        },
+        {
+          type: 'note',
+          text: '入力数が増えるほど配線削減効果が大きくなり、実用的価値が高まります',
         },
       ],
     },
     {
       id: 'applications',
-      instruction: '【応用】エンコーダの活用例',
+      instruction: 'エンコーダの実用例',
       content: [
         {
           type: 'heading',
-          text: '💻 実世界での使用例',
+          text: '実世界での活用',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '⌨️ キーボード：キー入力をスキャンコードに変換',
-            '🎮 ゲームコントローラ：ボタン入力をデジタル信号に',
-            '🏧 ATM：テンキー入力を数値コードに',
-            '🚪 セキュリティ：ドアセンサーの状態をコード化',
-            '🏭 工場：センサー群の状態を効率的に伝送',
+            'キーボード：104個のキーを7ビットコードに変換（スキャンコード）',
+            'テンキー：0〜9の10個を4ビットBCDコードに変換',
+            'エレベーター：階数ボタンをバイナリコードに変換して制御',
+            '割り込みコントローラ：複数の割り込み要求を優先順位付きでコード化',
+            'ADコンバータ：アナログ値をデジタルコードに変換',
           ],
         },
-      ],
-    },
-    {
-      id: 'decimal-encoder',
-      instruction: '10進エンコーダの仕組み',
-      content: [
         {
           type: 'heading',
-          text: '🔢 10-to-4エンコーダ',
+          text: '身近な製品での使用例',
         },
         {
           type: 'text',
-          text: '0〜9の10個の入力を4ビット（BCD）に変換',
-        },
-        {
-          type: 'table',
-          headers: ['数字', 'D3', 'D2', 'D1', 'D0'],
-          rows: [
-            ['0', '0', '0', '0', '0'],
-            ['1', '0', '0', '0', '1'],
-            ['5', '0', '1', '0', '1'],
-            ['9', '1', '0', '0', '1'],
-          ],
+          text: 'ATMのテンキー、電話機、リモコン、ゲームコントローラーなど、ボタン入力がある機器のほぼすべてでエンコーダが使われています。USBキーボードでは、エンコーダが生成したコードをPCに送信しています。',
         },
         {
           type: 'note',
-          text: '電卓やデジタル時計で広く使用されています',
+          text: 'エンコーダなしでは、キーボードとPCを104本の線でつなぐ必要があります',
         },
       ],
     },
     {
-      id: 'achievement',
-      instruction: '🎉 エンコーダマスター！',
+      id: 'summary',
+      instruction: 'エンコーダをマスター',
       content: [
         {
           type: 'heading',
-          text: '🏆 習得したスキル',
+          text: 'エンコーダの要点',
         },
         {
           type: 'list',
-          ordered: false,
+          ordered: true,
           items: [
-            '✅ スイッチ入力のバイナリ変換',
-            '✅ 効率的な情報圧縮',
-            '✅ ORゲートの活用法',
-            '✅ デジタル入力システムの基礎',
+            '複数の入力を少ないビット数のコードに変換',
+            'ORゲートの組み合わせで実現可能',
+            '配線数を大幅に削減（例：10本→4本）',
+            '一度に1つの入力のみONが前提（通常版）',
+          ],
+        },
+        {
+          type: 'quiz',
+          question: '8個の入力を扱うエンコーダの出力ビット数は？',
+          options: [
+            '2ビット',
+            '3ビット',
+            '4ビット',
+            '8ビット',
+          ],
+          correctIndex: 1,
+        },
+        {
+          type: 'heading',
+          text: '次回予告',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'デコーダ', bold: true },
+            'で、エンコーダの逆変換を学びます。',
+            'バイナリコードから個別の出力を生成する重要な回路です。',
           ],
         },
         {
           type: 'note',
-          text: '次はこの逆、デコーダを学びましょう！',
-        },
-      ],
-    },
-    {
-      id: 'quiz',
-      instruction: '理解度チェック！',
-      content: [
-        {
-          type: 'quiz',
-          question: '4-to-2エンコーダで、I2=1のとき出力は？',
-          options: ['00', '01', '10', '11'],
-          correctIndex: 2,
+          text: 'エンコーダとデコーダはペアで使われ、デジタルシステムの基盤を形成します',
         },
       ],
     },

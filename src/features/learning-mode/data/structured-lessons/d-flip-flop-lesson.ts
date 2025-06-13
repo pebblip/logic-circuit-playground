@@ -1,388 +1,280 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
+import { TERMS } from '../terms';
 
 export const dFlipFlopStructuredLesson: StructuredLesson = {
   id: 'd-flip-flop',
   title: 'Dフリップフロップ - 1ビットメモリ',
   description: 'データを記憶できる基本的な順序回路を作ります',
+  objective: 'クロック同期でデータを記憶する回路を理解し、順序回路の基本概念を習得する',
+  category: '順序回路',
+  lessonType: 'gate-intro',
   difficulty: 'advanced',
-  prerequisites: ['alu-basics'],
-  estimatedMinutes: 25,
+  prerequisites: ['full-adder'],
+  estimatedMinutes: 15,
   availableGates: ['INPUT', 'OUTPUT', 'CLOCK', 'D-FF'],
   steps: [
     {
       id: 'intro',
-      instruction: 'データを記憶する回路を作ろう！',
+      instruction: 'データを記憶する必要性',
       content: [
         {
+          type: 'heading',
+          text: '身近な例で考える',
+        },
+        {
           type: 'text',
-          text: 'これまでの回路は入力が変わると出力もすぐ変わりました。でも...',
+          text: 'これまでの回路は入力が変わると出力もすぐ変わりました。しかし、電卓の「＝」ボタンを押した後も結果が表示され続けるように、前の状態を覚えておく必要があります。',
         },
         {
           type: 'heading',
-          text: '🤔 データを保持するには？',
+          text: '順序回路への第一歩',
         },
         {
           type: 'text',
-          text: '「前の状態を覚えておく」回路が必要です！',
+          text: '組み合わせ回路は現在の入力だけで出力が決まりますが、順序回路は過去の状態も考慮します。Dフリップフロップは最も基本的な記憶素子です。',
         },
         {
           type: 'note',
-          text: 'これが順序回路の始まり - メモリの最小単位です',
+          text: 'コンピュータのメモリやレジスタの最小単位がこのDフリップフロップです',
         },
       ],
     },
     {
-      id: 'concept',
-      instruction: 'Dフリップフロップとは',
+      id: 'principle',
+      instruction: 'Dフリップフロップの電気的仕組み',
       content: [
         {
           type: 'heading',
-          text: '📦 1ビットの記憶装置',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            'D（Data）：記憶したいデータ',
-            'CLK（Clock）：データを取り込むタイミング',
-            'Q：記憶されているデータ（出力）',
-            "Q'：Qの反転（補助出力）",
-          ],
-        },
-        {
-          type: 'heading',
-          text: '⏰ クロックの役割',
+          text: '1ビットの記憶装置',
         },
         {
           type: 'text',
-          text: 'CLKが0→1に変わる瞬間（立ち上がりエッジ）でDの値を記憶',
+          text: 'Dフリップフロップは、D（Data）入力のデータをCLK（Clock）信号の立ち上がりエッジ（0→1の瞬間）で記憶します。記憶した値はQ出力に保持され、次のクロックまで変化しません。',
         },
-      ],
-    },
-    {
-      id: 'timing-diagram',
-      instruction: 'タイミングチャートで理解',
-      content: [
         {
           type: 'heading',
-          text: '📊 動作タイミング',
+          text: 'エッジトリガの意味',
+        },
+        {
+          type: 'text',
+          text: 'クロックが1の間ずっと反応するのではなく、0から1に変わる瞬間だけデータを取り込みます。これにより、安定した動作とノイズへの耐性を実現しています。',
+        },
+        {
+          type: 'heading',
+          text: '真理値表',
         },
         {
           type: 'table',
-          headers: ['時刻', 'D', 'CLK', 'Q', '動作'],
+          headers: ['CLK', 'D', 'Q(次の状態)', '動作'],
           rows: [
-            ['t1', '1', '↑', '1', 'D=1を記憶'],
-            ['t2', '0', '0', '1', '変化なし（保持）'],
-            ['t3', '0', '↑', '0', 'D=0を記憶'],
-            ['t4', '1', '0', '0', '変化なし（保持）'],
+            ['↑', '0', '0', 'D=0を記憶'],
+            ['↑', '1', '1', 'D=1を記憶'],
+            ['0', 'X', 'Q(保持)', '変化なし'],
+            ['1', 'X', 'Q(保持)', '変化なし'],
           ],
         },
         {
           type: 'note',
-          text: 'CLKが↑（立ち上がり）の時だけデータを取り込みます',
+          text: 'CLK↑は立ち上がりエッジ、Xは任意の値を表します',
         },
       ],
     },
     {
-      id: 'master-slave',
-      instruction: 'マスタースレーブ構造',
+      id: 'circuit-build',
+      instruction: 'Dフリップフロップ回路を作ってみよう',
       content: [
         {
           type: 'heading',
-          text: '🔗 2段構成の理由',
+          text: '手順１：入力ゲートを配置',
         },
         {
-          type: 'text',
-          text: 'D-FFは内部で2つのラッチを直列に接続しています：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            'マスターラッチ：CLK=1でDを取り込む',
-            'スレーブラッチ：CLK=0で値を出力に伝える',
-            '結果：エッジトリガ動作を実現',
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'で',
+            { text: `${TERMS.INPUT}ゲート`, emphasis: true },
+            'を1つ配置します。',
+            'これがD（記憶したいデータ）入力になります。',
           ],
-        },
-      ],
-    },
-    {
-      id: 'simplified-design',
-      instruction: '今回使う特殊ゲート',
-      content: [
-        {
-          type: 'text',
-          text: 'D-FFは複雑なので、このシミュレータでは専用ゲートを用意しています。',
         },
         {
           type: 'heading',
-          text: '🎯 D-FFゲートの使い方',
+          text: '手順２：対象ゲートを配置',
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            '左側入力：D（データ）とCLK（クロック）',
-            "右側出力：Q（記憶値）とQ'（反転）",
-            'CLOCKゲートと組み合わせて使用',
+          type: 'rich-text',
+          elements: [
+            { text: 'CLOCKゲート', emphasis: true },
+            'を1つ配置します（自動的に0と1を繰り返す特殊ゲート）。',
+            '次に',
+            { text: 'D-FFゲート', emphasis: true },
+            'を1つ配置します（1ビットメモリの本体）。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順３：出力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.OUTPUT}ゲート`, emphasis: true },
+            'を2つ配置します。',
+            'Q（記憶値）とQ\'（反転値）の表示用です。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順４：配線でつなげる',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'INPUT→D-FFのD入力へ接続。',
+            'CLOCK→D-FFのCLK入力へ接続。',
+            'D-FFのQ出力→OUTPUT（上）へ接続。',
+            'D-FFのQ\'出力→OUTPUT（下）へ接続。',
           ],
         },
         {
           type: 'note',
-          text: '実際の回路は約20個のトランジスタで構成されています',
+          text: '配線のコツ：CLOCKの配線は緑色で点滅し、タイミングが分かります',
         },
       ],
     },
     {
-      id: 'place-clock',
-      instruction: 'CLOCKゲートを配置',
-      hint: 'タイミング信号を生成',
-      content: [
-        {
-          type: 'text',
-          text: '自動的に0と1を繰り返す特殊ゲートです。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'CLOCK' },
-    },
-    {
-      id: 'place-data-input',
-      instruction: 'データ入力を配置',
-      hint: 'D（記憶したいデータ）用のINPUT',
-      content: [],
-      action: { type: 'place-gate', gateType: 'INPUT' },
-    },
-    {
-      id: 'place-dff',
-      instruction: 'D-FFゲートを配置',
-      hint: '特殊ゲートからD-FFを選択',
-      content: [
-        {
-          type: 'text',
-          text: '1ビットメモリの本体です。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'D-FF' },
-    },
-    {
-      id: 'place-outputs',
-      instruction: '出力表示を配置',
-      hint: "QとQ'用の2つのOUTPUT",
-      content: [
-        {
-          type: 'text',
-          text: "Qが記憶値、Q'はその反転です。",
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'OUTPUT' },
-    },
-    {
-      id: 'connect-clock',
-      instruction: '配線：クロック信号',
-      hint: 'CLOCKをD-FFのCLK入力に接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-data',
-      instruction: '配線：データ信号',
-      hint: 'INPUTをD-FFのD入力に接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-outputs',
-      instruction: '配線：出力信号',
-      hint: "D-FFのQとQ'をそれぞれOUTPUTに接続",
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'test-store-1',
-      instruction: 'テスト1：1を記憶',
-      content: [
-        {
-          type: 'text',
-          text: 'D=1にして、CLOCKの立ち上がりでQ=1になることを確認',
-        },
-        {
-          type: 'note',
-          text: 'CLOCKが0→1になる瞬間を観察してください',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-hold',
-      instruction: 'テスト2：値の保持',
-      content: [
-        {
-          type: 'text',
-          text: 'D=0に変えても、CLOCKが変化するまでQ=1のまま',
-        },
-        {
-          type: 'note',
-          text: 'これが「記憶」です！',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-store-0',
-      instruction: 'テスト3：0を記憶',
-      content: [
-        {
-          type: 'text',
-          text: '次のCLOCK立ち上がりでQ=0に更新されます',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'register-intro',
-      instruction: '【発展】レジスタへの拡張',
+      id: 'experiment',
+      instruction: '予測して実験しよう',
       content: [
         {
           type: 'heading',
-          text: '🗄️ 複数ビットの記憶',
+          text: 'まず予測してみよう',
         },
         {
           type: 'text',
-          text: 'D-FFを並列に並べると...',
+          text: 'D=1にしたとき、CLOCKが0→1に変わる瞬間にQがどうなるか予測してください。また、その後D=0に変えてもQはどうなるでしょうか？',
         },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '8個 → 8ビットレジスタ（1バイト）',
-            '32個 → 32ビットレジスタ（CPU内部）',
-            '共通CLKで同時に値を更新',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'memory-hierarchy',
-      instruction: 'メモリ階層での位置',
-      content: [
         {
           type: 'heading',
-          text: '📊 記憶装置の階層',
+          text: '実験で確かめよう',
         },
         {
-          type: 'list',
-          ordered: true,
-          items: [
-            'レジスタ（D-FF）：最速・最小',
-            'キャッシュ：高速・小容量',
-            'メインメモリ：中速・中容量',
-            'ストレージ：低速・大容量',
+          type: 'rich-text',
+          elements: [
+            '1. D入力を',
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'して1にする。',
+            '2. CLOCKが0→1になる瞬間を観察（Q=1になる）。',
+            '3. D入力を0に変更。',
+            '4. Qが1のまま保持されることを確認。',
+            '5. 次のCLOCK立ち上がりでQ=0に更新される。',
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '発見：', bold: true },
+            'CLOCKの立ち上がりエッジでのみデータが更新され、',
+            'それ以外の時間は前の値を',
+            { text: '記憶', emphasis: true },
+            'し続けます。',
           ],
         },
         {
           type: 'note',
-          text: 'D-FFは最も基本的で高速な記憶素子です',
+          text: 'これが「メモリ」の基本動作です。電源がある限り値を保持します',
+        },
+      ],
+    },
+    {
+      id: 'analysis',
+      instruction: 'Dフリップフロップの特徴を分析しよう',
+      content: [
+        {
+          type: 'heading',
+          text: 'ラッチとの比較',
+        },
+        {
+          type: 'table',
+          headers: ['方式', '動作', '特徴', '用途'],
+          rows: [
+            ['D-FF（エッジトリガ）', 'CLKの0→1の瞬間', '安定・ノイズに強い', 'レジスタ、カウンタ'],
+            ['Dラッチ（レベルトリガ）', 'CLK=1の間', '構造が簡単', '一時的な保持'],
+          ],
+        },
+        {
+          type: 'heading',
+          text: '内部構造の概要',
+        },
+        {
+          type: 'text',
+          text: 'D-FFは内部でマスターラッチとスレーブラッチを直列接続した構造です。これにより、エッジトリガ動作を実現しています。実際の回路では約20個のトランジスタで構成されます。',
+        },
+        {
+          type: 'heading',
+          text: '確率的な視点',
+        },
+        {
+          type: 'text',
+          text: 'ランダムなD入力に対して、Q出力が1になる確率は前のクロックサイクルでD=1だった確率に等しくなります。つまり、過去の入力履歴が現在の出力に影響します。',
+        },
+        {
+          type: 'note',
+          text: '組み合わせ回路と違い、同じ入力でも過去の状態により出力が変わります',
         },
       ],
     },
     {
       id: 'applications',
-      instruction: '【応用】D-FFの活用例',
+      instruction: 'Dフリップフロップの実用例',
       content: [
         {
           type: 'heading',
-          text: '💻 実用例',
+          text: '実世界での活用',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '🖥️ CPUレジスタ：演算データの一時保存',
-            '🎮 ゲーム機：前フレームの状態記憶',
-            '📡 通信：データの同期とバッファリング',
-            '🎵 デジタルオーディオ：サンプリングデータ保持',
-            '🚦 信号機：状態遷移の記憶',
+            'CPUレジスタ：演算データの一時保存（32個や64個を並列使用）',
+            'メモリセル：DRAMやSRAMの基本構成要素',
+            'シフトレジスタ：データの順次転送（通信やディスプレイ）',
+            'カウンタ：クロック数を数える（タイマーや分周器）',
+            'ステートマシン：状態遷移の記憶（制御回路）',
           ],
         },
-      ],
-    },
-    {
-      id: 'edge-vs-level',
-      instruction: 'エッジトリガ vs レベルトリガ',
-      content: [
         {
           type: 'heading',
-          text: '⚡ トリガ方式の違い',
-        },
-        {
-          type: 'table',
-          headers: ['方式', '動作', '特徴'],
-          rows: [
-            [
-              'エッジトリガ（D-FF）',
-              'CLKの変化の瞬間だけ反応',
-              '安定動作・ノイズに強い',
-            ],
-            [
-              'レベルトリガ（ラッチ）',
-              'CLK=1の間ずっと反応',
-              '単純な構造・タイミング注意',
-            ],
-          ],
-        },
-      ],
-    },
-    {
-      id: 'setup-hold-time',
-      instruction: 'セットアップ・ホールド時間',
-      content: [
-        {
-          type: 'heading',
-          text: '⏱️ タイミング制約',
+          text: '身近な製品での使用例',
         },
         {
           type: 'text',
-          text: '実際のD-FFには重要なタイミング制約があります：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            'セットアップ時間：CLK↑前にDを安定させる時間',
-            'ホールド時間：CLK↑後もDを維持する時間',
-            '違反すると誤動作（メタステーブル）',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'achievement',
-      instruction: '🎉 D-FFマスター！',
-      content: [
-        {
-          type: 'heading',
-          text: '🏆 習得したスキル',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '✅ データ記憶の基本原理',
-            '✅ クロック同期の概念',
-            '✅ 順序回路の第一歩',
-            '✅ デジタルメモリの基礎',
-          ],
+          text: 'スマートフォンのメモリ、デジタル時計の秒カウンタ、ゲーム機の画面バッファ、USBメモリのデータ保持など、あらゆるデジタル機器でD-FFが使われています。',
         },
         {
           type: 'note',
-          text: 'これでコンピュータが「記憶」できる理由がわかりました！',
+          text: '現代のCPUには数十億個のフリップフロップが搭載されています',
         },
       ],
     },
     {
-      id: 'quiz',
-      instruction: '理解度チェック！',
+      id: 'summary',
+      instruction: 'Dフリップフロップをマスター',
       content: [
+        {
+          type: 'heading',
+          text: 'Dフリップフロップの要点',
+        },
+        {
+          type: 'list',
+          ordered: true,
+          items: [
+            'クロックの立ち上がりエッジでデータを記憶',
+            'エッジトリガ方式で安定した動作を実現',
+            '1ビットの記憶素子（メモリの最小単位）',
+            '順序回路の基本構成要素',
+          ],
+        },
         {
           type: 'quiz',
           question: 'D-FFがデータを取り込むタイミングは？',
@@ -393,6 +285,22 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
             'いつでも',
           ],
           correctIndex: 2,
+        },
+        {
+          type: 'heading',
+          text: '次回予告',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'SRラッチ', bold: true },
+            'で、セット・リセット機能を持つ基本的な記憶回路を学びます。',
+            'D-FFの内部構造の理解にもつながります。',
+          ],
+        },
+        {
+          type: 'note',
+          text: 'D-FFの理解は、コンピュータの動作原理を理解する重要な一歩です',
         },
       ],
     },

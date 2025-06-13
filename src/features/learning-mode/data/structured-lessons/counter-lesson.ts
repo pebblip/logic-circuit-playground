@@ -3,134 +3,90 @@ import type { StructuredLesson } from '../../../../types/lesson-content';
 export const counterStructuredLesson: StructuredLesson = {
   id: 'counter',
   title: 'カウンタ - 数を数える回路',
-  description: 'クロックに同期して自動的にカウントアップする回路を作ります',
-  difficulty: 'advanced',
-  prerequisites: ['sr-latch'],
-  estimatedMinutes: 25,
-  availableGates: ['OUTPUT', 'CLOCK', 'D-FF'],
+  description: '2ビットバイナリカウンタを段階的に構築します',
+  difficulty: 'advanced', 
+  prerequisites: ['d-flip-flop'],
+  estimatedMinutes: 20,
+  availableGates: ['OUTPUT', 'CLOCK', 'D-FF', 'NOT', 'OR'],
   steps: [
     {
       id: 'intro',
-      instruction: '自動的に数を数える回路を作ろう！',
+      instruction: '2ビットカウンタを作ろう！',
       content: [
         {
           type: 'text',
-          text: '時計、タイマー、ゲームのスコア...どれも「数を数える」必要があります。',
+          text: 'クロック信号に合わせて自動的に数える回路を作ります。',
         },
         {
           type: 'heading',
-          text: '🤔 カウンタとは？',
+          text: '🎯 今回の目標',
         },
         {
-          type: 'text',
-          text: 'クロックパルスを数えて、その数を2進数で出力する順序回路です。',
+          type: 'table',
+          headers: ['クロック', 'Q1', 'Q0', '10進数'],
+          rows: [
+            ['初期', '0', '0', '0'],
+            ['1回目', '0', '1', '1'],
+            ['2回目', '1', '0', '2'], 
+            ['3回目', '1', '1', '3'],
+            ['4回目', '0', '0', '0（リセット）'],
+          ],
         },
         {
           type: 'note',
-          text: '0→1→2→3→0... と自動的に繰り返します',
+          text: '00→01→10→11→00... と繰り返します',
         },
       ],
     },
     {
-      id: 'counter-types',
-      instruction: 'カウンタの種類',
+      id: 'circuit-design',
+      instruction: '回路の設計',
       content: [
         {
           type: 'heading',
-          text: '📊 基本的な分類',
+          text: '🔧 必要な部品',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '🔢 バイナリカウンタ：2進数で数える（0,1,10,11...）',
-            '🔟 デケードカウンタ：10進数で数える（0〜9）',
-            '⬆️ アップカウンタ：増加方向',
-            '⬇️ ダウンカウンタ：減少方向',
+            '⏰ CLOCK：カウントのタイミング',
+            '🔢 2つのD-FF：状態記憶（Q1, Q0）',
+            '🎛️ NOT・OR：次状態の計算',
+            '💡 2つのOUTPUT：カウント値表示',
           ],
         },
         {
-          type: 'heading',
-          text: '🎯 今回作るもの',
-        },
-        {
           type: 'text',
-          text: '2ビットバイナリアップカウンタ（0→1→2→3→0）',
+          text: '各D-FFの次状態を計算してD入力に接続します。',
         },
       ],
     },
     {
-      id: 'ripple-counter',
-      instruction: 'リップルカウンタの原理',
+      id: 'logic-design',
+      instruction: 'カウンタロジックの設計',
       content: [
         {
           type: 'heading',
-          text: '🌊 波及的な動作',
+          text: '🤔 次状態の計算',
         },
         {
           type: 'text',
-          text: 'T型フリップフロップ（Toggle FF）を連結：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '1段目：CLKで毎回反転（÷2）',
-            '2段目：1段目の出力で反転（÷4）',
-            '3段目：2段目の出力で反転（÷8）',
-          ],
-        },
-        {
-          type: 'note',
-          text: '各段が前段の半分の速度で動作します',
-        },
-      ],
-    },
-    {
-      id: 't-flip-flop',
-      instruction: 'T型フリップフロップ',
-      content: [
-        {
-          type: 'heading',
-          text: '🔀 トグル動作',
-        },
-        {
-          type: 'text',
-          text: 'T-FFはクロックの立ち上がりで出力が反転します：',
+          text: '現在の値から次の値を決めるロジック：',
         },
         {
           type: 'table',
-          headers: ['CLK', 'Q（前）', 'Q（後）'],
+          headers: ['現在 Q1Q0', '次 Q1Q0', 'D1入力', 'D0入力'],
           rows: [
-            ['↑', '0', '1'],
-            ['↑', '1', '0'],
-            ['0', 'Q', 'Q（保持）'],
+            ['00', '01', '0', '1'],
+            ['01', '10', '1', '0'],
+            ['10', '11', '1', '1'],
+            ['11', '00', '0', '0'],
           ],
         },
         {
-          type: 'note',
-          text: "D-FFでT-FFを作る：DにQ'を接続！",
-        },
-      ],
-    },
-    {
-      id: 'counting-sequence',
-      instruction: 'カウント動作の流れ',
-      content: [
-        {
-          type: 'heading',
-          text: '📈 2ビットカウンタの動作',
-        },
-        {
-          type: 'table',
-          headers: ['CLK', 'Q1', 'Q0', '10進数'],
-          rows: [
-            ['0', '0', '0', '0'],
-            ['1↑', '0', '1', '1'],
-            ['2↑', '1', '0', '2'],
-            ['3↑', '1', '1', '3'],
-            ['4↑', '0', '0', '0（リセット）'],
-          ],
+          type: 'text',
+          text: 'D1 = Q0、D0 = NOT Q0 というシンプルな式で実現できます！',
         },
       ],
     },
@@ -195,191 +151,160 @@ export const counterStructuredLesson: StructuredLesson = {
     },
     {
       id: 'place-outputs',
-      instruction: '出力表示を配置',
-      hint: 'Q1（上位）とQ0（下位）の2つのOUTPUT',
+      instruction: 'STEP4: 出力表示を配置',
+      hint: 'カウント値表示用の2つのOUTPUT',
       content: [
         {
           type: 'text',
-          text: '2ビットで00〜11（0〜3）を表示します。',
+          text: 'キャンバスの右端に2つのOUTPUTを縦に配置します。',
+        },
+        {
+          type: 'list',
+          ordered: true,
+          items: [
+            '上：Q1（上位ビット）',
+            '下：Q0（下位ビット）',
+          ],
         },
       ],
       action: { type: 'place-gate', gateType: 'OUTPUT' },
     },
     {
-      id: 'connect-toggle-1',
-      instruction: '配線：1段目のトグル接続',
-      hint: "1段目D-FFのQ'をDに接続（自己反転）",
+      id: 'connect-clock',
+      instruction: 'STEP5: クロック配線',
+      hint: 'CLOCKを両方のD-FFのCLKピンに接続',
       content: [
         {
           type: 'text',
-          text: 'これでT-FFと同じ動作になります。',
+          text: 'CLOCKゲートの出力を両方のD-FFのCLKピンに接続します。',
+        },
+        {
+          type: 'note',
+          text: '同期式カウンタでは全てのFFが同時に更新されます',
         },
       ],
       action: { type: 'connect-wire' },
     },
     {
-      id: 'connect-clock-1',
-      instruction: '配線：1段目のクロック',
-      hint: 'CLOCKを1段目D-FFのCLKに接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-toggle-2',
-      instruction: '配線：2段目のトグル接続',
-      hint: "2段目D-FFのQ'をDに接続",
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-cascade',
-      instruction: '配線：段間の接続',
-      hint: "1段目のQ'を2段目のCLKに接続",
+      id: 'connect-d0-logic',
+      instruction: 'STEP6: Q0の次状態計算',
+      hint: 'NOTゲートでQ0を反転してD0入力へ',
       content: [
         {
           type: 'text',
-          text: 'Q0が1→0になるときQ1が反転します。',
+          text: '下位ビットの次状態を計算：',
+        },
+        {
+          type: 'list',
+          ordered: false,
+          items: [
+            'Q0の出力をNOTゲートに接続',
+            'NOTゲートの出力をQ0のD入力に接続',
+          ],
+        },
+      ],
+      action: { type: 'connect-wire' },
+    },
+    {
+      id: 'connect-d1-logic',
+      instruction: 'STEP7: Q1の次状態計算',
+      hint: 'Q0の値をQ1のD入力に直接接続',
+      content: [
+        {
+          type: 'text',
+          text: '上位ビットの次状態を計算：',
+        },
+        {
+          type: 'text',
+          text: 'Q0の出力をQ1のD入力に直接接続します。',
         },
       ],
       action: { type: 'connect-wire' },
     },
     {
       id: 'connect-outputs',
-      instruction: '配線：出力表示',
-      hint: '各D-FFのQを対応するOUTPUTに接続',
-      content: [],
+      instruction: 'STEP8: 出力表示配線',
+      hint: '各D-FFのQ出力を対応するOUTPUTに接続',
+      content: [
+        {
+          type: 'text',
+          text: 'カウント値を表示する配線：',
+        },
+        {
+          type: 'list',
+          ordered: false,
+          items: [
+            'Q0の出力→下のOUTPUT（下位ビット）',
+            'Q1の出力→上のOUTPUT（上位ビット）',
+          ],
+        },
+      ],
       action: { type: 'connect-wire' },
     },
     {
       id: 'test-counting',
-      instruction: 'テスト：カウント動作',
+      instruction: 'STEP9: 動作テスト',
       content: [
         {
+          type: 'heading',
+          text: '🔢 カウントテスト',
+        },
+        {
           type: 'text',
-          text: 'CLOCKの動作を観察して、00→01→10→11→00の順に変化することを確認',
+          text: 'CLOCKゲートを動かして、次の順序でカウントされることを確認します：',
+        },
+        {
+          type: 'table',
+          headers: ['クロック', 'Q1', 'Q0', '10進数'],
+          rows: [
+            ['初期', '0', '0', '0'],
+            ['1回目', '0', '1', '1'],
+            ['2回目', '1', '0', '2'],
+            ['3回目', '1', '1', '3'],
+            ['4回目', '0', '0', '0 (リセット)'],
+          ],
         },
         {
           type: 'note',
-          text: '上位ビットは下位ビットの半分の速度で変化します',
+          text: '各クロックで正しくカウントアップし、4回目でリセットされることを確認',
         },
       ],
       action: { type: 'toggle-input' },
     },
     {
-      id: 'frequency-division',
-      instruction: '【応用】分周器として',
+      id: 'mid-quiz',
+      instruction: '理解度チェック',
+      content: [
+        {
+          type: 'quiz',
+          question: '2ビットカウンタで、状態　10」の次は何になる？',
+          options: ['00', '01', '10', '11'],
+          correctIndex: 3,
+        },
+      ],
+    },
+    {
+      id: 'practical-applications',
+      instruction: '【応用】カウンタの世界',
       content: [
         {
           type: 'heading',
-          text: '🎛️ 周波数分割',
+          text: '🌍 身近なカウンタシステム',
         },
         {
           type: 'text',
-          text: 'カウンタは周波数を分割する用途にも使えます：',
+          text: '今作ったカウンタの原理は、様々な場所で使われています：',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            'Q0：CLKの1/2の周波数',
-            'Q1：CLKの1/4の周波数',
-            'Q2：CLKの1/8の周波数',
+            '⏰ デジタル時計の秒・分・時間表示',
+            '🎮 ゲームのスコアやタイマー',
+            '💻 CPUの周波数分割器',
+            '🚗 車のスピードメーター',
+            '🏠 電気メーターの使用量計測',
           ],
-        },
-        {
-          type: 'note',
-          text: '時計の1秒を作るのに使われます（32.768kHz÷32768=1Hz）',
-        },
-      ],
-    },
-    {
-      id: 'synchronous-counter',
-      instruction: '【発展】同期式カウンタ',
-      content: [
-        {
-          type: 'heading',
-          text: '⚡ より高速な設計',
-        },
-        {
-          type: 'text',
-          text: 'リップルカウンタの欠点：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: ['遅延が累積する', '高速動作に不向き', '一時的に誤った値'],
-        },
-        {
-          type: 'text',
-          text: '同期式なら全ビット同時更新！',
-        },
-      ],
-    },
-    {
-      id: 'modulo-counter',
-      instruction: 'モジュロカウンタ',
-      content: [
-        {
-          type: 'heading',
-          text: '🔟 10進カウンタ',
-        },
-        {
-          type: 'text',
-          text: '0〜9でリセットするカウンタ：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: ['1010（10）を検出', 'リセット信号を生成', '0000に戻る'],
-        },
-        {
-          type: 'note',
-          text: 'デジタル時計の各桁はこの原理です',
-        },
-      ],
-    },
-    {
-      id: 'applications',
-      instruction: '【応用】カウンタの活用例',
-      content: [
-        {
-          type: 'heading',
-          text: '💻 実用例',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '⏱️ タイマー・ストップウォッチ',
-            '🎮 ゲームのスコア表示',
-            '📊 イベントカウント（人数、車両）',
-            '🎵 音楽のテンポ生成',
-            '💾 メモリアドレス生成',
-            '🚦 信号機のタイミング制御',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'prescaler',
-      instruction: 'プリスケーラ',
-      content: [
-        {
-          type: 'heading',
-          text: '🎚️ 大きな分周比',
-        },
-        {
-          type: 'text',
-          text: '高速クロックから低速信号を作る：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: ['16MHzクロック', '÷16000000', '1Hz（1秒）信号'],
-        },
-        {
-          type: 'note',
-          text: '24ビットカウンタで実現可能',
         },
       ],
     },
@@ -389,32 +314,37 @@ export const counterStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🏆 習得したスキル',
+          text: '🏆 おめでとうございます！',
+        },
+        {
+          type: 'text',
+          text: 'あなたは以下の重要なスキルを習得しました：',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '✅ 自動カウント回路の構築',
-            '✅ FFの連鎖接続',
-            '✅ 分周器の原理',
-            '✅ デジタル計数システム',
+            '✅ 同期式バイナリカウンタの設計',
+            '✅ 組み合わせ回路による次状態計算',
+            '✅ クロック同期制御システム',
+            '✅ デジタル計数回路の構築',
+            '✅ 実用カウンタシステムの理解',
           ],
         },
         {
           type: 'note',
-          text: 'これで時間や回数を数えられます！',
+          text: 'これで時間や回数を自動で数えるシステムが作れます！',
         },
       ],
     },
     {
-      id: 'quiz',
-      instruction: '理解度チェック！',
+      id: 'final-quiz',
+      instruction: '最終理解度チェック',
       content: [
         {
           type: 'quiz',
-          question: '3ビットバイナリカウンタの最大値は？',
-          options: ['3', '7', '8', '15'],
+          question: '2ビットカウンタで、最大カウント値はいくつ？',
+          options: ['2', '3', '4', '7'],
           correctIndex: 1,
         },
       ],

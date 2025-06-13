@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
-import { Canvas } from '../Canvas';
+import { MobileCanvas } from '../MobileCanvas';
 import { MobileToolbar } from './MobileToolbar';
-import { MobileHeader } from './MobileHeader';
-import { FloatingActionButtons } from './FloatingActionButtons';
-import { FloatingLearningPanel } from '../../features/learning-mode/ui/FloatingLearningPanel';
-import { MobileWarningBanner } from '../MobileWarningBanner';
-import { useCircuitStore } from '../../stores/circuitStore';
 import '../../styles/mobile-layout.css';
 
 interface MobileLayoutProps {
@@ -15,74 +10,35 @@ interface MobileLayoutProps {
 export const MobileLayout: React.FC<MobileLayoutProps> = () => {
   const [isToolbarOpen, setIsToolbarOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<
-    'basic' | 'special' | 'io' | 'custom'
+    'basic' | 'io' | 'special' | 'custom'
   >('basic');
-  const [isPipLearningOpen, setIsPipLearningOpen] = useState(false);
-  const { appMode, setAppMode } = useCircuitStore();
 
   return (
     <div className="mobile-layout">
-      <MobileWarningBanner />
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          paddingTop: '60px', // 警告バナーの高さを考慮
-        }}
-      >
-        <MobileHeader />
-
-      {/* モード選択（オプション） */}
-      <div className="mobile-mode-selector">
-        <button
-          className={`mode-button ${isPipLearningOpen ? 'active' : ''}`}
-          onClick={() => setIsPipLearningOpen(true)}
-        >
-          学習
-        </button>
-        <button
-          className={`mode-button ${appMode === 'フリーモード' && !isPipLearningOpen ? 'active' : ''}`}
-          onClick={() => {
-            setAppMode('フリーモード');
-            setIsPipLearningOpen(false);
-          }}
-        >
-          自由
-        </button>
-        <button
-          className={`mode-button ${appMode === 'パズルモード' ? 'active' : ''}`}
-          onClick={() => {
-            setAppMode('パズルモード');
-            setIsPipLearningOpen(false);
-          }}
-        >
-          パズル
-        </button>
+      {/* 未完成警告バナー */}
+      <div className="mobile-warning-banner">
+        <span className="warning-text">
+          ⚠️ モバイル版は開発中です - UI/UXが未完成の状態です
+        </span>
       </div>
-
-      {/* キャンバスコンテナ */}
+      
+      {/* キャンバス */}
       <div className="mobile-canvas-container">
-        <Canvas />
+        <MobileCanvas />
       </div>
 
-      {/* フローティングアクションボタン */}
-      <FloatingActionButtons />
+      {/* ミニマルなタイトルバー */}
+      <div className="mobile-titlebar">
+        <span className="mobile-title">LogiCirc</span>
+      </div>
 
-      {/* ボトムツールバー */}
+      {/* シンプルなボトムツールバー */}
       <MobileToolbar
         isOpen={isToolbarOpen}
         onToggle={() => setIsToolbarOpen(!isToolbarOpen)}
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
       />
-
-        {/* Picture-in-Picture学習パネル（モバイル対応） */}
-        <FloatingLearningPanel
-          isOpen={isPipLearningOpen}
-          onClose={() => setIsPipLearningOpen(false)}
-        />
-      </div>
     </div>
   );
 };

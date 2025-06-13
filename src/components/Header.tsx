@@ -2,6 +2,7 @@ import React from 'react';
 import { SaveCircuitDialog } from './dialogs/SaveCircuitDialog';
 import { LoadCircuitDialog } from './dialogs/LoadCircuitDialog';
 import { ExportImportDialog } from './dialogs/ExportImportDialog';
+import { ShareCircuitDialog } from './dialogs/ShareCircuitDialog';
 import { useCircuitStore } from '../stores/circuitStore';
 import type { AppMode } from '../types/appMode';
 import { useMultipleDialogs } from '../hooks/useDialog';
@@ -28,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
     save: {},
     load: {},
     export: {},
+    share: {},
     help: {},
   });
 
@@ -135,6 +137,14 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>📦</span>
                 <span>{TERMS.CIRCUIT}→IC</span>
               </button>
+              <button
+                className="button"
+                onClick={() => dialogs.share.open()}
+                title="回路を共有"
+              >
+                <span>🔗</span>
+                <span>共有</span>
+              </button>
             </>
           )}
 
@@ -199,6 +209,11 @@ export const Header: React.FC<HeaderProps> = ({
         onClose={dialogs.export.close}
         mode="export"
         onSuccess={handleExportSuccess}
+      />
+
+      <ShareCircuitDialog
+        isOpen={dialogs.share.isOpen}
+        onClose={dialogs.share.close}
       />
     </>
   );

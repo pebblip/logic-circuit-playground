@@ -158,7 +158,9 @@ export function humanizeError(
     // 既に人間が理解しやすいメッセージの場合はそのまま返す
     // 関数でない文字列値のみをチェック
     const allValues = Object.values(ERROR_MESSAGES);
-    const stringValues = allValues.filter(value => typeof value === 'string') as string[];
+    const stringValues = allValues.filter(
+      value => typeof value === 'string'
+    ) as string[];
     if (stringValues.includes(message)) {
       return message;
     }

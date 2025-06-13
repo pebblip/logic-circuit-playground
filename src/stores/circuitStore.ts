@@ -8,6 +8,7 @@ import { createClipboardSlice } from './slices/clipboardSlice';
 import { createCustomGateSlice } from './slices/customGateSlice';
 import { createAppModeSlice } from './slices/appModeSlice';
 import { createToolPaletteSlice } from './slices/toolPaletteSlice';
+import { createShareSlice } from './slices/shareSlice';
 
 export const useCircuitStore = create<CircuitStore>()((...a) => ({
   // 基本的な状態
@@ -25,4 +26,5 @@ export const useCircuitStore = create<CircuitStore>()((...a) => ({
   ...createCustomGateSlice(...a),
   ...createAppModeSlice(...a),
   ...createToolPaletteSlice(...a),
+  ...createShareSlice(...a),
 }));

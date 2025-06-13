@@ -91,6 +91,8 @@ export const PinComponent: React.FC<PinComponentProps> = ({
         ry="10"
         fill="transparent"
         className="u-cursor-crosshair"
+        data-gate-id={gate.id}
+        data-pin-index={isOutput ? -1 : pinIndex}
         onClick={e => {
           e.stopPropagation();
           onPinClick(e, pinIndex, isOutput);

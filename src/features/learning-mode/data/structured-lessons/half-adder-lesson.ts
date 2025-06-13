@@ -3,86 +3,53 @@ import { TERMS } from '../terms';
 
 export const halfAdderStructuredLesson: StructuredLesson = {
   id: 'half-adder',
-  title: '半加算器 - 電卓の心臓部を作ろう！',
-  description: 'たった2つのゲートで足し算ができる魔法の回路',
+  title: '半加算器 - 電卓の心臓部を作ろう',
+  description: '2つのゲートで足し算ができる基本回路',
   objective:
     'XORとANDゲートを組み合わせて、0と1の足し算回路を作り、コンピュータの計算原理を理解する',
   category: '基本回路',
   lessonType: 'build',
   difficulty: 'intermediate',
   prerequisites: ['and-gate', 'xor-gate'],
-  estimatedMinutes: 20,
+  estimatedMinutes: 15,
   availableGates: ['INPUT', 'OUTPUT', 'AND', 'XOR'],
   steps: [
     {
       id: 'intro',
-      instruction: '電卓は0と1しか知らない？驚きの真実',
+      instruction: '電卓は0と1しか知らないという真実',
       content: [
         {
-          type: 'heading',
-          text: '🧮 電卓を分解したら...？',
-        },
-        {
           type: 'rich-text',
           elements: [
-            '皆さんが使っている電卓、実は',
+            '電卓は実は',
             { text: '0と1だけ', bold: true },
-            'で計算しているって知っていましたか？',
-            '「えっ、でも100とか1000とか表示されるよ？」',
-            'その秘密を今日は解き明かします！',
+            'で計算しています。',
+            'この仕組みは、電気の',
+            { text: 'あり・なし', emphasis: true },
+            'を使った2進数から生まれます。',
           ],
         },
         {
           type: 'heading',
-          text: '身近な例で理解しよう',
+          text: '身近な例で考える',
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            '🏦 銀行の金庫：ダイヤル0〜9で番号を作る → 10進数',
-            '🚦 信号機：赤・青・黄の3色で状態を表す → 3進数',
-            '⚡ スイッチ：ON・OFFの2つだけ → 2進数',
-            '💻 コンピュータ：電気のあり・なし（1・0）→ 2進数！',
-          ],
-        },
-        {
-          type: 'rich-text',
-          elements: [
-            { text: '今日のミッション：', bold: true },
-            '0と1だけで',
-            { text: '足し算ができる回路', emphasis: true },
-            'を作ります！',
-          ],
+          type: 'text',
+          text: '指を折って数を数えるとき、普通は10まで数えられます。でも2進数なら、片手だけで31まで数えられるのです。',
         },
         {
           type: 'note',
-          text: 'すべてのコンピュータの計算は、今日作る回路から始まります',
+          text: 'コンピュータの計算原理：たった2つのゲートから始まる魔法',
         },
       ],
     },
     {
       id: 'principle',
-      instruction: '指で数える2進数 - 片手で31まで！',
+      instruction: '2進数の足し算原理',
       content: [
         {
           type: 'heading',
-          text: '👋 普通の数え方 vs 2進数の数え方',
-        },
-        {
-          type: 'rich-text',
-          elements: [
-            '普通は指10本で',
-            { text: '10まで', emphasis: true },
-            'しか数えられませんが、',
-            '2進数なら片手5本で',
-            { text: '31まで', bold: true },
-            '数えられます！',
-          ],
-        },
-        {
-          type: 'heading',
-          text: '2進数の仕組み',
+          text: '2進数の足し算パターン',
         },
         {
           type: 'table',
@@ -97,7 +64,7 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '💡 1+1=10の謎',
+          text: '1+1=10の仕組み',
         },
         {
           type: 'rich-text',
@@ -111,7 +78,7 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '🎯 2進数の足し算パターン',
+          text: '真理値表で見る足し算',
         },
         {
           type: 'table',
@@ -131,66 +98,76 @@ export const halfAdderStructuredLesson: StructuredLesson = {
     },
     {
       id: 'circuit-build',
-      instruction: '足し算マシンを組み立てよう！',
+      instruction: '半加算器回路を作ってみよう',
       content: [
         {
           type: 'heading',
-          text: '🛠️ 必要な部品',
+          text: '手順１：入力ゲートを配置',
         },
         {
           type: 'rich-text',
           elements: [
-            '今日使うのは、以前学んだ',
-            { text: '2種類のゲート', emphasis: true },
-            'だけです！',
-          ],
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            `${TERMS.XOR}ゲート：「どちらか片方だけ」を検出 → 和（1の位）担当`,
-            `${TERMS.AND}ゲート：「両方とも」を検出 → 繰り上がり（2の位）担当`,
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'で',
+            { text: `${TERMS.INPUT}ゲート`, emphasis: true },
+            'を2つ配置します。',
+            'これが足し算の2つの数値（AとB）になります。',
           ],
         },
         {
           type: 'heading',
-          text: '完成イメージ',
+          text: '手順２：対象ゲートを配置',
         },
         {
-          type: 'circuit-diagram',
-          circuitId: 'half-adder',
-          showTruthTable: false,
+          type: 'rich-text',
+          elements: [
+            '半加算器では',
+            { text: `${TERMS.XOR}ゲート`, emphasis: true },
+            'と',
+            { text: `${TERMS.AND}ゲート`, emphasis: true },
+            'を2つ使用します。',
+            `${TERMS.XOR}は和（1の位）、${TERMS.AND}は繰り上がり（2の位）を計算します。`,
+          ],
         },
         {
           type: 'heading',
-          text: '組み立て手順',
+          text: '手順３：出力ゲートを配置',
         },
         {
-          type: 'list',
-          ordered: true,
-          items: [
-            '入力Aと入力Bを左側に配置（数字を入れる場所）',
-            'XORゲートを中央上に配置（和の計算係）',
-            'ANDゲートを中央下に配置（繰り上がりの計算係）',
-            '出力Sを右上に配置（Sum=和の表示）',
-            '出力Cを右下に配置（Carry=繰り上がりの表示）',
-            'A・Bからの配線を分岐させて両方のゲートにつなぐ',
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.OUTPUT}ゲート`, emphasis: true },
+            'を2つ配置します。',
+            '上側はS（Sum=和）、下側はC（Carry=繰り上がり）の結果を表示します。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順４：配線でつなげる',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '入力A・Bからの配線を',
+            { text: '分岐', emphasis: true },
+            'させて、',
+            `${TERMS.XOR}と${TERMS.AND}の両方に接続します。`,
+            `${TERMS.XOR}の出力→S、${TERMS.AND}の出力→Cに接続します。`,
           ],
         },
         {
           type: 'note',
-          text: '配線のコツ：1つの出力から2つのゲートへ配線を「分岐」させるのがポイント！',
+          text: '配線のコツ：1つの入力から2つのゲートへ配線を分岐させることが半加算器のポイント',
         },
       ],
     },
     {
       id: 'experiment',
-      instruction: '予測して実験しよう！足し算は成功するか？',
+      instruction: '予測して実験しよう',
       content: [
         {
           type: 'heading',
-          text: '🔬 まず予測してみよう',
+          text: 'まず予測してみよう',
         },
         {
           type: 'rich-text',
@@ -208,7 +185,7 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '🎮 実験開始！',
+          text: '実験で確かめよう',
         },
         {
           type: 'rich-text',
@@ -245,9 +222,9 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         {
           type: 'rich-text',
           elements: [
-            { text: '🎉 大発見！', bold: true },
-            '回路が完璧に2進数の足し算を実行しています！',
-            '1+1の時、Sが0、Cが1になって「10」（2進数の2）を表現！',
+            { text: '発見：', bold: true },
+            '回路が完璧に2進数の足し算を実行しています。',
+            '1+1の時、Sが0、Cが1になって「10」（2進数の2）を表現しています。',
           ],
         },
         {
@@ -258,11 +235,11 @@ export const halfAdderStructuredLesson: StructuredLesson = {
     },
     {
       id: 'analysis',
-      instruction: '半加算器の秘密を分析しよう',
+      instruction: '半加算器の特徴を分析しよう',
       content: [
         {
           type: 'heading',
-          text: '🔍 なぜこの組み合わせで動くの？',
+          text: 'この組み合わせの意味',
         },
         {
           type: 'table',
@@ -274,7 +251,7 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '💡 この発見がすごい理由',
+          text: '半加算器の重要性',
         },
         {
           type: 'list',
@@ -288,16 +265,16 @@ export const halfAdderStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '⚡ 半加算器 vs 人間の計算',
+          text: '確率的な視点',
         },
         {
-          type: 'table',
-          headers: ['項目', '人間', '半加算器'],
-          rows: [
-            ['使う数字', '0〜9（10種類）', '0と1（2種類）'],
-            ['計算速度', '秒単位', 'ナノ秒単位（10億分の1秒）'],
-            ['エラー', 'たまに間違える', '絶対に間違えない'],
-            ['疲労', '疲れる', '24時間休みなし'],
+          type: 'rich-text',
+          elements: [
+            '入力の組み合わせ4パターンのうち、',
+            { text: '和が1になる確率', emphasis: true },
+            'は50%（2パターン）、',
+            { text: '繰り上がりが1になる確率', emphasis: true },
+            'は25%（1パターン）です。',
           ],
         },
         {
@@ -308,11 +285,11 @@ export const halfAdderStructuredLesson: StructuredLesson = {
     },
     {
       id: 'applications',
-      instruction: '半加算器が支える現代社会',
+      instruction: '半加算器の実用例',
       content: [
         {
           type: 'heading',
-          text: '🌍 身の回りの半加算器',
+          text: '実世界での活用',
         },
         {
           type: 'rich-text',
@@ -326,42 +303,20 @@ export const halfAdderStructuredLesson: StructuredLesson = {
           type: 'list',
           ordered: false,
           items: [
-            '📱 スマートフォン：アプリの計算処理すべて',
-            '🚗 自動車：スピードメーターの表示計算',
-            '🏧 ATM：お金の計算と残高管理',
-            '🎮 ゲーム機：スコア計算やダメージ計算',
-            '⌚ デジタル時計：時刻のカウントアップ',
+            'スマートフォン：アプリの計算処理すべて',
+            '自動車：スピードメーターの表示計算',
+            'ATM：お金の計算と残高管理',
+            'ゲーム機：スコア計算やダメージ計算',
+            'デジタル時計：時刻のカウントアップ',
           ],
         },
         {
           type: 'heading',
-          text: '🚀 プログラミングとの関係',
+          text: '身近な製品での使用例',
         },
         {
-          type: 'rich-text',
-          elements: [
-            'プログラムで',
-            { text: 'a + b', emphasis: true },
-            'と書いた時、',
-            'CPUの中では今日作った回路が',
-            { text: '超高速で動いています！', bold: true },
-          ],
-        },
-        {
-          type: 'heading',
-          text: '💭 考えてみよう',
-        },
-        {
-          type: 'rich-text',
-          elements: [
-            '1秒間に',
-            { text: '数十億回', bold: true },
-            'の計算ができるコンピュータも、',
-            '基本は今日作った',
-            { text: 'たった2つのゲート', emphasis: true },
-            'から始まっています。',
-            'シンプルな仕組みの積み重ねが、複雑な技術を生み出すのです！',
-          ],
+          type: 'text',
+          text: '電卓、コンピュータ、スマートフォンなど、あらゆるデジタル機器の中で半加算器が活躍しています。たった2つのゲートから始まるシンプルな回路が、複雑な計算の基礎となっているのです。',
         },
         {
           type: 'note',
@@ -371,19 +326,19 @@ export const halfAdderStructuredLesson: StructuredLesson = {
     },
     {
       id: 'summary',
-      instruction: '足し算マシンをマスター！',
+      instruction: '半加算器をマスター',
       content: [
         {
           type: 'heading',
-          text: '🏆 半加算器の要点',
+          text: '半加算器の要点',
         },
         {
           type: 'list',
           ordered: true,
           items: [
             '2進数の足し算：0+0=0、0+1=1、1+0=1、1+1=10',
-            'XORゲート：和（1の位）を計算する魔法',
-            'ANDゲート：繰り上がり（2の位）を検出する番人',
+            `${TERMS.XOR}ゲート：和（1の位）を計算`,
+            `${TERMS.AND}ゲート：繰り上がり（2の位）を検出`,
             'たった2つのゲートで、すべての計算の基礎が完成',
           ],
         },

@@ -710,3 +710,122 @@
 
 /* ========== レスポンシブ調整 ========== */
 /* 削除 - ズームコントロールとツールバーは常にキャンバス内に配置 */
+
+/* ========== モバイル用FAB ========== */
+.fab-container {
+  position: fixed;
+  bottom: 24px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  z-index: var(--z-fab);
+  transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fab-container.expanded .fab-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 24px;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2),
+              0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.fab.primary {
+  background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+  color: #000000;
+}
+
+.fab.primary.main-fab {
+  background: rgba(255, 255, 255, 0.95);
+  color: #000000;
+}
+
+.fab.primary.simulate-fab {
+  background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+  color: #000000;
+}
+
+.fab.secondary {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: rgba(255, 255, 255, 0.9);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  font-size: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+.fab:active {
+  transform: scale(0.92);
+}
+
+.fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25),
+              0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.fab svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.fab-menu {
+  display: none;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* モバイルでサイズ調整 */
+@media (max-width: 640px) {
+  .fab {
+    width: 52px;
+    height: 52px;
+  }
+  
+  .fab.secondary {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .fab svg {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .fab.secondary svg {
+    width: 20px;
+    height: 20px;
+  }
+}

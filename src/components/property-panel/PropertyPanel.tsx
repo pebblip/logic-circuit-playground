@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
 import { GateInfo } from './GateInfo';
 import { ClockControls } from './ClockControls';
-import { ActionButtons } from './ActionButtons';
 import { DetailModal } from './DetailModal';
 import { TruthTableModal } from './TruthTableModal';
-import { isCustomGate } from '@/types/gates';
 import { gateDescriptions } from '@/data/gateDescriptions';
 import { DEMO_CUSTOM_GATES } from '@/components/tool-palette/gateDefinitions';
 
@@ -37,9 +35,7 @@ export const PropertyPanel: React.FC = () => {
         );
         // ユーザー作成のカスタムゲートからも検索
         if (!customGate) {
-          customGate = customGates.find(
-            g => g.id === selectedToolCustomGateId
-          );
+          customGate = customGates.find(g => g.id === selectedToolCustomGateId);
         }
         return customGate?.displayName || 'カスタムゲート';
       }
@@ -165,10 +161,14 @@ export const PropertyPanel: React.FC = () => {
               selectedToolGateType === 'CUSTOM' && selectedToolCustomGateId
                 ? (() => {
                     // デモカスタムゲートから検索
-                    let customGate = DEMO_CUSTOM_GATES.find(g => g.id === selectedToolCustomGateId);
+                    let customGate = DEMO_CUSTOM_GATES.find(
+                      g => g.id === selectedToolCustomGateId
+                    );
                     // ユーザー作成のカスタムゲートからも検索
                     if (!customGate) {
-                      customGate = customGates.find(g => g.id === selectedToolCustomGateId);
+                      customGate = customGates.find(
+                        g => g.id === selectedToolCustomGateId
+                      );
                     }
                     return customGate;
                   })()

@@ -83,7 +83,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     if (viewMode === 'custom-gate-preview' && previewingCustomGateId) {
       const customGate = customGates.find(g => g.id === previewingCustomGateId);
 
-
       // エラーハンドリング
       if (!customGate?.internalCircuit) {
         console.error(
@@ -96,7 +95,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
           isReadOnly: true,
         };
       }
-
 
       // ゲートが配列であることを確認
       const gates = Array.isArray(customGate.internalCircuit.gates)
@@ -136,7 +134,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         debug.log('[Canvas] No gates to display in preview mode');
         return;
       }
-
 
       // 各ゲートのサイズを考慮した正確な境界を計算
       const bounds = gatesArray.reduce(
@@ -233,7 +230,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         gatesArray.reduce((sum, g) => sum + g.position.y, 0) /
         gatesArray.length;
 
-
       // デバッグ: 原点周辺を表示するオプション
       const showOrigin = false; // true にすると原点周辺を表示（デバッグ用）
       const useAvgPosition = true; // true にすると平均位置を使用
@@ -273,7 +269,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
 
       // ズームもリセット
       resetZoom();
-
     }
   }, [viewMode, displayData.displayGates, resetZoom]);
 
@@ -873,13 +868,17 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       {/* ズームコントロール */}
       <div className="zoom-controls">
         <button className="zoom-button" onClick={zoomOut}>
-          −
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M19 13H5v-2h14v2z" />
+          </svg>
         </button>
         <button className="zoom-button zoom-reset" onClick={resetZoom}>
           {Math.round(scale * 100)}%
         </button>
         <button className="zoom-button" onClick={zoomIn}>
-          ＋
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
         </button>
       </div>
 

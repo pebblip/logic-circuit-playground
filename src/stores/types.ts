@@ -53,6 +53,11 @@ export interface CircuitStoreState extends CircuitState {
   // ツールパレット選択
   selectedToolGateType: GateType | 'CUSTOM' | null;
   selectedToolCustomGateId: string | null;
+
+  // 回路共有
+  shareUrl: string | null;
+  isGeneratingShareUrl: boolean;
+  shareError: string | null;
 }
 
 // ストアのアクション
@@ -125,6 +130,11 @@ export interface CircuitStoreActions {
   // ツールパレット選択
   selectToolGate: (type: GateType | 'CUSTOM', customGateId?: string) => void;
   clearToolSelection: () => void;
+
+  // 回路共有
+  generateShareUrl: (name?: string, description?: string) => Promise<void>;
+  loadFromShareUrl: () => Promise<boolean>;
+  clearShareUrl: () => void;
 }
 
 export type CircuitStore = CircuitStoreState & CircuitStoreActions;

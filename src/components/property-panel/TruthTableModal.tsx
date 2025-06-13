@@ -88,7 +88,7 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
     if (gateType === 'CUSTOM' && customGateId) {
       // デモカスタムゲートから検索
       let customGate = DEMO_CUSTOM_GATES.find(g => g.id === customGateId);
-      
+
       // ユーザー作成のカスタムゲートからも検索
       if (!customGate) {
         customGate = customGates.find(g => g.id === customGateId);

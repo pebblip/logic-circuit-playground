@@ -3,394 +3,332 @@ import type { StructuredLesson } from '../../../../types/lesson-content';
 export const trafficLightStructuredLesson: StructuredLesson = {
   id: 'traffic-light',
   title: '信号機 - 実用的な制御回路',
-  description: '赤・黄・青の信号を自動制御する回路を作ります',
+  description: '3色LED信号の自動制御回路を段階的に構築します',
   difficulty: 'advanced',
-  prerequisites: ['clock-sync'],
-  estimatedMinutes: 30,
-  availableGates: ['OUTPUT', 'AND', 'CLOCK', 'D-FF', 'NOT'],
+  prerequisites: ['d-flip-flop', 'counter'],
+  estimatedMinutes: 25,
+  availableGates: ['OUTPUT', 'AND', 'OR', 'NOT', 'CLOCK', 'D-FF'],
   steps: [
     {
       id: 'intro',
-      instruction: '街の安全を守る信号機を作ろう！',
+      instruction: '3色信号機を作ろう！',
       content: [
         {
           type: 'text',
-          text: '毎日見ている信号機。その制御回路はどうなっているのでしょうか？',
+          text: '街角の信号機を論理回路で再現します。',
         },
         {
           type: 'heading',
-          text: '🤔 信号機の要件',
+          text: '🎯 今回の目標',
         },
         {
           type: 'list',
-          ordered: false,
+          ordered: true,
           items: [
-            '🔴 赤：停止',
-            '🟡 黄：注意',
-            '🟢 青：進行',
-            '♻️ 自動的に繰り返し',
+            '🔴 赤 → 🟢 青 → 🟡 黄 → 🔴 赤の順序で自動切り替え',
+            'クロック信号に同期した状態遷移',
+            '3つのLED（OUTPUT）による視覚的確認',
           ],
         },
         {
-          type: 'text',
-          text: '実際の信号機では赤30秒、青27秒、黄3秒などの時間配分がありますが、',
-        },
-        {
           type: 'note',
-          text: '実際の信号機はもっと複雑ですが、基本原理は同じです',
+          text: '2ビットカウンタ + デコーダで実現します',
         },
       ],
     },
     {
-      id: 'state-machine',
-      instruction: '状態遷移の設計',
+      id: 'state-design',
+      instruction: '状態の設計',
       content: [
         {
           type: 'heading',
-          text: '🔄 3つの状態',
-        },
-        {
-          type: 'text',
-          text: '信号機は3つの状態を順番に遷移します：',
+          text: '🔄 3つの状態をコード化',
         },
         {
           type: 'table',
-          headers: ['現在の状態', '次の状態', '条件'],
+          headers: ['状態', 'カウンタ値', '赤', '青', '黄'],
           rows: [
-            ['赤（RED）', '青（GREEN）', '30秒経過'],
-            ['青（GREEN）', '黄（YELLOW）', '27秒経過'],
-            ['黄（YELLOW）', '赤（RED）', '3秒経過'],
-          ],
-        },
-        {
-          type: 'note',
-          text: 'これを「有限状態機械（FSM）」と呼びます',
-        },
-      ],
-    },
-    {
-      id: 'state-encoding',
-      instruction: '状態のエンコード',
-      content: [
-        {
-          type: 'heading',
-          text: '🔢 2ビットで表現',
-        },
-        {
-          type: 'table',
-          headers: ['状態', 'Q1', 'Q0', '赤', '黄', '青'],
-          rows: [
-            ['RED', '0', '0', '1', '0', '0'],
-            ['GREEN', '0', '1', '0', '0', '1'],
-            ['YELLOW', '1', '0', '0', '1', '0'],
-            ['未使用', '1', '1', '-', '-', '-'],
+            ['赤信号', '00', '🔴', '⚫', '⚫'],
+            ['青信号', '01', '⚫', '🟢', '⚫'],
+            ['黄信号', '10', '⚫', '⚫', '🟡'],
+            ['未使用', '11', '⚫', '⚫', '⚫'],
           ],
         },
         {
           type: 'text',
-          text: '2ビットカウンタとデコーダで実現できます！',
+          text: '2ビットカウンタ（00→01→10→00）で3つの状態を制御します。',
         },
       ],
     },
     {
-      id: 'timing-design',
-      instruction: 'タイミング設計',
+      id: 'circuit-overview',
+      instruction: '回路の全体構成',
       content: [
         {
           type: 'heading',
-          text: '⏱️ 時間管理',
-        },
-        {
-          type: 'text',
-          text: '異なる点灯時間をどう実現するか？',
+          text: '🔧 必要な部品',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '基本クロック：1Hz（1秒）',
-            'カウンタで秒数を数える',
-            '各状態で異なるカウント値',
-            'カウント完了で状態遷移',
+            '⏰ CLOCK：状態遷移のタイミング',
+            '🔢 2つのD-FF：2ビットカウンタ（00→01→10→00）',
+            '🎛️ AND・NOT：状態デコーダ',
+            '💡 3つのOUTPUT：赤・青・黄のLED',
           ],
         },
         {
-          type: 'note',
-          text: '今回は簡略化して、全て同じ時間にします',
+          type: 'text',
+          text: 'カウンタ→デコーダ→LED制御の流れで動作します。',
         },
       ],
     },
     {
-      id: 'simplified-design',
-      instruction: '今回の実装方針',
+      id: 'implementation-start',
+      instruction: '実装開始！',
       content: [
         {
-          type: 'text',
-          text: '基本動作を理解するための簡易版：',
+          type: 'heading',
+          text: '🚀 構築手順',
         },
         {
-          type: 'heading',
-          text: '📐 構成',
+          type: 'text',
+          text: '次の順番で回路を組み立てます：',
         },
         {
           type: 'list',
-          ordered: false,
+          ordered: true,
           items: [
-            'CLOCKゲート（低速）',
-            '2ビットカウンタ（状態管理）',
-            'デコーダ（LED制御）',
-            '3つのOUTPUT（赤・黄・青）',
+            '🕰️ クロック信号源の配置',
+            '🔢 2ビットカウンタの構築',
+            '🎛️ デコーダ回路の作成',
+            '💡 LED出力の接続',
+            '⚙️ 動作テスト',
           ],
         },
       ],
     },
     {
       id: 'place-clock',
-      instruction: 'CLOCKゲートを配置',
-      hint: '状態遷移のタイミング',
+      instruction: 'STEP1: CLOCKゲートを配置',
+      hint: '信号切り替えのタイミング源',
       content: [
         {
           type: 'text',
-          text: 'ゆっくりとした周期で動作します。',
+          text: 'キャンバスの左上にCLOCKゲートを配置します。',
+        },
+        {
+          type: 'note',
+          text: 'このクロックが信号切り替えのペースを決めます',
         },
       ],
       action: { type: 'place-gate', gateType: 'CLOCK' },
     },
     {
-      id: 'place-counter-dffs',
-      instruction: 'カウンタ用D-FFを2個配置',
-      hint: '2ビットの状態カウンタ',
+      id: 'place-dff1',
+      instruction: 'STEP2: 1段目D-FFを配置',
+      hint: '下位ビット（Q0）用',
       content: [
         {
           type: 'text',
-          text: '00→01→10→00を繰り返します。',
+          text: 'CLOCKの右下に1つ目D-FFを配置します。',
+        },
+        {
+          type: 'note',
+          text: 'これがカウンタの下位ビット（Q0）になります',
         },
       ],
       action: { type: 'place-gate', gateType: 'D-FF' },
     },
     {
-      id: 'place-logic-gates',
-      instruction: 'カウンタロジックを配置',
-      hint: 'NOT、AND、XORゲートなど',
+      id: 'place-dff2',
+      instruction: 'STEP3: 2段目D-FFを配置',
+      hint: '上位ビット（Q1）用',
       content: [
         {
           type: 'text',
-          text: 'モジュロ3カウンタを構成します。',
+          text: '1つ目D-FFの下に2つ目D-FFを配置します。',
+        },
+        {
+          type: 'note',
+          text: 'これがカウンタの上位ビット（Q1）になります',
+        },
+      ],
+      action: { type: 'place-gate', gateType: 'D-FF' },
+    },
+    {
+      id: 'place-decoder-logic',
+      instruction: 'STEP4: デコーダロジックを配置',
+      hint: '状態検出用のNOTとANDゲート',
+      content: [
+        {
+          type: 'text',
+          text: 'D-FFの右側にNOTゲート2個とANDゲート3個を配置します。',
+        },
+        {
+          type: 'list',
+          ordered: false,
+          items: [
+            'NOTゲート：Q0、Q1の反転用',
+            'ANDゲート：各状態の検出用',
+          ],
         },
       ],
       action: { type: 'place-gate', gateType: 'NOT' },
     },
     {
-      id: 'place-decoder-gates',
-      instruction: 'デコーダ部分を配置',
-      hint: 'AND、NOTゲートで状態デコード',
-      content: [
-        {
-          type: 'text',
-          text: '各状態を検出して対応するLEDを点灯。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'AND' },
-    },
-    {
       id: 'place-outputs',
-      instruction: '信号出力を配置',
-      hint: '赤・黄・青の3つのOUTPUT',
+      instruction: 'STEP5: LED出力を配置',
+      hint: '赤・青・黄の3つのOUTPUT',
       content: [
         {
           type: 'text',
-          text: '上から赤、黄、青の順に配置。',
+          text: 'キャンバスの右端に3つのOUTPUTを縦に配置します。',
+        },
+        {
+          type: 'list',
+          ordered: true,
+          items: [
+            '上：赤信号（RED）',
+            '中：青信号（GREEN）',
+            '下：黄信号（YELLOW）',
+          ],
         },
       ],
       action: { type: 'place-gate', gateType: 'OUTPUT' },
     },
     {
-      id: 'connect-counter',
-      instruction: '配線：カウンタ部分',
-      hint: 'モジュロ3カウンタの配線',
+      id: 'connect-clock',
+      instruction: 'STEP6: クロック配線',
+      hint: 'CLOCKを両方のD-FFのCLKピンに接続',
       content: [
         {
           type: 'text',
-          text: '11の次は00に戻るよう設計。',
+          text: 'CLOCKゲートの出力を両方のD-FFのCLKピンに接続します。',
+        },
+        {
+          type: 'note',
+          text: '同時に状態遷移するための同期信号です',
+        },
+      ],
+      action: { type: 'connect-wire' },
+    },
+    {
+      id: 'connect-counter-logic',
+      instruction: 'STEP7: カウンタロジック配線',
+      hint: 'D-FFのD入力を適切に接続',
+      content: [
+        {
+          type: 'text',
+          text: '次の状態を計算する配線を行います：',
+        },
+        {
+          type: 'list',
+          ordered: false,
+          items: [
+            '1段目のD入力：Q0とQ1のNOR',
+            '2段目のD入力：Q0の状態',
+          ],
         },
       ],
       action: { type: 'connect-wire' },
     },
     {
       id: 'connect-decoder',
-      instruction: '配線：デコーダ部分',
-      hint: '状態に応じてLEDを選択',
-      content: [],
+      instruction: 'STEP8: デコーダ配線',
+      hint: '各状態を検出してLEDに送る',
+      content: [
+        {
+          type: 'text',
+          text: '各状態を検出する配線：',
+        },
+        {
+          type: 'list',
+          ordered: false,
+          items: [
+            '赤（Q1=0, Q0=0）：NOT Q1 AND NOT Q0',
+            '青（Q1=0, Q0=1）：NOT Q1 AND Q0',
+            '黄（Q1=1, Q0=0）：Q1 AND NOT Q0',
+          ],
+        },
+      ],
+      action: { type: 'connect-wire' },
+    },
+    {
+      id: 'connect-outputs',
+      instruction: 'STEP9: LED出力配線',
+      hint: 'デコーダから各LEDに接続',
+      content: [
+        {
+          type: 'text',
+          text: '各状態検出信号を対応するOUTPUTに接続します。',
+        },
+      ],
       action: { type: 'connect-wire' },
     },
     {
       id: 'test-sequence',
-      instruction: 'テスト：信号の順序',
+      instruction: 'STEP10: 動作テスト',
       content: [
         {
+          type: 'heading',
+          text: '🚦 信号切り替えテスト',
+        },
+        {
           type: 'text',
-          text: '赤→青→黄→赤の順に切り替わることを確認',
+          text: 'CLOCKゲートを動かして、次の順序で信号が切り替わることを確認します：',
+        },
+        {
+          type: 'list',
+          ordered: true,
+          items: [
+            '🔴 赤信号（停止）',
+            '🟢 青信号（進行）',
+            '🟡 黄信号（注意）',
+            '🔴 赤信号（繰り返し）',
+          ],
         },
         {
           type: 'note',
-          text: '各色が1つずつ順番に点灯します',
+          text: '各状態では1つのLEDだけが点灯し、他は消灯していることを確認',
         },
       ],
       action: { type: 'toggle-input' },
     },
     {
-      id: 'pedestrian-button',
-      instruction: '【発展】歩行者ボタン',
+      id: 'mid-quiz',
+      instruction: '理解度チェック',
+      content: [
+        {
+          type: 'quiz',
+          question: '信号機の状態　00」が表すのは？',
+          options: ['赤信号', '青信号', '黄信号', '消灯'],
+          correctIndex: 0,
+        },
+      ],
+    },
+    {
+      id: 'practical-applications',
+      instruction: '【応用】信号制御の世界',
       content: [
         {
           type: 'heading',
-          text: '🚶 押しボタン式信号',
+          text: '🌍 身近な制御システム',
         },
         {
           type: 'text',
-          text: '歩行者ボタンを追加すると：',
+          text: '今作った状態機械の原理は、様々な場所で使われています：',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            'ボタン押下を記憶（SRラッチ）',
-            '青信号の時だけ反応',
-            '黄→赤→歩行者青の順序',
-            '一定時間後に通常サイクルへ',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'sensor-integration',
-      instruction: '車両センサー連動',
-      content: [
-        {
-          type: 'heading',
-          text: '🚗 感応式信号機',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '車両検知センサー入力',
-            '交通量に応じて時間調整',
-            '深夜は点滅モード',
-            '緊急車両優先制御',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'intersection-control',
-      instruction: '交差点制御',
-      content: [
-        {
-          type: 'heading',
-          text: '🔀 複雑な交差点',
-        },
-        {
-          type: 'text',
-          text: '実際の交差点では：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '東西・南北の協調制御',
-            '右折専用信号',
-            '歩行者信号の同期',
-            'すべて赤の安全時間',
-          ],
-        },
-        {
-          type: 'note',
-          text: '複数の状態機械が協調動作します',
-        },
-      ],
-    },
-    {
-      id: 'network-control',
-      instruction: 'ネットワーク制御',
-      content: [
-        {
-          type: 'heading',
-          text: '🌐 広域交通管制',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '中央管制センター',
-            'グリーンウェーブ（連続青信号）',
-            '渋滞検知と動的制御',
-            'AI による最適化',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'safety-features',
-      instruction: '安全機能',
-      content: [
-        {
-          type: 'heading',
-          text: '🛡️ フェイルセーフ',
-        },
-        {
-          type: 'text',
-          text: '故障時の安全確保：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '競合防止（同時青を回避）',
-            '故障検知で全赤点滅',
-            'バックアップ電源',
-            'ウォッチドッグタイマー',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'led-technology',
-      instruction: 'LED信号機の利点',
-      content: [
-        {
-          type: 'heading',
-          text: '💡 最新技術',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '🔋 省電力（90%削減）',
-            '⏳ 長寿命（10年以上）',
-            '☀️ 高視認性',
-            '❄️ 発熱が少ない（雪が積もらない）',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'applications',
-      instruction: '【応用】信号制御の応用',
-      content: [
-        {
-          type: 'heading',
-          text: '💻 他の制御システム',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '🚂 鉄道信号システム',
-            '✈️ 空港の誘導灯',
-            '🏭 工場の工程管理',
-            '🎢 遊園地のアトラクション',
-            '🚨 緊急避難誘導',
+            '🚆 電車の自動運転システム',
+            '🏠 エレベーターの制御',
+            '🏭 工場の生産ライン',
+            '🎮 自動販売機の状態管理',
+            '📱 スマートフォンのアプリ状態',
           ],
         },
       ],
@@ -401,38 +339,38 @@ export const trafficLightStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🏆 習得したスキル',
+          text: '🏆 おめでとうございます！',
+        },
+        {
+          type: 'text',
+          text: 'あなたは以下の重要なスキルを習得しました：',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '✅ 状態機械の設計',
-            '✅ タイミング制御',
-            '✅ 安全性を考慮した設計',
-            '✅ 実用システムの構築',
+            '✅ 有限状態機械の設計と実装',
+            '✅ 2ビットカウンタの構築',
+            '✅ 状態デコーダの作成',
+            '✅ クロック同期制御',
+            '✅ 実用的なシステム設計',
           ],
         },
         {
           type: 'note',
-          text: '身近な機器の仕組みが理解できました！',
+          text: 'これで身近な制御システムの仕組みが理解できました！',
         },
       ],
     },
     {
-      id: 'quiz',
-      instruction: '理解度チェック！',
+      id: 'final-quiz',
+      instruction: '最終理解度チェック',
       content: [
         {
           type: 'quiz',
-          question: '信号機で最も重要な安全機能は？',
-          options: [
-            'LEDの明るさ',
-            '同時に青にならない制御',
-            '消費電力の削減',
-            'デザイン性',
-          ],
-          correctIndex: 1,
+          question: '信号機の状態遷移で、黄信号の次に来るのは？',
+          options: ['赤信号', '青信号', '再び黄信号', '消灯'],
+          correctIndex: 0,
         },
       ],
     },

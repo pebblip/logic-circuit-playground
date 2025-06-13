@@ -1,0 +1,645 @@
+/* モバイルレイアウト */
+.mobile-layout {
+  height: 100vh;
+  position: relative;
+  background: #0a0a0a;
+  overflow: hidden;
+}
+
+/* モバイルコンテンツ */
+.mobile-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* モバイルヘッダー - フローティングスタイル */
+.mobile-header {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  background: rgba(15, 15, 15, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: var(--z-header);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--color-primary), #00aaff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.mobile-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* トースト通知スタイル */
+.mobile-toast {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.mobile-toast.expanded {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* アニメーション */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.icon-button {
+  width: 44px;  /* タップ領域を拡大 */
+  height: 44px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 18px;
+}
+
+.icon-button:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* モード選択 - セグメンテッドコントロール風 */
+.mobile-mode-selector {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 3px;
+  display: flex;
+  z-index: var(--z-dropdown);
+}
+
+.mode-button {
+  min-width: 72px;
+  height: 34px;
+  padding: 0 20px;
+  background: transparent;
+  border: none;
+  border-radius: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* タップ領域を拡大 */
+.mode-button::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
+
+.mode-button.active {
+  background: rgba(255, 255, 255, 0.95);
+  color: #000000;
+  font-weight: 600;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
+              0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* キャンバスコンテナ - フルスクリーン */
+.mobile-canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  background: #0a0a0a;
+  touch-action: none;
+}
+
+/* FABコンテナ調整 */
+.fab-container {
+  bottom: 24px !important;
+  right: 16px !important;
+}
+
+/* ツールバーが開いたとき */
+.mobile-toolbar.open ~ .fab-container {
+  bottom: 340px !important;
+}
+
+/* FABスタイルはlayout.cssに統一 */
+
+/* モバイルツールバー - モダンボトムシート */
+.mobile-toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(20, 20, 20, 0.98);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px 24px 0 0;
+  z-index: var(--z-toolbar);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-toolbar.open {
+  transform: translateY(0);
+}
+
+/* スワイプハンドル */
+.swipe-handle {
+  width: 100%;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  padding: 8px 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.swipe-handle::before {
+  content: '';
+  width: 40px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.swipe-handle:active::before {
+  width: 50px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ツールグリッド */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 20px;
+  max-height: 280px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ツールアイテム - ミニマルデザイン */
+.tool-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  padding: 16px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+/* タップ領域を拡大 */
+.tool-item::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
+
+.tool-item:active {
+  transform: scale(0.96);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.tool-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.tool-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  letter-spacing: -0.2px;
+}
+
+/* カテゴリータブ */
+.tool-categories {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px 12px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.05);
+}
+
+.category-chip {
+  flex: 1;
+  height: 40px;
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: none;
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+.category-chip.active {
+  background: rgba(0, 255, 136, 0.15);
+  color: #00ff88;
+  font-weight: 600;
+}
+
+.category-chip:active {
+  transform: scale(0.95);
+}
+
+/* ゲートボタンの改善 */
+.mobile-gate-button {
+  aspect-ratio: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  padding: 12px;
+}
+
+.mobile-gate-button:active {
+  transform: scale(0.95);
+  background: var(--color-primary-subtle);
+  border-color: var(--color-primary-border-strong);
+}
+
+.mobile-gate-icon {
+  font-size: 24px;
+}
+
+.mobile-gate-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+/* モバイルツールバー */
+.mobile-toolbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 8px 12px;
+  z-index: var(--z-toolbar); /* モバイルツールバー v2 */
+  transform: translateY(calc(100% - 36px));
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-toolbar.open {
+  transform: translateY(0);
+}
+
+.swipe-handle {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.swipe-handle:active {
+  background: rgba(0, 255, 136, 0.8);
+  width: 40px;
+}
+
+.tool-categories {
+  display: flex;
+  gap: 6px;
+  margin: 12px 8px 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 0 4px;
+  justify-content: center;
+}
+
+.tool-categories::-webkit-scrollbar {
+  display: none;
+}
+
+.category-chip {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.5px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.category-chip.active {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-border),
+    rgba(0, 170, 255, 0.15)
+  );
+  border-color: var(--color-primary-border-stronger);
+  color: var(--color-primary);
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px var(--color-primary-border-strong);
+}
+
+.category-chip:not(.active):active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+  max-height: 80px;
+  overflow-y: auto;
+  padding: 0 6px;
+}
+
+.tools-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.tool-item {
+  aspect-ratio: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  min-height: 36px;
+  min-width: 36px;
+  max-height: 45px;
+  max-width: 45px;
+}
+
+.tool-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-subtle),
+    rgba(0, 170, 255, 0.05)
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tool-item:active {
+  transform: scale(0.92);
+  background: var(--color-primary-subtle);
+  border-color: var(--color-primary-border-strong);
+  box-shadow: 0 4px 12px var(--color-primary-border);
+}
+
+.tool-item:active::before {
+  opacity: 1;
+}
+
+.tool-icon {
+  font-size: 9px;
+  font-weight: 600;
+  z-index: var(--z-gate); /* ツールアイコン */
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  margin-bottom: 1px;
+  line-height: 1;
+}
+
+.tool-name {
+  font-size: 6px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  z-index: var(--z-gate); /* ツール名 */
+  letter-spacing: 0.1px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* フローティングアクションボタン（モバイル用） */
+@media (max-width: 640px) {
+  .fab-container {
+    position: absolute;
+    bottom: 260px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: var(--z-fab); /* FABコンテナ */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@media (max-width: 640px) {
+  .fab {
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+    background: var(--color-primary-bright);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px var(--color-primary-border-strong);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .fab:active {
+    transform: scale(0.95);
+  }
+
+  .fab.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-size: 18px;
+  }
+
+  .fab.primary {
+    background: var(--color-primary-bright);
+  }
+
+  /* 拡張メニュー */
+  .fab-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: fadeInUp 0.3s ease-out;
+    transform-origin: bottom;
+  }
+
+  .fab-container.expanded .fab-menu {
+    animation: fadeInUp 0.3s ease-out;
+  }
+
+  /* メインFAB（設定ボタン） */
+  .main-fab {
+    background: rgba(0, 170, 255, 0.9) !important;
+    box-shadow: 0 4px 12px rgba(0, 170, 255, 0.3) !important;
+    order: 2;
+  }
+
+  /* シミュレーションFAB */
+  .simulate-fab {
+    order: 3;
+    margin-top: 4px;
+  }
+
+  /* FABコンテナが展開された時 */
+  .fab-container.expanded {
+    gap: 8px;
+  }
+
+  .fab-container.expanded .main-fab {
+    background: rgba(255, 107, 107, 0.9) !important;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
+  }
+}
+
+/* アニメーション */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 480px) {
+  .fab-container {
+    bottom: 240px;
+    right: 12px;
+  }
+
+  .fab {
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
+    font-size: 18px;
+  }
+
+  .fab.secondary {
+    font-size: 16px;
+  }
+}
+
+/* タッチ最適化 */
+@media (hover: none) and (pointer: coarse) {
+  .pin-hit-area {
+    r: 25;
+  }
+
+  .gate {
+    cursor: grab;
+  }
+
+  .gate:active {
+    cursor: grabbing;
+  }
+}

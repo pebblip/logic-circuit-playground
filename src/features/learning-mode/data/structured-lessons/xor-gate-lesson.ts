@@ -7,12 +7,12 @@ export const xorGateStructuredLesson: StructuredLesson = {
   objective: `${TERMS.XOR}ゲートの動作原理を理解し、「排他的論理和」の概念を習得。実用的な応用例を学びます`,
   difficulty: 'beginner',
   prerequisites: ['and-gate', 'or-gate'],
-  estimatedMinutes: 10,
+  estimatedMinutes: 15,
   availableGates: ['INPUT', 'XOR', 'OUTPUT'],
   steps: [
     {
       id: 'intro',
-      instruction: `${TERMS.XOR}ゲートは「違い」を検出する特殊なゲートです！`,
+      instruction: `${TERMS.XOR}ゲートは「違い」を検出する特殊なゲートです`,
       content: [
         {
           type: 'rich-text',
@@ -25,11 +25,15 @@ export const xorGateStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: 'ゲームで例えると',
+          text: '身近な例で考えると',
         },
         {
           type: 'text',
-          text: '「2人プレイで、違うボタンを押したらポイントゲット！」みたいなルールです。',
+          text: 'エレベーターのボタンのようなものです。上ボタンか下ボタン、どちらか一方だけ押すと動きますが、両方同時に押すと動きません。',
+        },
+        {
+          type: 'note',
+          text: '「どちらか一方だけ」という条件は、日常生活でもよく使われています',
         },
       ],
     },
@@ -101,43 +105,47 @@ export const xorGateStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: 'XOR回路の構成',
+          text: '手順１：入力ゲートを配置',
         },
         {
           type: 'rich-text',
           elements: [
-            'XOR回路は2つの入力が必要です：',
-            { text: '入力A', emphasis: true },
-            ' + ',
-            { text: '入力B', emphasis: true },
-            ' ',
+            { text: TERMS.DOUBLE_CLICK, emphasis: true },
+            'で',
+            { text: `${TERMS.INPUT}ゲート`, emphasis: true },
+            'を2つ配置します。',
+            'スイッチAとスイッチBの役割です。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順２：XORゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '次に',
             { text: 'XORゲート', emphasis: true },
-            ' ',
-            { text: '出力', emphasis: true },
-          ],
-        },
-        {
-          type: 'circuit-diagram',
-          circuitId: 'xor-gate',
-          showTruthTable: false,
-        },
-        {
-          type: 'heading',
-          text: '作成手順',
-        },
-        {
-          type: 'list',
-          ordered: true,
-          items: [
-            '入力ゲートを2つ配置（スイッチA・Bの役割）',
-            'XORゲートを配置（違い検出の魔法使い）',
-            '出力ゲートを配置（結果表示のランプ）',
-            '配線で3本でつなげる',
+            'を配置します。',
+            'これが「違いを検出する」特殊ゲートです。',
           ],
         },
         {
           type: 'heading',
-          text: '配線のコツ',
+          text: '手順３：出力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '最後に',
+            { text: `${TERMS.OUTPUT}ゲート`, emphasis: true },
+            'を配置します。',
+            '結果を表示するランプの役割です。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順４：配線でつなげる',
         },
         {
           type: 'rich-text',
@@ -145,12 +153,14 @@ export const xorGateStructuredLesson: StructuredLesson = {
             'XORゲートは',
             { text: '2つの入力ピン', emphasis: true },
             'があります。',
-            '上下に並んだ入力ゲートの右の丸と、XORゲートの左の2つの丸をそれぞれつなげます。',
+            '入力Aの右の丸→XORの上の丸、',
+            '入力Bの右の丸→XORの下の丸、',
+            'XORの右の丸→出力の左の丸',
           ],
         },
         {
           type: 'note',
-          text: '配線のポイント：入力Aの右の丸→XORの上の丸、入力Bの右の丸→XORの下の丸、XORの右の丸→出力の左の丸',
+          text: '配線のコツ：ピンをクリックしてから、次のピンをクリックすると自動的に線が引かれます',
         },
       ],
     },
@@ -242,6 +252,31 @@ export const xorGateStructuredLesson: StructuredLesson = {
           type: 'note',
           text: `「両方${TERMS.ON}」の時だけ違う！${TERMS.AND}=${TERMS.ON}、${TERMS.OR}=${TERMS.ON}、${TERMS.XOR}=${TERMS.OFF}`,
         },
+        {
+          type: 'heading',
+          text: '確率的な視点',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'ランダムに入力を変えたとき、各ゲートが',
+            { text: TERMS.ON, emphasis: true },
+            'になる確率：',
+          ],
+        },
+        {
+          type: 'list',
+          ordered: false,
+          items: [
+            `${TERMS.AND}ゲート：25%（4パターン中1パターン）`,
+            `${TERMS.OR}ゲート：75%（4パターン中3パターン）`,
+            `${TERMS.XOR}ゲート：50%（4パターン中2パターン）`,
+          ],
+        },
+        {
+          type: 'note',
+          text: 'XORは「ちょうど半分」の確率でONになる、バランスの取れたゲートです',
+        },
       ],
     },
     {
@@ -256,11 +291,23 @@ export const xorGateStructuredLesson: StructuredLesson = {
           type: 'list',
           ordered: false,
           items: [
-            '計算機：0と1の足し算で使われる基本部品',
-            'セキュリティ：データを安全に保護する仕組み',
-            'ゲーム：同時押し禁止の判定',
-            'エラー検出：データが正しく送られたかチェック',
+            '計算機の足し算：1+1=10（桁上がり）の下位ビット計算',
+            'パスワード暗号化：同じキーでもう一度XORすると元に戻る性質を利用',
+            'ゲームコントローラー：左右同時押し無効化（格闘ゲームなど）',
+            'エラー検出：通信データのパリティチェック（誤り検出）',
           ],
+        },
+        {
+          type: 'heading',
+          text: '身近な製品での使用例',
+        },
+        {
+          type: 'text',
+          text: 'USBメモリやハードディスクのデータ保護、QRコードのエラー訂正、リモコンの信号送信など、私たちの周りの多くの電子機器でXORゲートが活躍しています。',
+        },
+        {
+          type: 'note',
+          text: 'XORの「反転」する性質は、暗号化とエラー検出の基本原理です',
         },
       ],
     },
