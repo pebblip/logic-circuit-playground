@@ -14,13 +14,34 @@
 - 型安全性重視のコード基盤（ESLint準拠）
 - レスポンシブデザイン対応（デスクトップ・タブレット・モバイル）
 
+## 📊 必ず確認すること
+**セッション開始時は必ず [PROGRESS.md](PROGRESS.md) を確認してください**
+- 現在の進捗状況
+- 前回の作業内容
+- 次回の作業予定
+- 未解決の課題
+
+```bash
+# セッション開始時の必須コマンド
+cat PROGRESS.md          # 進捗確認
+git log --oneline -5     # 最近のコミット
+npm test                 # テスト状態
+```
+
 ## 📚 ドキュメント構造
 
 ### 必読ドキュメント
-1. `docs/development/GUIDELINES.md` - 開発ガイドライン（コーディング規約、品質基準）
-2. `docs/development/ARCHITECTURE.md` - アーキテクチャ（Hybrid Feature-Domain）
-3. `docs/development/ROADMAP.md` - 開発ロードマップ
-4. `docs/PROJECT_BLUEPRINT.md` - プロジェクト全体の青写真
+1. `PROGRESS.md` - **進捗管理とセッション引き継ぎ（最重要）**
+2. `docs/development/GUIDELINES.md` - 開発ガイドライン（コーディング規約、品質基準）
+3. `docs/development/ARCHITECTURE.md` - アーキテクチャ（Hybrid Feature-Domain）
+4. `docs/development/ROADMAP.md` - 開発ロードマップ
+5. `docs/PROJECT_BLUEPRINT.md` - プロジェクト全体の青写真
+
+### 実践的ドキュメント（セッション中によく参照）
+- `docs/QUICK_START.md` - 5分で始めるガイド（環境構築・初回実行）
+- `docs/FAQ.md` - よくある質問と解決方法（最優先トラブルシューティング）
+- `docs/TROUBLESHOOTING.md` - 技術的問題の詳細解決方法
+- `docs/COMMAND_REFERENCE.md` - 全コマンドの完全ガイド
 
 ### モックアップ
 - `docs/design/mockups/final-gate-design.html` - ゲートのデザイン仕様
