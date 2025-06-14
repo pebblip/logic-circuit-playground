@@ -4,7 +4,7 @@
 
 ### なぜHybrid Feature-Domain Architectureか？
 
-このプロジェクトの特性を考慮した結果、Pure Feature-Sliced DesignでもシンプルなMVCでもない、**ハイブリッドアーキテクチャ**を採用します。
+このプロジェクトの特性を考慮した結果、Pure Feature-Sliced DesignでもシンプルなMVCでもない、**ハイブリッドアーキテクチャ**を採用しています。
 
 #### プロジェクトの特性
 - **規模**: 中規模（大規模アーキテクチャは過剰）
@@ -17,79 +17,126 @@
 2. **Domain層**: UIに依存しないビジネスロジックを集約
 3. **適切な粒度**: 機能の複雑さに応じて柔軟に構造化
 
-## 📁 ディレクトリ構造
+## 📁 現在のディレクトリ構造
 
 ```
 src/
 ├── 🎨 features/                 # 機能単位のUI層
-│   ├── circuit-editor/          # 回路エディタ機能
-│   │   ├── CircuitCanvas.tsx    # メインキャンバス
-│   │   ├── components/          # この機能専用のコンポーネント
-│   │   │   ├── Gate.tsx         # ゲート表示
-│   │   │   ├── Wire.tsx         # ワイヤー表示
-│   │   │   └── Pin.tsx          # ピン表示
-│   │   └── hooks/               # この機能専用のフック
-│   │       ├── useCircuitEditor.ts
-│   │       └── useWireDrawing.ts
+│   ├── gallery/                 # ギャラリーモード
+│   │   ├── data/
+│   │   │   └── gallery.ts       # サンプル回路データ
+│   │   └── ui/
+│   │       ├── GalleryPanel.tsx
+│   │       └── SimpleGalleryPanel.tsx
 │   │
-│   ├── learning-mode/           # 学習モード
-│   │   ├── LearningPanel.tsx
-│   │   ├── TutorialOverlay.tsx
-│   │   └── useLearningProgress.ts
+│   ├── learning-mode/           # 学習モード（完成度高）
+│   │   ├── components/          # レッスン表示コンポーネント
+│   │   │   ├── LessonStepRenderer.tsx
+│   │   │   └── content-renderers/
+│   │   ├── data/               # レッスンデータ
+│   │   │   ├── lessons.ts
+│   │   │   ├── lesson-quality.ts
+│   │   │   └── structured-lessons/
+│   │   └── ui/
+│   │       └── LearningPanel.tsx
 │   │
-│   ├── tool-palette/            # ツールパレット
-│   │   ├── ToolPalette.tsx
-│   │   └── useToolSelection.ts
-│   │
-│   └── property-panel/          # プロパティパネル
-│       ├── PropertyPanel.tsx    # ゲート情報表示（構造化説明対応）
-│       ├── TruthTableDisplay.tsx # 真理値表モーダル表示
-│       └── TruthTable.tsx
+│   └── puzzle-mode/            # パズルモード
+│       ├── data/
+│       │   └── puzzles.ts
+│       ├── model/
+│       │   └── PuzzleValidator.ts
+│       └── ui/
+│           └── PuzzlePanel.tsx
 │
 ├── 🔧 domain/                   # ビジネスロジック層
-│   ├── entities/                # 【既存を活用】ドメインモデル
-│   │   ├── gates/               # ゲートクラス群
-│   │   │   ├── BaseGate.ts     # 抽象基底クラス
-│   │   │   ├── ANDGate.ts
-│   │   │   ├── ORGate.ts
-│   │   │   ├── GateFactory.ts
-│   │   │   └── index.ts
-│   │   ├── circuit/             # 回路関連
-│   │   │   ├── Circuit.ts
-│   │   │   ├── Connection.ts
-│   │   │   └── Pin.ts
-│   │   └── types/               # ドメイン型定義
+│   ├── analysis/                # 回路分析
+│   │   ├── pinPositionCalculator.ts
+│   │   └── truthTableGenerator.ts
 │   │
-│   ├── services/                # ビジネスロジックサービス
-│   │   ├── CircuitSimulator.ts # シミュレーションエンジン
-│   │   ├── GatePlacement.ts    # ゲート配置ロジック
-│   │   ├── CollisionDetector.ts # 当たり判定
-│   │   └── CircuitSerializer.ts # 保存/読み込み
+│   ├── circuit/                 # 回路操作
+│   │   └── layout.ts           # レイアウト計算
 │   │
-│   └── stores/                  # グローバル状態管理
-│       └── circuitStore.ts      # Zustand store
+│   └── simulation/             # シミュレーションエンジン
+│       ├── core/               # coreAPI（Result<T,E>パターン）
+│       │   ├── circuitEvaluation.ts
+│       │   ├── gateEvaluation.ts
+│       │   ├── errorMessages.ts
+│       │   ├── types.ts
+│       │   └── validation.ts
+│       └── signalConversion.ts
 │
-├── 🎯 shared/                   # 共有リソース
-│   ├── components/              # 汎用UIコンポーネント
-│   │   ├── Button/
-│   │   ├── Modal/
-│   │   └── Icons/
-│   ├── hooks/                   # 汎用カスタムフック
-│   │   ├── useResponsive.ts
-│   │   └── useKeyboardShortcuts.ts
-│   └── utils/                   # ユーティリティ
-│       ├── geometry.ts          # 幾何計算
-│       ├── constants.ts         # 定数定義
-│       └── truthTableGenerator.ts # 真理値表自動生成
+├── 🏪 stores/                   # グローバル状態管理（Zustand）
+│   ├── circuitStore.ts         # ストア統合
+│   └── slices/                 # 機能別スライス
+│       ├── appModeSlice.ts     # アプリモード管理
+│       ├── clipboardSlice.ts   # コピー&ペースト
+│       ├── customGateSlice.ts  # カスタムゲート
+│       ├── errorSlice.ts       # エラーメッセージ
+│       ├── gateOperations.ts  # ゲート操作
+│       ├── historySlice.ts     # 履歴管理
+│       ├── selectionSlice.ts  # 選択状態
+│       ├── shareSlice.ts       # 回路共有
+│       ├── toolPaletteSlice.ts # ツール選択
+│       └── wireOperations.ts  # ワイヤー操作
 │
-└── 📱 app/                      # アプリケーション設定
-    ├── App.tsx                  # ルートコンポーネント
-    ├── providers/               # プロバイダー
-    │   └── StoreProvider.tsx
-    └── layouts/                 # レイアウト
-        ├── DesktopLayout.tsx
-        ├── MobileLayout.tsx
-        └── components/          # レイアウト用コンポーネント
+├── 🎯 components/               # UIコンポーネント（共有・汎用）
+│   ├── Canvas.tsx              # メインキャンバス
+│   ├── Gate.tsx                # ゲート表示
+│   ├── Wire.tsx                # ワイヤー表示
+│   ├── Header.tsx              # ヘッダー
+│   ├── ToolPalette.tsx         # ツールパレット
+│   ├── TruthTableDisplay.tsx   # 真理値表表示
+│   ├── ErrorNotification.tsx   # エラー通知
+│   ├── KeyboardShortcutsHelp.tsx # ショートカットヘルプ
+│   │
+│   ├── common/                 # 共通コンポーネント
+│   │   └── CircuitPreview.tsx
+│   │
+│   ├── dialogs/                # ダイアログ群
+│   │   ├── CreateCustomGateDialog.tsx
+│   │   ├── LoadCircuitDialog.tsx
+│   │   ├── SaveCircuitDialog.tsx
+│   │   └── ShareCircuitDialog.tsx
+│   │
+│   ├── gate-renderers/         # ゲート描画
+│   │   ├── BasicGateRenderer.tsx
+│   │   ├── CustomGateRenderer.tsx
+│   │   └── SpecialGateRenderer.tsx
+│   │
+│   ├── layouts/                # レスポンシブレイアウト
+│   │   ├── ResponsiveLayout.tsx
+│   │   ├── DesktopLayout.tsx
+│   │   ├── TabletLayout.tsx
+│   │   └── MobileLayout.tsx
+│   │
+│   └── property-panel/         # プロパティパネル
+│       ├── PropertyPanel.tsx
+│       ├── GateInfo.tsx
+│       └── TruthTableModal.tsx
+│
+├── 🔨 hooks/                    # カスタムフック
+│   ├── useCanvasZoom.ts        # ズーム機能
+│   ├── useGateDragAndDrop.ts   # ドラッグ&ドロップ
+│   ├── useKeyboardShortcuts.ts # キーボード操作
+│   └── useResponsive.ts        # レスポンシブ判定
+│
+├── 📂 services/                 # ビジネスロジックサービス
+│   ├── CircuitShareService.ts  # 回路共有
+│   ├── CircuitStorageService.ts # 保存/読み込み
+│   └── WireConnectionService.ts # ワイヤー接続検証
+│
+├── 🎨 styles/                   # スタイルシート
+│   ├── index.css               # メインスタイル
+│   ├── design-tokens.css       # デザイントークン
+│   └── components.css          # コンポーネントスタイル
+│
+├── 📝 types/                    # 型定義
+│   ├── circuit.ts              # 回路関連の型
+│   ├── gates.ts                # ゲート関連の型
+│   ├── appMode.ts              # アプリモード
+│   └── lesson-content.ts       # レッスンコンテンツ
+│
+└── App.tsx                     # アプリケーションエントリ
 ```
 
 ## 🎮 状態管理戦略
@@ -97,242 +144,117 @@ src/
 ### グローバル状態: Zustand（シンプルに）
 
 ```typescript
-// domain/stores/circuitStore.ts
-import { create } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
-import { BaseGate } from '../entities/gates/BaseGate';
-import { Connection } from '../entities/circuit/Connection';
+// stores/circuitStore.ts
+export const useCircuitStore = create<CircuitStore>()((...a) => ({
+  // 基本的な状態
+  gates: [],
+  wires: [],
+  isDrawingWire: false,
+  wireStart: null,
 
-interface CircuitState {
-  // 状態
-  gates: BaseGate[];
-  connections: Connection[];
-  selectedGateId: string | null;
-  
-  // アクション
-  addGate: (gate: BaseGate) => void;
-  moveGate: (gateId: string, position: Position) => void;
-  deleteGate: (gateId: string) => void;
-  connectPins: (fromPinId: string, toPinId: string) => void;
-  setSelectedGate: (gateId: string | null) => void;
-  
-  // 派生状態
-  getSelectedGate: () => BaseGate | null;
-}
+  // エラーメッセージ
+  errorMessage: null,
+  errorType: null,
 
-export const useCircuitStore = create<CircuitState>()(
-  immer((set, get) => ({
-    gates: [],
-    connections: [],
-    selectedGateId: null,
-    
-    addGate: (gate) => set((state) => {
-      state.gates.push(gate);
-    }),
-    
-    moveGate: (gateId, position) => set((state) => {
-      const gate = state.gates.find(g => g.id === gateId);
-      if (gate) {
-        gate.position = position;
-      }
-    }),
-    
-    deleteGate: (gateId) => set((state) => {
-      state.gates = state.gates.filter(g => g.id !== gateId);
-      state.connections = state.connections.filter(
-        c => c.from.gateId !== gateId && c.to.gateId !== gateId
-      );
-    }),
-    
-    connectPins: (fromPinId, toPinId) => set((state) => {
-      const connection = new Connection(fromPinId, toPinId);
-      state.connections.push(connection);
-    }),
-    
-    setSelectedGate: (gateId) => set((state) => {
-      state.selectedGateId = gateId;
-    }),
-    
-    getSelectedGate: () => {
-      const state = get();
-      return state.gates.find(g => g.id === state.selectedGateId) || null;
-    }
-  }))
-);
+  // 各スライスをマージ
+  ...createHistorySlice(...a),
+  ...createSelectionSlice(...a),
+  ...createGateOperationsSlice(...a),
+  ...createWireOperationsSlice(...a),
+  ...createClipboardSlice(...a),
+  ...createCustomGateSlice(...a),
+  ...createAppModeSlice(...a),
+  ...createToolPaletteSlice(...a),
+  ...createShareSlice(...a),
+  ...createErrorSlice(...a),
+}));
 ```
 
-### ローカル状態: useState + カスタムフック
+### ローカル状態: useState（コンポーネント内）
+- UI状態（モーダルの開閉、フォーム入力など）
+- 一時的な表示状態
 
-```typescript
-// features/circuit-editor/hooks/useCircuitEditor.ts
-export const useCircuitEditor = () => {
-  // UI状態はローカルで管理
-  const [isDragging, setIsDragging] = useState(false);
-  const [drawingWire, setDrawingWire] = useState<DrawingWire | null>(null);
-  const [hoveredPinId, setHoveredPinId] = useState<string | null>(null);
-  
-  // ドメインロジックはservicesから
-  const placement = useMemo(() => new GatePlacement(), []);
-  const collision = useMemo(() => CollisionDetector.getInstance(), []);
-  
-  // グローバル状態はstoreから
-  const { gates, addGate, selectedGateId } = useCircuitStore();
-  
-  const handleGatePlace = useCallback((type: GateType) => {
-    const position = placement.calculateOptimalPosition(gates);
-    const gate = GateFactory.create(type, position);
-    addGate(gate);
-  }, [gates, addGate, placement]);
-  
-  return {
-    // 状態
-    isDragging,
-    drawingWire,
-    hoveredPinId,
-    
-    // アクション
-    handleGatePlace,
-    setDrawingWire,
-    setHoveredPinId
-  };
-};
-```
-
-## 🏛️ アーキテクチャの原則
-
-### 1. 依存関係の方向
+## 🔄 データフロー
 
 ```
-features → domain → shared
-    ↓        ↓        ↓
-   UI層   ビジネス層  共通層
+ユーザー操作
+    ↓
+UIコンポーネント（features/components）
+    ↓
+カスタムフック（必要に応じて）
+    ↓
+Zustand Store（状態更新）
+    ↓
+Domain層（ビジネスロジック実行）
+    ↓
+Store更新
+    ↓
+UIレンダリング
 ```
 
-- features層はdomain層に依存OK
-- domain層はfeatures層に依存NG
-- shared層はどこからでも利用可能
+## 🏛️ 設計原則
 
-### 2. 責任の分離
+### 1. 機能の凝集性
+- 関連する機能は同じディレクトリにまとめる
+- 共通利用されるものは適切な階層に配置
 
-#### Features層の責任
-- UIの表示とインタラクション
-- ユーザー操作の処理
-- ローカルなUI状態の管理
+### 2. 依存の方向
+- UI → Domain（一方向）
+- Domain層はUIに依存しない
+- 循環依存を避ける
 
-#### Domain層の責任
-- ビジネスロジックの実装
-- データモデルの定義
-- グローバル状態の管理
+### 3. 責任の分離
+- **components/**: 表示とユーザーインタラクション
+- **domain/**: ビジネスロジックと計算
+- **stores/**: 状態管理
+- **services/**: 外部連携や複雑な処理
 
-#### Shared層の責任
-- 汎用的な機能の提供
-- 複数の機能で使われるコンポーネント
-- アプリ全体の設定や定数
+### 4. 型安全性
+- TypeScriptの厳格モード
+- Result<T,E>パターンでエラーハンドリング
+- any型の使用禁止
 
-### 3. コードの配置基準
+## 🚀 拡張ポイント
 
-```typescript
-// 🤔 このコードはどこに置く？
+### 新しいゲートタイプの追加
+1. `types/gates.ts`に型を追加
+2. `models/gates/GateFactory.ts`にファクトリーメソッドを追加
+3. `components/gate-renderers/`に描画ロジックを追加
 
-// 1. 特定の機能でのみ使う → features/
-features/circuit-editor/components/GateContextMenu.tsx
+### 新しいモードの追加
+1. `features/`に新しいディレクトリを作成
+2. `types/appMode.ts`にモードを追加
+3. `stores/slices/appModeSlice.ts`に切り替えロジックを追加
 
-// 2. UIに依存しないロジック → domain/services/
-domain/services/CircuitValidator.ts
+### 新しい解析機能の追加
+1. `domain/analysis/`に解析ロジックを追加
+2. 必要に応じてストアに状態を追加
+3. UIコンポーネントから呼び出し
 
-// 3. 複数の機能で使う → shared/
-shared/components/Tooltip.tsx
-shared/hooks/useDebounce.ts
-```
+## 📊 パフォーマンス考慮事項
 
-## 🚀 実装例
+### レンダリング最適化
+- React.memoで不要な再レンダリングを防止
+- useMemoで計算結果をキャッシュ
+- 大量のゲートは仮想化を検討
 
-### ワンクリックゲート配置の実装
+### 状態更新の最適化
+- Zustandのshallow比較で部分更新
+- バッチ更新で複数の状態変更をまとめる
+- デバウンスで頻繁な更新を制御
 
-```typescript
-// features/tool-palette/ToolPalette.tsx
-import { useCircuitEditor } from '../circuit-editor/hooks/useCircuitEditor';
+## 🔍 デバッグとテスト
 
-export const ToolPalette: React.FC = () => {
-  const { handleGatePlace } = useCircuitEditor();
-  
-  return (
-    <div className="tool-palette">
-      {GATE_TYPES.map(type => (
-        <button
-          key={type}
-          onClick={() => handleGatePlace(type)}
-          className="tool-button"
-        >
-          <GateIcon type={type} />
-          <span>{type}</span>
-        </button>
-      ))}
-    </div>
-  );
-};
+### デバッグツール
+- React Developer Tools
+- Zustand DevTools
+- カスタムロギング（debug/index.ts）
 
-// domain/services/GatePlacement.ts
-export class GatePlacement {
-  private static readonly GRID_SIZE = 20;
-  private static readonly INITIAL_OFFSET = { x: 100, y: 100 };
-  private static readonly SPACING = 120;
-  
-  calculateOptimalPosition(existingGates: BaseGate[]): Position {
-    if (existingGates.length === 0) {
-      return this.snapToGrid(this.INITIAL_OFFSET);
-    }
-    
-    // 既存ゲートの右側に配置
-    const rightmostGate = this.findRightmostGate(existingGates);
-    const newPosition = {
-      x: rightmostGate.position.x + this.SPACING,
-      y: rightmostGate.position.y
-    };
-    
-    // 衝突チェックして調整
-    return this.avoidCollision(newPosition, existingGates);
-  }
-  
-  private snapToGrid(position: Position): Position {
-    return {
-      x: Math.round(position.x / this.GRID_SIZE) * this.GRID_SIZE,
-      y: Math.round(position.y / this.GRID_SIZE) * this.GRID_SIZE
-    };
-  }
-}
-```
+### テスト戦略
+- ユニットテスト: Domain層のロジック
+- 統合テスト: Store + Domain
+- E2Eテスト: ユーザーシナリオ
 
+---
 
-## 📊 この設計の利点
-
-### 1. 段階的な複雑性
-- シンプルな機能 = シンプルな実装
-- 複雑な機能 = 適切に構造化
-
-### 2. 保守性
-- ロジックの重複なし
-- 責任の所在が明確
-- テストが書きやすい
-
-### 3. 拡張性
-- 新機能の追加が容易
-- 既存機能への影響を最小化
-- チーム開発にも対応
-
-### 4. 実装の容易さ
-- 既存コードを活かせる
-- 学習コストが低い
-- すぐに開発を開始できる
-
-## 🎯 まとめ
-
-このHybrid Feature-Domain Architectureは：
-
-1. **適切な複雑さ** - 過不足のない構造
-2. **実践的** - 理論よりも実装のしやすさを重視
-3. **柔軟** - プロジェクトの成長に合わせて進化可能
-4. **明確** - どこに何を書くべきかが明確
-
-Pure Feature-Sliced Designの厳格さより、**このプロジェクトに最適化された実用的な設計**を選択しました。
-
+*最終更新: 2024年12月13日*

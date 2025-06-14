@@ -1,444 +1,331 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
+import { TERMS } from '../terms';
 
 export const shiftRegisterStructuredLesson: StructuredLesson = {
   id: 'shift-register',
-  title: 'シフトレジスタ - データの行列',
+  title: 'シフトレジスタ - データの順次移動',
   description: 'データを順番に送り出す・受け取る回路を作ります',
+  objective: 'D-FFの連鎖によるデータシフト機構を構築し、シリアル通信とデータ転送の基礎原理を習得する',
+  category: '順序回路',
+  lessonType: 'build',
   difficulty: 'advanced',
   prerequisites: ['register'],
-  estimatedMinutes: 25,
+  estimatedMinutes: 15,
   availableGates: ['INPUT', 'OUTPUT', 'CLOCK', 'D-FF'],
   steps: [
     {
       id: 'intro',
-      instruction: 'データを順番に流す回路を作ろう！',
+      instruction: 'データを順番に移動させる仕組み',
       content: [
         {
+          type: 'heading',
+          text: '身近な例で考える',
+        },
+        {
           type: 'text',
-          text: '工場のベルトコンベアのように、データを順番に移動させたい...',
+          text: '駅のホームで電車を待つ行列を思い出してください。新しい人が後ろに並び、電車が来ると前の人から順番に乗車していきます。シフトレジスタは、このような「データの行列」を電子回路で実現したものです。',
         },
         {
           type: 'heading',
-          text: '🤔 シフトレジスタとは？',
+          text: 'シフトレジスタとは',
         },
         {
           type: 'text',
-          text: 'データを1ビットずつ順番にシフト（移動）させるレジスタです。',
+          text: '複数のD-フリップフロップを連鎖接続し、クロック信号に合わせてデータを1ビットずつ順次移動（シフト）させる装置です。1本の線でデータを送受信するシリアル通信の基本回路です。',
         },
         {
           type: 'note',
-          text: 'シリアル通信の基本となる重要な回路です',
+          text: 'USB、Wi-Fi、Bluetoothなど、現代の通信技術の基礎となる回路です',
         },
       ],
     },
     {
-      id: 'shift-types',
-      instruction: 'シフトレジスタの種類',
+      id: 'principle',
+      instruction: 'シフトレジスタの電気的仕組み',
       content: [
         {
           type: 'heading',
-          text: '📊 4つの基本型',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '➡️ SISO：シリアル入力・シリアル出力',
-            '📥 SIPO：シリアル入力・パラレル出力',
-            '📤 PISO：パラレル入力・シリアル出力',
-            '🔄 PIPO：パラレル入力・パラレル出力',
-          ],
-        },
-        {
-          type: 'heading',
-          text: '🎯 今回作るもの',
+          text: '4ビットSIPOシフトレジスタの構造',
         },
         {
           type: 'text',
-          text: '4ビットSIPO（シリアル→パラレル変換）',
+          text: 'SIPO（Serial Input, Parallel Output）は、1ビットずつ順番に入力されたデータを、4ビット並列で出力します。4つのD-FFを直列接続し、各段の出力が次の段の入力になります。',
         },
-      ],
-    },
-    {
-      id: 'sipo-concept',
-      instruction: 'SIPO動作の仕組み',
-      content: [
         {
           type: 'heading',
-          text: '🔄 データの流れ',
-        },
-        {
-          type: 'text',
-          text: '1ビットずつ入力して、4ビット同時出力：',
+          text: 'データ移動の流れ',
         },
         {
           type: 'table',
-          headers: ['CLK', '入力', 'Q3', 'Q2', 'Q1', 'Q0'],
+          headers: ['クロック', 'シリアル入力', 'Q3', 'Q2', 'Q1', 'Q0', '動作'],
           rows: [
-            ['初期', '-', '0', '0', '0', '0'],
-            ['1↑', '1', '1', '0', '0', '0'],
-            ['2↑', '0', '0', '1', '0', '0'],
-            ['3↑', '1', '1', '0', '1', '0'],
-            ['4↑', '1', '1', '1', '0', '1'],
+            ['0', '-', '0', '0', '0', '0', '初期状態'],
+            ['1↑', '1', '1', '0', '0', '0', '1が左端に入力'],
+            ['2↑', '0', '0', '1', '0', '0', 'データが右へシフト'],
+            ['3↑', '1', '1', '0', '1', '0', '新しい1が入力'],
+            ['4↑', '1', '1', '1', '0', '1', '全データがシフト'],
+          ],
+        },
+        {
+          type: 'heading',
+          text: '利点と特徴',
+        },
+        {
+          type: 'text',
+          text: '配線数の削減：4ビットデータの転送に、パラレルなら4本必要な配線が、シリアルなら1本で済みます。ただし転送時間は4倍かかるため、用途に応じて使い分けます。',
+        },
+        {
+          type: 'note',
+          text: '「速度 vs 配線数」のトレードオフを解決する重要な技術です',
+        },
+      ],
+    },
+    {
+      id: 'circuit-build',
+      instruction: '4ビットシフトレジスタ回路を作ってみよう',
+      content: [
+        {
+          type: 'heading',
+          text: '手順１：入力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'で',
+            { text: `${TERMS.INPUT}ゲート`, emphasis: true },
+            'を1つ配置します（シリアル入力SI）。',
+            '続いて',
+            { text: 'CLOCKゲート', emphasis: true },
+            'を1つ配置します。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順２：対象ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'D-FFゲート', emphasis: true },
+            'を4つ配置します。',
+            '左から右へ横一列に並べて配置し、',
+            'データが左から右へ流れる構造を作ります。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順３：出力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.OUTPUT}ゲート`, emphasis: true },
+            'を4つ配置します。',
+            '各D-FFの出力Q3、Q2、Q1、Q0をそれぞれ表示します。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順４：配線でつなげる',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'シリアル接続：SI→1段目D-FF→2段目D-FF→3段目D-FF→4段目D-FFと順番に接続。',
+            'クロック配線：CLOCKをすべてのD-FFのCLK入力に並列接続。',
+            'パラレル出力：各D-FFのQ出力を対応するOUTPUTに接続。',
+            '動作確認：データが左から右へ流れる構造を確認。',
           ],
         },
         {
           type: 'note',
-          text: 'データが右から左へ流れていきます',
+          text: '配線のコツ：データの流れる方向を意識して、段間接続を確実に行う',
         },
       ],
     },
     {
-      id: 'cascade-connection',
-      instruction: 'カスケード接続の原理',
+      id: 'experiment',
+      instruction: '予測して実験しよう',
       content: [
         {
           type: 'heading',
-          text: '🔗 D-FFの連鎖',
+          text: 'まず予測してみよう',
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            '各D-FFの出力が次のD-FFの入力に',
-            '共通のクロックで同期',
-            'データが1段ずつ進む',
-            'FIFOバッファのような動作',
+          type: 'text',
+          text: 'SI=1にしてクロックを1回実行した後の出力を予測してください。Q3Q2Q1Q0 = 1000になるはずです。その後SI=0にして再度クロックを実行すると？',
+        },
+        {
+          type: 'heading',
+          text: '実験で確かめよう',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '1. 初期状態：SI=0で、すべての出力が0000を確認。',
+            '2. SIを',
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'して1にし、クロック実行→1000に変化。',
+            '3. SIを0に戻してクロック実行→0100に変化（1が右にシフト）。',
+            '4. SIを1にしてクロック実行→1010に変化（新しい1が左端に）。',
+            '5. SIを1のままクロック実行→1101に変化。',
           ],
         },
-      ],
-    },
-    {
-      id: 'simplified-design',
-      instruction: '今回の実装（3ビット版）',
-      content: [
-        {
-          type: 'text',
-          text: '基本を理解するため3ビットで構築します。',
-        },
         {
           type: 'heading',
-          text: '📐 構成',
+          text: '実験結果の確認',
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            '3個のD-FF（直列接続）',
-            'シリアル入力（SI）',
-            'パラレル出力（Q2, Q1, Q0）',
-            '共通クロック',
+          type: 'table',
+          headers: ['ステップ', 'SI', 'クロック後', 'Q3Q2Q1Q0', '説明'],
+          rows: [
+            ['1', '1', '1回目', '1000', '最初の1が入力'],
+            ['2', '0', '2回目', '0100', '1が右にシフト'],
+            ['3', '1', '3回目', '1010', '新しい1が入力'],
+            ['4', '1', '4回目', '1101', '連続入力'],
           ],
         },
-      ],
-    },
-    {
-      id: 'place-clock',
-      instruction: 'CLOCKゲートを配置',
-      hint: 'シフトタイミングを制御',
-      content: [
         {
-          type: 'text',
-          text: '全段同時にシフトします。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'CLOCK' },
-    },
-    {
-      id: 'place-serial-input',
-      instruction: 'シリアル入力を配置',
-      hint: 'SI（Serial Input）用のINPUT',
-      content: [
-        {
-          type: 'text',
-          text: '1ビットずつデータを投入します。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'INPUT' },
-    },
-    {
-      id: 'place-first-dff',
-      instruction: '1段目のD-FFを配置',
-      hint: '最初のビット格納用',
-      content: [],
-      action: { type: 'place-gate', gateType: 'D-FF' },
-    },
-    {
-      id: 'place-second-dff',
-      instruction: '2段目のD-FFを配置',
-      hint: '中間ビット格納用',
-      content: [],
-      action: { type: 'place-gate', gateType: 'D-FF' },
-    },
-    {
-      id: 'place-third-dff',
-      instruction: '3段目のD-FFを配置',
-      hint: '最終ビット格納用',
-      content: [],
-      action: { type: 'place-gate', gateType: 'D-FF' },
-    },
-    {
-      id: 'place-outputs',
-      instruction: 'パラレル出力を配置',
-      hint: 'Q2, Q1, Q0の3つのOUTPUT',
-      content: [
-        {
-          type: 'text',
-          text: '3ビット同時に取り出せます。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'OUTPUT' },
-    },
-    {
-      id: 'connect-serial-input',
-      instruction: '配線：シリアル入力',
-      hint: 'SIを1段目D-FFのDに接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-cascade',
-      instruction: '配線：段間接続',
-      hint: '各D-FFのQを次のD-FFのDに接続',
-      content: [
-        {
-          type: 'text',
-          text: 'データのバケツリレーです。',
-        },
-      ],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-clocks',
-      instruction: '配線：クロック信号',
-      hint: 'CLOCKを全てのD-FFのCLKに接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-outputs',
-      instruction: '配線：パラレル出力',
-      hint: '各D-FFのQを対応するOUTPUTに接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'test-shift-1',
-      instruction: 'テスト1：最初の1を入力',
-      content: [
-        {
-          type: 'text',
-          text: 'SI=1にして、CLKで100になることを確認',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-shift-2',
-      instruction: 'テスト2：0を入力してシフト',
-      content: [
-        {
-          type: 'text',
-          text: 'SI=0にして、CLKで010になることを確認',
-        },
-        {
-          type: 'note',
-          text: '1が右に移動しました！',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-shift-3',
-      instruction: 'テスト3：連続入力',
-      content: [
-        {
-          type: 'text',
-          text: '好きなパターンを入力して、シフト動作を観察',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'serial-communication',
-      instruction: '【応用】シリアル通信',
-      content: [
-        {
-          type: 'heading',
-          text: '📡 USBやUARTの基本',
-        },
-        {
-          type: 'text',
-          text: '1本の線で複数ビットを送る：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '送信側：PISO（パラレル→シリアル）',
-            '通信線：1本だけ',
-            '受信側：SIPO（シリアル→パラレル）',
-            '配線数を大幅削減',
+          type: 'rich-text',
+          elements: [
+            { text: '発見：', bold: true },
+            'データが',
+            { text: 'ベルトコンベア', emphasis: true },
+            'のように左から右へ順番に移動します。',
           ],
         },
         {
           type: 'note',
-          text: 'USB 3.0は5Gbpsでデータを送ります',
+          text: 'これがシリアル通信でデータを受信する基本原理です',
         },
       ],
     },
     {
-      id: 'led-display',
-      instruction: 'LEDディスプレイへの応用',
+      id: 'analysis',
+      instruction: 'シフトレジスタの特徴を分析しよう',
       content: [
         {
           type: 'heading',
-          text: '💡 ダイナミック点灯',
+          text: 'シリアル vs パラレル通信',
         },
         {
-          type: 'text',
-          text: 'シフトレジスタでLEDマトリクスを制御：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '各行のデータをシフトイン',
-            '全行準備完了でラッチ',
-            '同時に表示更新',
-            '高速繰り返しで動画表示',
+          type: 'table',
+          headers: ['項目', 'シリアル', 'パラレル', '用途'],
+          rows: [
+            ['配線数', '1本（+クロック）', 'データ幅分', 'シリアル有利'],
+            ['転送速度', '1ビット/クロック', '全ビット同時', 'パラレル有利'],
+            ['距離耐性', '強い', '弱い（スキュー）', 'シリアル有利'],
+            ['コスト', '安い', '高い', 'シリアル有利'],
           ],
         },
-      ],
-    },
-    {
-      id: 'circular-shift',
-      instruction: '循環シフトレジスタ',
-      content: [
         {
           type: 'heading',
-          text: '🔄 リングカウンタ',
+          text: 'シフトレジスタの種類',
         },
         {
           type: 'text',
-          text: '最後の出力を最初の入力に接続すると...',
+          text: 'SISO（Serial In, Serial Out）：シリアル入出力、遅延回路として使用。SIPO（Serial In, Parallel Out）：今回作成、受信回路。PISO（Parallel In, Serial Out）：送信回路。PIPO（Parallel In, Parallel Out）：通常のレジスタ。',
         },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            'データが永遠に循環',
-            '1つの1が回転',
-            'ジョンソンカウンタ（反転接続）',
-            'パターンジェネレータ',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'lfsr',
-      instruction: 'LFSR（線形帰還シフトレジスタ）',
-      content: [
         {
           type: 'heading',
-          text: '🎲 疑似乱数生成',
+          text: '実際の通信システム',
         },
         {
           type: 'text',
-          text: '特定ビットのXORを入力に戻すと：',
+          text: 'USB 3.0は5Gbps、PCIe 4.0は16Gbpsで動作し、複数の差動ペア（シリアル線）を並列使用してパラレル並みの性能を実現。これによりシリアルの利点（配線数、距離）とパラレルの利点（速度）を両立しています。',
         },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '長い周期の疑似乱数',
-            'CRC計算',
-            '暗号化の基礎',
-            'パターンテスト',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'barrel-shifter',
-      instruction: 'バレルシフタ',
-      content: [
         {
           type: 'heading',
-          text: '⚡ 高速シフト',
+          text: '確率的な視点',
         },
         {
           type: 'text',
-          text: '1クロックで複数ビットシフト：',
+          text: 'ランダムなシリアル入力に対して、4ビットレジスタの各出力が1になる確率は、定常状態で50%です。ただし、連続する値には相関があり、隣接ビットの値は入力パターンに依存します。',
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            'MUXの組み合わせ',
-            '任意ビット数シフト',
-            '乗除算の高速化',
-            'ビット演算最適化',
-          ],
+          type: 'note',
+          text: 'シフトレジスタは「時間軸での並列化」とも言えます',
         },
       ],
     },
     {
       id: 'applications',
-      instruction: '【応用】シフトレジスタの活用',
+      instruction: 'シフトレジスタの実用例',
       content: [
         {
           type: 'heading',
-          text: '💻 実用例',
+          text: '実世界での活用',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '📡 シリアル通信（USB, SPI, I2C）',
-            '💡 LED看板・ディスプレイ',
-            '🎵 デジタル遅延線',
-            '📊 デジタルフィルタ',
-            '🔐 暗号化回路',
-            '📸 CCDカメラの読み出し',
+            'シリアル通信：USB、SPI、I2C、UARTでのデータ送受信',
+            'LEDディスプレイ：大型看板のデータ転送と制御',
+            'CCDカメラ：画素データの順次読み出し',
+            'デジタル遅延線：信号処理でのタイミング調整',
+            'スマートカード：ICカードとリーダー間の通信',
           ],
+        },
+        {
+          type: 'heading',
+          text: '身近な製品での使用例',
+        },
+        {
+          type: 'text',
+          text: 'スマートフォンの各種センサー通信（I2C、SPI）、パソコンのUSB機器、デジタルカメラの画像センサー、LEDテープやマトリクスディスプレイ、車載システムのCAN通信など、データを順次転送する場面で広く活用されています。',
+        },
+        {
+          type: 'note',
+          text: '現代のデジタル機器では、ほぼすべての内部通信にシリアル方式が採用されています',
         },
       ],
     },
     {
-      id: 'achievement',
-      instruction: '🎉 シフトレジスタマスター！',
+      id: 'summary',
+      instruction: 'シフトレジスタをマスター',
       content: [
         {
           type: 'heading',
-          text: '🏆 習得したスキル',
+          text: 'シフトレジスタの要点',
         },
         {
           type: 'list',
-          ordered: false,
+          ordered: true,
           items: [
-            '✅ データの順次転送',
-            '✅ シリアル⇔パラレル変換',
-            '✅ タイミング制御',
-            '✅ 通信回路の基礎',
+            'D-FFの連鎖でデータを順次移動',
+            'シリアル入力をパラレル出力に変換',
+            '配線数削減と長距離通信に有利',
+            'シリアル通信システムの基本構成要素',
+          ],
+        },
+        {
+          type: 'quiz',
+          question: '8ビットデータをシフトレジスタで完全に受信するのに必要なクロック数は？',
+          options: [
+            '1クロック',
+            '4クロック',
+            '8クロック',
+            '16クロック',
+          ],
+          correctIndex: 2,
+        },
+        {
+          type: 'heading',
+          text: '次回予告',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'クロック同期回路', bold: true },
+            'で、複数の回路を正確なタイミングで動作させる技術を学びます。',
+            'デジタルシステム全体の心臓部です。',
           ],
         },
         {
           type: 'note',
-          text: 'これでデータ転送の仕組みが理解できました！',
-        },
-      ],
-    },
-    {
-      id: 'quiz',
-      instruction: '理解度チェック！',
-      content: [
-        {
-          type: 'quiz',
-          question:
-            '8ビットSIPOに「10110100」を入力完了するのに必要なクロック数は？',
-          options: ['1クロック', '4クロック', '8クロック', '16クロック'],
-          correctIndex: 2,
+          text: 'シフトレジスタの理解で、データ通信の基本原理が分かりました',
         },
       ],
     },

@@ -17,6 +17,11 @@ export const useKeyboardShortcuts = () => {
     copySelection,
     paste,
     canPaste,
+    gates,
+    setSelectedGates,
+    clearSelection,
+    isDrawingWire,
+    cancelWireDrawing,
   } = useCircuitStore();
 
   useEffect(() => {
@@ -110,6 +115,27 @@ export const useKeyboardShortcuts = () => {
           }
         }
       }
+
+      // Cmd/Ctrl + A: Select All
+      if (
+        (event.metaKey || event.ctrlKey) &&
+        event.key === 'a' &&
+        !event.shiftKey
+      ) {
+        event.preventDefault();
+        const allGateIds = gates.map(gate => gate.id);
+        setSelectedGates(allGateIds);
+      }
+
+      // Escape: Clear selection or cancel wire drawing
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        if (isDrawingWire) {
+          cancelWireDrawing();
+        } else if (selectedGateIds.length > 0 || selectedGateId) {
+          clearSelection();
+        }
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
@@ -127,5 +153,10 @@ export const useKeyboardShortcuts = () => {
     copySelection,
     paste,
     canPaste,
+    gates,
+    setSelectedGates,
+    clearSelection,
+    isDrawingWire,
+    cancelWireDrawing,
   ]);
 };

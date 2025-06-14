@@ -1,620 +1,329 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
+import { TERMS } from '../terms';
 
 export const registerStructuredLesson: StructuredLesson = {
   id: 'register',
   title: 'レジスタ - 複数ビットの記憶装置',
   description: '複数のビットを同時に記憶・転送できる回路を作ります',
+  objective: '複数D-FFの並列配置による同期記憶システムを構築し、CPUの高速メモリ機構の基礎を習得する',
+  category: '順序回路',
+  lessonType: 'build',
   difficulty: 'advanced',
-  prerequisites: ['counter'],
-  estimatedMinutes: 20,
+  prerequisites: ['d-flip-flop'],
+  estimatedMinutes: 15,
   availableGates: ['INPUT', 'OUTPUT', 'CLOCK', 'D-FF'],
   steps: [
     {
       id: 'intro',
-      instruction: '複数ビットを一度に記憶しよう！',
+      instruction: '複数のデータを同時に記憶する仕組み',
       content: [
         {
+          type: 'heading',
+          text: '身近な例で考える',
+        },
+        {
           type: 'text',
-          text: '1ビットだけでなく、8ビット、16ビット、32ビット...をまとめて扱いたい！',
+          text: 'スマートフォンで写真を撮影するとき、一瞬で何百万画素のデータが同時にメモリに保存されます。この「複数のデータを一度に処理する」機能は、デジタル機器の基本中の基本です。',
         },
         {
           type: 'heading',
-          text: '🤔 レジスタとは？',
+          text: 'レジスタとは',
         },
         {
           type: 'text',
-          text: '複数のフリップフロップを並列に並べた記憶装置です。',
+          text: '複数のD-フリップフロップを並列に配置して、複数ビットのデータを同時に記憶できるようにした装置です。CPUの中で最も高速にアクセスできるメモリとして機能します。',
         },
         {
           type: 'note',
-          text: 'CPUの中で最も高速なメモリがレジスタです',
+          text: '1つのクロック信号で、すべてのビットが同時に更新される高速記憶装置です',
         },
       ],
     },
     {
-      id: 'cpu-internal-structure',
-      instruction: 'CPU内部でのレジスタの役割',
+      id: 'principle',
+      instruction: 'レジスタの電気的仕組み',
       content: [
         {
           type: 'heading',
-          text: '🏗️ CPU内部ブロック図',
+          text: '4ビットレジスタの構造',
         },
         {
           type: 'text',
-          text: 'CPU内部ブロック図：',
+          text: '4つのD-フリップフロップを並列に配置し、共通のクロック信号で同期動作させます。各D-FFが1ビットを担当し、合計4ビットのデータを同時に処理できます。',
         },
-        {
-          type: 'ascii-art',
-          art: `┌─────────────────────────────────────────────┐
-│                    CPU                       │
-│  ┌─────────┐     ┌─────────┐   ┌────────┐  │
-│  │  制御部  │────▶│レジスタ  │◀─▶│  ALU   │  │
-│  └─────────┘     │ ファイル │   │        │  │
-│        │         └─────────┘   └────────┘  │
-│        ▼               │             │       │
-│  ┌─────────┐          ▼             ▼       │
-│  │   PC    │     ┌─────────┐  ┌────────┐  │
-│  └─────────┘     │   MAR   │  │  MDR   │  │
-│                  └─────────┘  └────────┘  │
-└────────────────────────┼─────────┼─────────┘
-                        ▼         ▼
-                   ┌──────────────────┐
-                   │     メモリ        │
-                   └──────────────────┘`,
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '制御部：命令の解読と各部への指示',
-            'レジスタファイル：高速な一時記憶領域',
-            'ALU：算術論理演算を実行',
-            'PC：次に実行する命令のアドレス',
-            'MAR：メモリアドレスレジスタ',
-            'MDR：メモリデータレジスタ',
-          ],
-        },
-        {
-          type: 'note',
-          text: 'レジスタはCPU内部の高速な一時記憶装置です',
-        },
-      ],
-    },
-    {
-      id: 'register-types',
-      instruction: 'レジスタの種類と比較',
-      content: [
         {
           type: 'heading',
-          text: '📊 汎用レジスタ vs 特殊レジスタ',
+          text: '並列動作の利点',
         },
         {
           type: 'table',
-          headers: ['種類', '用途', '特徴', '例'],
+          headers: ['方式', '4ビット転送時間', 'クロック数', '用途'],
           rows: [
-            ['汎用レジスタ', '演算・データ保存', '自由に使える', 'R0〜R15'],
-            [
-              'データレジスタ',
-              'データの一時保存',
-              '演算対象',
-              'AX, BX, CX, DX',
-            ],
-            [
-              'アドレスレジスタ',
-              'メモリアドレス指定',
-              'ポインタ操作',
-              'SI, DI, BP',
-            ],
-            ['プログラムカウンタ', '次の命令位置', '自動更新', 'PC'],
-            ['スタックポインタ', 'スタック管理', 'PUSH/POP操作', 'SP'],
-            [
-              'ステータスレジスタ',
-              'CPU状態・フラグ',
-              '演算結果の状態',
-              'FLAGS',
-            ],
+            ['シリアル（1ビットずつ）', '4クロック', '4回', '通信、配線節約'],
+            ['パラレル（4ビット同時）', '1クロック', '1回', 'CPU内部、高速処理'],
           ],
         },
         {
           type: 'heading',
-          text: '🎯 今回作るもの',
+          text: '同期動作の重要性',
         },
         {
           type: 'text',
-          text: '2ビット並列入力・並列出力レジスタ（基本を理解）',
-        },
-        {
-          type: 'heading',
-          text: '🔍 メモリ階層とレジスタの位置づけ',
-        },
-        {
-          type: 'ascii-art',
-          art: `         高速 ◀──────────────────▶ 低速
-         小容量                      大容量
-    ┌─────────────┬──────────┬────────┬─────────┐
-    │ レジスタ    │ L1キャッシュ│ L2/L3  │ メインメモリ│
-    │ <1ns       │ ~4ns      │ ~20ns  │ ~100ns   │
-    │ ~1KB       │ ~32KB     │ ~8MB   │ ~16GB    │
-    └─────────────┴──────────┴────────┴─────────┘
-         CPU内部 ◀────────────────▶ CPU外部`,
+          text: 'すべてのD-FFが同じクロック信号を共有することで、データの不整合を防止します。クロックの立ち上がりエッジで、全ビットが一斉に新しい値に更新されます。',
         },
         {
           type: 'note',
-          text: 'レジスタはCPU内部にあり、最も高速にアクセスできます',
+          text: 'CPUの動作周波数（2GHz等）は、このクロック信号の周波数を表しています',
         },
       ],
     },
     {
-      id: 'parallel-structure',
-      instruction: '並列データ処理の視覚化',
+      id: 'circuit-build',
+      instruction: '4ビットレジスタ回路を作ってみよう',
       content: [
         {
           type: 'heading',
-          text: '🔧 並列レジスタの動作',
+          text: '手順１：入力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'で',
+            { text: `${TERMS.INPUT}ゲート`, emphasis: true },
+            'を4つ配置します。',
+            'D3、D2、D1、D0（上位から下位ビット）と',
+            { text: 'CLOCKゲート', emphasis: true },
+            '1つです。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順２：対象ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'D-FFゲート', emphasis: true },
+            'を4つ配置します。',
+            '各D-FFが1ビットずつ担当し、',
+            '縦に並べて配置します。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順３：出力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.OUTPUT}ゲート`, emphasis: true },
+            'を4つ配置します。',
+            'Q3、Q2、Q1、Q0（記憶された4ビットデータ）の表示用です。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順４：配線でつなげる',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'データ線：各INPUT（D3〜D0）を対応するD-FFのD入力に接続。',
+            'クロック線：CLOCKをすべてのD-FFのCLK入力に並列接続。',
+            '出力線：各D-FFのQ出力を対応するOUTPUT（Q3〜Q0）に接続。',
+            '同期確認：すべてのD-FFが同じクロック信号を受信することを確認。',
+          ],
+        },
+        {
+          type: 'note',
+          text: '配線のコツ：クロック線は全D-FFに分岐配線し、同期動作を確実にする',
+        },
+      ],
+    },
+    {
+      id: 'experiment',
+      instruction: '予測して実験しよう',
+      content: [
+        {
+          type: 'heading',
+          text: 'まず予測してみよう',
         },
         {
           type: 'text',
-          text: '各ビットが同時に動作する様子：',
+          text: 'D3D2D1D0 = 1010にして、クロックが立ち上がったときの出力を予測してください。Q3Q2Q1Q0 = 1010になるはずです。その後、入力を0101に変更した場合は？',
+        },
+        {
+          type: 'heading',
+          text: '実験で確かめよう',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '1. 初期設定：すべての入力を0にして、出力も0000を確認。',
+            '2. D3とD1を',
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'してON（1010パターン）。',
+            '3. クロックの立ち上がりを待って、出力が1010に変化。',
+            '4. 入力を0101に変更→クロックまでは1010を保持。',
+            '5. 次のクロックで出力が0101に更新。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '実験結果の確認',
         },
         {
           type: 'table',
-          headers: [
-            '時刻',
-            'CLK',
-            'D3',
-            'D2',
-            'D1',
-            'D0',
-            '→',
-            'Q3',
-            'Q2',
-            'Q1',
-            'Q0',
-          ],
+          headers: ['時刻', 'CLK', 'D3D2D1D0', 'Q3Q2Q1Q0', '動作'],
           rows: [
-            ['t0', '0', '1', '0', '1', '1', '→', '0', '0', '0', '0'],
-            ['t1', '↑', '1', '0', '1', '1', '→', '1', '0', '1', '1'],
-            ['t2', '0', '0', '1', '0', '0', '→', '1', '0', '1', '1'],
-            ['t3', '↑', '0', '1', '0', '0', '→', '0', '1', '0', '0'],
+            ['t0', '0', '0000', '0000', '初期状態'],
+            ['t1', '↑', '1010', '1010', '1010を記憶'],
+            ['t2', '0', '0101', '1010', '1010を保持'],
+            ['t3', '↑', '0101', '0101', '0101に更新'],
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '発見：', bold: true },
+            '4ビットすべてが',
+            { text: '同時に', emphasis: true },
+            '更新されます。',
+            'クロック以外のタイミングでは変化しません。',
           ],
         },
         {
           type: 'note',
-          text: 'CLKの立ち上がりで全ビットが同時に更新！',
-        },
-        {
-          type: 'text',
-          text: '構成図：',
-        },
-        {
-          type: 'ascii-art',
-          art: `D3 ──┬─[D-FF]─── Q3
-     │
-D2 ──┼─[D-FF]─── Q2  
-     │
-D1 ──┼─[D-FF]─── Q1
-     │
-D0 ──┼─[D-FF]─── Q0
-     │
-CLK ─┴─────────  共通クロック`,
-        },
-        {
-          type: 'heading',
-          text: '⚡ 並列処理の威力',
-        },
-        {
-          type: 'text',
-          text: '4ビットレジスタの動作イメージ：',
-        },
-        {
-          type: 'ascii-art',
-          art: `時刻t0: データ準備          時刻t1: CLK↑で一斉転送
-┌────┐                    ┌────┐
-│1011│ ────────────────▶ │1011│ 
-└────┘                    └────┘
-  ││││                      ││││
-  ▼▼▼▼                      ▼▼▼▼
-┌─┬─┬─┬─┐                ┌─┬─┬─┬─┐
-│?│?│?│?│ レジスタ        │1│0│1│1│ レジスタ
-└─┴─┴─┴─┘                └─┴─┴─┴─┘`,
-        },
-        {
-          type: 'note',
-          text: '1クロックで4ビット同時転送！シリアル転送なら4クロック必要',
+          text: 'これが高速データ転送の基本原理です',
         },
       ],
     },
     {
-      id: 'load-control',
-      instruction: 'Load制御の仕組み',
+      id: 'analysis',
+      instruction: 'レジスタの特徴を分析しよう',
       content: [
         {
           type: 'heading',
-          text: '🎛️ 書き込み制御',
-        },
-        {
-          type: 'text',
-          text: 'Load=1の時だけ新しい値を取り込みます：',
+          text: 'CPUでのレジスタの種類',
         },
         {
           type: 'table',
-          headers: ['Load', 'CLK', '動作'],
+          headers: ['レジスタ種類', 'ビット幅', '個数', '用途'],
           rows: [
-            ['0', '↑', '現在値を保持'],
-            ['1', '↑', '新しい値を記憶'],
+            ['汎用レジスタ', '32/64ビット', '16〜32個', 'データ一時保存'],
+            ['特殊レジスタ', '32/64ビット', '数個', 'PC、SP、フラグ'],
+            ['ベクトルレジスタ', '128〜512ビット', '16〜32個', 'SIMD演算'],
+            ['制御レジスタ', '32/64ビット', '多数', 'システム制御'],
           ],
+        },
+        {
+          type: 'heading',
+          text: 'メモリ階層での位置',
+        },
+        {
+          type: 'text',
+          text: 'レジスタはCPU内部にあり、メモリ階層の最上位に位置します。アクセス速度は1クロックサイクル（0.3ナノ秒@3GHz）で、キャッシュメモリ（数ナノ秒）やメインメモリ（数百ナノ秒）より桁違いに高速です。',
+        },
+        {
+          type: 'heading',
+          text: 'パフォーマンス分析',
+        },
+        {
+          type: 'text',
+          text: '64ビットレジスタは64個のD-FFで構成され、理論上64倍のデータを1クロックで処理可能。実際のCPUでは複数のレジスタを並列動作させ、スーパースケーラ実行により更なる高速化を実現しています。',
+        },
+        {
+          type: 'heading',
+          text: '確率的な視点',
+        },
+        {
+          type: 'text',
+          text: 'ランダムな4ビット入力に対して、レジスタの出力が特定のパターンになる確率は1/16（6.25%）です。プログラム実行時のレジスタ利用率は非常に高く、CPUの性能に直結します。',
         },
         {
           type: 'note',
-          text: 'MUXを使って入力を切り替えます',
-        },
-      ],
-    },
-    {
-      id: 'simplified-design',
-      instruction: '今回の簡略版設計',
-      content: [
-        {
-          type: 'text',
-          text: '2ビットレジスタで基本を理解しましょう。',
-        },
-        {
-          type: 'heading',
-          text: '📐 構成要素',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '2個のD-FF（2ビット分）',
-            '共通CLK信号',
-            'データ入力（D1, D0）',
-            'データ出力（Q1, Q0）',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'place-clock',
-      instruction: 'CLOCKゲートを配置',
-      hint: '共通のタイミング信号',
-      content: [
-        {
-          type: 'text',
-          text: '全ビット同時更新のための同期信号です。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'CLOCK' },
-    },
-    {
-      id: 'place-data-inputs',
-      instruction: 'データ入力を配置',
-      hint: 'D1とD0の2つのINPUT',
-      content: [
-        {
-          type: 'text',
-          text: '記憶したい2ビットデータです。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'INPUT' },
-    },
-    {
-      id: 'place-dffs',
-      instruction: 'D-FFを2個配置',
-      hint: '各ビット用のフリップフロップ',
-      content: [
-        {
-          type: 'text',
-          text: '並列に配置して同時動作させます。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'D-FF' },
-    },
-    {
-      id: 'place-outputs',
-      instruction: '出力表示を配置',
-      hint: 'Q1とQ0の2つのOUTPUT',
-      content: [
-        {
-          type: 'text',
-          text: '記憶されている値を表示します。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'OUTPUT' },
-    },
-    {
-      id: 'connect-data',
-      instruction: '配線：データ入力',
-      hint: '各INPUTを対応するD-FFのD入力に接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-clock',
-      instruction: '配線：クロック信号',
-      hint: 'CLOCKを両方のD-FFのCLK入力に接続',
-      content: [
-        {
-          type: 'text',
-          text: '共通クロックで同期動作します。',
-        },
-      ],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-outputs',
-      instruction: '配線：出力',
-      hint: '各D-FFのQ出力を対応するOUTPUTに接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'test-store-00',
-      instruction: 'テスト1：00を記憶',
-      content: [
-        {
-          type: 'text',
-          text: 'D1=0, D0=0にして、CLK立ち上がりで記憶',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-store-11',
-      instruction: 'テスト2：11を記憶',
-      content: [
-        {
-          type: 'text',
-          text: 'D1=1, D0=1に変更し、次のCLKで更新',
-        },
-        {
-          type: 'note',
-          text: '2ビットが同時に更新されます',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-hold',
-      instruction: 'テスト3：値の保持',
-      content: [
-        {
-          type: 'text',
-          text: '入力を変えても、CLKまでは前の値を保持',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'bus-connection',
-      instruction: '【発展】バス接続',
-      content: [
-        {
-          type: 'heading',
-          text: '🚌 データバス',
-        },
-        {
-          type: 'text',
-          text: '複数のレジスタをバスで接続：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '共通のデータ線（8本、16本...）',
-            '各レジスタにLoad信号',
-            '選択的な読み書き',
-            '効率的なデータ転送',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'register-file',
-      instruction: 'レジスタファイル',
-      content: [
-        {
-          type: 'heading',
-          text: '🗃️ レジスタの集合体',
-        },
-        {
-          type: 'text',
-          text: 'CPUには複数のレジスタ：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '汎用レジスタ：R0〜R15',
-            'デコーダで選択',
-            '2ポート読み出し',
-            '1ポート書き込み',
-          ],
-        },
-        {
-          type: 'note',
-          text: 'ARM CPUは16個の32ビットレジスタ',
-        },
-      ],
-    },
-    {
-      id: 'special-registers',
-      instruction: '特殊なレジスタ',
-      content: [
-        {
-          type: 'heading',
-          text: '🎯 専用機能',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            'PC：プログラムカウンタ（自動インクリメント）',
-            'SP：スタックポインタ（PUSH/POP）',
-            'SR：ステータスレジスタ（フラグ集合）',
-            'MAR：メモリアドレスレジスタ',
-            'MDR：メモリデータレジスタ',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'pipeline-register',
-      instruction: 'パイプラインでのレジスタ活用',
-      content: [
-        {
-          type: 'heading',
-          text: '⚡ パイプライン処理の実例',
-        },
-        {
-          type: 'text',
-          text: '5段パイプラインでの命令処理の流れ：',
-        },
-        {
-          type: 'table',
-          headers: ['サイクル', '命令1', '命令2', '命令3', '命令4', '命令5'],
-          rows: [
-            ['1', 'IF', '-', '-', '-', '-'],
-            ['2', 'ID', 'IF', '-', '-', '-'],
-            ['3', 'EX', 'ID', 'IF', '-', '-'],
-            ['4', 'MEM', 'EX', 'ID', 'IF', '-'],
-            ['5', 'WB', 'MEM', 'EX', 'ID', 'IF'],
-            ['6', '完了', 'WB', 'MEM', 'EX', 'ID'],
-          ],
-        },
-        {
-          type: 'text',
-          text: '各段階の説明：IF=命令フェッチ、ID=命令デコード、EX=実行、MEM=メモリアクセス、WB=レジスタ書き戻し',
-        },
-        {
-          type: 'note',
-          text: '各段階間にパイプラインレジスタが配置され、データを保持',
-        },
-        {
-          type: 'text',
-          text: 'パイプラインレジスタの配置：',
-        },
-        {
-          type: 'ascii-art',
-          art: `┌────┐    ┌─────┐    ┌────┐    ┌─────┐    ┌────┐
-│ IF │───▶│IF/ID│───▶│ ID │───▶│ID/EX│───▶│ EX │
-└────┘    └─────┘    └────┘    └─────┘    └────┘
-                                              │
-┌────┐    ┌───────┐    ┌─────┐              ▼
-│ WB │◀───│MEM/WB │◀───│ MEM │◀────────────┘
-└────┘    └───────┘    └─────┘`,
-        },
-        {
-          type: 'heading',
-          text: '🚀 パイプラインの効果',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '理論上5倍の処理速度（5段の場合）',
-            '各段階が独立して動作',
-            'レジスタが段階間のデータを保持',
-            'データハザードに注意が必要',
-          ],
+          text: 'レジスタの数が少ないと、メモリアクセスが増加してCPU性能が低下します',
         },
       ],
     },
     {
       id: 'applications',
-      instruction: '【応用】レジスタの活用',
+      instruction: 'レジスタの実用例',
       content: [
         {
           type: 'heading',
-          text: '💻 実用例',
+          text: '実世界での活用',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '🧮 演算の一時保存',
-            '📊 データのバッファリング',
-            '🔄 値の交換（スワップ）',
-            '📸 状態のスナップショット',
-            '🎮 ゲームの変数保存',
+            'CPU演算：変数やポインタの一時保存',
+            'グラフィックス：ピクセルデータのバッファリング',
+            '通信システム：パケットデータの一時保持',
+            'AI処理：行列データの高速アクセス',
+            'リアルタイム制御：センサーデータの瞬時保存',
           ],
+        },
+        {
+          type: 'heading',
+          text: '身近な製品での使用例',
+        },
+        {
+          type: 'text',
+          text: 'スマートフォンのカメラ処理（画像データの一時保存）、ゲーム機のリアルタイム描画（頂点座標の保持）、カーナビのGPS計算（位置データの更新）など、高速データ処理が必要なあらゆる機器でレジスタが活用されています。',
+        },
+        {
+          type: 'note',
+          text: '現代のCPUには数千個のレジスタが搭載され、並列処理を支えています',
         },
       ],
     },
     {
-      id: 'achievement',
-      instruction: '🎉 レジスタマスター！',
+      id: 'summary',
+      instruction: 'レジスタをマスター',
       content: [
         {
           type: 'heading',
-          text: '🏆 習得したスキル',
+          text: 'レジスタの要点',
         },
         {
           type: 'list',
-          ordered: false,
+          ordered: true,
           items: [
-            '✅ 複数ビット同時記憶',
-            '✅ 並列データ処理',
-            '✅ 同期式記憶装置',
-            '✅ CPUの基本要素',
+            '複数D-FFの並列配置で多ビット同時記憶',
+            '共通クロックによる同期動作',
+            'CPUの最高速メモリとして機能',
+            '高速データ転送と一時保存を担当',
+          ],
+        },
+        {
+          type: 'quiz',
+          question: '32ビットレジスタを構成するのに必要なD-FFの個数は？',
+          options: [
+            '8個',
+            '16個',
+            '32個',
+            '64個',
+          ],
+          correctIndex: 2,
+        },
+        {
+          type: 'heading',
+          text: '次回予告',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'シフトレジスタ', bold: true },
+            'で、データを順次移動させる特殊なレジスタを学びます。',
+            '通信やディスプレイ制御で重要な回路です。',
           ],
         },
         {
           type: 'note',
-          text: 'これでCPUの高速メモリが理解できました！',
-        },
-      ],
-    },
-    {
-      id: 'advanced-features',
-      instruction: '【発展】レジスタの高度な機能',
-      content: [
-        {
-          type: 'heading',
-          text: '🔮 最新CPUのレジスタ技術',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '🔄 レジスタリネーミング：依存関係の解消',
-            '🎯 シャドウレジスタ：高速コンテキストスイッチ',
-            '📊 ベクトルレジスタ：SIMD演算用（128/256/512ビット）',
-            '🏃 投機的実行：分岐予測失敗時の復元',
-          ],
-        },
-        {
-          type: 'table',
-          headers: ['CPU世代', 'レジスタ数', 'ビット幅', '特徴'],
-          rows: [
-            ['8086', '8個', '16ビット', '基本的な汎用レジスタ'],
-            ['80386', '8個', '32ビット', '32ビット拡張'],
-            ['x86-64', '16個', '64ビット', 'レジスタ数も倍増'],
-            ['ARM64', '31個', '64ビット', 'RISC設計で多数'],
-          ],
-        },
-      ],
-    },
-    {
-      id: 'quiz',
-      instruction: '理解度チェック！',
-      content: [
-        {
-          type: 'quiz',
-          question: '32ビットレジスタには何個のD-FFが必要？',
-          options: ['8個', '16個', '32個', '64個'],
-          correctIndex: 2,
-        },
-        {
-          type: 'quiz',
-          question: 'パイプラインレジスタの主な役割は？',
-          options: [
-            'データを永続的に保存する',
-            'パイプライン段階間でデータを保持する',
-            'メモリアクセスを高速化する',
-            '演算を実行する',
-          ],
-          correctIndex: 1,
+          text: 'レジスタの理解で、CPUの高速処理の秘密が分かりました',
         },
       ],
     },

@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation Updates - 2024-12-13
+- 📝 Updated ROADMAP.md to reflect Phase 0,1 completion and Phase 2 progress (80%)
+- 📝 Updated ARCHITECTURE.md to match actual directory structure and implementation
+- 📝 Updated PROJECT_BLUEPRINT.md to show 4 modes and implemented features
+- 📝 Updated README.md with current version info and feature list
+- 📝 Updated CHANGELOG.md with latest changes and phase history
+
+## [0.3.0] - 2024-12-13 - Phase 2: UI/UX Improvements (80% Complete)
+
+### Added
+- ✅ **Learning Mode Production Quality**: 18/22 lessons with unified 7-step structure (4 lessons remain in beta)
+- ✅ **Property Panel Enhancement**: Integrated gate info and truth tables for placed gates
+- ✅ **Error Notifications**: Toast-style visual error feedback with auto-dismiss
+- ✅ **Keyboard Shortcuts**: Delete, Undo/Redo (Ctrl+Z/Y), Copy/Paste (Ctrl+C/V), SelectAll (Ctrl+A)
+- ✅ **Keyboard Help Modal**: Press "?" to view all available shortcuts
+- ✅ **URL Sharing**: Base64-encoded circuit sharing functionality
+- ✅ **Responsive Improvements**: Better mobile and tablet experience
+- ✅ **Error Slice**: Centralized error handling in Zustand store
+
+### Fixed  
+- 🐛 **Property Panel Selection**: Implemented mutual exclusion between tool palette and placed gates
+- 🐛 **Learning Resource Display**: Added learning resources for placed gates in property panel
+- 🐛 **Error Message Clarity**: Improved connection error messages with visual feedback
+- 🐛 **Keyboard Shortcut Conflicts**: Resolved event handling for overlapping shortcuts
+
+## [0.2.0] - 2024-12-01 - Phase 1: Architecture & Core Features
+
 ### Architecture Decision
 - 🏗️ Adopted **Hybrid Feature-Domain Architecture**
   - Feature層: UI and feature-specific logic
@@ -56,10 +83,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🐛 Gate selection issues with SVG event handling
 - 🐛 Custom gate creation dialog validation and UI issues
 
-### Known Issues - Priority High 🔴
-- 主要機能が正常動作
-- coreAPI移行完了により技術的負債を削減
-- テストが通過
+## [0.1.0] - 2024-11-15 - Phase 0: Basic Functionality
+
+### Added
+- ✅ **Drag & Drop Placement**: Intuitive gate placement from tool palette
+- ✅ **Coordinate Transformation**: Proper SVG coordinate handling
+- ✅ **Wire Connection**: Visual feedback during connection
+- ✅ **Responsive Design**: Desktop, tablet, and mobile layouts
+- ✅ **Basic Gates**: AND, OR, NOT, XOR, NAND, NOR
+- ✅ **Special Gates**: INPUT, OUTPUT, CLOCK
+- ✅ **Advanced Gates**: D-FF, SR-LATCH, MUX, Register
+
+### Current Status
+- ✅ **Phase 0**: Basic functionality (Complete)
+- ✅ **Phase 1**: Architecture & core features (Complete)
+- 🚧 **Phase 2**: UI/UX improvements (80% Complete)
+  - 18/22 lessons at production quality, 4 lessons in beta
+  - Property panel enhanced
+  - Error handling improved
+  - Keyboard shortcuts implemented
+  - URL sharing functional
+- 📋 **Phase 3**: Next-generation features (Planned)
 
 ### Technical Debt
 - ✅ **改善完了**: coreAPI移行によりResult<T,E>パターン導入
@@ -78,8 +122,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Phase Mapping
 
-- **Phase 1**: v0.2.0 - Foundation (Zustand, Architecture)
-- **Phase 2**: v0.3.0 - UI Unification (In Progress)
-- **Phase 3**: v0.4.0 - Core Features (Planned)
-- **Phase 4**: v0.5.0 - Advanced Features (Planned)
-- **Phase 5**: v1.0.0 - Production Ready (Planned)
+- **Phase 0**: v0.1.0 - Basic Functionality (Complete)
+- **Phase 1**: v0.2.0 - Architecture & Core Features (Complete)
+- **Phase 2**: v0.3.0 - UI/UX Improvements (80% Complete)
+- **Phase 3**: v0.4.0 - Next-Generation Features (Planned)
+- **v1.0.0**: Production Ready (Target: 2025)

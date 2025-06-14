@@ -9,6 +9,7 @@ import { createCustomGateSlice } from './slices/customGateSlice';
 import { createAppModeSlice } from './slices/appModeSlice';
 import { createToolPaletteSlice } from './slices/toolPaletteSlice';
 import { createShareSlice } from './slices/shareSlice';
+import { createErrorSlice } from './slices/errorSlice';
 
 export const useCircuitStore = create<CircuitStore>()((...a) => ({
   // 基本的な状態
@@ -16,6 +17,10 @@ export const useCircuitStore = create<CircuitStore>()((...a) => ({
   wires: [],
   isDrawingWire: false,
   wireStart: null,
+
+  // エラーメッセージ
+  errorMessage: null,
+  errorType: null,
 
   // 各スライスをマージ
   ...createHistorySlice(...a),
@@ -27,4 +32,5 @@ export const useCircuitStore = create<CircuitStore>()((...a) => ({
   ...createAppModeSlice(...a),
   ...createToolPaletteSlice(...a),
   ...createShareSlice(...a),
+  ...createErrorSlice(...a),
 }));

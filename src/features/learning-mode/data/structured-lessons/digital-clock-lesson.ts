@@ -1,422 +1,330 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
+import { TERMS } from '../terms';
 
 export const digitalClockStructuredLesson: StructuredLesson = {
   id: 'digital-clock',
-  title: 'デジタル時計 - 時を刻む回路',
-  description: '秒・分・時を正確にカウントする時計回路を作ります',
+  title: 'タイマー回路 - 時を数える基本システム',
+  description: 'クロック同期を活用した時間制御の基本回路を作ります',
+  objective: '4ビットカウンターとクロック制御を組み合わせたタイマー回路の構築を通じて、時間管理システムの基礎原理を習得する',
+  category: '応用システム',
+  lessonType: 'build',
   difficulty: 'advanced',
-  prerequisites: ['traffic-light'],
-  estimatedMinutes: 35,
-  availableGates: ['OUTPUT', 'AND', 'CLOCK', 'D-FF'],
+  prerequisites: ['clock-sync'],
+  estimatedMinutes: 15,
+  availableGates: ['INPUT', 'OUTPUT', 'CLOCK', 'D-FF', 'AND', 'NOT'],
   steps: [
     {
       id: 'intro',
-      instruction: '時を刻むデジタル時計を作ろう！',
+      instruction: '時間を数える電子回路',
       content: [
         {
+          type: 'heading',
+          text: '身近な例で考える',
+        },
+        {
           type: 'text',
-          text: 'スマホ、PC、家電...あらゆる機器に内蔵されている時計。その仕組みは？',
+          text: '電子レンジで「3分タイマー」をセットしたとき、内部では3分間（180秒）をカウントダウンしています。この「時間を正確に測る」機能は、あらゆる電子機器の基本機能です。',
         },
         {
           type: 'heading',
-          text: '🤔 デジタル時計の構成',
+          text: 'タイマー回路とは',
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            '💎 水晶振動子：32.768kHz',
-            '➗ 分周回路：1Hz生成',
-            '🔢 カウンタ：秒・分・時',
-            '🔤 表示デコーダ：7セグメント',
-          ],
+          type: 'text',
+          text: 'クロック信号をカウントして時間を測定する回路です。一定の周期でパルスが来るクロックを数えることで、経過時間を正確に把握できます。デジタル機器の「時間感覚」を担う重要な回路です。',
         },
         {
           type: 'note',
-          text: '32,768 = 2^15なので、15段分周で1Hzになります',
+          text: '1Hzのクロックなら、60カウントで1分、3600カウントで1時間になります',
         },
       ],
     },
     {
-      id: 'time-structure',
-      instruction: '時刻の構造',
+      id: 'principle',
+      instruction: 'タイマー回路の電気的仕組み',
       content: [
         {
           type: 'heading',
-          text: '🕐 時:分:秒の関係',
+          text: '4ビットタイマーの構造',
+        },
+        {
+          type: 'text',
+          text: '4つのD-FFを直列接続したリップルカウンターで、0から15まで（16通り）をカウントできます。クロックが来るたびに1ずつ増加し、15の次は0に戻ります（モジュロ16カウンター）。',
+        },
+        {
+          type: 'heading',
+          text: 'カウンターの動作原理',
         },
         {
           type: 'table',
-          headers: ['単位', 'カウント範囲', '必要ビット数', '桁上がり'],
+          headers: ['クロック数', 'D3', 'D2', 'D1', 'D0', '10進値', '動作'],
           rows: [
-            ['秒', '0-59', '6ビット', '60で分へ'],
-            ['分', '0-59', '6ビット', '60で時へ'],
-            ['時', '0-23', '5ビット', '24で0へ'],
+            ['0', '0', '0', '0', '0', '0', '初期状態'],
+            ['1', '0', '0', '0', '1', '1', '1カウント'],
+            ['2', '0', '0', '1', '0', '2', '2カウント'],
+            ['15', '1', '1', '1', '1', '15', '最大値'],
+            ['16', '0', '0', '0', '0', '0', 'リセット'],
           ],
         },
         {
+          type: 'heading',
+          text: 'リップルカウンターの特徴',
+        },
+        {
           type: 'text',
-          text: '各単位は60進法（時は24進法）でカウントします。',
+          text: '各D-FFの出力が次のD-FFのクロック入力に接続されており、トグル動作（NOT機能）により1ビットずつ桁上がりが波及（リップル）します。シンプルな構造で高いカウント数を実現できます。',
+        },
+        {
+          type: 'note',
+          text: 'リップル遅延のため、大きなカウンターでは同期カウンターが使われます',
         },
       ],
     },
     {
-      id: 'bcd-counter',
-      instruction: 'BCDカウンタの必要性',
+      id: 'circuit-build',
+      instruction: '4ビットタイマー回路を作ってみよう',
       content: [
         {
           type: 'heading',
-          text: '🔢 BCD（2進化10進数）',
+          text: '手順１：入力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'で',
+            { text: 'CLOCKゲート', emphasis: true },
+            'を1つ配置します。',
+            'これがタイマーの基準となる時間信号源です。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順２：対象ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'D-FFゲート', emphasis: true },
+            'を4つ配置します。',
+            '横一列に並べて配置し、',
+            '左から右へカウンター値が増加する構造を作ります。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順３：出力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.OUTPUT}ゲート`, emphasis: true },
+            'を4つ配置します。',
+            'Q3、Q2、Q1、Q0（4ビットカウンター値）をそれぞれ表示します。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順４：配線でつなげる',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'カウンター接続：CLOCKを1つ目のD-FFのCLK入力に接続。',
+            'リップル接続：各D-FFのQ出力を次のD-FFのCLK入力に接続。',
+            'フィードバック接続：各D-FFのNOT(Q)出力を自分のD入力に接続（トグル動作）。',
+            '表示接続：各D-FFのQ出力を対応するOUTPUT（Q3〜Q0）に接続。',
+          ],
+        },
+        {
+          type: 'note',
+          text: '配線のコツ：リップルカウンターは各段が次の段をクロックする連鎖構造',
+        },
+      ],
+    },
+    {
+      id: 'experiment',
+      instruction: '予測して実験しよう',
+      content: [
+        {
+          type: 'heading',
+          text: 'まず予測してみよう',
         },
         {
           type: 'text',
-          text: '表示を簡単にするため、各桁を4ビットで表現：',
+          text: 'クロックを4回実行したときのカウンター値を予測してください。0→1→2→3→4と順番に増加し、4ビットで表すと0100になるはずです。',
+        },
+        {
+          type: 'heading',
+          text: '実験で確かめよう',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '1. 初期状態：出力が0000（全てOFF）を確認。',
+            '2. クロックを1回実行→0001に変化。',
+            '3. クロックを連続実行：0010→0011→0100→0101...',
+            '4. 16回目で1111→次回で0000にリセット。',
+            '5. カウンターが循環することを確認。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '実験結果の確認',
         },
         {
           type: 'table',
-          headers: ['10進数', 'BCD', '通常の2進数'],
+          headers: ['クロック回数', 'Q3Q2Q1Q0', '10進値', '動作確認'],
           rows: [
-            ['9', '1001', '1001'],
-            ['10', '0001 0000', '1010'],
-            ['59', '0101 1001', '111011'],
+            ['0回', '0000', '0', '初期状態'],
+            ['1回', '0001', '1', 'カウント開始'],
+            ['8回', '1000', '8', '上位ビットON'],
+            ['15回', '1111', '15', '最大値到達'],
+            ['16回', '0000', '0', 'リセット'],
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '発見：', bold: true },
+            'クロックごとに',
+            { text: '規則正しく', emphasis: true },
+            'カウントが増加し、',
+            '16で自動的に0にリセットされます。',
           ],
         },
         {
           type: 'note',
-          text: '各桁が独立しているので7セグメント表示が簡単！',
+          text: 'これが時間を正確に測定する基本原理です',
         },
       ],
     },
     {
-      id: 'seconds-counter',
-      instruction: '秒カウンタの設計',
+      id: 'analysis',
+      instruction: 'タイマー回路の特徴を分析しよう',
       content: [
         {
           type: 'heading',
-          text: '⏱️ 0-59カウンタ',
-        },
-        {
-          type: 'text',
-          text: '2つのBCDカウンタを組み合わせ：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '下位桁：0-9カウンタ（1の位）',
-            '上位桁：0-5カウンタ（10の位）',
-            '59の次は00にリセット',
-            'キャリー信号を分へ',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'simplified-demo',
-      instruction: '今回の簡易実装',
-      content: [
-        {
-          type: 'text',
-          text: '基本原理を理解するため、簡単な秒カウンタを作ります。',
-        },
-        {
-          type: 'heading',
-          text: '📐 構成',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            'CLOCK（1Hz想定）',
-            '4ビットカウンタ（0-9）',
-            '7セグメントデコーダ',
-            '表示用OUTPUT',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'place-clock',
-      instruction: 'CLOCKゲートを配置',
-      hint: '1秒ごとのパルス',
-      content: [
-        {
-          type: 'text',
-          text: '実際は水晶振動子＋分周回路です。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'CLOCK' },
-    },
-    {
-      id: 'place-counter-components',
-      instruction: 'BCDカウンタ部品を配置',
-      hint: 'D-FF 4個とリセット用ゲート',
-      content: [
-        {
-          type: 'text',
-          text: '0-9をカウントする10進カウンタです。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'D-FF' },
-    },
-    {
-      id: 'place-decoder-logic',
-      instruction: 'デコーダロジックを配置',
-      hint: '7セグメント用のANDゲート群',
-      content: [
-        {
-          type: 'text',
-          text: '4ビット→7セグメント変換です。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'AND' },
-    },
-    {
-      id: 'place-segment-outputs',
-      instruction: 'セグメント出力を配置',
-      hint: 'a-gの7つのOUTPUT',
-      content: [
-        {
-          type: 'text',
-          text: '7本のLEDで数字を形成します。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'OUTPUT' },
-    },
-    {
-      id: 'connect-counter',
-      instruction: '配線：BCDカウンタ',
-      hint: '10でリセットする回路',
-      content: [
-        {
-          type: 'text',
-          text: '1010（10）を検出してリセットします。',
-        },
-      ],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-decoder',
-      instruction: '配線：7セグデコーダ',
-      hint: '各数字のパターンを生成',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'test-counting',
-      instruction: 'テスト：0-9カウント',
-      content: [
-        {
-          type: 'text',
-          text: 'クロックごとに0→1→...→9→0を繰り返すことを確認',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: '7-segment-patterns',
-      instruction: '【知識】7セグメント表示',
-      content: [
-        {
-          type: 'heading',
-          text: '🔤 セグメント配置',
-        },
-        {
-          type: 'text',
-          text: '各セグメントの位置：',
-        },
-        {
-          type: 'note',
-          text: ' a\nf b\n g\ne c\n d',
+          text: 'カウンター種類の比較',
         },
         {
           type: 'table',
-          headers: ['数字', 'a', 'b', 'c', 'd', 'e', 'f', 'g'],
+          headers: ['カウンター種類', 'ビット数', '最大値', '用途'],
           rows: [
-            ['0', '1', '1', '1', '1', '1', '1', '0'],
-            ['1', '0', '1', '1', '0', '0', '0', '0'],
-            ['8', '1', '1', '1', '1', '1', '1', '1'],
+            ['4ビット', '4', '15', '簡単なタイマー'],
+            ['8ビット', '8', '255', '秒カウンター'],
+            ['16ビット', '16', '65535', '分カウンター'],
+            ['32ビット', '32', '42億', 'システム時刻'],
           ],
         },
-      ],
-    },
-    {
-      id: 'complete-clock',
-      instruction: '【発展】完全な時計',
-      content: [
         {
           type: 'heading',
-          text: '🕰️ フル機能時計',
+          text: '実際の時計システム',
         },
         {
           type: 'text',
-          text: '実際の時計に必要な機能：',
+          text: '実用的な時計では、32.768kHzの水晶振動子を15段階分周して1Hzを作り、さらに複数のカウンターで秒・分・時をカウントします。また、60進カウンター（0-59）や24進カウンター（0-23）なども使用されます。',
         },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '6桁表示（HH:MM:SS）',
-            '時刻設定ボタン',
-            'アラーム機能',
-            '12/24時間切り替え',
-            'ストップウォッチ',
-            'バックアップ電源',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'rtc-chip',
-      instruction: 'RTC（リアルタイムクロック）',
-      content: [
         {
           type: 'heading',
-          text: '💾 専用ICの利点',
+          text: 'リップル vs 同期カウンター',
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            '超低消費電力',
-            'コイン電池で年単位動作',
-            'カレンダー機能内蔵',
-            '温度補償で高精度',
-            'I2C/SPIで通信',
-          ],
+          type: 'text',
+          text: 'リップルカウンターは簡単ですが、段数が多いと遅延が累積します。高速システムでは全D-FFが同じクロックで動く同期カウンターが使われ、遅延なしで正確な動作を実現します。',
+        },
+        {
+          type: 'heading',
+          text: '確率的な視点',
+        },
+        {
+          type: 'text',
+          text: 'ランダムなタイミングで4ビットカウンターを見ると、各値（0-15）が現れる確率は1/16（6.25%）ずつ等しくなります。時計の秒針のように、時間が均等に分割されることを示しています。',
         },
         {
           type: 'note',
-          text: 'DS3231などが有名です',
-        },
-      ],
-    },
-    {
-      id: 'atomic-clock',
-      instruction: '原子時計との同期',
-      content: [
-        {
-          type: 'heading',
-          text: '📡 電波時計',
-        },
-        {
-          type: 'text',
-          text: '標準電波で時刻を自動修正：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            'JJY（日本）：40/60kHz',
-            '1日1回自動受信',
-            '誤差±1秒/10万年',
-            'GPS時刻も利用可能',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'smart-features',
-      instruction: 'スマート機能',
-      content: [
-        {
-          type: 'heading',
-          text: '🌐 IoT時代の時計',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '📱 スマホ連携',
-            '🌡️ 温度・湿度表示',
-            '📊 活動量計測',
-            '🔔 スマート通知',
-            '🔋 ワイヤレス充電',
-          ],
+          text: 'カウンターは「時間の離散化」を行う重要な回路です',
         },
       ],
     },
     {
       id: 'applications',
-      instruction: '【応用】時計回路の応用',
+      instruction: 'タイマー回路の実用例',
       content: [
         {
           type: 'heading',
-          text: '💻 タイミング制御',
+          text: '実世界での活用',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '⏲️ タイマー・ストップウォッチ',
-            '📸 カメラのシャッター制御',
-            '🎵 音楽のテンポ生成',
-            '🏭 工場の工程管理',
-            '🚦 信号機のタイミング',
-            '💊 服薬リマインダー',
+            '家電製品：電子レンジ、洗濯機のタイマー機能',
+            '信号機制御：青・黄・赤の切り替えタイミング',
+            'コンピュータ：CPUのクロック管理、タスクスケジューリング',
+            'デジタル時計：秒・分・時の正確な計時',
+            '通信機器：データ送信のタイミング制御',
           ],
+        },
+        {
+          type: 'heading',
+          text: '身近な製品での使用例',
+        },
+        {
+          type: 'text',
+          text: 'スマートフォンのタイマーアプリ、エアコンの運転時間制御、ゲーム機のフレーム制御、車載システムの点検インターバル、IoT機器のデータ送信周期など、正確な時間制御が必要なあらゆる機器で活用されています。',
+        },
+        {
+          type: 'note',
+          text: '現代社会のあらゆる「スケジュール」は、タイマー回路によって支えられています',
         },
       ],
     },
     {
-      id: 'precision',
-      instruction: '精度の追求',
+      id: 'summary',
+      instruction: 'タイマー回路をマスター',
       content: [
         {
           type: 'heading',
-          text: '🎯 高精度化技術',
+          text: 'タイマー回路の要点',
         },
         {
           type: 'list',
-          ordered: false,
+          ordered: true,
           items: [
-            '温度補償（TCXO）',
-            '電圧制御（VCXO）',
-            'GPS規律発振器',
-            'ルビジウム発振器',
-            '光格子時計（300億年に1秒）',
+            '4つのD-FFをリップル接続してカウンター構成',
+            'クロック信号をカウントして時間測定',
+            '0から最大値まで循環カウント',
+            'あらゆる時間制御システムの基礎回路',
           ],
         },
-      ],
-    },
-    {
-      id: 'achievement',
-      instruction: '🎉 デジタル時計マスター！',
-      content: [
         {
-          type: 'heading',
-          text: '🏆 習得したスキル',
+          type: 'quiz',
+          question: '4ビットカウンターが16回クロックされた後の値は？',
+          options: [
+            '15（1111）',
+            '16（10000）',
+            '0（0000）',
+            '1（0001）',
+          ],
+          correctIndex: 2,
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            '✅ 多段カウンタの設計',
-            '✅ BCD表現の理解',
-            '✅ 7セグメント制御',
-            '✅ 精密タイミング生成',
+          type: 'heading',
+          text: '次回予告',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'これで順序回路の基礎学習が完了しました。',
+            '次は',
+            { text: '応用システム編', bold: true },
+            'で、複数の回路を組み合わせた実用的なシステムを学びます。',
           ],
         },
         {
           type: 'note',
-          text: '時を刻む仕組みが理解できました！',
-        },
-      ],
-    },
-    {
-      id: 'quiz',
-      instruction: '理解度チェック！',
-      content: [
-        {
-          type: 'quiz',
-          question: '32.768kHzの水晶を使う理由は？',
-          options: [
-            '音が良いから',
-            '2の15乗で分周しやすいから',
-            '安いから',
-            '小さいから',
-          ],
-          correctIndex: 1,
+          text: 'タイマー回路の理解で、デジタル機器の「時間感覚」が分かりました',
         },
       ],
     },

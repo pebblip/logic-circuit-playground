@@ -1,613 +1,331 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
+import { TERMS } from '../terms';
 
 export const comparatorStructuredLesson: StructuredLesson = {
   id: 'comparator',
-  title: '比較器 - 数の大小判定マシン',
+  title: '比較器 - 数の大小判定装置',
   description: '2つの数値を比較して大小関係を判定する回路を作ります',
+  objective: '1ビット比較器の構築を通じて、条件分岐の基礎原理を理解し、CPUの判断機能の根幹を習得する',
+  category: '基本回路',
+  lessonType: 'build',
   difficulty: 'intermediate',
   prerequisites: ['xor-gate'],
-  estimatedMinutes: 20,
-  availableGates: ['INPUT', 'OUTPUT', 'AND', 'XOR'],
+  estimatedMinutes: 15,
+  availableGates: ['INPUT', 'OUTPUT', 'AND', 'XOR', 'NOT'],
   steps: [
     {
       id: 'intro',
-      instruction: '数の大小を判定する回路を作ろう！',
+      instruction: 'コンピュータの判断力の仕組み',
       content: [
         {
+          type: 'heading',
+          text: '身近な例で考える',
+        },
+        {
           type: 'text',
-          text: 'コンピュータはどうやって「5 > 3」を判定するのでしょうか？',
+          text: 'ゲームでスコアを比較する場面を思い出してください。「あなたのスコア：85点、ハイスコア：92点」と表示されたとき、コンピュータは内部で85と92を比較して「新記録ではない」と判断しています。',
         },
         {
           type: 'heading',
-          text: '🎯 今回作るもの',
+          text: '比較器とは',
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            'A > B を判定する回路',
-            'A = B を判定する回路',
-            'A < B を判定する回路',
-          ],
+          type: 'text',
+          text: '2つの数値を比較して、「等しい」「大きい」「小さい」を判定する回路です。if文やwhile文など、プログラムの条件分岐を支える最も基本的な回路です。',
         },
         {
           type: 'note',
-          text: 'まずは1ビット比較器から始めて、段階的に拡張します',
+          text: 'CPUの「判断力」の中核となる重要な回路です',
         },
       ],
     },
     {
-      id: 'one-bit-concept',
-      instruction: '1ビット比較の基本',
+      id: 'principle',
+      instruction: '比較器の電気的仕組み',
       content: [
         {
           type: 'heading',
-          text: '📊 1ビット比較の真理値表',
+          text: '1ビット比較器の構造',
+        },
+        {
+          type: 'text',
+          text: '最も基本的な1ビット比較器は、2つの入力A、Bから3つの出力「A=B」「A>B」「A<B」を生成します。それぞれが異なる論理ゲートの組み合わせで実現されます。',
+        },
+        {
+          type: 'heading',
+          text: '比較結果の判定方法',
         },
         {
           type: 'table',
-          headers: ['A', 'B', 'A>B', 'A=B', 'A<B'],
+          headers: ['A', 'B', 'A=B', 'A>B', 'A<B', '意味'],
           rows: [
-            ['0', '0', '0', '1', '0'],
-            ['0', '1', '0', '0', '1'],
-            ['1', '0', '1', '0', '0'],
-            ['1', '1', '0', '1', '0'],
+            ['0', '0', '1', '0', '0', '両方とも0'],
+            ['0', '1', '0', '0', '1', '0は1より小さい'],
+            ['1', '0', '0', '1', '0', '1は0より大きい'],
+            ['1', '1', '1', '0', '0', '両方とも1'],
           ],
         },
         {
           type: 'heading',
-          text: '💡 パターンを見つけよう',
+          text: '論理式の導出',
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            'A = B：両方同じとき1 → XNORゲート！',
-            'A > B：Aが1でBが0のとき → A AND (NOT B)',
-            'A < B：Aが0でBが1のとき → (NOT A) AND B',
+          type: 'text',
+          text: 'A=B：両方が同じときに1 → NOT(A XOR B)で実現。A>B：Aが1でBが0のときに1 → A AND NOT(B)で実現。A<B：Aが0でBが1のときに1 → NOT(A) AND Bで実現。',
+        },
+        {
+          type: 'note',
+          text: 'XORゲートで「違い」を検出し、NOTで反転すると「同じ」を検出できます',
+        },
+      ],
+    },
+    {
+      id: 'circuit-build',
+      instruction: '1ビット比較器回路を作ってみよう',
+      content: [
+        {
+          type: 'heading',
+          text: '手順１：入力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'で',
+            { text: `${TERMS.INPUT}ゲート`, emphasis: true },
+            'を2つ配置します。',
+            '上がA（比較したい数値1）、下がB（比較したい数値2）です。',
           ],
         },
-      ],
-    },
-    {
-      id: 'logic-circuit-diagram',
-      instruction: '比較器の回路構成',
-      content: [
         {
           type: 'heading',
-          text: '🔌 1ビット比較器の回路図',
+          text: '手順２：対象ゲートを配置',
         },
         {
-          type: 'text',
-          text: '各出力の論理回路：',
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.XOR}ゲート`, emphasis: true },
+            'を1つ配置（等値判定用）。',
+            { text: `${TERMS.NOT}ゲート`, emphasis: true },
+            'を3つ配置（反転処理用）。',
+            { text: `${TERMS.AND}ゲート`, emphasis: true },
+            'を2つ配置（大小判定用）。',
+          ],
         },
-        {
-          type: 'ascii-art',
-          art: `A ─┬────────────────┐
-   │               │
-   │  ┌─────┐     │  ┌─────┐
-   │  │ XOR │─────┼──┤ NOT ├─── A=B
-   │  └──┬──┘     │  └─────┘
-   │     │        │
-   │     │        │  ┌─────┐
-   │     │        └──┤ AND ├─── A>B
-   │     │           └──┬──┘
-   │     │              │
-B ─┼─────┴─────┬───────┴───┬─────┐
-   │            │         │  ┌──┴──┐
-   │  ┌─────┐  │         │  │ NOT │
-   │  │ NOT │  │         │  └──┬──┘
-   │  └──┬──┘  │         │     │
-   │     │     │  ┌─────┐ │     │
-   └─────┴─────┴──┤ AND ├─┴─────┘
-                    └─────┘─── A<B`,
-        },
-      ],
-    },
-    {
-      id: 'equality-circuit',
-      instruction: 'まず「等しい」を判定する回路を作ろう',
-      content: [
         {
           type: 'heading',
-          text: '🔍 XNORゲートの活用',
+          text: '手順３：出力ゲートを配置',
         },
         {
-          type: 'text',
-          text: 'XNORは「同じなら1、違えば0」を出力します。',
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.OUTPUT}ゲート`, emphasis: true },
+            'を3つ配置します。',
+            '上から「A=B」「A>B」「A<B」の順に配置。',
+            '常に1つだけがONになります。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順４：配線でつなげる',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '等値判定：AとBをXORに接続、XORの出力をNOTに接続してA=B出力へ。',
+            '大きい判定：AとNOT(B)をANDに接続してA>B出力へ。',
+            '小さい判定：NOT(A)とBをANDに接続してA<B出力へ。',
+            '各NOT、ANDゲートの配線を完成させる。',
+          ],
         },
         {
           type: 'note',
-          text: 'XNORがない場合は、XORの出力をNOTで反転！',
+          text: '配線のコツ：3つの出力のうち常に1つだけがONになることを確認',
         },
       ],
     },
     {
-      id: 'place-inputs',
-      instruction: '入力AとBを配置',
-      hint: '2つのINPUTを縦に並べて配置',
-      content: [
-        {
-          type: 'text',
-          text: '上がA、下がBです。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'INPUT' },
-    },
-    {
-      id: 'place-xor-not',
-      instruction: 'XORとNOTで等値判定回路を作成',
-      hint: 'XORゲートとNOTゲートを配置（XNORの代わり）',
-      content: [
-        {
-          type: 'text',
-          text: 'A XOR B の結果をNOTで反転すると、A = B の判定ができます。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'XOR' },
-    },
-    {
-      id: 'place-greater-than',
-      instruction: '「A > B」判定回路を追加',
-      hint: 'NOTゲート（B用）とANDゲートを配置',
-      content: [
-        {
-          type: 'text',
-          text: 'A AND (NOT B) で「Aが1でBが0」を検出します。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'AND' },
-    },
-    {
-      id: 'place-less-than',
-      instruction: '「A < B」判定回路を追加',
-      hint: 'もう1つのNOTゲート（A用）とANDゲートを配置',
-      content: [
-        {
-          type: 'text',
-          text: '(NOT A) AND B で「Aが0でBが1」を検出します。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'AND' },
-    },
-    {
-      id: 'place-outputs',
-      instruction: '3つの出力を配置',
-      hint: '「A=B」「A>B」「A<B」の3つのOUTPUT',
-      content: [
-        {
-          type: 'note',
-          text: '上から順に「等しい」「より大きい」「より小さい」です',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'OUTPUT' },
-    },
-    {
-      id: 'connect-equality',
-      instruction: '配線：等値判定部分',
-      hint: 'A,B → XOR → NOT → 「A=B」OUTPUT',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-greater',
-      instruction: '配線：A > B 判定部分',
-      hint: 'A → AND、B → NOT → AND → 「A>B」OUTPUT',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-less',
-      instruction: '配線：A < B 判定部分',
-      hint: 'A → NOT → AND、B → AND → 「A<B」OUTPUT',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'test-equal',
-      instruction: 'テスト1：A = B（両方0または両方1）',
-      content: [
-        {
-          type: 'text',
-          text: '両方0、または両方1にして、「A=B」だけが点灯することを確認。',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-greater',
-      instruction: 'テスト2：A > B（A=1, B=0）',
-      content: [
-        {
-          type: 'text',
-          text: 'A=1、B=0にして、「A>B」だけが点灯することを確認。',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-less',
-      instruction: 'テスト3：A < B（A=0, B=1）',
-      content: [
-        {
-          type: 'text',
-          text: 'A=0、B=1にして、「A<B」だけが点灯することを確認。',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'multi-bit-extension',
-      instruction: '多ビット比較器への拡張',
+      id: 'experiment',
+      instruction: '予測して実験しよう',
       content: [
         {
           type: 'heading',
-          text: '🔢 4ビット比較器の構成',
+          text: 'まず予測してみよう',
         },
         {
           type: 'text',
-          text: '4ビット比較器の構成図：',
-        },
-        {
-          type: 'ascii-art',
-          art: `    A3 B3     A2 B2     A1 B1     A0 B0
-     │ │       │ │       │ │       │ │
-   ┌─┴─┴─┐   ┌─┴─┴─┐   ┌─┴─┴─┐   ┌─┴─┴─┐
-   │CMP3 │   │CMP2 │   │CMP1 │   │CMP0 │
-   └┬┬┬─┘   └┬┬┬─┘   └┬┬┬─┘   └┬┬┬─┘
-    │││      │││      │││      │││
-   ┌┴┴┴──────┴┴┴──────┴┴┴──────┴┴┴┐
-   │      プライオリティエンコーダ       │
-   └─────────┬───┬───┬──────────┘
-            A>B   A=B   A<B`,
-        },
-        {
-          type: 'note',
-          text: '最上位ビットから順に比較し、最初に差が出た結果を採用',
+          text: '4つの入力パターン（00、01、10、11）でどの出力がONになるか予測してください。00と11では等値、01では小さい、10では大きいが点灯するはずです。',
         },
         {
           type: 'heading',
-          text: '🔍 多ビット比較の動作例',
+          text: '実験で確かめよう',
         },
         {
-          type: 'text',
-          text: '4ビット数値の比較過程（例：1011 vs 1001）：',
-        },
-        {
-          type: 'ascii-art',
-          art: `A: 1011 (11)  B: 1001 (9)を比較
-
-ビット3: A[3]=1, B[3]=1 → 等しい（次へ）
-         ↓
-ビット2: A[2]=0, B[2]=0 → 等しい（次へ）
-         ↓
-ビット1: A[1]=1, B[1]=0 → A > B ✓（決定！）
-         ↓
-ビット0: 確認不要（既に決定済み）
-
-結果: A > B (11 > 9)`,
+          type: 'rich-text',
+          elements: [
+            '1. 初期状態：A=0、B=0→「A=B」がONを確認。',
+            '2. Bを',
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'して1に→「A<B」がONに変化。',
+            '3. Aも1に→「A=B」がONに戻る。',
+            '4. Bを0に戻す→「A>B」がONに変化。',
+          ],
         },
         {
           type: 'heading',
-          text: '📊 比較器の真理値表（2ビット版）',
+          text: '実験結果の確認',
         },
         {
           type: 'table',
-          headers: ['A1', 'A0', 'B1', 'B0', 'A値', 'B値', 'A>B', 'A=B', 'A<B'],
+          headers: ['A', 'B', 'A=B', 'A>B', 'A<B', '判定結果'],
           rows: [
-            ['0', '0', '0', '0', '0', '0', '0', '1', '0'],
-            ['0', '1', '0', '0', '1', '0', '1', '0', '0'],
-            ['1', '0', '0', '1', '2', '1', '1', '0', '0'],
-            ['1', '1', '1', '1', '3', '3', '0', '1', '0'],
+            ['0', '0', '1', '0', '0', '等しい'],
+            ['0', '1', '0', '0', '1', '0 < 1'],
+            ['1', '0', '0', '1', '0', '1 > 0'],
+            ['1', '1', '1', '0', '0', '等しい'],
           ],
         },
-      ],
-    },
-    {
-      id: 'multi-bit-intro',
-      instruction: '【発展】複数ビットの比較',
-      content: [
         {
-          type: 'heading',
-          text: '🔢 2ビット以上の比較',
-        },
-        {
-          type: 'text',
-          text: '例：11 vs 10（3 vs 2）を比較するには？',
-        },
-        {
-          type: 'list',
-          ordered: true,
-          items: [
-            '最上位ビットから比較開始',
-            '同じなら次のビットへ',
-            '違いが見つかったらそこで決定',
+          type: 'rich-text',
+          elements: [
+            { text: '発見：', bold: true },
+            'どの入力でも必ず',
+            { text: '1つだけ', emphasis: true },
+            'の出力がONになります。',
+            '複数同時にONになることはありません。',
           ],
         },
         {
           type: 'note',
-          text: '人間が数字を比較するのと同じ方法です！',
+          text: 'この性質により、条件分岐の処理が正確に行われます',
         },
       ],
     },
     {
-      id: 'cascading',
-      instruction: 'カスケード接続の仕組み',
+      id: 'analysis',
+      instruction: '比較器の特徴を分析しよう',
       content: [
         {
           type: 'heading',
-          text: '🔗 比較器の連結',
+          text: '多ビット比較器への拡張',
         },
         {
           type: 'text',
-          text: '複数の1ビット比較器を接続して、多ビット比較器を作れます。',
+          text: '実際のCPUでは32ビットや64ビットの数値を比較します。多ビット比較器では、最上位ビットから順に比較し、最初に違いが見つかった時点で判定が確定します。',
         },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '上位ビットの結果を優先',
-            '等しい場合のみ下位ビットを参照',
-            'カスケード（階段状）に接続',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'signed-comparison',
-      instruction: '符号付き数値の比較',
-      content: [
         {
           type: 'heading',
-          text: '± 符号付き数の扱い',
-        },
-        {
-          type: 'text',
-          text: '2の補数表現での符号付き4ビット数：',
+          text: '比較回路の性能分析',
         },
         {
           type: 'table',
-          headers: ['ビットパターン', '符号なし', '符号付き', '特徴'],
+          headers: ['ビット数', '1ビット比較器数', 'ゲート数（概算）', '遅延時間'],
           rows: [
-            ['0111', '7', '+7', '最大正数'],
-            ['0000', '0', '0', 'ゼロ'],
-            ['1000', '8', '-8', '最小負数'],
-            ['1111', '15', '-1', '負数'],
-          ],
-        },
-        {
-          type: 'note',
-          text: '符号付き比較ではMSB（符号ビット）の扱いが異なる',
-        },
-        {
-          type: 'text',
-          text: `符号付き比較のロジック：
-1. 符号ビットが異なる場合：
-   - Aが正(0)、Bが負(1) → A > B
-   - Aが負(1)、Bが正(0) → A < B
-
-2. 符号ビットが同じ場合：
-   - 両方正：通常の符号なし比較
-   - 両方負：絶対値が小さい方が大きい`,
-        },
-      ],
-    },
-    {
-      id: 'practical-applications',
-      instruction: '実用的な応用例',
-      content: [
-        {
-          type: 'heading',
-          text: '🛠️ ソート回路の実装',
-        },
-        {
-          type: 'text',
-          text: 'バブルソートの基本要素：',
-        },
-        {
-          type: 'ascii-art',
-          art: `     A       B
-     │       │
-   ┌─┴───────┴─┐
-   │ 比較器   │
-   └─┬─┬─┬───┘
-     │ │ │
-     │ │ └────── A<B時：交換
-     │ └──────── A=B時：維持
-     └───────── A>B時：維持
-
-結果：常に小さい方が上に来る`,
-        },
-        {
-          type: 'heading',
-          text: '🎮 範囲チェック回路',
-        },
-        {
-          type: 'text',
-          text: 'ゲームでの応用例：0 ≤ X ≤ 100 のチェック',
-        },
-        {
-          type: 'ascii-art',
-          art: `範囲チェック回路の構成：
-     X ────┬──[比較器1]── (X≥0)
-           │    下限0     │
-           │              │
-           │              ▼
-           │           ┌─────┐
-           └──[比較器2]─┤ AND ├── 範囲内？
-               上限100  └─────┘
-                          ▲
-                          │
-                       (X≤100)`,
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            'X ≥ 0：符号ビットで0かチェック',
-            'X ≤ 100：100との比較',
-            '両方をANDで結合',
-            '画面外判定や衝突判定に使用',
+            ['1ビット', '1個', '6個', '2ゲート遅延'],
+            ['4ビット', '4個', '24個', '4ゲート遅延'],
+            ['32ビット', '32個', '192個', '32ゲート遅延'],
+            ['64ビット', '64個', '384個', '64ゲート遅延'],
           ],
         },
         {
           type: 'heading',
-          text: '🔄 バブルソートの基本単位',
+          text: 'CPUでの最適化',
         },
         {
           type: 'text',
-          text: '2つの数を比較して並び替える回路：',
+          text: '現代のCPUでは並列比較や先読み技術により、64ビットでも数ゲート遅延で比較を完了します。また、条件分岐予測機能により、比較結果を事前に推測して処理を高速化しています。',
         },
         {
-          type: 'ascii-art',
-          art: `コンペアスワップ（Compare-Swap）モジュール：
-┌────────────────────────┐
-│    A ──┬──[比較器]     │
-│        │     │         │
-│        │     ▼         │
-│        │  [MUX選択]    │
-│        │   /    \\      │
-│    B ──┴──●      ●──── Min（小）
-│            \\    /      │
-│             ×××        │
-│            /    \\      │
-│           ●      ●──── Max（大）
-└────────────────────────┘`,
+          type: 'heading',
+          text: '確率的な視点',
+        },
+        {
+          type: 'text',
+          text: 'ランダムな1ビット入力に対して、A=Bになる確率は50%（00と11）、A>Bは25%（10のみ）、A<Bも25%（01のみ）です。実際の計算では等値の確率は非常に低く、大小判定が多用されます。',
         },
         {
           type: 'note',
-          text: '比較結果に基づいてMUXが値を入れ替えます',
+          text: '比較器は論理演算と算術演算の橋渡しをする重要な回路です',
         },
       ],
     },
     {
       id: 'applications',
-      instruction: '【応用】比較器の使い道',
+      instruction: '比較器の実用例',
       content: [
         {
           type: 'heading',
-          text: '💻 実用例',
+          text: '実世界での活用',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '📊 ソート処理：数値の並び替え',
-            '🎮 ゲーム：スコアの比較',
-            '🔍 検索：条件分岐（if文）の実装',
-            '📈 統計：最大値・最小値の検出',
-            '🏦 金融：価格の比較判定',
+            'CPU分岐命令：if文、while文の条件判定',
+            'ソート処理：数値の並び替えアルゴリズム',
+            'ゲーム開発：スコア比較、ランキング判定',
+            'データベース：検索条件の評価',
+            '制御システム：センサー値の閾値判定',
           ],
         },
-      ],
-    },
-    {
-      id: 'cpu-branch-instructions',
-      instruction: 'CPUの分岐命令での使用',
-      content: [
         {
           type: 'heading',
-          text: '🖥️ CPU分岐命令の実装',
+          text: '身近な製品での使用例',
         },
         {
           type: 'text',
-          text: '主要な条件分岐命令と比較器の関係：',
-        },
-        {
-          type: 'table',
-          headers: ['命令', '条件', '比較器出力', '用途'],
-          rows: [
-            ['BEQ', 'Branch if Equal', 'A=B', 'ループ終了判定'],
-            ['BNE', 'Branch if Not Equal', 'NOT(A=B)', 'ループ継続'],
-            ['BLT', 'Branch if Less Than', 'A<B', '範囲チェック'],
-            ['BGT', 'Branch if Greater', 'A>B', '最大値検索'],
-            ['BLE', 'Branch if Less or Equal', 'A<B OR A=B', 'ソート'],
-            ['BGE', 'Branch if Greater or Equal', 'A>B OR A=B', '最小値検索'],
-          ],
-        },
-        {
-          type: 'text',
-          text: `アセンブリ言語の例：
-
-    CMP  R1, R2      ; R1とR2を比較
-    BLT  LESS_THAN   ; R1 < R2ならLESS_THANへジャンプ
-    BGT  GREATER     ; R1 > R2ならGREATERへジャンプ
-    ; R1 = R2の場合は次の命令へ`,
+          text: 'エアコンの温度制御（設定温度との比較）、ゲーム機のスコア判定、スマートフォンのバッテリー残量警告、銀行ATMの残高確認など、数値を比較する必要がある機器すべてで使われています。',
         },
         {
           type: 'note',
-          text: '比較器はCPUの“判断力”の中核を担っています',
+          text: '現代のプログラミング言語の比較演算子（==、>、<）は、すべて比較器で実現されています',
         },
       ],
     },
     {
-      id: 'cpu-usage',
-      instruction: 'CPUでの活用',
+      id: 'summary',
+      instruction: '比較器をマスター',
       content: [
         {
           type: 'heading',
-          text: '🖥️ プロセッサ内部',
-        },
-        {
-          type: 'text',
-          text: '比較器はCPUの重要な部品です：',
+          text: '比較器の要点',
         },
         {
           type: 'list',
-          ordered: false,
+          ordered: true,
           items: [
-            'ALU（演算装置）の一部',
-            '条件分岐命令の実行',
-            'ループカウンタの判定',
-            'メモリアドレスの範囲チェック',
+            '2つの入力から3つの判定結果を出力',
+            'XOR、NOT、ANDゲートの組み合わせで実現',
+            '常に1つだけの出力がON（排他的出力）',
+            'CPUの条件分岐命令の基礎となる回路',
           ],
         },
-      ],
-    },
-    {
-      id: 'achievement',
-      instruction: '🎉 比較器マスター！',
-      content: [
-        {
-          type: 'heading',
-          text: '🏆 習得したスキル',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '✅ 1ビット数値の大小比較',
-            '✅ 等値判定回路の構築',
-            '✅ 3つの出力を同時制御',
-            '✅ 論理ゲートの組み合わせ応用',
-          ],
-        },
-        {
-          type: 'note',
-          text: 'これでコンピュータの「判断力」の基礎が理解できました！',
-        },
-      ],
-    },
-    {
-      id: 'quiz',
-      instruction: '理解度チェック！',
-      content: [
         {
           type: 'quiz',
-          question: '1ビット比較器で A=1, B=0 のとき、どの出力が1になる？',
-          options: ['A = B', 'A > B', 'A < B', 'すべて0'],
+          question: '1ビット比較器でA=1、B=0のとき、どの出力が1になる？',
+          options: [
+            'A=B',
+            'A>B',
+            'A<B',
+            'すべて0',
+          ],
           correctIndex: 1,
         },
         {
-          type: 'quiz',
-          question: '符号付き4ビットで 1111(-1) と 0001(+1) を比較すると？',
-          options: [
-            '1111 > 0001',
-            '1111 = 0001',
-            '1111 < 0001',
-            '比較できない',
+          type: 'heading',
+          text: '次回予告',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'ALU（演算論理装置）', bold: true },
+            'で、加算器と比較器を統合した万能計算回路を学びます。',
+            'CPUの心臓部となる最重要回路です。',
           ],
-          correctIndex: 2,
+        },
+        {
+          type: 'note',
+          text: '比較器の理解で、コンピュータの「判断力」の仕組みが分かりました',
         },
       ],
     },

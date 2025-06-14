@@ -1,393 +1,331 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
+import { TERMS } from '../terms';
 
 export const clockSyncStructuredLesson: StructuredLesson = {
   id: 'clock-sync',
-  title: 'クロック同期 - タイミングの指揮者',
-  description: 'デジタル回路の心臓部、クロック同期システムを理解します',
+  title: 'クロック同期 - デジタル回路の指揮者',
+  description: '複数の回路を正確なタイミングで同期動作させる技術を学びます',
+  objective: '複数D-FFの同期制御回路の構築を通じて、デジタルシステムの時間管理技術とCPUの動作原理を習得する',
+  category: '順序回路',
+  lessonType: 'build',
   difficulty: 'advanced',
   prerequisites: ['shift-register'],
-  estimatedMinutes: 20,
+  estimatedMinutes: 15,
   availableGates: ['INPUT', 'OUTPUT', 'CLOCK', 'D-FF'],
   steps: [
     {
       id: 'intro',
-      instruction: 'デジタル回路の時間管理を学ぼう！',
+      instruction: 'デジタル回路の時間管理システム',
       content: [
         {
+          type: 'heading',
+          text: '身近な例で考える',
+        },
+        {
           type: 'text',
-          text: 'オーケストラには指揮者が必要。デジタル回路にも「タイミングの指揮者」が必要です。',
+          text: 'オーケストラで全ての演奏者が指揮者のタクトに合わせて同時に演奏するように、コンピュータ内部でも数百万個の回路が同じリズム（クロック）で動作しています。この統一されたタイミング制御がなければ、回路が混乱してしまいます。',
         },
         {
           type: 'heading',
-          text: '🤔 クロック同期とは？',
+          text: 'クロック同期とは',
         },
         {
           type: 'text',
-          text: '全ての回路が同じリズムで動作する仕組みです。',
+          text: '複数の順序回路（D-FFなど）を共通のクロック信号で同期動作させる技術です。すべての回路が同じタイミングでデータを更新することで、システム全体の整合性と予測可能性を保ちます。',
         },
         {
           type: 'note',
-          text: 'CPUの「3.5GHz」などはクロック周波数のことです',
+          text: 'CPUの「3.5GHz」は、このクロック信号が1秒間に35億回振動することを意味します',
         },
       ],
     },
     {
-      id: 'clock-signal',
-      instruction: 'クロック信号の基本',
+      id: 'principle',
+      instruction: 'クロック同期の電気的仕組み',
       content: [
         {
           type: 'heading',
-          text: '📊 クロック波形',
+          text: '同期回路の基本構造',
         },
         {
           type: 'text',
-          text: '規則正しく0と1を繰り返す信号：',
+          text: '1つのクロック源（CLOCK）から複数の順序回路に同じ信号を分配し、全ての回路がクロックの立ち上がりエッジで同時にデータを取り込みます。これにより、システム全体が統一されたタイミングで動作します。',
+        },
+        {
+          type: 'heading',
+          text: '同期動作の利点',
         },
         {
           type: 'table',
-          headers: ['時刻', 'CLK', '説明'],
+          headers: ['項目', '同期回路', '非同期回路', '結果'],
           rows: [
-            ['t0', '0', 'Low期間'],
-            ['t1', '↑', '立ち上がりエッジ（重要！）'],
-            ['t2', '1', 'High期間'],
-            ['t3', '↓', '立ち下がりエッジ'],
-            ['t4', '0', 'Low期間（1周期完了）'],
+            ['タイミング', '予測可能', '不確定', '同期有利'],
+            ['ノイズ耐性', '強い', '弱い', '同期有利'],
+            ['設計難易度', '簡単', '困難', '同期有利'],
+            ['消費電力', '一定', '可変', '用途次第'],
+          ],
+        },
+        {
+          type: 'heading',
+          text: 'クロック信号の特徴',
+        },
+        {
+          type: 'text',
+          text: 'クロック信号は規則正しく0と1を繰り返す矩形波です。重要なのは立ち上がりエッジ（0→1の瞬間）で、このタイミングでD-FFがデータを取り込み、出力を更新します。',
+        },
+        {
+          type: 'note',
+          text: '現代のCPUでは、クロック配線が最も重要な設計要素の一つです',
+        },
+      ],
+    },
+    {
+      id: 'circuit-build',
+      instruction: '2つのD-FFを同期制御する回路を作ってみよう',
+      content: [
+        {
+          type: 'heading',
+          text: '手順１：入力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'で',
+            { text: `${TERMS.INPUT}ゲート`, emphasis: true },
+            'を2つ配置します。',
+            'D1（データ入力1）、D2（データ入力2）です。',
+            '続いて',
+            { text: 'CLOCKゲート', emphasis: true },
+            'を1つ配置します。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順２：対象ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'D-FFゲート', emphasis: true },
+            'を2つ配置します。',
+            '左右に並べて配置し、',
+            'それぞれが独立したデータを記憶できる構造を作ります。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順３：出力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.OUTPUT}ゲート`, emphasis: true },
+            'を2つ配置します。',
+            'Q1、Q2（記憶されたデータ）をそれぞれ表示します。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順４：配線でつなげる',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            'データ線：D1を1つ目のD-FF、D2を2つ目のD-FFのD入力に接続。',
+            'クロック線：CLOCKを両方のD-FFのCLK入力に分岐して接続（重要！）。',
+            '出力線：各D-FFのQ出力をそれぞれ対応するOUTPUT（Q1、Q2）に接続。',
+            '同期確認：両方のD-FFが同じクロック信号を受信することを確認。',
           ],
         },
         {
           type: 'note',
-          text: '多くの回路は立ち上がりエッジで動作します',
+          text: '配線のコツ：クロック線の分岐配線を確実に行い、同期動作を保証する',
         },
       ],
     },
     {
-      id: 'synchronous-design',
-      instruction: '同期設計の利点',
+      id: 'experiment',
+      instruction: '予測して実験しよう',
       content: [
         {
           type: 'heading',
-          text: '✅ なぜ同期が必要？',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '⏱️ タイミングの予測可能性',
-            '🛡️ ノイズ・グリッチの除去',
-            '🔧 設計・デバッグの容易さ',
-            '📈 高速動作の実現',
-            '🔄 確実なデータ転送',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'timing-problems',
-      instruction: 'タイミング問題の理解',
-      content: [
-        {
-          type: 'heading',
-          text: '⚠️ 非同期の危険性',
+          text: 'まず予測してみよう',
         },
         {
           type: 'text',
-          text: 'クロック同期がないと...',
+          text: 'D1=1、D2=0にしてクロックを実行した後の出力を予測してください。Q1=1、Q2=0になり、さらに重要なのは、両方が同じタイミングで更新されることです。',
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            '競合状態（レースコンディション）',
-            'グリッチ（一時的な誤動作）',
-            'メタステーブル（不安定状態）',
-            'データの取りこぼし',
+          type: 'heading',
+          text: '実験で確かめよう',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '1. 初期設定：D1=0、D2=0で、出力がQ1=0、Q2=0を確認。',
+            '2. D1を',
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'して1に、D2は0のままでクロック実行→Q1=1、Q2=0に同時変化。',
+            '3. D1=0、D2=1に変更してクロック実行→Q1=0、Q2=1に同時変化。',
+            '4. D1=1、D2=1に変更してクロック実行→Q1=1、Q2=1に同時変化。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '実験結果の確認',
+        },
+        {
+          type: 'table',
+          headers: ['クロック前', 'D1', 'D2', 'クロック後', 'Q1', 'Q2', '同期性'],
+          rows: [
+            ['初期', '0', '0', '1回目', '0', '0', '同時更新'],
+            ['1回目', '1', '0', '2回目', '1', '0', '同時更新'],
+            ['2回目', '0', '1', '3回目', '0', '1', '同時更新'],
+            ['3回目', '1', '1', '4回目', '1', '1', '同時更新'],
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '発見：', bold: true },
+            'どの入力パターンでも、',
+            { text: '必ず同時に', emphasis: true },
+            '両方のD-FFが更新されます。',
+            'これが同期動作の威力です。',
           ],
         },
         {
           type: 'note',
-          text: '初期のコンピュータはこれらの問題に悩まされました',
+          text: 'この同期性により、複雑なシステムでも予測可能な動作が実現されます',
         },
       ],
     },
     {
-      id: 'clock-distribution',
-      instruction: 'クロック配信の課題',
+      id: 'analysis',
+      instruction: 'クロック同期の特徴を分析しよう',
       content: [
         {
           type: 'heading',
-          text: '🌐 クロックツリー',
+          text: '同期 vs 非同期の比較',
         },
         {
-          type: 'text',
-          text: '大規模回路では全体に均等にクロックを配る必要が：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '配線遅延の均等化',
-            'バッファによる増幅',
-            'スキュー（到達時間差）の最小化',
-            '消費電力の考慮',
+          type: 'table',
+          headers: ['項目', '同期システム', '非同期システム', '実際の使用'],
+          rows: [
+            ['動作タイミング', '統一クロック', '各自のペース', '同期：CPU、メモリ'],
+            ['設計複雑さ', '単純', '複雑', '同期：大多数'],
+            ['電力効率', '一定消費', '必要時のみ', '非同期：省電力機器'],
+            ['信頼性', '高い', '注意必要', '同期：重要システム'],
           ],
-        },
-      ],
-    },
-    {
-      id: 'clock-demo',
-      instruction: '同期動作の実演',
-      content: [
-        {
-          type: 'text',
-          text: '複数のD-FFを同じクロックで動かしてみましょう。',
         },
         {
           type: 'heading',
-          text: '🎯 実験内容',
+          text: 'クロック周波数の実例',
         },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            'CLOCKゲート1個',
-            'D-FF 2個（並列配置）',
-            '独立したデータ入力',
-            '同時更新の確認',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'place-clock',
-      instruction: 'CLOCKゲートを配置',
-      hint: '共通のタイミング源',
-      content: [],
-      action: { type: 'place-gate', gateType: 'CLOCK' },
-    },
-    {
-      id: 'place-inputs',
-      instruction: 'データ入力を配置',
-      hint: 'D1とD2の2つのINPUT',
-      content: [],
-      action: { type: 'place-gate', gateType: 'INPUT' },
-    },
-    {
-      id: 'place-dffs',
-      instruction: 'D-FFを2個配置',
-      hint: '並列に配置',
-      content: [],
-      action: { type: 'place-gate', gateType: 'D-FF' },
-    },
-    {
-      id: 'place-outputs',
-      instruction: '出力表示を配置',
-      hint: 'Q1とQ2の2つのOUTPUT',
-      content: [],
-      action: { type: 'place-gate', gateType: 'OUTPUT' },
-    },
-    {
-      id: 'connect-clock',
-      instruction: '配線：クロック信号',
-      hint: 'CLOCKを両方のD-FFに接続',
-      content: [
         {
           type: 'text',
-          text: '1本のクロックで2つのFFを制御します。',
+          text: 'CPU（3.5GHz）では、1秒間に35億回のクロックサイクルで動作し、各サイクルで膨大な数のD-FFが同期更新されます。メモリ（DDR4-3200）では3.2GHzで動作し、CPUとの同期を保ちます。',
         },
-      ],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-data',
-      instruction: '配線：データ信号',
-      hint: '各INPUTを対応するD-FFに接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-outputs',
-      instruction: '配線：出力',
-      hint: '各D-FFのQをOUTPUTに接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'test-sync',
-      instruction: 'テスト：同期更新',
-      content: [
+        {
+          type: 'heading',
+          text: '大規模システムでの課題',
+        },
         {
           type: 'text',
-          text: '異なるデータを設定し、同時に更新されることを確認',
+          text: '現代のCPUには数十億個のトランジスタがあり、クロック信号を全体に均等に配布するのは大きな技術的挑戦です。クロックスキュー（到達時間のずれ）を最小限に抑える設計が重要です。',
+        },
+        {
+          type: 'heading',
+          text: '確率的な視点',
+        },
+        {
+          type: 'text',
+          text: 'ランダムな入力に対して、2つのD-FFの出力が同じになる確率は50%（00と11）です。しかし重要なのは確率ではなく、どんな入力でも必ず同時に更新される同期性です。',
         },
         {
           type: 'note',
-          text: '両方のFFが同じタイミングで変化します',
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'clock-domains',
-      instruction: '【発展】クロックドメイン',
-      content: [
-        {
-          type: 'heading',
-          text: '🌍 複数クロックの世界',
-        },
-        {
-          type: 'text',
-          text: '現代のシステムは複数の周波数で動作：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: ['CPU：3.5GHz', 'メモリ：2.4GHz', 'PCIe：8GHz', 'USB：480MHz'],
-        },
-        {
-          type: 'note',
-          text: 'ドメイン間の同期が重要な技術です',
-        },
-      ],
-    },
-    {
-      id: 'clock-gating',
-      instruction: 'クロックゲーティング',
-      content: [
-        {
-          type: 'heading',
-          text: '🔋 省電力技術',
-        },
-        {
-          type: 'text',
-          text: '使わない部分のクロックを止めて省電力：',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '動的クロック制御',
-            'スリープモード実装',
-            '部分的な動作停止',
-            'バッテリー寿命延長',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'pll-dll',
-      instruction: 'PLL/DLL',
-      content: [
-        {
-          type: 'heading',
-          text: '🎯 クロック生成・調整',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            'PLL：Phase Locked Loop（位相同期回路）',
-            'DLL：Delay Locked Loop（遅延同期回路）',
-            '周波数逓倍（×2, ×4...）',
-            '位相調整・スキュー補正',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'timing-constraints',
-      instruction: 'タイミング制約',
-      content: [
-        {
-          type: 'heading',
-          text: '📏 重要なパラメータ',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            'セットアップ時間：データ確定→CLK↑',
-            'ホールド時間：CLK↑→データ保持',
-            'クロック周期：動作速度の限界',
-            'クリティカルパス：最長遅延経路',
-          ],
+          text: 'クロック同期は「予測可能性」が最大の価値です',
         },
       ],
     },
     {
       id: 'applications',
-      instruction: '【応用】クロック同期の実例',
+      instruction: 'クロック同期の実用例',
       content: [
         {
           type: 'heading',
-          text: '💻 実用例',
+          text: '実世界での活用',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '🖥️ CPU：全演算の同期実行',
-            '📱 スマートフォン：省電力制御',
-            '🎮 GPU：並列処理の同期',
-            '📡 通信機器：データサンプリング',
-            '🎵 デジタルオーディオ：44.1kHz/48kHz',
-            '📺 ビデオ：フレーム同期（60Hz）',
+            'CPU命令実行：全ての演算回路が同期して動作',
+            'メモリアクセス：データ読み書きのタイミング制御',
+            'GPU並列処理：数千個のコアの同期実行',
+            'デジタル通信：受信データのサンプリング',
+            'リアルタイム制御：センサーとアクチュエータの同期',
           ],
+        },
+        {
+          type: 'heading',
+          text: '身近な製品での使用例',
+        },
+        {
+          type: 'text',
+          text: 'スマートフォンのアプリ実行（CPUの同期動作）、デジタルカメラの画像処理（並列演算の同期）、ゲーム機のリアルタイム描画、車載システムの安全制御など、高精度な処理が必要な機器すべてでクロック同期が活用されています。',
+        },
+        {
+          type: 'note',
+          text: '現代のデジタル社会は、クロック同期技術によって支えられています',
         },
       ],
     },
     {
-      id: 'future',
-      instruction: '同期設計の未来',
+      id: 'summary',
+      instruction: 'クロック同期をマスター',
       content: [
         {
           type: 'heading',
-          text: '🚀 次世代技術',
+          text: 'クロック同期の要点',
         },
         {
           type: 'list',
-          ordered: false,
+          ordered: true,
           items: [
-            '非同期回路の復活（省電力）',
-            'GALS：Globally Asynchronous Locally Synchronous',
-            '量子コンピュータの同期',
-            '光クロック配信',
+            '1つのクロックで複数の回路を同期制御',
+            'すべての回路が同じタイミングで更新',
+            '予測可能で信頼性の高いシステム実現',
+            'CPUから通信まで広範囲で不可欠な技術',
           ],
         },
-      ],
-    },
-    {
-      id: 'achievement',
-      instruction: '🎉 クロック同期マスター！',
-      content: [
         {
-          type: 'heading',
-          text: '🏆 習得したスキル',
+          type: 'quiz',
+          question: 'クロック同期の最大の利点は？',
+          options: [
+            '消費電力の削減',
+            '回路の小型化',
+            '動作タイミングの予測可能性',
+            '製造コストの削減',
+          ],
+          correctIndex: 2,
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            '✅ 同期設計の重要性',
-            '✅ クロック信号の役割',
-            '✅ タイミング制御',
-            '✅ デジタルシステムの時間管理',
+          type: 'heading',
+          text: '次回予告',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'デジタル時計回路', bold: true },
+            'で、クロック同期を活用した実用的なシステムを学びます。',
+            '時間を刻む回路の完成です。',
           ],
         },
         {
           type: 'note',
-          text: 'これで順序回路の基礎が完成しました！',
-        },
-      ],
-    },
-    {
-      id: 'quiz',
-      instruction: '理解度チェック！',
-      content: [
-        {
-          type: 'quiz',
-          question: 'CPUが「3.5GHz」で動作するとき、1クロックの時間は？',
-          options: ['3.5ナノ秒', '0.286ナノ秒', '35ナノ秒', '1マイクロ秒'],
-          correctIndex: 1,
+          text: 'クロック同期の理解で、デジタルシステムの「心臓部」が分かりました',
         },
       ],
     },

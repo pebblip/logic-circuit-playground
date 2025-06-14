@@ -69,8 +69,16 @@ export const createWireOperationsSlice: StateCreator<
         state.wires
       );
 
-      // 接続不可の場合は終了
+      // 接続不可の場合はエラーメッセージを表示して終了
       if (!connectionCheck.valid) {
+        // エラーメッセージを設定（別のアクションとして実行）
+        setTimeout(() => {
+          get().setError(
+            connectionCheck.reason || '接続できませんでした',
+            'connection'
+          );
+        }, 0);
+
         return {
           isDrawingWire: false,
           wireStart: null,

@@ -194,6 +194,14 @@ export const PropertyPanel: React.FC = () => {
 
   // 配置済みゲートが選択されている場合（従来の動作）
   if (selectedGate) {
+    // 配置済みゲートの学習リソース判定
+    const hasDescription =
+      selectedGate.type === 'CUSTOM' ||
+      gateDescriptions[selectedGate.type];
+    const hasTruthTable =
+      selectedGate.type === 'CUSTOM' ||
+      ['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'].includes(selectedGate.type);
+
     return (
       <aside className="property-panel">
         <GateInfo selectedGate={selectedGate} />
@@ -201,7 +209,90 @@ export const PropertyPanel: React.FC = () => {
           selectedGate={selectedGate}
           updateClockFrequency={updateClockFrequency}
         />
-        {/* 配置済みゲートには学習リソースボタンを表示しない */}
+        
+        {/* 配置済みゲートにも学習リソースを表示 */}
+        {(hasDescription || hasTruthTable) && (
+          <div className="property-group">
+            <div className="section-title">
+              <span>📚</span>
+              <span>学習リソース</span>
+            </div>
+            <div style={{ display: 'grid', gap: '8px' }}>
+              {hasDescription && (
+                <button
+                  onClick={() => setShowDetailModal(true)}
+                  style={{
+                    padding: '12px 16px',
+                    backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                    border: '1px solid #00ff88',
+                    borderRadius: '8px',
+                    color: '#00ff88',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  📖 詳細説明を表示
+                </button>
+              )}
+
+              {hasTruthTable && (
+                <button
+                  onClick={() => setShowTruthTableModal(true)}
+                  title="現在の状態と入出力の関係を表で確認できます"
+                  style={{
+                    padding: '12px 16px',
+                    backgroundColor: 'rgba(255, 102, 153, 0.1)',
+                    border: '1px solid #ff6699',
+                    borderRadius: '8px',
+                    color: '#ff6699',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  📊 真理値表を表示
+                  <span style={{ fontSize: '12px', opacity: 0.7 }}>
+                    （現在の状態含む）
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 配置済みゲート用の詳細モーダル */}
+        {showDetailModal && selectedGate && (
+          <DetailModal
+            gateType={selectedGate.type}
+            customGateDefinition={
+              selectedGate.type === 'CUSTOM' && 'customGateDefinition' in selectedGate
+                ? selectedGate.customGateDefinition
+                : undefined
+            }
+            showDetailModal={showDetailModal}
+            onClose={() => setShowDetailModal(false)}
+          />
+        )}
+
+        {/* 配置済みゲート用の真理値表モーダル（現在の状態を含む） */}
+        {showTruthTableModal && selectedGate && (
+          <TruthTableModal
+            selectedGate={selectedGate}
+            gateType={selectedGate.type}
+            customGateId={selectedGate.type === 'CUSTOM' && 'customGateDefinition' in selectedGate && selectedGate.customGateDefinition ? selectedGate.customGateDefinition.id : undefined}
+            showTruthTableModal={showTruthTableModal}
+            onClose={() => setShowTruthTableModal(false)}
+          />
+        )}
       </aside>
     );
   }

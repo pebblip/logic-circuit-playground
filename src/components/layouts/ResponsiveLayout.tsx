@@ -5,6 +5,8 @@ import { useCircuitStore } from '../../stores/circuitStore';
 import { DesktopLayout } from './DesktopLayout';
 import { MobileLayout } from './MobileLayout';
 import { TabletLayout } from './TabletLayout';
+import { ErrorNotification } from '../ErrorNotification';
+import { KeyboardShortcutsHelp } from '../KeyboardShortcutsHelp';
 
 interface ResponsiveLayoutProps {
   children?: React.ReactNode;
@@ -54,6 +56,12 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
           {shareLoadMessage}
         </div>
       )}
+      
+      {/* エラーメッセージ通知 */}
+      <ErrorNotification />
+      
+      {/* キーボードショートカットヘルプ */}
+      <KeyboardShortcutsHelp />
       
       {(() => {
         switch (breakpoint) {

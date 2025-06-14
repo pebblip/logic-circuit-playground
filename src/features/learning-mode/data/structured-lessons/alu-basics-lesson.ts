@@ -1,389 +1,331 @@
 import type { StructuredLesson } from '../../../../types/lesson-content';
+import { TERMS } from '../terms';
 
 export const aluBasicsStructuredLesson: StructuredLesson = {
   id: 'alu-basics',
   title: 'ALU基礎 - CPUの計算エンジン',
   description: '算術論理演算装置（ALU）の基本を理解し簡易版を作ります',
+  objective: '演算選択機能を持つ基本ALUの構築を通じて、CPUの計算処理の核心を理解し、デジタル演算システムの基礎を習得する',
+  category: '基本回路',
+  lessonType: 'build',
   difficulty: 'advanced',
   prerequisites: ['multiplexer'],
-  estimatedMinutes: 30,
-  availableGates: ['INPUT', 'OUTPUT', 'AND', 'NOT', 'XOR'],
+  estimatedMinutes: 15,
+  availableGates: ['INPUT', 'OUTPUT', 'AND', 'XOR', 'NOT', 'OR'],
   steps: [
     {
       id: 'intro',
-      instruction: 'CPUの心臓部、ALUを理解しよう！',
+      instruction: 'コンピュータの計算能力の源',
       content: [
         {
+          type: 'heading',
+          text: '身近な例で考える',
+        },
+        {
           type: 'text',
-          text: 'コンピュータはどうやって計算や比較を行っているのでしょうか？',
+          text: '電卓で「5 + 3 =」と入力したとき、内部では加算回路が動きます。しかし「5 AND 3」（論理演算）も計算できる電卓があったとしたら？そんな万能計算機がALU（算術論理演算装置）です。',
         },
         {
           type: 'heading',
-          text: '🤔 ALUとは？',
+          text: 'ALUとは',
         },
         {
           type: 'text',
-          text: 'Arithmetic Logic Unit（算術論理演算装置）- CPUの中で実際の計算を行う部分です。',
+          text: 'Arithmetic Logic Unit（算術論理演算装置）の略で、CPUの中で実際の計算を行う部品です。算術演算（足し算、引き算）と論理演算（AND、OR）の両方を、制御信号によって切り替えて実行できます。',
         },
         {
           type: 'note',
-          text: '全ての計算、比較、論理演算はここで行われます！',
+          text: 'すべてのプログラムの計算処理は、最終的にALUで実行されます',
         },
       ],
     },
     {
-      id: 'alu-functions',
-      instruction: 'ALUの基本機能',
+      id: 'principle',
+      instruction: 'ALUの電気的仕組み',
       content: [
         {
           type: 'heading',
-          text: '🔧 主な演算',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '➕ 算術演算：加算、減算、インクリメント',
-            '🔀 論理演算：AND、OR、XOR、NOT',
-            '↔️ シフト演算：左シフト、右シフト',
-            '⚖️ 比較演算：等しい、大きい、小さい',
-          ],
-        },
-        {
-          type: 'heading',
-          text: '🎯 今回作るもの',
+          text: '基本的な2機能ALUの構造',
         },
         {
           type: 'text',
-          text: '2ビット簡易ALU：ADD（加算）とAND（論理積）を切り替え可能',
+          text: '今回作るALUは、2つの入力AとBに対して、制御信号OPにより「論理AND」または「論理XOR」を選択実行します。内部では両方の演算を同時に計算し、マルチプレクサで結果を選択します。',
         },
-      ],
-    },
-    {
-      id: 'design-concept',
-      instruction: 'ALUの設計思想',
-      content: [
         {
           type: 'heading',
-          text: '📐 基本構造',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '複数の演算回路を並列に配置',
-            'MUXで結果を選択',
-            '制御信号で演算を切り替え',
-          ],
+          text: '演算の選択方法',
         },
         {
           type: 'table',
-          headers: ['制御信号', '選択される演算', '出力'],
+          headers: ['制御信号OP', '選択演算', '出力結果', '用途'],
           rows: [
-            ['0', 'AND演算', 'A AND B'],
-            ['1', 'ADD演算', 'A + B'],
+            ['0', 'A AND B', '論理積', 'マスク処理、フィルタ'],
+            ['1', 'A XOR B', '排他的論理和', '比較、パリティ'],
           ],
         },
-      ],
-    },
-    {
-      id: 'place-inputs-a',
-      instruction: '入力A（1ビット）を配置',
-      hint: '演算対象の1つ目',
-      content: [
+        {
+          type: 'heading',
+          text: '内部構造の概要',
+        },
         {
           type: 'text',
-          text: '今回は1ビットALUから始めます。',
+          text: 'ALU = 複数の演算回路 + マルチプレクサ + 制御信号。各演算回路（ANDとXOR）が並列で動作し、マルチプレクサが制御信号に基づいて適切な結果を出力に送ります。',
+        },
+        {
+          type: 'note',
+          text: '実際のALUでは16〜64種類の演算を選択できますが、原理は同じです',
         },
       ],
-      action: { type: 'place-gate', gateType: 'INPUT' },
     },
     {
-      id: 'place-inputs-b',
-      instruction: '入力B（1ビット）を配置',
-      hint: '演算対象の2つ目',
-      content: [],
-      action: { type: 'place-gate', gateType: 'INPUT' },
-    },
-    {
-      id: 'place-control',
-      instruction: '制御信号を配置',
-      hint: 'OP（オペレーション）選択用INPUT',
-      content: [
-        {
-          type: 'text',
-          text: 'OP=0でAND、OP=1でADDを選択',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'INPUT' },
-    },
-    {
-      id: 'place-and-unit',
-      instruction: 'AND演算部を配置',
-      hint: 'ANDゲートを1つ',
-      content: [
-        {
-          type: 'text',
-          text: '論理演算ユニットです。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'AND' },
-    },
-    {
-      id: 'place-add-unit',
-      instruction: '加算演算部を配置',
-      hint: 'XORゲート（和）とANDゲート（キャリー）',
-      content: [
-        {
-          type: 'text',
-          text: '半加算器と同じ構成です。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'XOR' },
-    },
-    {
-      id: 'place-mux-gates',
-      instruction: 'MUX部分のゲートを配置',
-      hint: 'NOT、AND×2、ORを配置',
-      content: [
-        {
-          type: 'text',
-          text: '2つの演算結果から1つを選択します。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'NOT' },
-    },
-    {
-      id: 'place-outputs',
-      instruction: '出力を配置',
-      hint: 'Result（結果）とCarry（キャリー）の2つ',
-      content: [
-        {
-          type: 'text',
-          text: 'Carryは加算時のみ意味を持ちます。',
-        },
-      ],
-      action: { type: 'place-gate', gateType: 'OUTPUT' },
-    },
-    {
-      id: 'connect-and-unit',
-      instruction: '配線：AND演算部',
-      hint: 'AとBをANDゲートに接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-add-unit',
-      instruction: '配線：加算演算部',
-      hint: 'AとBをXORとANDに接続',
-      content: [],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'connect-mux',
-      instruction: '配線：MUX部分',
-      hint: '制御信号に応じて演算結果を選択',
-      content: [
-        {
-          type: 'text',
-          text: '各演算結果をMUXの入力に接続します。',
-        },
-      ],
-      action: { type: 'connect-wire' },
-    },
-    {
-      id: 'test-and-mode',
-      instruction: 'テスト1：AND演算（OP=0）',
-      content: [
-        {
-          type: 'text',
-          text: 'A=1, B=1, OP=0で、Result=1（AND演算）',
-        },
-        {
-          type: 'binary-expression',
-          expressions: [
-            {
-              left: '1',
-              operator: 'AND',
-              right: '1',
-              result: '1',
-            },
-          ],
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'test-add-mode',
-      instruction: 'テスト2：ADD演算（OP=1）',
-      content: [
-        {
-          type: 'text',
-          text: 'A=1, B=1, OP=1で、Result=0, Carry=1（加算）',
-        },
-        {
-          type: 'binary-expression',
-          expressions: [
-            {
-              left: '1',
-              operator: '+',
-              right: '1',
-              result: '10',
-            },
-          ],
-        },
-      ],
-      action: { type: 'toggle-input' },
-    },
-    {
-      id: 'status-flags',
-      instruction: '【発展】ステータスフラグ',
+      id: 'circuit-build',
+      instruction: '2機能ALU回路を作ってみよう',
       content: [
         {
           type: 'heading',
-          text: '🚩 演算結果の状態',
+          text: '手順１：入力ゲートを配置',
         },
         {
-          type: 'text',
-          text: '実際のALUは演算結果に関する情報も出力します：',
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'で',
+            { text: `${TERMS.INPUT}ゲート`, emphasis: true },
+            'を3つ配置します。',
+            'A（演算対象1）、B（演算対象2）、OP（演算選択）です。',
+          ],
         },
         {
-          type: 'list',
-          ordered: false,
-          items: [
-            'Z（Zero）：結果が0',
-            'N（Negative）：結果が負',
-            'C（Carry）：繰り上がり発生',
-            'V（Overflow）：オーバーフロー',
+          type: 'heading',
+          text: '手順２：対象ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.AND}ゲート`, emphasis: true },
+            'を1つ配置（論理積演算用）。',
+            { text: `${TERMS.XOR}ゲート`, emphasis: true },
+            'を1つ配置（排他的論理和演算用）。',
+            { text: `${TERMS.NOT}ゲート`, emphasis: true },
+            'を1つ、',
+            { text: `${TERMS.AND}ゲート`, emphasis: true },
+            'を2つ、',
+            { text: `${TERMS.OR}ゲート`, emphasis: true },
+            'を1つ配置（マルチプレクサ用）。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順３：出力ゲートを配置',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: `${TERMS.OUTPUT}ゲート`, emphasis: true },
+            'を1つ配置します。',
+            '選択された演算の結果が出力されます。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '手順４：配線でつなげる',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '演算部：AとBを両方のANDゲートとXORゲートに接続。',
+            'マルチプレクサ部：OP信号をNOTゲートに接続。',
+            '選択回路：AND演算結果とNOT(OP)を1つ目のANDに接続。',
+            'XOR演算結果とOPを2つ目のANDに接続。両ANDの出力をORに接続して最終出力へ。',
           ],
         },
         {
           type: 'note',
-          text: 'これらのフラグで条件分岐が可能になります',
+          text: '配線のコツ：並列演算とマルチプレクサの2段構成を意識する',
         },
       ],
     },
     {
-      id: 'multi-bit-alu',
-      instruction: '複数ビットALU',
+      id: 'experiment',
+      instruction: '予測して実験しよう',
       content: [
         {
           type: 'heading',
-          text: '🔢 32ビットALU',
+          text: 'まず予測してみよう',
         },
         {
           type: 'text',
-          text: '実際のCPUでは32個や64個の1ビットALUを連結：',
+          text: 'A=1、B=1にした状態で、OP=0とOP=1を切り替えたときの出力を予測してください。OP=0なら1（1 AND 1）、OP=1なら0（1 XOR 1）になるはずです。',
+        },
+        {
+          type: 'heading',
+          text: '実験で確かめよう',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            '1. 初期設定：A=1、B=1、OP=0→出力が1（AND演算）。',
+            '2. OPを',
+            { text: `${TERMS.DOUBLE_CLICK}`, emphasis: true },
+            'して1に変更→出力が0（XOR演算）。',
+            '3. A=1、B=0に変更→OP=0で0、OP=1で1。',
+            '4. A=0、B=1に変更→OP=0で0、OP=1で1。',
+          ],
+        },
+        {
+          type: 'heading',
+          text: '実験結果の確認',
+        },
+        {
+          type: 'table',
+          headers: ['A', 'B', 'OP=0（AND）', 'OP=1（XOR）', '動作確認'],
+          rows: [
+            ['0', '0', '0', '0', '両演算とも0'],
+            ['0', '1', '0', '1', '異なる結果'],
+            ['1', '0', '0', '1', '異なる結果'],
+            ['1', '1', '1', '0', '異なる結果'],
+          ],
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: '発見：', bold: true },
+            '制御信号を変えるだけで、',
+            { text: 'リアルタイム', emphasis: true },
+            'に異なる演算に切り替わります。',
+          ],
+        },
+        {
+          type: 'note',
+          text: 'これがプログラムの命令に応じて異なる計算を実行する基本原理です',
+        },
+      ],
+    },
+    {
+      id: 'analysis',
+      instruction: 'ALUの特徴を分析しよう',
+      content: [
+        {
+          type: 'heading',
+          text: '実際のCPUでのALU',
+        },
+        {
+          type: 'table',
+          headers: ['項目', '今回のALU', '実際のCPU', '拡張方法'],
+          rows: [
+            ['演算種類', '2種類', '16〜64種類', '演算回路追加'],
+            ['制御ビット', '1ビット', '4〜6ビット', 'デコーダ追加'],
+            ['データ幅', '1ビット', '32〜64ビット', '並列化'],
+            ['付加機能', 'なし', 'フラグ出力', '状態検出回路'],
+          ],
+        },
+        {
+          type: 'heading',
+          text: 'マイクロアーキテクチャでの位置',
+        },
+        {
+          type: 'text',
+          text: 'CPUの命令実行サイクルでは、1)フェッチ（命令取得）、2)デコード（命令解釈）、3)実行（ALU動作）、4)ライトバック（結果保存）の順で処理されます。ALUは第3段階の主役です。',
+        },
+        {
+          type: 'heading',
+          text: 'パフォーマンス分析',
+        },
+        {
+          type: 'text',
+          text: '現代のCPUでは、複数のALUを並列配置し、異なる演算を同時実行できます。また、パイプライン処理により、複数の命令のALU段階を重複実行して高速化しています。',
+        },
+        {
+          type: 'heading',
+          text: '確率的な視点',
+        },
+        {
+          type: 'text',
+          text: 'ランダムな入力に対して、AND演算で出力が1になる確率は25%（11のみ）、XOR演算では50%（01と10）です。実際のプログラムでは加算が最頻出で、論理演算はビット操作で多用されます。',
+        },
+        {
+          type: 'note',
+          text: 'ALUの設計思想は「全ての演算を並列実行し、必要な結果だけを選択」です',
+        },
+      ],
+    },
+    {
+      id: 'applications',
+      instruction: 'ALUの実用例',
+      content: [
+        {
+          type: 'heading',
+          text: '実世界での活用',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '各ビット位置で同じ演算',
-            'キャリーは連鎖的に伝播',
-            '全ビット同時並列処理',
+            'プログラムの算術演算：変数の加算、減算、比較',
+            'ビット操作：フラグ設定、マスク処理、暗号化',
+            'グラフィックス：ピクセル演算、色計算',
+            'AI処理：行列演算、ニューラルネットワーク',
+            '信号処理：フィルタリング、圧縮、変換',
           ],
+        },
+        {
+          type: 'heading',
+          text: '身近な製品での使用例',
+        },
+        {
+          type: 'text',
+          text: 'スマートフォンのカメラアプリ（画像フィルタ）、ゲーム機のリアルタイム描画、音楽プレーヤーの音質調整、GPSナビの経路計算など、計算が必要なあらゆる機能でALUが働いています。',
+        },
+        {
+          type: 'note',
+          text: 'AIブーム以降、ALUの並列処理能力がますます重要になっています',
         },
       ],
     },
     {
-      id: 'advanced-operations',
-      instruction: '高度な演算機能',
+      id: 'summary',
+      instruction: 'ALU基礎をマスター',
       content: [
         {
           type: 'heading',
-          text: '🚀 現代のALU',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '🔢 乗算・除算：専用回路で高速化',
-            '📊 浮動小数点演算：科学計算用',
-            '🔄 ローテート：ビット回転',
-            '🎮 SIMD：複数データ同時処理',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'cpu-integration',
-      instruction: 'CPUでの役割',
-      content: [
-        {
-          type: 'heading',
-          text: '💻 命令実行サイクル',
+          text: 'ALUの要点',
         },
         {
           type: 'list',
           ordered: true,
           items: [
-            'フェッチ：命令をメモリから取得',
-            'デコード：命令を解釈',
-            '実行：ALUで演算実行',
-            'ライトバック：結果を保存',
+            '複数の演算回路を並列配置',
+            '制御信号で演算を選択',
+            'マルチプレクサで結果を出力',
+            'CPUの命令実行の中核を担当',
           ],
         },
-        {
-          type: 'note',
-          text: 'ALUは「実行」段階の主役です！',
-        },
-      ],
-    },
-    {
-      id: 'practical-example',
-      instruction: '実例：簡単なプログラム',
-      content: [
-        {
-          type: 'heading',
-          text: '📝 A = B + C の実行',
-        },
-        {
-          type: 'list',
-          ordered: true,
-          items: [
-            'レジスタBの値をALUへ',
-            'レジスタCの値をALUへ',
-            'ALU制御信号を「ADD」に',
-            'ALUが加算を実行',
-            '結果をレジスタAに格納',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'achievement',
-      instruction: '🎉 ALU基礎マスター！',
-      content: [
-        {
-          type: 'heading',
-          text: '🏆 習得したスキル',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          items: [
-            '✅ ALUの基本構造を理解',
-            '✅ 演算切り替えの仕組み',
-            '✅ CPUの計算原理',
-            '✅ デジタル演算器の設計',
-          ],
-        },
-        {
-          type: 'note',
-          text: 'これでCPUの心臓部が理解できました！',
-        },
-      ],
-    },
-    {
-      id: 'quiz',
-      instruction: '理解度チェック！',
-      content: [
         {
           type: 'quiz',
-          question: 'ALUの主な役割は？',
-          options: ['データの保存', '演算の実行', '命令の取得', '画面表示'],
+          question: 'ALUで演算を切り替える仕組みは？',
+          options: [
+            '配線を物理的に変更',
+            '制御信号でマルチプレクサを操作',
+            '演算回路を交換',
+            '電圧を変更',
+          ],
           correctIndex: 1,
+        },
+        {
+          type: 'heading',
+          text: '次回予告',
+        },
+        {
+          type: 'rich-text',
+          elements: [
+            { text: 'レジスタ', bold: true },
+            'で、CPUの作業用メモリとなるデータ保持回路を学びます。',
+            'ALUと組み合わせて本格的なプロセッサの基礎を完成させます。',
+          ],
+        },
+        {
+          type: 'note',
+          text: 'ALUの理解で、コンピュータの「計算力」の源が分かりました',
         },
       ],
     },

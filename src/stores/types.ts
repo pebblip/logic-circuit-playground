@@ -58,6 +58,10 @@ export interface CircuitStoreState extends CircuitState {
   shareUrl: string | null;
   isGeneratingShareUrl: boolean;
   shareError: string | null;
+
+  // エラーメッセージ
+  errorMessage: string | null;
+  errorType: 'connection' | 'general' | null;
 }
 
 // ストアのアクション
@@ -135,6 +139,10 @@ export interface CircuitStoreActions {
   generateShareUrl: (name?: string, description?: string) => Promise<void>;
   loadFromShareUrl: () => Promise<boolean>;
   clearShareUrl: () => void;
+
+  // エラーメッセージ
+  setError: (message: string, type: 'connection' | 'general') => void;
+  clearError: () => void;
 }
 
 export type CircuitStore = CircuitStoreState & CircuitStoreActions;
