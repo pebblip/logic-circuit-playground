@@ -8,6 +8,7 @@ import { BasicGateRenderer } from '@/components/gate-renderers/BasicGateRenderer
 import { IOGateRenderer } from '@/components/gate-renderers/IOGateRenderer';
 import { SpecialGateRenderer } from '@/components/gate-renderers/SpecialGateRenderer';
 import { CustomGateRenderer } from '@/components/gate-renderers/CustomGateRenderer';
+import { handleError } from '@/infrastructure/errorHandler';
 
 interface GateComponentProps {
   gate: Gate;
@@ -51,15 +52,31 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
 
   // ゲートタイプに応じてレンダラーを選択
   const renderGate = () => {
-    const baseProps = {
-      gate,
-      isSelected,
-      handleMouseDown,
-      handleTouchStart,
-      handlePinClick,
-    };
+    try {
+      // ゲートタイプの基本的な妥当性チェック
+      if (!gate.type) {
+        handleError(
+          `Gate type is undefined or null for gate ${gate.id}`,
+          'Gate Component',
+          {
+            userAction: 'ゲート描画',
+            severity: 'high',
+            showToUser: true,
+            logToConsole: true,
+          }
+        );
+        return null;
+      }
 
-    // 基本ゲート (AND, OR, NOT, XOR, NAND, NOR)
+      const baseProps = {
+        gate,
+        isSelected,
+        handleMouseDown,
+        handleTouchStart,
+        handlePinClick,
+      };
+
+      // 基本ゲート (AND, OR, NOT, XOR, NAND, NOR)
     if (['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'].includes(gate.type)) {
       return (
         <BasicGateRenderer
@@ -101,7 +118,62 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
       );
     }
 
-    return null;
+    // 未知のゲートタイプの場合
+    handleError(
+      `Unknown gate type: ${gate.type}`,
+      'Gate Component',
+      {
+        userAction: 'ゲート描画',
+        severity: 'medium',
+        showToUser: true,
+        logToConsole: true,
+      }
+    );
+
+    // フォールバック: 基本的なゲートレンダラーを使用
+    return (
+      <BasicGateRenderer
+        {...baseProps}
+        handleGateClick={wrappedHandleGateClick}
+      />
+    );
+    } catch (error) {
+      // レンダリング中の予期しないエラー
+      handleError(
+        error,
+        'Gate Component',
+        {
+          userAction: 'ゲート描画',
+          severity: 'high',
+          showToUser: true,
+          logToConsole: true,
+        }
+      );
+      
+      // 最低限のフォールバック表示
+      return (
+        <g>
+          <rect
+            x={gate.position.x - 30}
+            y={gate.position.y - 15}
+            width={60}
+            height={30}
+            fill="#ff9999"
+            stroke="#ff0000"
+            strokeWidth={2}
+          />
+          <text
+            x={gate.position.x}
+            y={gate.position.y + 4}
+            textAnchor="middle"
+            fontSize="10"
+            fill="white"
+          >
+            ERROR
+          </text>
+        </g>
+      );
+    }
   };
 
   return (

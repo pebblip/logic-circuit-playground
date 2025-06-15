@@ -260,7 +260,16 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
 
       // ゲートが1つもない場合は早期リターン
       if (gatesArray.length === 0) {
-        console.error('[Canvas] No gates in internal circuit!');
+        handleError(
+          'No gates in internal circuit',
+          'Canvas',
+          {
+            userAction: 'カスタムゲート内部回路表示',
+            severity: 'medium',
+            showToUser: true,
+            logToConsole: true,
+          }
+        );
         setViewBox({ x: 0, y: 0, width: 1200, height: 800 });
         resetZoom();
         return;
@@ -471,6 +480,18 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
             globalTimingCapture.watchGate(gate.id, 'output', 0);
           }
         });
+      } else {
+        // 回路評価失敗時の統一エラーハンドリング
+        handleError(
+          result.error,
+          'Canvas - CLOCKゲートシミュレーション',
+          {
+            userAction: '回路シミュレーション実行',
+            severity: 'high',
+            showToUser: true,
+            logToConsole: true,
+          }
+        );
       }
     }, updateInterval); // 動的更新間隔
 

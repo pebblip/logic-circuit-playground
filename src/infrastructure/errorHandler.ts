@@ -293,8 +293,19 @@ export const handleError = (
     }
 
     // 実際のエラーストアに通知を送信
-    const store = useCircuitStore.getState();
-    store.showErrorNotification(notification);
+    try {
+      const store = useCircuitStore.getState();
+      if (store && typeof store.showErrorNotification === 'function') {
+        store.showErrorNotification(notification);
+      } else {
+        // フォールバック: コンソールに出力（テスト環境など）
+        console.warn('[ErrorHandler] Error store not available, falling back to console:', notification);
+      }
+    } catch (error) {
+      // ストアアクセスエラーの場合のフォールバック
+      console.warn('[ErrorHandler] Failed to access error store:', error);
+      console.log('[ErrorHandler] Original notification:', notification);
+    }
   }
 };
 
@@ -362,8 +373,18 @@ export const handleInfo = (message: string, context: string, userAction?: string
   );
   
   // 実際のエラーストアに通知を送信
-  const store = useCircuitStore.getState();
-  store.showErrorNotification(notification);
+  try {
+    const store = useCircuitStore.getState();
+    if (store && typeof store.showErrorNotification === 'function') {
+      store.showErrorNotification(notification);
+    } else {
+      // フォールバック: コンソールに出力（テスト環境など）
+      console.info('[ErrorHandler] Info notification (store not available):', notification);
+    }
+  } catch (error) {
+    // ストアアクセスエラーの場合のフォールバック
+    console.info('[ErrorHandler] Info notification (store error):', notification);
+  }
 };
 
 // Result<T,E>パターンとの統合

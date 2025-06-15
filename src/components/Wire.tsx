@@ -5,6 +5,7 @@ import {
   getInputPinPosition,
   getOutputPinPosition,
 } from '../domain/analysis/pinPositionCalculator';
+import { handleError } from '@/infrastructure/errorHandler';
 
 interface WireComponentProps {
   wire: Wire;
@@ -25,8 +26,36 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
   const gateData = useMemo(() => {
     const fromGate = gates.find(g => g.id === wire.from.gateId);
     const toGate = gates.find(g => g.id === wire.to.gateId);
+    
+    // ゲートが見つからない場合のエラーハンドリング
+    if (!fromGate) {
+      handleError(
+        `Wire connection failed: From gate not found (${wire.from.gateId})`,
+        'Wire Component',
+        {
+          userAction: 'ワイヤー表示',
+          severity: 'medium',
+          showToUser: false, // 自動復旧可能なためユーザーには表示しない
+          logToConsole: true,
+        }
+      );
+    }
+    
+    if (!toGate) {
+      handleError(
+        `Wire connection failed: To gate not found (${wire.to.gateId})`,
+        'Wire Component',
+        {
+          userAction: 'ワイヤー表示',
+          severity: 'medium',
+          showToUser: false, // 自動復旧可能なためユーザーには表示しない
+          logToConsole: true,
+        }
+      );
+    }
+    
     return { fromGate, toGate };
-  }, [gates, wire.from.gateId, wire.to.gateId]);
+  }, [gates, wire.from.gateId, wire.to.gateId, wire.id]);
 
   // パス計算をメモ化（パフォーマンス最適化）
   const pathData = useMemo(() => {
@@ -38,16 +67,45 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
     // wire.from.pinIndex は負の値（出力ピン）：-1 = 出力0、-2 = 出力1、...
     // wire.to.pinIndex は 0以上の入力ピン番号
 
-    // 負のpinIndexから実際の出力ピンインデックスを計算
-    const outputPinIndex = Math.abs(wire.from.pinIndex) - 1;
-    const from = getOutputPinPosition(fromGate, outputPinIndex);
-    const to = getInputPinPosition(toGate, wire.to.pinIndex);
+    try {
+      // 負のpinIndexから実際の出力ピンインデックスを計算
+      const outputPinIndex = Math.abs(wire.from.pinIndex) - 1;
+      const from = getOutputPinPosition(fromGate, outputPinIndex);
+      const to = getInputPinPosition(toGate, wire.to.pinIndex);
 
-    // ベジェ曲線のパスを生成
-    const midX = (from.x + to.x) / 2;
-    const path = `M ${from.x} ${from.y} Q ${midX} ${from.y} ${midX} ${(from.y + to.y) / 2} T ${to.x} ${to.y}`;
-    
-    return { path, from, to };
+      // ピン位置の妥当性チェック
+      if (!from || !to || !isFinite(from.x) || !isFinite(from.y) || !isFinite(to.x) || !isFinite(to.y)) {
+        handleError(
+          `Invalid pin positions calculated for wire ${wire.id}`,
+          'Wire Component',
+          {
+            userAction: 'ワイヤーパス計算',
+            severity: 'medium',
+            showToUser: false,
+            logToConsole: true,
+          }
+        );
+        return null;
+      }
+
+      // ベジェ曲線のパスを生成
+      const midX = (from.x + to.x) / 2;
+      const path = `M ${from.x} ${from.y} Q ${midX} ${from.y} ${midX} ${(from.y + to.y) / 2} T ${to.x} ${to.y}`;
+      
+      return { path, from, to };
+    } catch (error) {
+      handleError(
+        error,
+        'Wire Component',
+        {
+          userAction: 'ワイヤーパス計算',
+          severity: 'medium',
+          showToUser: false,
+          logToConsole: true,
+        }
+      );
+      return null;
+    }
   }, [gateData, wire.from.pinIndex, wire.to.pinIndex]);
 
   if (!pathData) return null;

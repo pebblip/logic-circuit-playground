@@ -162,10 +162,12 @@ describe('現在のエラーハンドリング分析', () => {
 
       render(<Canvas />);
 
-      // console.errorは呼ばれるが、ユーザーには通知されない
+      // 【修正済み】統一エラーハンドリングシステムにより改善されたエラーログ
       expect(mockConsoleError).toHaveBeenCalledWith(
-        '[Canvas] Internal circuit not found:',
-        'non-existent-gate'
+        '[Canvas - カスタムゲートプレビュー開始]:',
+        expect.objectContaining({
+          message: expect.stringContaining('Internal circuit not found for custom gate: non-existent-gate')
+        })
       );
 
       // 【問題】UIにエラー表示がない
@@ -238,9 +240,9 @@ describe('現在のエラーハンドリング分析', () => {
         </svg>
       );
 
-      // 【問題】コンポーネントが何もレンダリングしないが、エラー通知もない
+      // 【修正済み】統一エラーハンドリングシステムにより適切にエラーが検出される
       expect(container.querySelector('[data-wire-id]')).toBeNull();
-      expect(mockConsoleError).not.toHaveBeenCalled(); // エラーログすらない
+      expect(mockConsoleError).toHaveBeenCalled(); // 統一エラーハンドリングによりエラーログが出力される
     });
 
     it('【問題】カスタムゲート定義がないカスタムゲートにワイヤーが接続されてもエラー処理なし', () => {
@@ -270,8 +272,8 @@ describe('現在のエラーハンドリング分析', () => {
         );
       }).not.toThrow(); // エラーを投げない = 問題を隠している
 
-      // 【問題】ユーザーには何が起きたか分からない
-      expect(mockConsoleError).not.toHaveBeenCalled();
+      // 【修正済み】統一エラーハンドリングシステムにより適切にエラーが検出される
+      expect(mockConsoleError).toHaveBeenCalled(); // 統一エラーハンドリングによりエラーログが出力される
     });
   });
 
