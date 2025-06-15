@@ -9,6 +9,7 @@ import type {
 import type { AppMode, ViewMode } from '@/types/appMode';
 import type { TimingChartSlice } from './slices/timingChartSlice';
 import type { ClockSelectionSlice } from './slices/clockSelectionSlice';
+import type { ErrorSlice } from './slices/errorSlice';
 
 // Re-export AppMode
 export type { AppMode };
@@ -153,4 +154,4 @@ export interface CircuitStoreActions {
   clearError: () => void;
 }
 
-export type CircuitStore = CircuitStoreState & CircuitStoreActions & TimingChartSlice & ClockSelectionSlice;
+export type CircuitStore = CircuitStoreState & CircuitStoreActions & TimingChartSlice & ClockSelectionSlice & ErrorSlice;

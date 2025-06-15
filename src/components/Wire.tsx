@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import type { Wire, Gate } from '../types/circuit';
 import { useCircuitStore } from '../stores/circuitStore';
 import {
@@ -11,7 +11,7 @@ interface WireComponentProps {
   gates?: Gate[]; // プレビューモード用にオプショナルに
 }
 
-export const WireComponent: React.FC<WireComponentProps> = ({
+const WireComponentImpl: React.FC<WireComponentProps> = ({
   wire,
   gates: propGates,
 }) => {
@@ -21,23 +21,38 @@ export const WireComponent: React.FC<WireComponentProps> = ({
   // プロパティで渡されたゲートがあればそれを使用、なければstoreから取得
   const gates = propGates || storeGates;
 
-  const fromGate = gates.find(g => g.id === wire.from.gateId);
-  const toGate = gates.find(g => g.id === wire.to.gateId);
+  // ゲート検索結果をメモ化（パフォーマンス最適化）
+  const gateData = useMemo(() => {
+    const fromGate = gates.find(g => g.id === wire.from.gateId);
+    const toGate = gates.find(g => g.id === wire.to.gateId);
+    return { fromGate, toGate };
+  }, [gates, wire.from.gateId, wire.to.gateId]);
 
-  if (!fromGate || !toGate) return null;
+  // パス計算をメモ化（パフォーマンス最適化）
+  const pathData = useMemo(() => {
+    const { fromGate, toGate } = gateData;
+    
+    if (!fromGate || !toGate) return null;
 
-  // ピン位置計算を統一化されたユーティリティから取得
-  // wire.from.pinIndex は負の値（出力ピン）：-1 = 出力0、-2 = 出力1、...
-  // wire.to.pinIndex は 0以上の入力ピン番号
+    // ピン位置計算を統一化されたユーティリティから取得
+    // wire.from.pinIndex は負の値（出力ピン）：-1 = 出力0、-2 = 出力1、...
+    // wire.to.pinIndex は 0以上の入力ピン番号
 
-  // 負のpinIndexから実際の出力ピンインデックスを計算
-  const outputPinIndex = Math.abs(wire.from.pinIndex) - 1;
-  const from = getOutputPinPosition(fromGate, outputPinIndex);
-  const to = getInputPinPosition(toGate, wire.to.pinIndex);
+    // 負のpinIndexから実際の出力ピンインデックスを計算
+    const outputPinIndex = Math.abs(wire.from.pinIndex) - 1;
+    const from = getOutputPinPosition(fromGate, outputPinIndex);
+    const to = getInputPinPosition(toGate, wire.to.pinIndex);
 
-  // ベジェ曲線のパスを生成
-  const midX = (from.x + to.x) / 2;
-  const path = `M ${from.x} ${from.y} Q ${midX} ${from.y} ${midX} ${(from.y + to.y) / 2} T ${to.x} ${to.y}`;
+    // ベジェ曲線のパスを生成
+    const midX = (from.x + to.x) / 2;
+    const path = `M ${from.x} ${from.y} Q ${midX} ${from.y} ${midX} ${(from.y + to.y) / 2} T ${to.x} ${to.y}`;
+    
+    return { path, from, to };
+  }, [gateData, wire.from.pinIndex, wire.to.pinIndex]);
+
+  if (!pathData) return null;
+
+  const { path } = pathData;
 
   // 右クリックハンドラー
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -82,3 +97,18 @@ export const WireComponent: React.FC<WireComponentProps> = ({
     </g>
   );
 };
+
+// React.memo で最適化し、カスタム比較関数で不要な再レンダリングを防止
+export const WireComponent = memo(WireComponentImpl, (prevProps, nextProps) => {
+  // パフォーマンス重要プロパティのみを比較
+  return (
+    prevProps.wire.id === nextProps.wire.id &&
+    prevProps.wire.from.gateId === nextProps.wire.from.gateId &&
+    prevProps.wire.from.pinIndex === nextProps.wire.from.pinIndex &&
+    prevProps.wire.to.gateId === nextProps.wire.to.gateId &&
+    prevProps.wire.to.pinIndex === nextProps.wire.to.pinIndex &&
+    prevProps.wire.isActive === nextProps.wire.isActive &&
+    // ゲートリストの参照比較（プレビューモード用）
+    prevProps.gates === nextProps.gates
+  );
+});

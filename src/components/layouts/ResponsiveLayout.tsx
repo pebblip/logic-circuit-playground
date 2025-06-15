@@ -5,7 +5,7 @@ import { useCircuitStore } from '../../stores/circuitStore';
 import { DesktopLayout } from './DesktopLayout';
 import { MobileLayout } from './MobileLayout';
 import { TabletLayout } from './TabletLayout';
-import { ErrorNotification } from '../ErrorNotification';
+import { ErrorNotificationPanel } from '../ErrorNotificationPanel';
 
 interface ResponsiveLayoutProps {
   children?: React.ReactNode;
@@ -56,8 +56,8 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
         </div>
       )}
       
-      {/* エラーメッセージ通知 */}
-      <ErrorNotification />
+      {/* 統一エラーハンドリングシステム通知 */}
+      <ErrorNotificationPanel />
       
       {(() => {
         switch (breakpoint) {

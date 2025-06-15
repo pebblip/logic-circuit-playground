@@ -22,6 +22,7 @@ import {
 import type { GateType, CustomGateDefinition } from '../types/gates';
 import { GATE_SIZES } from '../types/gates';
 import { debug } from '@/shared/debug';
+import { handleError } from '@/infrastructure/errorHandler';
 
 interface ViewBox {
   x: number;
@@ -77,43 +78,58 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     exitCustomGatePreview,
   } = useCircuitStore();
 
-  // 表示データの切り替え（プレビューモード対応）
+  // 表示データの切り替え（プレビューモード対応）- パフォーマンス最適化
   const displayData = useMemo(() => {
-    if (viewMode === 'custom-gate-preview' && previewingCustomGateId) {
-      const customGate = customGates.find(g => g.id === previewingCustomGateId);
-
-      // エラーハンドリング
-      if (!customGate?.internalCircuit) {
-        console.error(
-          '[Canvas] Internal circuit not found:',
-          previewingCustomGateId
-        );
-        return {
-          displayGates: [],
-          displayWires: [],
-          isReadOnly: true,
-        };
-      }
-
-      // ゲートが配列であることを確認
-      const gates = Array.isArray(customGate.internalCircuit.gates)
-        ? customGate.internalCircuit.gates
-        : [];
-      const wires = Array.isArray(customGate.internalCircuit.wires)
-        ? customGate.internalCircuit.wires
-        : [];
-
+    // 早期リターン：通常モードでは重い計算を避ける
+    if (viewMode !== 'custom-gate-preview') {
       return {
         displayGates: gates,
         displayWires: wires,
+        isReadOnly: false,
+      };
+    }
+
+    // プレビューモード時のみ重い計算を実行
+    if (!previewingCustomGateId) {
+      return {
+        displayGates: [],
+        displayWires: [],
         isReadOnly: true,
       };
     }
 
+    const customGate = customGates.find(g => g.id === previewingCustomGateId);
+
+    // エラーハンドリング
+    if (!customGate?.internalCircuit) {
+      handleError(
+        new Error(`Internal circuit not found for custom gate: ${previewingCustomGateId}`),
+        'Canvas',
+        {
+          userAction: 'カスタムゲートプレビュー開始',
+          severity: 'medium',
+          showToUser: true,
+        }
+      );
+      return {
+        displayGates: [],
+        displayWires: [],
+        isReadOnly: true,
+      };
+    }
+
+    // ゲートが配列であることを確認
+    const gatesArray = Array.isArray(customGate.internalCircuit.gates)
+      ? customGate.internalCircuit.gates
+      : [];
+    const wiresArray = Array.isArray(customGate.internalCircuit.wires)
+      ? customGate.internalCircuit.wires
+      : [];
+
     return {
-      displayGates: gates,
-      displayWires: wires,
-      isReadOnly: false,
+      displayGates: gatesArray,
+      displayWires: wiresArray,
+      isReadOnly: true,
     };
   }, [viewMode, previewingCustomGateId, customGates, gates, wires]);
 
@@ -187,7 +203,16 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         !isFinite(bounds.minY) ||
         !isFinite(bounds.maxY)
       ) {
-        console.error('[Canvas] Invalid bounds calculated:', bounds);
+        handleError(
+          new Error(`Invalid bounds calculated: ${JSON.stringify(bounds)}`),
+          'Canvas',
+          {
+            userAction: '表示範囲計算',
+            severity: 'low',
+            showToUser: false,
+            logToConsole: true,
+          }
+        );
         // フォールバック: デフォルトビュー
         setViewBox({
           x: -600,
@@ -373,23 +398,28 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       console.log(`[Canvas] 🎯 Initialized timing chart for ${clockGateCount} CLOCK gates`);
     }
 
-    // 🎯 CLOCKゲートの最高周波数に応じて更新間隔を動的調整
-    const maxClockFrequency = Math.max(
-      ...displayData.displayGates
-        .filter(gate => gate.type === 'CLOCK' && gate.metadata?.isRunning)
-        .map(gate => gate.metadata?.frequency || 1),
-      1 // 最低1Hz
+    // 🎯 CLOCKゲートの最高周波数に応じて更新間隔を動的調整（パフォーマンス最適化）
+    const runningClockGates = displayData.displayGates.filter(
+      gate => gate.type === 'CLOCK' && gate.metadata?.isRunning
     );
+    
+    const maxClockFrequency = runningClockGates.length > 0 
+      ? Math.max(...runningClockGates.map(gate => gate.metadata?.frequency || 1))
+      : 1;
     
     // サンプリング定理に従い、最低でも最高周波数の4倍で更新
     const requiredUpdateHz = Math.max(maxClockFrequency * 4, 10);
     const updateInterval = Math.min(1000 / requiredUpdateHz, 100); // 最大100ms
-    
-    console.log(`[Canvas] 🎯 CLOCK max frequency: ${maxClockFrequency}Hz, update interval: ${updateInterval}ms`);
 
     const interval = setInterval(() => {
-      // 現在の状態を直接取得
+      // パフォーマンス最適化：実行中のCLOCKゲートがない場合は早期リターン
       const currentState = useCircuitStore.getState();
+      const hasActiveClocks = currentState.gates.some(
+        gate => gate.type === 'CLOCK' && gate.metadata?.isRunning
+      );
+      
+      if (!hasActiveClocks) return;
+
       const previousCircuit: Circuit = {
         gates: currentState.gates,
         wires: currentState.wires,
@@ -403,61 +433,44 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
           result,
           previousCircuit
         );
-        console.log(`[Canvas] Captured ${timingEvents.length} timing events`);
-        if (timingEvents.length > 0) {
-          console.log(`[Canvas] Timing events:`, timingEvents.map(e => 
-            `${e.gateId} ${e.pinType}[${e.pinIndex}] = ${e.value} @ ${e.time}ms`
-          ));
-        }
         
-        // Zustand storeを更新
-        useCircuitStore.setState({
-          gates: [...result.data.circuit.gates],
-          wires: [...result.data.circuit.wires],
+        // Zustand storeを更新（パフォーマンス最適化：出力変更チェック）
+        const hasOutputChanges = result.data.circuit.gates.some((newGate, index) => {
+          const oldGate = currentState.gates[index];
+          return !oldGate || newGate.output !== oldGate.output;
         });
         
-        // 🌟 新設計：現在時刻更新（オシロスコープモード駆動）
+        if (hasOutputChanges) {
+          useCircuitStore.setState({
+            gates: [...result.data.circuit.gates],
+            wires: [...result.data.circuit.wires],
+          });
+        }
+        
+        // 現在時刻更新（オシロスコープモード駆動）
         const currentSimTime = globalTimingCapture.getCurrentSimulationTime();
         if (currentState.timingChartActions && currentSimTime !== undefined) {
           currentState.timingChartActions.updateCurrentTime(currentSimTime);
         }
         
-        // タイミングイベント処理（新API使用）
+        // タイミングイベント処理（条件付き）
         if (timingEvents.length > 0) {
-          console.log(`[Canvas] Processing ${timingEvents.length} timing events (chart visible: ${currentState.timingChart.isVisible})`);
           currentState.timingChartActions?.processTimingEvents(timingEvents);
-        } else {
-          // イベントがない場合も時刻は更新（連続スクロール維持）
-          console.log(`[Canvas] No timing events, but updating time: ${currentSimTime}ms`);
         }
 
-        // CLOCKゲートの自動トレース作成（初回のみ）
-        result.data.circuit.gates.forEach(gate => {
-          if (gate.type === 'CLOCK') {
-            console.log(`[Canvas] Found CLOCK gate: ${gate.id}, output: ${gate.output}`);
-            
-            // CLOCKゲートのトレースが存在しない場合は作成
-            const existingTrace = currentState.timingChart.traces.find(
-              t => t.gateId === gate.id && t.pinType === 'output'
-            );
-            console.log(`[Canvas] Existing trace for ${gate.id}:`, existingTrace ? 'YES' : 'NO');
-            
-            if (!existingTrace) {
-              console.log(`[Canvas] Creating trace for CLOCK gate: ${gate.id}`);
-              const traceId = currentState.timingChartActions?.addTraceFromGate(gate, 'output', 0);
-              console.log(`[Canvas] Created trace ID: ${traceId}`);
-              
-              // 監視も開始
-              globalTimingCapture.watchGate(gate.id, 'output', 0);
-              console.log(`[Canvas] Started watching gate: ${gate.id}`);
-            }
+        // CLOCKゲートの自動トレース作成（初回のみ、パフォーマンス最適化）
+        const clockGates = result.data.circuit.gates.filter(gate => gate.type === 'CLOCK');
+        clockGates.forEach(gate => {
+          // CLOCKゲートのトレースが存在しない場合は作成
+          const existingTrace = currentState.timingChart.traces.find(
+            t => t.gateId === gate.id && t.pinType === 'output'
+          );
+          
+          if (!existingTrace && currentState.timingChartActions) {
+            currentState.timingChartActions.addTraceFromGate(gate, 'output', 0);
+            globalTimingCapture.watchGate(gate.id, 'output', 0);
           }
         });
-        
-        // 現在のトレース一覧をログ出力
-        console.log(`[Canvas] Current traces:`, currentState.timingChart.traces.map(t => 
-          `${t.gateId}(${t.name}) - ${t.events.length} events`
-        ));
       }
     }, updateInterval); // 動的更新間隔
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import type { Gate } from '@/types/circuit';
 import { useIsMobile } from '@/hooks/useResponsive';
 import { useGateDragAndDrop } from '@/hooks/useGateDragAndDrop';
@@ -14,7 +14,7 @@ interface GateComponentProps {
   isHighlighted?: boolean;
 }
 
-export const GateComponent: React.FC<GateComponentProps> = ({
+const GateComponentImpl: React.FC<GateComponentProps> = ({
   gate,
   isHighlighted = false,
 }) => {
@@ -115,6 +115,21 @@ export const GateComponent: React.FC<GateComponentProps> = ({
     </g>
   );
 };
+
+// React.memo で最適化し、カスタム比較関数で不要な再レンダリングを防止
+export const GateComponent = memo(GateComponentImpl, (prevProps, nextProps) => {
+  // パフォーマンス重要プロパティのみを比較
+  return (
+    prevProps.gate.id === nextProps.gate.id &&
+    prevProps.gate.type === nextProps.gate.type &&
+    prevProps.gate.position.x === nextProps.gate.position.x &&
+    prevProps.gate.position.y === nextProps.gate.position.y &&
+    prevProps.gate.output === nextProps.gate.output &&
+    prevProps.isHighlighted === nextProps.isHighlighted &&
+    // メタデータの変更（CLOCK頻度など）もチェック
+    JSON.stringify(prevProps.gate.metadata) === JSON.stringify(nextProps.gate.metadata)
+  );
+});
 
 // 既存のコンポーネントとの互換性のためのエクスポート
 export default GateComponent;

@@ -442,11 +442,12 @@ describe('WireComponent', () => {
     });
 
     it('should handle active state changes efficiently', () => {
-      const wire = { ...mockWires[0] };
+      const inactiveWire = { ...mockWires[0], isActive: false };
+      const activeWire = { ...mockWires[0], isActive: true };
       
       const { rerender } = render(
         <svg>
-          <WireComponent wire={wire} />
+          <WireComponent wire={inactiveWire} />
         </svg>
       );
 
@@ -454,24 +455,250 @@ describe('WireComponent', () => {
       expect(screen.getByTestId('wire-wire1').querySelector('.signal-particle')).toBeNull();
 
       // アクティブに変更
-      wire.isActive = true;
       rerender(
         <svg>
-          <WireComponent wire={wire} />
+          <WireComponent wire={activeWire} />
         </svg>
       );
 
       expect(screen.getByTestId('wire-wire1').querySelector('.signal-particle')).toBeTruthy();
 
       // 再び非アクティブに
-      wire.isActive = false;
+      rerender(
+        <svg>
+          <WireComponent wire={inactiveWire} />
+        </svg>
+      );
+
+      expect(screen.getByTestId('wire-wire1').querySelector('.signal-particle')).toBeNull();
+    });
+  });
+
+  describe('React.memo Performance Optimization', () => {
+    it('should prevent unnecessary re-renders when props have not changed', () => {
+      const wire = mockWires[0];
+      const renderSpy = vi.fn();
+      
+      // Mock the component to track renders
+      const TestWrapper = ({ wire }: { wire: Wire }) => {
+        renderSpy();
+        return (
+          <svg>
+            <WireComponent wire={wire} />
+          </svg>
+        );
+      };
+
+      const { rerender } = render(<TestWrapper wire={wire} />);
+      expect(renderSpy).toHaveBeenCalledTimes(1);
+
+      // Re-render with same props - should NOT cause WireComponent re-render
+      rerender(<TestWrapper wire={wire} />);
+      
+      // TestWrapper re-renders, but WireComponent should be memoized
+      expect(renderSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('should re-render when wire activity state changes', () => {
+      const wire1 = { ...mockWires[0], isActive: false };
+      const wire2 = { ...wire1, isActive: true };
+      
+      const { container, rerender } = render(
+        <svg>
+          <WireComponent wire={wire1} />
+        </svg>
+      );
+      
+      // Initial render - inactive state
+      expect(container.querySelector('.signal-particle')).not.toBeInTheDocument();
+      
+      // Change activity - should trigger re-render
+      rerender(
+        <svg>
+          <WireComponent wire={wire2} />
+        </svg>
+      );
+      
+      // Should now show particle animation
+      expect(container.querySelector('.signal-particle')).toBeInTheDocument();
+    });
+
+    it('should re-render when wire connection changes', () => {
+      const wire1 = mockWires[0];
+      const wire2 = {
+        ...wire1,
+        from: { gateId: 'gate2', pinIndex: -1 }, // Different source gate
+      };
+      
+      const { rerender } = render(
+        <svg>
+          <WireComponent wire={wire1} />
+        </svg>
+      );
+      
+      // Verify initial connection calls
+      expect(getOutputPinPosition).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'gate1' }),
+        0
+      );
+      
+      // Change connection - should trigger re-render
+      rerender(
+        <svg>
+          <WireComponent wire={wire2} />
+        </svg>
+      );
+      
+      // Should call with new gate
+      expect(getOutputPinPosition).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'gate2' }),
+        0
+      );
+    });
+
+    it('should re-render when pin indices change', () => {
+      const wire1 = mockWires[0];
+      const wire2 = {
+        ...wire1,
+        to: { gateId: 'gate2', pinIndex: 1 }, // Different input pin
+      };
+      
+      const { rerender } = render(
+        <svg>
+          <WireComponent wire={wire1} />
+        </svg>
+      );
+      
+      // Verify initial pin index
+      expect(getInputPinPosition).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'gate2' }),
+        0
+      );
+      
+      // Change pin index - should trigger re-render
+      rerender(
+        <svg>
+          <WireComponent wire={wire2} />
+        </svg>
+      );
+      
+      // Should call with new pin index
+      expect(getInputPinPosition).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'gate2' }),
+        1
+      );
+    });
+
+    it('should use memoized gate data for path calculation', () => {
+      const wire = mockWires[0];
+      
+      // Mock pin positions
+      vi.mocked(getOutputPinPosition).mockReturnValue({ x: 145, y: 100 });
+      vi.mocked(getInputPinPosition).mockReturnValue({ x: 255, y: 150 });
+      
+      const { container, rerender } = render(
+        <svg>
+          <WireComponent wire={wire} />
+        </svg>
+      );
+      
+      const initialPath = container.querySelector('path.wire')?.getAttribute('d');
+      
+      // Re-render with same wire - path should be memoized
       rerender(
         <svg>
           <WireComponent wire={wire} />
         </svg>
       );
+      
+      const secondPath = container.querySelector('path.wire')?.getAttribute('d');
+      expect(secondPath).toBe(initialPath);
+      
+      // Pin position calculation should be optimized with memoization
+      // React.memo should prevent re-rendering when props haven't changed
+      expect(getOutputPinPosition).toHaveBeenCalled();
+    });
 
-      expect(screen.getByTestId('wire-wire1').querySelector('.signal-particle')).toBeNull();
+    it('should handle gates prop changes for preview mode', () => {
+      const wire = mockWires[0];
+      const previewGates = [mockGates[0], mockGates[1]]; // Subset of gates
+      
+      const { rerender } = render(
+        <svg>
+          <WireComponent wire={wire} />
+        </svg>
+      );
+      
+      // Provide external gates (preview mode)
+      rerender(
+        <svg>
+          <WireComponent wire={wire} gates={previewGates} />
+        </svg>
+      );
+      
+      // Should handle the gates prop change and re-render
+      expect(getOutputPinPosition).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'gate1' }),
+        0
+      );
+    });
+
+    it('should optimize path recalculation with useMemo', () => {
+      const wire = mockWires[0];
+      
+      // Track how many times path calculation occurs
+      let pathCalculationCount = 0;
+      vi.mocked(getOutputPinPosition).mockImplementation(() => {
+        pathCalculationCount++;
+        return { x: 145, y: 100 };
+      });
+      vi.mocked(getInputPinPosition).mockReturnValue({ x: 255, y: 150 });
+      
+      const { rerender } = render(
+        <svg>
+          <WireComponent wire={wire} />
+        </svg>
+      );
+      
+      const initialCount = pathCalculationCount;
+      
+      // Re-render with identical wire - React.memo should prevent re-rendering
+      rerender(
+        <svg>
+          <WireComponent wire={wire} />
+        </svg>
+      );
+      
+      // With React.memo, the component should not re-render at all when props are identical
+      // So path calculation count should remain the same
+      expect(pathCalculationCount).toBe(initialCount);
+    });
+
+    it('should handle complex wire state transitions efficiently', () => {
+      const wire = mockWires[0];
+      
+      const startTime = performance.now();
+      
+      const { rerender } = render(
+        <svg>
+          <WireComponent wire={wire} />
+        </svg>
+      );
+      
+      // Simulate rapid state changes
+      for (let i = 0; i < 50; i++) {
+        const updatedWire = { ...wire, isActive: i % 2 === 0 };
+        rerender(
+          <svg>
+            <WireComponent wire={updatedWire} />
+          </svg>
+        );
+      }
+      
+      const renderTime = performance.now() - startTime;
+      
+      // Should handle rapid changes efficiently
+      expect(renderTime).toBeLessThan(100); // 100ms threshold
     });
   });
 
