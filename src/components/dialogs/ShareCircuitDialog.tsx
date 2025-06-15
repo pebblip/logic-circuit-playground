@@ -56,15 +56,21 @@ export const ShareCircuitDialog: React.FC<ShareCircuitDialogProps> = ({
   return (
     <div className="dialog-overlay" onClick={onClose}>
       <div className="share-dialog" onClick={e => e.stopPropagation()}>
-        <h2>回路を共有</h2>
+        <div className="share-dialog-header">
+          <h2>🔗 回路を共有</h2>
+          <button className="close-button" onClick={onClose}>
+            ×
+          </button>
+        </div>
         
-        {gates.length === 0 ? (
-          <div className="empty-circuit-message">
-            <p>共有する回路がありません。</p>
-            <p>ゲートを配置してから共有してください。</p>
-          </div>
-        ) : (
-          <>
+        <div className="share-dialog-content">
+          {gates.length === 0 ? (
+            <div className="empty-circuit-message">
+              <p>共有する回路がありません。</p>
+              <p>ゲートを配置してから共有してください。</p>
+            </div>
+          ) : (
+            <>
             <div className="form-group">
               <label htmlFor="circuit-name">回路名（オプション）</label>
               <input
@@ -128,11 +134,6 @@ export const ShareCircuitDialog: React.FC<ShareCircuitDialogProps> = ({
             )}
           </>
         )}
-
-        <div className="dialog-footer">
-          <button className="close-button" onClick={onClose}>
-            閉じる
-          </button>
         </div>
       </div>
     </div>

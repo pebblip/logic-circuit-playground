@@ -148,7 +148,7 @@ describe('WaveformCanvas', () => {
     expect(screen.getByText('CLOCKゲートを配置すると波形が表示されます')).toBeInTheDocument();
   });
 
-  it('トレースがある場合、デバッグ情報が表示される', () => {
+  it('トレースがある場合、シンプルに描画される', () => {
     const traces: TimingTrace[] = [{
       id: 'trace-1',
       gateId: 'gate-1',
@@ -162,9 +162,9 @@ describe('WaveformCanvas', () => {
 
     render(<WaveformCanvas {...defaultProps} traces={traces} />);
     
-    expect(screen.getByText('📊 Performance')).toBeInTheDocument();
-    expect(screen.getByText('📈 Traces')).toBeInTheDocument();
-    expect(screen.getByText('Test Signal')).toBeInTheDocument();
+    // シンプル化により、デバッグ情報は削除されている
+    expect(screen.queryByText('📊 Performance')).not.toBeInTheDocument();
+    expect(screen.queryByText('📈 Traces')).not.toBeInTheDocument();
   });
 
   it('背景が適切な色で描画される', () => {
@@ -235,8 +235,8 @@ describe('WaveformCanvas', () => {
     
     // 波形描画時に設定された値を確認
     expect(strokeStyleValues).toContain('#00ff88');
-    expect(lineWidthValues).toContain(4);
-    expect(shadowBlurValues).toContain(12);
+    expect(lineWidthValues).toContain(3); // シンプル化により3に変更
+    expect(shadowBlurValues).toContain(0); // シャドウ無効化により0
   });
 
   it('高DPIディスプレイに対応している', () => {

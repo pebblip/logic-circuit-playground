@@ -179,7 +179,7 @@ export const MobileCanvas: React.FC<MobileCanvasProps> = ({
         if (gateId && pinIndex) {
           pin.addEventListener('touchstart', e => {
             handlePinTouch(e as TouchEvent, gateId, parseInt(pinIndex));
-          });
+          }, { passive: true });
         }
       });
 
@@ -190,7 +190,7 @@ export const MobileCanvas: React.FC<MobileCanvasProps> = ({
         if (gateId) {
           gate.addEventListener('touchstart', e => {
             handleGateTouch(e as TouchEvent, gateId);
-          });
+          }, { passive: true });
         }
       });
     };

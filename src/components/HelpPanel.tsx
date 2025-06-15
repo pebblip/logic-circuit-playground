@@ -6,6 +6,7 @@ interface HelpPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenLearningMode?: () => void;
+  onStartTutorial?: () => void;
 }
 
 type TabId = 'quick-help' | 'troubleshooting' | 'features';
@@ -104,6 +105,7 @@ export const HelpPanel: React.FC<HelpPanelProps> = ({
   isOpen,
   onClose,
   onOpenLearningMode: _onOpenLearningMode,
+  onStartTutorial,
 }) => {
   const [activeTab, setActiveTab] = useState<TabId>('quick-help');
   const [searchQuery, setSearchQuery] = useState('');
@@ -228,6 +230,17 @@ export const HelpPanel: React.FC<HelpPanelProps> = ({
             <p>
               • <strong>{TERMS.TUTORIAL}</strong>：基本操作の復習
             </p>
+            {onStartTutorial && (
+              <button
+                className="tutorial-start-button"
+                onClick={() => {
+                  onClose();
+                  onStartTutorial();
+                }}
+              >
+                🎯 クイックチュートリアルを開始
+              </button>
+            )}
           </div>
         </div>
       </div>

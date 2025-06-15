@@ -483,6 +483,18 @@
   background: var(--color-bg-tertiary);
 }
 
+.zoom-button.active {
+  background: var(--color-primary-subtle);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: inset 0 1px 3px rgba(0, 255, 136, 0.2);
+}
+
+.zoom-button.active:hover {
+  background: var(--color-primary-medium);
+  border-color: var(--color-primary-border-strong);
+}
+
 .zoom-button.zoom-reset {
   width: auto;
   padding: 0 var(--spacing-md);
@@ -495,6 +507,15 @@
   background: var(--color-primary-subtle);
   border-color: var(--color-primary);
   color: var(--color-primary);
+}
+
+/* コントロールパネル内のセパレータ */
+.control-separator {
+  width: 1px;
+  height: 24px;
+  background: var(--color-border-subtle);
+  margin: 0 4px;
+  opacity: 0.5;
 }
 
 /* ========== フォーム要素 ========== */

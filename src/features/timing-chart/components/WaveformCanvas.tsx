@@ -3,11 +3,7 @@
  */
 
 import React from 'react';
-import { 
-  ChartBarIcon, 
-  PlayIcon, 
-  PauseIcon 
-} from '@heroicons/react/24/outline';
+import { ChartBarIcon } from '@heroicons/react/24/outline';
 import type { TimingTrace, TimeWindow, TimeScale, TimingChartSettings, TimingEvent } from '@/types/timing';
 import { useCircuitStore } from '@/stores/circuitStore';
 
@@ -28,23 +24,16 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
 }) => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const [dimensions, setDimensions] = React.useState({ width: 800, height: 400 });
-  const lastRenderTimeRef = React.useRef(0);
-  const animationFrameRef = React.useRef<number | null>(null);
-  const lastUpdateTimeRef = React.useRef(0);
   
-  // Circuit store for real-time synchronization
-  const { gates, wires, timingChart, timingChartActions } = useCircuitStore();
-  const currentTime = React.useRef(performance.now());
+  // Circuit store
+  const { gates } = useCircuitStore();
   
   // シミュレーション状態をCLOCKゲートの存在で判定
   const isSimulationRunning = React.useMemo(() => {
     return gates.some(gate => gate.type === 'CLOCK');
   }, [gates]);
 
-  // 一時停止ボタンハンドラー
-  const handleTogglePause = React.useCallback(() => {
-    timingChartActions.togglePause();
-  }, [timingChartActions]);
+  // シンプル化：一時停止機能削除
 
   // キャンバスのリサイズ（高DPI対応）
   React.useEffect(() => {
@@ -80,67 +69,7 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // リアルタイム更新ループ（シミュレーション実行中のみ）
-  React.useEffect(() => {
-    // 前回のアニメーションフレームをクリーンアップ
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-
-    if (!settings.autoCapture || !isSimulationRunning || timingChart.isPaused) {
-      return;
-    }
-
-    let isActive = true;
-    const updateRealTime = () => {
-      if (!isActive) return;
-      
-      const now = performance.now();
-      currentTime.current = now;
-      
-      
-      // 時間窓の自動スクロール処理（2000ms間隔で制限 - 1/4に減速）
-      if (timingChartActions && settings.autoCapture && now - lastUpdateTimeRef.current > 2000) {
-        const windowWidth = timeWindow.end - timeWindow.start;
-        const scrollThreshold = timeWindow.start + windowWidth * 0.8;
-        
-        if (now > scrollThreshold) {
-          lastUpdateTimeRef.current = now;
-          timingChartActions.updateTimeWindowForNewEvents([{
-            id: 'realtime-marker',
-            time: now,
-            gateId: 'system',
-            pinType: 'output',
-            pinIndex: 0,
-            value: true
-          }]);
-        }
-      }
-      
-      // 次のフレームをスケジュール（フレームレート制限）
-      if (isActive && isSimulationRunning) {
-        setTimeout(() => {
-          if (isActive) {
-            animationFrameRef.current = requestAnimationFrame(updateRealTime);
-          }
-        }, 50); // 20FPSに制限してちらつき防止
-      }
-    };
-
-    if (isSimulationRunning) {
-      animationFrameRef.current = requestAnimationFrame(updateRealTime);
-      console.log('WaveformCanvas: Started real-time update loop');
-    }
-
-    return () => {
-      isActive = false;
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
-    };
-  }, [isSimulationRunning, settings.autoCapture, settings.updateInterval, timeWindow, timingChartActions, timingChart.isPaused]);
+  // シンプル化：複雑なリアルタイム更新ループ削除
 
   // 波形の描画（プロフェッショナル品質）
   React.useEffect(() => {
@@ -161,6 +90,17 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
       traceNames: traces.map(t => t.name),
       timeWindow,
       dimensions
+    });
+    
+    // トレースの詳細情報をログ出力
+    traces.forEach((trace, i) => {
+      console.log(`WaveformCanvas: Trace ${i} (${trace.name}):`, {
+        gateId: trace.gateId,
+        events: trace.events.length,
+        eventTimes: trace.events.map(e => `${e.time}ms=${e.value}`).slice(0, 5), // 最初の5つ
+        visible: trace.visible,
+        color: trace.color
+      });
     });
 
       // キャンバスクリアと高DPI対応のスケーリング
@@ -223,15 +163,14 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     console.log('WaveformCanvas: Drawing signal separators for', totalSignals, 'signals');
     drawSignalSeparators(ctx, drawWidth, drawHeight, totalSignals, signalHeight);
 
-    // 各トレースの高品質描画
+    // 各トレースのシンプル描画
     traces.forEach((trace, index) => {
       const centerY = (index + 0.5) * signalHeight;
-      drawProfessionalWaveform(
+      drawSimpleWaveform(
         ctx, 
         trace, 
         centerY, 
-        waveformAmplitude, 
-        edgeTransitionWidth,
+        waveformAmplitude,
         drawWidth, 
         timeWindow
       );
@@ -243,32 +182,14 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
       drawDemoWaveform(ctx, signalHeight, waveformAmplitude, drawWidth);
     } else {
       console.log('WaveformCanvas: Drawing', traces.length, 'traces');
-    }
-
-    // リアルタイムカーソル（シミュレーション実行中かつ非一時停止時）
-    if (isSimulationRunning && settings.autoCapture && !timingChart.isPaused) {
-      drawRealtimeCursor(ctx, currentTime.current, timeWindow, drawWidth, drawHeight);
-    }
-
-    // FPS計算と表示（修正版）
-    const renderEndTime = performance.now();
-    let fps = 60;
-    
-    if (lastRenderTimeRef.current > 0) {
-      const renderDuration = renderEndTime - lastRenderTimeRef.current;
-      if (renderDuration > 0 && renderDuration < 1000) { // 異常値防止
-        fps = Math.round(1000 / Math.max(renderDuration, 16));
-        fps = Math.min(fps, 120); // 上限設定
+      
+      // CLOCK同期のための視覚的ヒント（シンプルな時間マーカー）
+      if (traces.some(t => t.name === 'CLK')) {
+        drawClockSyncMarkers(ctx, drawWidth, drawHeight, timeWindow);
       }
     }
-    lastRenderTimeRef.current = renderEndTime;
-    
-    if (traces.length > 0) {
-      ctx.fillStyle = 'rgba(0, 255, 136, 0.6)';
-      ctx.font = '10px monospace';
-      ctx.textAlign = 'right';
-      ctx.fillText(`${fps} FPS`, drawWidth - 10, 15);
-    }
+
+    // シンプル化：複雑なリアルタイムカーソーとFPS表示削除
     
     // スケール状態をリストア（可能な場合のみ）
     if (hasSaveRestore) {
@@ -337,142 +258,107 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     }
   };
 
-  const drawProfessionalWaveform = (
+  const drawSimpleWaveform = (
     ctx: CanvasRenderingContext2D,
     trace: TimingTrace,
     centerY: number,
     amplitude: number,
-    edgeWidth: number,
     width: number,
     timeWindow: TimeWindow
   ) => {
-    console.log('Drawing waveform for trace:', trace.name, 'events:', trace.events.length);
+    console.log('🎨 Drawing optimized waveform for trace:', trace.name, 'events:', trace.events.length);
     
-    if (trace.events.length === 0) {
-      console.log('Drawing no-data line for', trace.name);
-      // デフォルト状態（LOW）- 見やすい線
-      ctx.strokeStyle = trace.color || '#00ff88';
-      ctx.lineWidth = 3;
-      ctx.shadowColor = trace.color || '#00ff88';
-      ctx.shadowBlur = 6;
-      ctx.beginPath();
-      ctx.moveTo(0, centerY + amplitude);
-      ctx.lineTo(width, centerY + amplitude);
-      ctx.stroke();
-      
-      // "No Data"テキスト
-      ctx.fillStyle = trace.color || '#00ff88';
-      ctx.font = '12px monospace';
-      ctx.textAlign = 'center';
-      ctx.shadowBlur = 0;
-      ctx.fillText(`${trace.name}: No Data`, width / 2, centerY);
-      return;
-    }
+    // 🌟 最適化：時間窓前後のイベントも考慮して連続性を保つ
+    const windowDuration = timeWindow.end - timeWindow.start;
+    const extendedStart = timeWindow.start - windowDuration * 0.1; // 10%余裕
+    const extendedEnd = timeWindow.end + windowDuration * 0.1;
+    
+    // 関連するすべてのイベントを取得（時間窓外も含む）
+    const relevantEvents = trace.events.filter(
+      event => event.time >= extendedStart && event.time <= extendedEnd
+    );
+    
+    console.log(`🎨 Trace ${trace.name}: ${relevantEvents.length} relevant events in extended window [${extendedStart}-${extendedEnd}]`);
 
-    // 波形の基本色とグラデーション
-    const baseColor = trace.color;
-    const glowColor = `${baseColor}60`;
-    
-    // メイン波形描画（明るく太く、視認性最優先）
+    // 描画スタイル設定
     ctx.strokeStyle = trace.color || '#00ff88';
-    ctx.lineWidth = 4;
-    ctx.shadowColor = trace.color || '#00ff88';
-    ctx.shadowBlur = 12;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    
+    ctx.lineWidth = 3;
+    ctx.shadowBlur = 0;
+    ctx.lineCap = 'square'; // エッジを鮮明に
+    ctx.lineJoin = 'miter';
     ctx.beginPath();
     
-    let currentValue = false;
-    let currentX = 0;
+    // 🎯 初期値の正確な計算
+    let currentValue = false; // デフォルトはLOW
     
-    // 初期状態
+    // 時間窓開始前の最後のイベントから初期値を決定
+    const eventsBeforeWindow = trace.events.filter(event => event.time < timeWindow.start);
+    if (eventsBeforeWindow.length > 0) {
+      const lastEventBeforeWindow = eventsBeforeWindow[eventsBeforeWindow.length - 1];
+      currentValue = Boolean(lastEventBeforeWindow.value);
+      console.log(`🎯 Initial value from previous event (${lastEventBeforeWindow.time}ms): ${currentValue}`);
+    }
+    
+    // 開始点の描画
     const initialY = currentValue ? centerY - amplitude : centerY + amplitude;
     ctx.moveTo(0, initialY);
+    console.log(`🎯 Starting at Y=${initialY} (value=${currentValue})`);
 
-    // 時間窓内のイベントのみ処理
-    const visibleEvents = trace.events.filter(
+    // 🌟 時間窓内のイベントを処理
+    const visibleEvents = relevantEvents.filter(
       event => event.time >= timeWindow.start && event.time <= timeWindow.end
     );
-
+    
+    console.log(`🎨 Processing ${visibleEvents.length} visible events`);
+    
     visibleEvents.forEach((event, index) => {
       const eventX = ((event.time - timeWindow.start) / (timeWindow.end - timeWindow.start)) * width;
       const newValue = Boolean(event.value);
       
-      // 水平線（現在の値を維持）
-      const currentY = currentValue ? centerY - amplitude : centerY + amplitude;
-      ctx.lineTo(eventX - edgeWidth/2, currentY);
+      console.log(`🎯 Event ${index}: time=${event.time}ms, X=${eventX}px, value=${newValue}`);
       
-      // エッジトランジション（スムーズな遷移）
+      // エッジ遷移の処理
       if (currentValue !== newValue) {
+        // 現在値から新しい値への遷移
+        const currentY = currentValue ? centerY - amplitude : centerY + amplitude;
         const targetY = newValue ? centerY - amplitude : centerY + amplitude;
         
-        // ベジェ曲線でスムーズなエッジ描画
-        const cp1x = eventX - edgeWidth/4;
-        const cp1y = currentY;
-        const cp2x = eventX + edgeWidth/4;
-        const cp2y = targetY;
-        
-        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, eventX + edgeWidth/2, targetY);
+        // 水平線を引いてからエッジ
+        ctx.lineTo(eventX, currentY);
+        // 垂直エッジ
+        ctx.lineTo(eventX, targetY);
         
         currentValue = newValue;
+        console.log(`🔄 Edge transition at X=${eventX}: ${!newValue} -> ${newValue}`);
+      } else {
+        // 値が変わらない場合は水平線のみ
+        const currentY = currentValue ? centerY - amplitude : centerY + amplitude;
+        ctx.lineTo(eventX, currentY);
       }
-      
-      currentX = eventX;
     });
 
-    // 最後まで延長
+    // 🌟 最終点まで延長（現在値を維持）
     const finalY = currentValue ? centerY - amplitude : centerY + amplitude;
     ctx.lineTo(width, finalY);
+    console.log(`🎯 Ending at Y=${finalY} (value=${currentValue})`);
+    
+    // 描画実行
     ctx.stroke();
     
-    // シャドウをクリア
-    ctx.shadowBlur = 0;
-
-    // エッジマーカー（立ち上がり/立ち下がり）
-    drawEdgeMarkers(ctx, visibleEvents, centerY, amplitude, timeWindow, width);
+    // 🔍 デバッグ：波形の範囲を可視化（開発時のみ）
+    if (false) { // デバッグ時は true に
+      ctx.strokeStyle = 'rgba(255, 255, 0, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, centerY - amplitude - 5);
+      ctx.lineTo(width, centerY - amplitude - 5);
+      ctx.moveTo(0, centerY + amplitude + 5);
+      ctx.lineTo(width, centerY + amplitude + 5);
+      ctx.stroke();
+    }
   };
 
-  const drawEdgeMarkers = (
-    ctx: CanvasRenderingContext2D,
-    events: TimingEvent[],
-    centerY: number,
-    amplitude: number,
-    timeWindow: TimeWindow,
-    width: number
-  ) => {
-    events.forEach((event, index) => {
-      if (index === 0) return; // 最初のイベントはスキップ
-      
-      const eventX = ((event.time - timeWindow.start) / (timeWindow.end - timeWindow.start)) * width;
-      const value = Boolean(event.value);
-      const previousValue = index > 0 ? Boolean(events[index - 1].value) : false;
-      
-      if (value !== previousValue) {
-        // エッジマーカー描画（より明るく目立つ色）
-        ctx.fillStyle = value ? '#00ff88' : '#ff8866';
-        ctx.shadowColor = value ? '#00ff88' : '#ff8866';
-        ctx.shadowBlur = 4;
-        ctx.beginPath();
-        
-        if (value) {
-          // 立ち上がりエッジ（上向き三角）
-          ctx.moveTo(eventX - 4, centerY);
-          ctx.lineTo(eventX + 4, centerY);
-          ctx.lineTo(eventX, centerY - amplitude + 3);
-        } else {
-          // 立ち下がりエッジ（下向き三角）
-          ctx.moveTo(eventX - 4, centerY);
-          ctx.lineTo(eventX + 4, centerY);
-          ctx.lineTo(eventX, centerY + amplitude - 3);
-        }
-        
-        ctx.closePath();
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-    });
-  };
+  // シンプル化：エッジマーカー削除
 
   const drawDemoWaveform = (
     ctx: CanvasRenderingContext2D,
@@ -483,18 +369,17 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     console.log('Drawing demo waveform with dimensions:', { signalHeight, amplitude, width });
     const centerY = signalHeight / 2;
     
-    // エレガントなデモクロック波形（明るく見やすく）
+    // シンプルで鮮明なデモクロック波形
     ctx.strokeStyle = '#00ff88';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
     ctx.setLineDash([]);
-    ctx.shadowColor = '#00ff88';
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 0; // シャドウ無効化で鮮明に
     
     ctx.beginPath();
     let isHigh = false;
     ctx.moveTo(0, centerY + amplitude);
     
-    const period = 100; // クロック周期
+    const period = 100; // デモクロック周期（実際のCLOCK周期100msに合わせる）
     for (let x = 0; x < width; x += period) {
       const y = isHigh ? centerY - amplitude : centerY + amplitude;
       ctx.lineTo(x, y);
@@ -516,47 +401,33 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     ctx.fillText('🕐 CLOCKゲートを配置すると波形が表示されます', 15, centerY - amplitude - 15);
   };
 
-  const drawRealtimeCursor = (
+  // CLOCK同期の視覚的マーカー
+  const drawClockSyncMarkers = (
     ctx: CanvasRenderingContext2D,
-    currentTime: number,
-    timeWindow: TimeWindow,
     width: number,
-    height: number
+    height: number,
+    timeWindow: TimeWindow
   ) => {
-    // 現在時刻が時間窓内にある場合のみ描画
-    if (currentTime < timeWindow.start || currentTime > timeWindow.end) {
-      return;
+    // 100ms周期のCLOCKに合わせて50ms間隔でマーカー（エッジを強調）
+    const duration = timeWindow.end - timeWindow.start;
+    const markerInterval = 50; // CLOCKの半周期（エッジマーカー）
+    
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 2]);
+    
+    for (let time = timeWindow.start; time <= timeWindow.end; time += markerInterval) {
+      const x = ((time - timeWindow.start) / duration) * width;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
     }
-
-    const cursorX = ((currentTime - timeWindow.start) / (timeWindow.end - timeWindow.start)) * width;
     
-    // リアルタイムカーソル（安定したアニメーション）
-    const alpha = 0.5 + 0.2 * Math.sin(Date.now() / 500); // 低速パルス効果でちらつき軽減
-    
-    // 主線（明るく目立つ色）
-    ctx.strokeStyle = `rgba(255, 255, 0, ${alpha + 0.3})`;
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.beginPath();
-    ctx.moveTo(cursorX, 0);
-    ctx.lineTo(cursorX, height);
-    ctx.stroke();
-    
-    // グロー効果
-    ctx.strokeStyle = `rgba(255, 255, 0, ${alpha * 0.5})`;
-    ctx.lineWidth = 6;
-    ctx.setLineDash([]);
-    ctx.beginPath();
-    ctx.moveTo(cursorX, 0);
-    ctx.lineTo(cursorX, height);
-    ctx.stroke();
-    
-    // 時刻表示
-    ctx.fillStyle = `rgba(255, 255, 0, 1)`;
-    ctx.font = 'bold 11px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${Math.round(currentTime % 10000)}ms`, cursorX, 12);
+    ctx.setLineDash([]); // リセット
   };
+
+  // シンプル化：リアルタイムカーソー削除
 
   return (
     <div className={`waveform-canvas ${className}`} style={{ position: 'relative', width: '100%', height: '100%', minHeight: '200px', border: '1px solid rgba(0, 255, 136, 0.2)' }}>
@@ -582,67 +453,7 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
         </div>
       )}
       
-      {/* 一時停止/再開ボタン */}
-      {isSimulationRunning && (
-        <div className="waveform-controls">
-          <button
-            onClick={handleTogglePause}
-            className={`pause-button ${timingChart.isPaused ? 'paused' : 'running'}`}
-            title={timingChart.isPaused ? 'タイミングチャートを再開' : 'タイミングチャートを一時停止'}
-          >
-            {timingChart.isPaused ? (
-              <PlayIcon className="w-4 h-4" />
-            ) : (
-              <PauseIcon className="w-4 h-4" />
-            )}
-            <span className="button-text">
-              {timingChart.isPaused ? '再開' : '一時停止'}
-            </span>
-          </button>
-        </div>
-      )}
-
-      {/* 高度なデバッグ情報とパフォーマンス表示 */}
-      {traces.length > 0 && (
-        <div className="waveform-debug-info">
-          <div className="debug-section">
-            <div className="debug-title">📊 Performance</div>
-            <div className="debug-item">
-              <span className="debug-label">FPS:</span>
-              <span className="debug-value performance-fps">60</span>
-            </div>
-            <div className="debug-item">
-              <span className="debug-label">窓:</span>
-              <span className="debug-value">{Math.round(timeWindow.start)}-{Math.round(timeWindow.end)}ms</span>
-            </div>
-            {isSimulationRunning && (
-              <div className="debug-item">
-                <span className="debug-label">{timingChart.isPaused ? '⏸️ 停止中' : '🟢 実行中'}</span>
-                <span className="debug-value">{Math.round(currentTime.current % 10000)}ms</span>
-              </div>
-            )}
-          </div>
-          
-          <div className="debug-section">
-            <div className="debug-title">📈 Traces</div>
-            {traces.slice(0, 3).map((trace, index) => (
-              <div key={trace.id} className="debug-item">
-                <div 
-                  className="trace-indicator"
-                  style={{ backgroundColor: trace.color }}
-                />
-                <span className="debug-trace-name">{trace.name}</span>
-                <span className="debug-value">{trace.events.length}</span>
-              </div>
-            ))}
-            {traces.length > 3 && (
-              <div className="debug-item">
-                <span className="debug-more">+{traces.length - 3} more...</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* シンプル化：一時停止ボタンとデバッグ情報削除 */}
     </div>
   );
 };

@@ -18,6 +18,7 @@ import {
   getInputPinPosition,
   getOutputPinPosition,
 } from '@domain/analysis/pinPositionCalculator';
+import { globalTimingCapture } from '@/domain/timing/timingCapture';
 
 export interface GateOperationsSlice {
   addGate: (type: GateType, position: Position) => Gate;
@@ -80,6 +81,39 @@ export const createGateOperationsSlice: StateCreator<
 
     // 履歴に追加
     get().saveToHistory();
+
+    // 🎯 CLOCKゲート配置時の特別処理
+    if (type === 'CLOCK') {
+      // 少し遅延させてstore更新後に処理
+      setTimeout(() => {
+        const currentState = get();
+        
+        // 🌟 最初のCLOCKの場合は自動選択
+        const clockGates = currentState.gates.filter(g => g.type === 'CLOCK');
+        if (clockGates.length === 1 && !currentState.selectedClockGateId) {
+          console.log(`🎯 Auto-selecting first CLOCK: ${newGate.id}`);
+          currentState.setSelectedClockGate(newGate.id);
+        }
+        
+        if (currentState.timingChartActions) {
+          // 選択されたCLOCKのトレースのみ作成
+          if (currentState.selectedClockGateId === newGate.id) {
+            const existingTrace = currentState.timingChart.traces.find(
+              t => t.gateId === newGate.id && t.pinType === 'output'
+            );
+            if (!existingTrace) {
+              console.log(`🎯 Creating trace for selected CLOCK: ${newGate.id}`);
+              currentState.timingChartActions.addTraceFromGate(
+                currentState.gates.find(g => g.id === newGate.id)!,
+                'output',
+                0
+              );
+              globalTimingCapture.watchGate(newGate.id, 'output', 0);
+            }
+          }
+        }
+      }, 50);
+    }
 
     return newGate;
   },
@@ -253,6 +287,13 @@ export const createGateOperationsSlice: StateCreator<
           !gateIdsToDelete.includes(wire.to.gateId)
       );
 
+      // 🎯 削除されるゲートに選択されたCLOCKが含まれている場合、選択をクリア
+      let newSelectedClockGateId = state.selectedClockGateId;
+      if (state.selectedClockGateId && gateIdsToDelete.includes(state.selectedClockGateId)) {
+        console.log(`🎯 Clearing selected CLOCK because it's being deleted: ${state.selectedClockGateId}`);
+        newSelectedClockGateId = null;
+      }
+
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: newWires };
       const result = evaluateCircuit(circuit, defaultConfig);
@@ -263,6 +304,7 @@ export const createGateOperationsSlice: StateCreator<
           wires: [...result.data.circuit.wires],
           selectedGateId: null,
           selectedGateIds: [],
+          selectedClockGateId: newSelectedClockGateId,
         };
       } else {
         console.warn('Circuit evaluation failed:', result.error.message);
@@ -271,6 +313,7 @@ export const createGateOperationsSlice: StateCreator<
           wires: newWires,
           selectedGateId: null,
           selectedGateIds: [],
+          selectedClockGateId: newSelectedClockGateId,
         };
       }
     });

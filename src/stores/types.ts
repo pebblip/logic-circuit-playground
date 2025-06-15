@@ -7,6 +7,8 @@ import type {
   CustomGateDefinition,
 } from '@/types/circuit';
 import type { AppMode, ViewMode } from '@/types/appMode';
+import type { TimingChartSlice } from './slices/timingChartSlice';
+import type { ClockSelectionSlice } from './slices/clockSelectionSlice';
 
 // Re-export AppMode
 export type { AppMode };
@@ -50,6 +52,9 @@ export interface CircuitStoreState extends CircuitState {
   // 複数選択
   selectedGateIds: string[];
 
+  // 🎯 CLOCK選択状態（タイミングチャート用）
+  selectedClockGateId: string | null;
+
   // ツールパレット選択
   selectedToolGateType: GateType | 'CUSTOM' | null;
   selectedToolCustomGateId: string | null;
@@ -80,6 +85,9 @@ export interface CircuitStoreActions {
   addToSelection: (gateId: string) => void;
   removeFromSelection: (gateId: string) => void;
   clearSelection: () => void;
+
+  // 🎯 CLOCK選択操作（タイミングチャート用）
+  setSelectedClockGate: (gateId: string | null) => void;
 
   // カスタムゲート管理
   addCustomGate: (definition: CustomGateDefinition) => void;
@@ -145,4 +153,4 @@ export interface CircuitStoreActions {
   clearError: () => void;
 }
 
-export type CircuitStore = CircuitStoreState & CircuitStoreActions;
+export type CircuitStore = CircuitStoreState & CircuitStoreActions & TimingChartSlice & ClockSelectionSlice;

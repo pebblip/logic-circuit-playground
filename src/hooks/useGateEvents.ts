@@ -20,6 +20,8 @@ export function useGateEvents(gate: Gate): UseGateEventsResult {
     addToSelection,
     removeFromSelection,
     updateGateOutput,
+    selectedClockGateId,
+    setSelectedClockGate,
   } = useCircuitStore();
 
   const isSelected =
@@ -30,6 +32,15 @@ export function useGateEvents(gate: Gate): UseGateEventsResult {
 
     // ドラッグした場合はクリックイベントを無視
     if (hasDragged) {
+      return;
+    }
+
+    // 🎯 CLOCKゲートの場合は専用の選択処理
+    if (gate.type === 'CLOCK') {
+      console.log(`[GateEvents] CLOCK gate clicked: ${gate.id}`);
+      setSelectedClockGate(gate.id);
+      // 通常の選択も行う
+      selectGate(gate.id);
       return;
     }
 

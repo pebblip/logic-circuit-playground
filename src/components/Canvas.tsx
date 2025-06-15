@@ -2,13 +2,13 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useCircuitStore } from '../stores/circuitStore';
 import { GateComponent } from './Gate';
 import { WireComponent } from './Wire';
-import { QuickTutorial } from './QuickTutorial';
 import {
   evaluateCircuit,
   defaultConfig,
   isSuccess,
 } from '@domain/simulation/core';
 import type { Circuit } from '@domain/simulation/core/types';
+import { globalTimingCapture } from '@/domain/timing/timingCapture';
 import { useCanvasPan } from '../hooks/useCanvasPan';
 import {
   useCanvasSelection,
@@ -58,7 +58,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     x: number;
     y: number;
   }>({ x: 0, y: 0 });
-  const [showQuickTutorial, setShowQuickTutorial] = useState(false);
 
   const {
     gates,
@@ -351,27 +350,121 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       return; // 早期リターン
     }
 
+    // 🌟 新設計：CLOCKゲート検出時にオシロスコープモード開始
+    const clockGateCount = displayData.displayGates.filter(gate => gate.type === 'CLOCK').length;
+    const previousCount = (globalTimingCapture as any)._lastClockCount || 0;
+    
+    if (clockGateCount > 0 && clockGateCount !== previousCount) {
+      // シミュレーション開始時間をリセット
+      globalTimingCapture.resetSimulationTime();
+      globalTimingCapture.setSimulationStartTime();
+      (globalTimingCapture as any)._lastClockCount = clockGateCount;
+      
+      // 🎯 オシロスコープライクなスクロール開始
+      const currentState = useCircuitStore.getState();
+      if (currentState.timingChartActions) {
+        // 初期化：時間窓を0-500msにリセット
+        currentState.timingChartActions.resetView();
+        // 連続スクロール開始
+        currentState.timingChartActions.startContinuousScroll();
+        console.log('[Canvas] 🚀 Started continuous scroll mode');
+      }
+      
+      console.log(`[Canvas] 🎯 Initialized timing chart for ${clockGateCount} CLOCK gates`);
+    }
+
+    // 🎯 CLOCKゲートの最高周波数に応じて更新間隔を動的調整
+    const maxClockFrequency = Math.max(
+      ...displayData.displayGates
+        .filter(gate => gate.type === 'CLOCK' && gate.metadata?.isRunning)
+        .map(gate => gate.metadata?.frequency || 1),
+      1 // 最低1Hz
+    );
+    
+    // サンプリング定理に従い、最低でも最高周波数の4倍で更新
+    const requiredUpdateHz = Math.max(maxClockFrequency * 4, 10);
+    const updateInterval = Math.min(1000 / requiredUpdateHz, 100); // 最大100ms
+    
+    console.log(`[Canvas] 🎯 CLOCK max frequency: ${maxClockFrequency}Hz, update interval: ${updateInterval}ms`);
+
     const interval = setInterval(() => {
       // 現在の状態を直接取得
       const currentState = useCircuitStore.getState();
-      const circuit: Circuit = {
+      const previousCircuit: Circuit = {
         gates: currentState.gates,
         wires: currentState.wires,
       };
-      const result = evaluateCircuit(circuit, defaultConfig);
+      
+      const result = evaluateCircuit(previousCircuit, defaultConfig);
 
       if (isSuccess(result)) {
+        // タイミングイベントを捕捉
+        const timingEvents = globalTimingCapture.captureFromEvaluation(
+          result,
+          previousCircuit
+        );
+        console.log(`[Canvas] Captured ${timingEvents.length} timing events`);
+        if (timingEvents.length > 0) {
+          console.log(`[Canvas] Timing events:`, timingEvents.map(e => 
+            `${e.gateId} ${e.pinType}[${e.pinIndex}] = ${e.value} @ ${e.time}ms`
+          ));
+        }
+        
+        // Zustand storeを更新
         useCircuitStore.setState({
           gates: [...result.data.circuit.gates],
           wires: [...result.data.circuit.wires],
         });
+        
+        // 🌟 新設計：現在時刻更新（オシロスコープモード駆動）
+        const currentSimTime = globalTimingCapture.getCurrentSimulationTime();
+        if (currentState.timingChartActions && currentSimTime !== undefined) {
+          currentState.timingChartActions.updateCurrentTime(currentSimTime);
+        }
+        
+        // タイミングイベント処理（新API使用）
+        if (timingEvents.length > 0) {
+          console.log(`[Canvas] Processing ${timingEvents.length} timing events (chart visible: ${currentState.timingChart.isVisible})`);
+          currentState.timingChartActions?.processTimingEvents(timingEvents);
+        } else {
+          // イベントがない場合も時刻は更新（連続スクロール維持）
+          console.log(`[Canvas] No timing events, but updating time: ${currentSimTime}ms`);
+        }
+
+        // CLOCKゲートの自動トレース作成（初回のみ）
+        result.data.circuit.gates.forEach(gate => {
+          if (gate.type === 'CLOCK') {
+            console.log(`[Canvas] Found CLOCK gate: ${gate.id}, output: ${gate.output}`);
+            
+            // CLOCKゲートのトレースが存在しない場合は作成
+            const existingTrace = currentState.timingChart.traces.find(
+              t => t.gateId === gate.id && t.pinType === 'output'
+            );
+            console.log(`[Canvas] Existing trace for ${gate.id}:`, existingTrace ? 'YES' : 'NO');
+            
+            if (!existingTrace) {
+              console.log(`[Canvas] Creating trace for CLOCK gate: ${gate.id}`);
+              const traceId = currentState.timingChartActions?.addTraceFromGate(gate, 'output', 0);
+              console.log(`[Canvas] Created trace ID: ${traceId}`);
+              
+              // 監視も開始
+              globalTimingCapture.watchGate(gate.id, 'output', 0);
+              console.log(`[Canvas] Started watching gate: ${gate.id}`);
+            }
+          }
+        });
+        
+        // 現在のトレース一覧をログ出力
+        console.log(`[Canvas] Current traces:`, currentState.timingChart.traces.map(t => 
+          `${t.gateId}(${t.name}) - ${t.events.length} events`
+        ));
       }
-    }, 50); // 20Hz更新
+    }, updateInterval); // 動的更新間隔
 
     return () => {
       clearInterval(interval);
     };
-  }, [displayData]);
+  }, [displayData, displayData.displayGates]); // CLOCKゲートの周波数変更を検出
 
   const handleMouseMove = (event: React.MouseEvent) => {
     if (!svgRef.current) return;
@@ -728,7 +821,9 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
 
   const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault();
-    event.dataTransfer.dropEffect = 'copy';
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
   };
 
   return (
@@ -865,52 +960,31 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         )}
       </svg>
 
-      {/* ズームコントロール */}
-      <div className="zoom-controls">
-        <button className="zoom-button" onClick={zoomOut}>
+      {/* 🎯 キャンバス内ズームコントロール */}
+      <div 
+        className="zoom-controls canvas-overlay"
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          zIndex: 10,
+        }}
+      >
+        <button className="zoom-button" onClick={zoomOut} title="ズームアウト（マウスホイール下）">
           <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
             <path d="M19 13H5v-2h14v2z" />
           </svg>
         </button>
-        <button className="zoom-button zoom-reset" onClick={resetZoom}>
+        <button className="zoom-button zoom-reset" onClick={resetZoom} title="ズームリセット（ダブルクリック）">
           {Math.round(scale * 100)}%
         </button>
-        <button className="zoom-button" onClick={zoomIn}>
+        <button className="zoom-button" onClick={zoomIn} title="ズームイン（マウスホイール上）">
           <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
             <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
           </svg>
         </button>
       </div>
 
-      {/* 初めての方向けボタン */}
-      {gates.length === 0 &&
-        !showQuickTutorial &&
-        !localStorage.getItem('quickTutorialCompleted') && (
-          <div className="first-time-guide">
-            <button
-              className="first-time-button"
-              onClick={() => setShowQuickTutorial(true)}
-            >
-              <span className="first-time-icon">🎯</span>
-              <span className="first-time-text">初めての方は？</span>
-              <span className="first-time-duration">
-                3分で基本操作をマスター
-              </span>
-            </button>
-          </div>
-        )}
-
-      {/* クイックチュートリアル */}
-      {showQuickTutorial && (
-        <QuickTutorial
-          onClose={() => {
-            setShowQuickTutorial(false);
-            localStorage.setItem('quickTutorialCompleted', 'true');
-          }}
-          gates={gates}
-          wires={wires}
-        />
-      )}
     </div>
   );
 };

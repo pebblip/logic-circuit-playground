@@ -1,5 +1,6 @@
 /**
  * タイミングチャート機能のZustand Store Slice
+ * 完全再設計版：オシロスコープライクな連続スクロール実装
  */
 
 import type { StateCreator } from 'zustand';
@@ -43,20 +44,30 @@ const DEFAULT_SETTINGS: TimingChartSettings = {
 // 初期状態
 const INITIAL_STATE: TimingChartState = {
   isVisible: false,
-  panelHeight: 500, // さらに大きな初期高さ
-  timeWindow: { start: 0, end: 250 }, // CLOCK周期（50ms）の5倍で波形観察に最適
+  panelHeight: 500,
+  timeWindow: { start: 0, end: 3000 }, // 3秒窓でCLOCK周期(1000ms)×3サイクル表示
   timeScale: 'ms',
   autoScale: true,
-  autoScroll: true, // デフォルトで自動スクロール有効
-  isPaused: false,  // 初期状態は動作中
+  autoScroll: true, // オシロスコープモード有効
+  isPaused: false,
   traces: [],
   maxTraces: 10,
   settings: DEFAULT_SETTINGS
 };
 
+// 🎯 新設計：連続スクロール管理
+interface ContinuousScrollState {
+  currentSimulationTime: TimeMs;
+  scrollSpeed: number; // ms per second
+  lastUpdateTime: number;
+  isScrolling: boolean;
+}
+
 export interface TimingChartSlice {
   // 状態
-  timingChart: TimingChartState;
+  timingChart: TimingChartState & {
+    scrollState: ContinuousScrollState;
+  };
   
   // アクション
   timingChartActions: {
@@ -65,6 +76,12 @@ export interface TimingChartSlice {
     showPanel: () => void;
     hidePanel: () => void;
     setPanelHeight: (height: number) => void;
+    
+    // 🌟 新設計：時間軸制御（オシロスコープライク）
+    updateCurrentTime: (simulationTime: TimeMs) => void;
+    startContinuousScroll: () => void;
+    stopContinuousScroll: () => void;
+    setScrollSpeed: (speed: number) => void;
     
     // トレース管理
     addTrace: (gateId: string, pinType: 'input' | 'output', pinIndex?: number) => string | null;
@@ -75,7 +92,7 @@ export interface TimingChartSlice {
     clearAllTraces: () => void;
     renameTrace: (traceId: string, name: string) => void;
     
-    // 時間軸制御
+    // 従来の時間軸制御（手動操作用）
     setTimeWindow: (window: TimeWindow) => void;
     setTimeScale: (scale: TimeScale) => void;
     zoomIn: (centerTime?: TimeMs) => void;
@@ -84,10 +101,9 @@ export interface TimingChartSlice {
     resetView: () => void;
     fitToData: () => void;
     
-    // 自動スクロール
+    // 自動スクロール（新実装）
     enableAutoScroll: () => void;
     disableAutoScroll: () => void;
-    updateTimeWindowForNewEvents: (events: TimingEvent[]) => void;
     
     // 一時停止制御
     pauseCapture: () => void;
@@ -99,7 +115,7 @@ export interface TimingChartSlice {
     moveCursor: (deltaTime: TimeMs) => void;
     hideCursor: () => void;
     
-    // イベント処理
+    // イベント処理（新実装）
     processTimingEvents: (events: TimingEvent[]) => void;
     addEventToTrace: (traceId: string, event: TimingEvent) => void;
     clearTraceEvents: (traceId: string) => void;
@@ -125,7 +141,15 @@ export const createTimingChartSlice: StateCreator<
   [],
   TimingChartSlice
 > = (set, get) => ({
-  timingChart: INITIAL_STATE,
+  timingChart: {
+    ...INITIAL_STATE,
+    scrollState: {
+      currentSimulationTime: 0,
+      scrollSpeed: 500, // 500ms/sec = 時間窓幅/秒
+      lastUpdateTime: performance.now(),
+      isScrolling: false
+    }
+  },
   
   timingChartActions: {
     // === パネル制御 ===
@@ -160,6 +184,79 @@ export const createTimingChartSlice: StateCreator<
       };
     }),
 
+    // === 🌟 新設計：連続スクロール時間軸制御 ===
+    updateCurrentTime: (simulationTime: TimeMs) => set(state => {
+      const { scrollState, timeWindow, autoScroll } = state.timingChart;
+      const windowWidth = timeWindow.end - timeWindow.start;
+      
+      console.log(`[TimingChart] updateCurrentTime: ${simulationTime}ms`);
+      
+      let newTimeWindow = timeWindow;
+      
+      // オシロスコープモード：現在時刻追従
+      if (autoScroll && scrollState.isScrolling) {
+        // 現在時刻が時間窓の右端80%を超えたら自動スクロール
+        const scrollThreshold = timeWindow.start + windowWidth * 0.8;
+        
+        if (simulationTime > scrollThreshold) {
+          // 現在時刻を窓の右端20%の位置に保つ
+          const newEnd = simulationTime + windowWidth * 0.2;
+          const newStart = newEnd - windowWidth;
+          
+          newTimeWindow = {
+            start: Math.max(0, newStart),
+            end: newEnd
+          };
+          
+          console.log(`[TimingChart] Auto-scroll: ${newTimeWindow.start}-${newTimeWindow.end}`);
+        }
+      }
+      
+      return {
+        timingChart: {
+          ...state.timingChart,
+          timeWindow: newTimeWindow,
+          scrollState: {
+            ...scrollState,
+            currentSimulationTime: simulationTime,
+            lastUpdateTime: performance.now()
+          }
+        }
+      };
+    }),
+
+    startContinuousScroll: () => set(state => ({
+      timingChart: {
+        ...state.timingChart,
+        autoScroll: true,
+        scrollState: {
+          ...state.timingChart.scrollState,
+          isScrolling: true
+        }
+      }
+    })),
+
+    stopContinuousScroll: () => set(state => ({
+      timingChart: {
+        ...state.timingChart,
+        autoScroll: false,
+        scrollState: {
+          ...state.timingChart.scrollState,
+          isScrolling: false
+        }
+      }
+    })),
+
+    setScrollSpeed: (speed: number) => set(state => ({
+      timingChart: {
+        ...state.timingChart,
+        scrollState: {
+          ...state.timingChart.scrollState,
+          scrollSpeed: Math.max(100, Math.min(2000, speed)) // 100-2000ms/sec
+        }
+      }
+    })),
+
     // === トレース管理 ===
     addTrace: (gateId: string, pinType: 'input' | 'output', pinIndex = 0) => {
       const state = get().timingChart;
@@ -181,8 +278,19 @@ export const createTimingChartSlice: StateCreator<
       }
       
       const traceId = timingChartUtils.generateTraceId();
-      const traceName = timingChartUtils.generateTraceName(gateId, pinType, pinIndex);
-      const traceColor = timingChartUtils.assignTraceColor(state.traces.length);
+      
+      // 🌟 ゲート情報を使って適切な名前を生成するため、ゲートを取得
+      const currentState = get();
+      const gates = (currentState as any).gates || [];
+      const gate = gates.find((g: any) => g.id === gateId);
+      
+      const traceName = gate ? 
+        generateTraceNameFromGate(gate, pinType, pinIndex) :
+        timingChartUtils.generateTraceName(gateId, pinType, pinIndex);
+      
+      const traceColor = gate && isClockGate(gate) ? 
+        getClockTraceColor(gate.id) :
+        timingChartUtils.assignTraceColor(state.traces.length);
       
       const newTrace: TimingTrace = {
         id: traceId,
@@ -229,7 +337,7 @@ export const createTimingChartSlice: StateCreator<
       
       const traceId = timingChartUtils.generateTraceId();
       const traceName = generateTraceNameFromGate(gate, pinType, pinIndex);
-      const traceColor = isClockGate(gate) ? getClockTraceColor() : 
+      const traceColor = isClockGate(gate) ? getClockTraceColor(gate.id) : 
                         timingChartUtils.assignTraceColor(state.traces.length);
       
       const newTrace: TimingTrace = {
@@ -298,7 +406,7 @@ export const createTimingChartSlice: StateCreator<
       }
     })),
 
-    // === 時間軸制御 ===
+    // === 従来の時間軸制御（手動操作用） ===
     setTimeWindow: (window: TimeWindow) => {
       if (!isValidTimeWindow(window.start, window.end)) {
         console.warn('Invalid time window:', window);
@@ -308,7 +416,8 @@ export const createTimingChartSlice: StateCreator<
       set(state => ({
         timingChart: {
           ...state.timingChart,
-          timeWindow: window
+          timeWindow: window,
+          autoScroll: false // 手動設定時は自動スクロール無効
         }
       }));
     },
@@ -332,7 +441,8 @@ export const createTimingChartSlice: StateCreator<
       return {
         timingChart: {
           ...state.timingChart,
-          timeWindow: { start: newStart, end: newEnd }
+          timeWindow: { start: newStart, end: newEnd },
+          autoScroll: false // 手動操作時は自動スクロール無効
         }
       };
     }),
@@ -349,7 +459,8 @@ export const createTimingChartSlice: StateCreator<
       return {
         timingChart: {
           ...state.timingChart,
-          timeWindow: { start: newStart, end: newEnd }
+          timeWindow: { start: newStart, end: newEnd },
+          autoScroll: false // 手動操作時は自動スクロール無効
         }
       };
     }),
@@ -363,7 +474,8 @@ export const createTimingChartSlice: StateCreator<
       return {
         timingChart: {
           ...state.timingChart,
-          timeWindow: { start: newStart, end: newEnd }
+          timeWindow: { start: newStart, end: newEnd },
+          autoScroll: false // 手動操作時は自動スクロール無効
         }
       };
     }),
@@ -372,7 +484,12 @@ export const createTimingChartSlice: StateCreator<
       timingChart: {
         ...state.timingChart,
         timeWindow: INITIAL_STATE.timeWindow,
-        timeScale: INITIAL_STATE.timeScale
+        timeScale: INITIAL_STATE.timeScale,
+        autoScroll: true, // リセット時は自動スクロール有効
+        scrollState: {
+          ...state.timingChart.scrollState,
+          currentSimulationTime: 0
+        }
       }
     })),
 
@@ -406,55 +523,34 @@ export const createTimingChartSlice: StateCreator<
       return {
         timingChart: {
           ...state.timingChart,
-          timeWindow: { start: newStart, end: newEnd }
+          timeWindow: { start: newStart, end: newEnd },
+          autoScroll: false // 手動操作時は自動スクロール無効
         }
       };
     }),
 
-    // === 自動スクロール機能 ===
+    // === 自動スクロール（新実装） ===
     enableAutoScroll: () => set(state => ({
       timingChart: {
         ...state.timingChart,
-        autoScroll: true
+        autoScroll: true,
+        scrollState: {
+          ...state.timingChart.scrollState,
+          isScrolling: true
+        }
       }
     })),
 
     disableAutoScroll: () => set(state => ({
       timingChart: {
         ...state.timingChart,
-        autoScroll: false
+        autoScroll: false,
+        scrollState: {
+          ...state.timingChart.scrollState,
+          isScrolling: false
+        }
       }
     })),
-
-    updateTimeWindowForNewEvents: (events: TimingEvent[]) => set(state => {
-      if (!state.timingChart.autoScroll || events.length === 0 || state.timingChart.isPaused) {
-        return state;
-      }
-
-      const { timeWindow } = state.timingChart;
-      const windowWidth = timeWindow.end - timeWindow.start;
-      
-      // 新しいイベントの最新時刻を取得
-      const latestEventTime = Math.max(...events.map(e => e.time));
-      
-      // 最新イベントが時間窓の80%位置を超えた場合、自動スクロール
-      const scrollThreshold = timeWindow.start + windowWidth * 0.8;
-      
-      if (latestEventTime > scrollThreshold) {
-        // 最新イベントが右端から20%の位置になるように調整
-        const newEnd = latestEventTime + windowWidth * 0.2;
-        const newStart = newEnd - windowWidth;
-        
-        return {
-          timingChart: {
-            ...state.timingChart,
-            timeWindow: { start: Math.max(0, newStart), end: newEnd }
-          }
-        };
-      }
-
-      return state;
-    }),
 
     // === 一時停止制御 ===
     pauseCapture: () => set(state => ({
@@ -525,33 +621,30 @@ export const createTimingChartSlice: StateCreator<
       }
     })),
 
-    // === イベント処理 ===
+    // === 🌟 新実装：イベント処理 ===
     processTimingEvents: (events: TimingEvent[]) => {
+      console.log(`[TimingChart] processTimingEvents called with ${events.length} events`);
       if (events.length === 0) return;
       
-      // 一時停止中はイベントを処理しない
       const state = get().timingChart;
-      if (state.isPaused) return;
+      console.log(`[TimingChart] isPaused: ${state.isPaused}, traces: ${state.traces.length}`);
       
-      // バッチング用のデバウンス処理
-      const now = performance.now();
-      const lastProcessTime = (window as any).__lastTimingEventProcess || 0;
-      
-      // 16ms（60fps）以内の連続した呼び出しは無視
-      if (now - lastProcessTime < 16) {
+      if (state.isPaused) {
+        console.log(`[TimingChart] Skipping events due to pause`);
         return;
       }
-      (window as any).__lastTimingEventProcess = now;
       
-      set(state => {
+      // イベントを処理
+      set(currentState => {
         let hasChanges = false;
-        const updatedTraces = state.timingChart.traces.map(trace => {
+        const updatedTraces = currentState.timingChart.traces.map(trace => {
           const relevantEvents = events.filter(
             e => e.gateId === trace.gateId && 
                  e.pinType === trace.pinType && 
                  e.pinIndex === trace.pinIndex
           );
           
+          console.log(`[TimingChart] Trace ${trace.name} (${trace.gateId}): ${relevantEvents.length} relevant events`);
           if (relevantEvents.length === 0) return trace;
           
           hasChanges = true;
@@ -562,7 +655,9 @@ export const createTimingChartSlice: StateCreator<
           const sorted = sortEventsByTime(deduplicated);
           
           // 容量制限を適用
-          const limited = sorted.slice(-state.timingChart.settings.captureDepth);
+          const limited = sorted.slice(-currentState.timingChart.settings.captureDepth);
+          
+          console.log(`[TimingChart] Trace ${trace.name}: ${trace.events.length} -> ${limited.length} events`);
           
           return {
             ...trace,
@@ -570,24 +665,22 @@ export const createTimingChartSlice: StateCreator<
           };
         });
         
-        // 変更がない場合は状態を更新しない
         if (!hasChanges) {
-          return state;
+          return currentState;
         }
         
         return {
           timingChart: {
-            ...state.timingChart,
+            ...currentState.timingChart,
             traces: updatedTraces
           }
         };
       });
       
-      // 新しいイベントに基づいて時間窓を自動更新（デバウンス付き - 1/4に減速）
-      const lastWindowUpdate = (window as any).__lastWindowUpdate || 0;
-      if (now - lastWindowUpdate > 2000) {
-        (window as any).__lastWindowUpdate = now;
-        get().timingChartActions.updateTimeWindowForNewEvents(events);
+      // 🌟 現在時刻を更新（最新イベント時刻ベース）
+      if (events.length > 0) {
+        const latestEventTime = Math.max(...events.map(e => e.time));
+        get().timingChartActions.updateCurrentTime(latestEventTime);
       }
     },
 

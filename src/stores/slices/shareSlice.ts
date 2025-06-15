@@ -54,14 +54,30 @@ export const createShareSlice: StateCreator<
     
     if (result.success && result.data) {
       // 新しいIDを生成（重複を避けるため）
-      const gates = result.data.gates.map(gate => ({
-        ...gate,
-        id: IdGenerator.generateGateId(),
-      }));
+      // 古いIDから新しいIDへのマッピングを作成
+      const idMapping: Record<string, string> = {};
       
+      const gates = result.data.gates.map(gate => {
+        const newId = IdGenerator.generateGateId();
+        idMapping[gate.id] = newId;
+        return {
+          ...gate,
+          id: newId,
+        };
+      });
+      
+      // ワイヤーのゲートIDを新しいIDに更新
       const wires = result.data.wires.map(wire => ({
         ...wire,
         id: IdGenerator.generateWireId(),
+        from: {
+          ...wire.from,
+          gateId: idMapping[wire.from.gateId] || wire.from.gateId,
+        },
+        to: {
+          ...wire.to,
+          gateId: idMapping[wire.to.gateId] || wire.to.gateId,
+        },
       }));
 
       // 回路を読み込み

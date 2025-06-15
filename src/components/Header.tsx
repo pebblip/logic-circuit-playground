@@ -182,6 +182,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* ヘルプボタンは常に表示 */}
           <button
             className="button help-button"
+            data-testid="help-button"
             onClick={onOpenHelp || (() => dialogs.help.open())}
             title={TERMS.HELP}
           >

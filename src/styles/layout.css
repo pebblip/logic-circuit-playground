@@ -459,9 +459,6 @@
 
 /* ズームコントロール */
 .zoom-controls {
-  position: absolute;
-  bottom: var(--spacing-lg);
-  left: var(--spacing-lg);
   background: var(--color-bg-secondary);
   backdrop-filter: blur(10px);
   border: 1px solid var(--color-border-subtle);
@@ -472,6 +469,44 @@
   z-index: 50;
   box-shadow: var(--shadow-lg);
   transition: all var(--transition-base);
+}
+
+/* キャンバス上のオーバーレイ要素用の基本スタイル */
+.canvas-overlay {
+  /* 位置はインラインスタイルで動的制御 */
+}
+
+/* レスポンシブ対応：モバイルでのズームコントロール */
+@media (max-width: 768px) {
+  .zoom-controls.canvas-overlay {
+    top: 10px !important;
+    right: 10px !important;
+    padding: 2px;
+  }
+  
+  .zoom-controls.canvas-overlay .zoom-button {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+  
+  .zoom-controls.canvas-overlay .zoom-reset {
+    min-width: 50px;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .zoom-controls.canvas-overlay {
+    top: 5px !important;
+    right: 5px !important;
+    gap: 1px;
+  }
+  
+  .zoom-controls.canvas-overlay .zoom-button {
+    width: 28px;
+    height: 28px;
+  }
 }
 
 /* ホバー時のエフェクト */
@@ -537,9 +572,10 @@
 /* ステータスバー */
 .status-bar {
   position: absolute;
-  bottom: var(--spacing-lg);
+  /* ズームボタン（height: 36px）の中心線に合わせる */
+  top: calc(20px + 18px); /* 38px: ズームボタンの垂直中心 */
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%); /* 自身の中心を基準点に */
   background: var(--color-bg-secondary);
   backdrop-filter: blur(10px);
   border: 1px solid var(--color-border-subtle);
@@ -550,12 +586,28 @@
   gap: var(--spacing-md);
   font-size: var(--font-size-xs);
   color: var(--color-text-tertiary);
+  z-index: 9; /* ズームコントロール（z-index: 10）より手前 */
 }
 
 .status-item {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+}
+
+/* ステータスバーのレスポンシブ対応 */
+@media (max-width: 768px) {
+  .status-bar {
+    top: calc(10px + 16px); /* タブレット：ズームボタン（32px）の中心 */
+    font-size: calc(var(--font-size-xs) * 0.9);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .status-bar {
+    display: none; /* モバイル：スペースの都合上非表示 */
+  }
 }
 
 .status-dot {

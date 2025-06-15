@@ -6,9 +6,11 @@ import { PropertyPanel } from '../property-panel';
 import { FloatingLearningPanel } from '../../features/learning-mode/ui/FloatingLearningPanel';
 import { CircuitVisualizerPanel } from '../CircuitVisualizerPanel';
 import { HelpPanel } from '../HelpPanel';
+import { TimingChartPanel } from '../../features/timing-chart/components/TimingChartPanel';
 import { useCircuitStore } from '../../stores/circuitStore';
 import type { AppMode } from '../../types/appMode';
 import { TERMS } from '../../features/learning-mode/data/terms';
+import { QuickTutorial } from '../QuickTutorial';
 
 interface DesktopLayoutProps {
   children?: React.ReactNode;
@@ -26,6 +28,8 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
     appMode,
     setAppMode,
     viewMode,
+    timingChart,
+    timingChartActions,
   } = useCircuitStore();
   const [isVisualizerOpen, setIsVisualizerOpen] = useState(false);
   const [highlightedGateId, setHighlightedGateId] = useState<string | null>(
@@ -33,6 +37,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   );
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isPipLearningOpen, setIsPipLearningOpen] = useState(false);
+  const [showQuickTutorial, setShowQuickTutorial] = useState(false);
 
   const handleModeChange = (mode: AppMode) => {
     if (mode === '学習モード') {
@@ -133,6 +138,14 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
               >
                 📟
               </button>
+              <div className="control-separator" style={{ width: '1px', height: '24px', background: 'var(--color-border-subtle)', margin: '0 4px', opacity: 0.5 }} />
+              <button
+                className={`tool-button ${timingChart.isVisible ? 'active' : ''}`}
+                title="タイミングチャート"
+                onClick={() => timingChartActions.togglePanel()}
+              >
+                📊
+              </button>
             </div>
           )}
         </div>
@@ -178,7 +191,26 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
           handleCloseHelp();
           setAppMode(TERMS.LEARNING_MODE);
         }}
+        onStartTutorial={() => {
+          handleCloseHelp();
+          setShowQuickTutorial(true);
+        }}
       />
+
+      {/* タイミングチャートパネル - 横長レイアウト（fixed position） */}
+      <TimingChartPanel />
+
+      {/* クイックチュートリアル */}
+      {showQuickTutorial && (
+        <QuickTutorial
+          onClose={() => {
+            setShowQuickTutorial(false);
+            localStorage.setItem('quickTutorialCompleted', 'true');
+          }}
+          gates={gates}
+          wires={wires}
+        />
+      )}
     </div>
   );
 };

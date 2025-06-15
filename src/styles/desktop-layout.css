@@ -58,3 +58,14 @@
   padding: 20px;
   overflow-y: auto;
 }
+
+/* タイミングチャートコンテナ */
+.timing-chart-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-panel);
+  height: auto;
+  min-height: 0;
+}
