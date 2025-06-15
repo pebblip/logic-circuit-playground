@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { Gate } from '@/types/circuit';
 import { getGateInputValue } from '@/domain/simulation';
 
@@ -27,13 +27,23 @@ export const PinComponent: React.FC<PinComponentProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  // アクティブ状態の判定
-  const isPinActive =
-    isActive !== undefined
-      ? isActive
-      : isOutput
-        ? gate.output
-        : getGateInputValue(gate, pinIndex);
+  // アクティブ状態の判定（防御的プログラミングで安全性を強化）
+  const isPinActive = useMemo(() => {
+    if (isActive !== undefined) {
+      return isActive;
+    }
+    
+    if (isOutput) {
+      return gate.output;
+    }
+    
+    // 入力ピンの場合：安全性チェックを追加
+    if (!gate.inputs || gate.inputs.length <= pinIndex) {
+      return false; // 初期化されていない場合は確実にfalse
+    }
+    
+    return getGateInputValue(gate, pinIndex);
+  }, [isActive, isOutput, gate, gate.inputs, gate.output, pinIndex]);
 
   // ゲート本体からピンまでの線の計算
   const lineX1 = isOutput ? x - 10 : x + 10;
