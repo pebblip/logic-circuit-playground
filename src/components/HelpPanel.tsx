@@ -13,7 +13,7 @@ type TabId = 'quick-help' | 'troubleshooting' | 'features';
 
 interface HelpContent {
   question: string;
-  answer: string;
+  answer: string | { label: string; content: string }[];
 }
 
 const helpContents: Record<TabId, HelpContent[]> = {
@@ -28,7 +28,7 @@ const helpContents: Record<TabId, HelpContent[]> = {
     },
     {
       question: `🔍 表示操作`,
-      answer: `【${TERMS.ZOOM}】マウスホイール（マウス位置中心）、+/-キー（画面中央）【${TERMS.PAN}】スペース+${TERMS.DRAG}、中クリック${TERMS.DRAG}【${TERMS.RANGE_SELECT}】${TERMS.DRAG}で範囲選択【${TERMS.MULTI_SELECT}】Shift+${TERMS.CLICK}で複数選択`,
+      answer: `【${TERMS.ZOOM}】マウスホイール（マウス位置中心）【${TERMS.PAN}】スペース+${TERMS.DRAG}【${TERMS.RANGE_SELECT}】${TERMS.DRAG}で範囲選択【${TERMS.MULTI_SELECT}】Shift+${TERMS.CLICK}で複数選択`,
     },
     {
       question: `📱 タッチ操作`,
@@ -36,7 +36,7 @@ const helpContents: Record<TabId, HelpContent[]> = {
     },
     {
       question: `🎓 さらに学ぶには`,
-      answer: `【${TERMS.LEARNING_MODE}】体系的な${TERMS.LOGIC_CIRCUIT}学習【${TERMS.TUTORIAL}】基本操作の復習【${TERMS.PUZZLE_MODE}】制約条件下での問題解決【${TERMS.GALLERY_MODE}】サンプル${TERMS.CIRCUIT}の閲覧【シミュレーションモード】リアルタイム動作確認（準備中）【コラボレーションモード】共同編集機能（準備中）【${TERMS.CUSTOM_GATE}】複雑な${TERMS.CIRCUIT}の部品化【${TERMS.TRUTH_TABLE}】${TERMS.CIRCUIT}の動作確認`,
+      answer: `【${TERMS.LEARNING_MODE}】体系的な${TERMS.LOGIC_CIRCUIT}学習【${TERMS.TUTORIAL}】基本操作の復習【${TERMS.CUSTOM_GATE}】複雑な${TERMS.CIRCUIT}の部品化【${TERMS.TRUTH_TABLE}】${TERMS.CIRCUIT}の動作確認【タイミングチャート】時間的な${TERMS.SIGNAL}変化の可視化`,
     },
   ],
   troubleshooting: [
@@ -58,33 +58,30 @@ const helpContents: Record<TabId, HelpContent[]> = {
     },
     {
       question: `⚡ パフォーマンスが重い`,
-      answer: `【原因1】大規模${TERMS.CIRCUIT}: ${TERMS.GATE}数が多すぎる場合は${TERMS.CUSTOM_GATE}で階層化\n【原因2】${TERMS.CLOCK}${TERMS.GATE}多用: 高頻度の${TERMS.CLOCK_SIGNAL}は処理負荷大\n【原因3】無限ループ: フィードバック${TERMS.CIRCUIT}が無限実行\n【対策】ブラウザの再読み込み、または段階的な${TERMS.CIRCUIT}構築`,
+      answer: [
+        { label: `原因1`, content: `大規模${TERMS.CIRCUIT}: ${TERMS.GATE}数が多すぎる場合は${TERMS.CUSTOM_GATE}で階層化` },
+        { label: `原因2`, content: `${TERMS.CLOCK}${TERMS.GATE}多用: 高頻度の${TERMS.CLOCK_SIGNAL}は処理負荷大` },
+        { label: `原因3`, content: `無限ループ: フィードバック${TERMS.CIRCUIT}が無限実行` },
+        { label: `対策`, content: `ブラウザの再読み込み、または段階的な${TERMS.CIRCUIT}構築` },
+      ],
     },
   ],
   features: [
     {
       question: `⚙️ ${TERMS.CUSTOM_GATE}機能`,
-      answer: `【${TERMS.CREATE}方法】${TERMS.CREATE}した${TERMS.CIRCUIT}を${TERMS.SELECT}して「${TERMS.CUSTOM_GATE}として${TERMS.SAVE}」【再利用】ツールパレットから通常の${TERMS.GATE}と同様に${TERMS.PLACE}可能【内部回路表示】ツールパレットの${TERMS.CUSTOM_GATE}をダブルクリックで内部回路を表示【${TERMS.TRUTH_TABLE}】ツールパレットで右クリック（macOS: Ctrl+${TERMS.CLICK}）して${TERMS.TRUTH_TABLE}を表示【階層化】複雑な${TERMS.CIRCUIT}を整理し、見通しを向上`,
+      answer: `【${TERMS.CREATE}方法】${TERMS.CREATE}した${TERMS.CIRCUIT}を${TERMS.SELECT}して「${TERMS.CUSTOM_GATE}として${TERMS.SAVE}」【再利用】ツールパレットから通常の${TERMS.GATE}と同様に${TERMS.PLACE}可能【内部回路表示】ツールパレットの${TERMS.CUSTOM_GATE}を${TERMS.DOUBLE_CLICK}で内部回路を表示【${TERMS.TRUTH_TABLE}】ツールパレットで右クリック（macOS: Ctrl+${TERMS.CLICK}）して${TERMS.TRUTH_TABLE}を表示【階層化】複雑な${TERMS.CIRCUIT}を整理し、見通しを向上`,
     },
     {
       question: `⏰ タイミング制御`,
-      answer: `【${TERMS.CLOCK}${TERMS.GATE}】1Hz〜10Hzの周波数で定期的に${TERMS.ON}/${TERMS.OFF}【${TERMS.D_FF}${TERMS.GATE}】${TERMS.CLOCK_SIGNAL}の立ち上がりで${TERMS.INPUT}を記憶【${TERMS.SR_LATCH}${TERMS.GATE}】Set/Reset${TERMS.SIGNAL}で状態を制御【シーケンシャル${TERMS.CIRCUIT}】時間的な動作を持つ${TERMS.CIRCUIT}設計が可能`,
+      answer: `【${TERMS.CLOCK}${TERMS.GATE}】1Hz〜20Hzの周波数で定期的に${TERMS.ON}/${TERMS.OFF}【${TERMS.D_FF}${TERMS.GATE}】${TERMS.CLOCK_SIGNAL}の立ち上がりで${TERMS.INPUT}を記憶【${TERMS.SR_LATCH}${TERMS.GATE}】Set/Reset${TERMS.SIGNAL}で状態を制御【シーケンシャル${TERMS.CIRCUIT}】時間的な動作を持つ${TERMS.CIRCUIT}設計が可能`,
     },
     {
       question: `🔄 データの入出力`,
-      answer: `【${TERMS.SAVE}/${TERMS.LOAD}】ブラウザローカルストレージに自動${TERMS.SAVE}【${TERMS.EXPORT}】JSONファイルとして${TERMS.CIRCUIT}データを出力【${TERMS.IMPORT}】他の環境で${TERMS.CREATE}した${TERMS.CIRCUIT}を${TERMS.LOAD}【URL共有】${TERMS.CIRCUIT}をURLとして共有（準備中）【画像出力】${TERMS.CIRCUIT}図をPNG画像として出力（準備中）`,
+      answer: `【${TERMS.SAVE}/${TERMS.LOAD}】ブラウザローカルストレージに自動${TERMS.SAVE}【${TERMS.EXPORT}】JSONファイルとして${TERMS.CIRCUIT}データを出力【${TERMS.IMPORT}】他の環境で${TERMS.CREATE}した${TERMS.CIRCUIT}を${TERMS.LOAD}【URL共有】${TERMS.CIRCUIT}をURLとして共有可能`,
     },
     {
       question: `📊 解析・検証機能`,
-      answer: `【${TERMS.TRUTH_TABLE}】任意の${TERMS.CIRCUIT}の完全な${TERMS.TRUTH_TABLE}を自動生成【${TERMS.SIGNAL}フロー】リアルタイムで${TERMS.SIGNAL}の流れを視覚化【${TERMS.CIRCUIT}検証】${TERMS.LOGIC_OPERATION}エラーや${TERMS.CONNECTION}問題を自動チェック（準備中）【パフォーマンス計測】${TERMS.GATE}数、遅延時間等の${TERMS.CIRCUIT}特性を表示（準備中）`,
-    },
-    {
-      question: `🎯 ${TERMS.PUZZLE_MODE}詳細`,
-      answer: `【制約設計】${TERMS.GATE}数制限・${TERMS.WIRE}数制限・使用可能${TERMS.GATE}制限【自動検証】全入力パターンでのテスト実行【段階ヒント】問題解決の段階的ガイド【学習目標】各パズルの教育目的を明確化`,
-    },
-    {
-      question: `🎨 ${TERMS.GALLERY_MODE}詳細`,
-      answer: `【サンプル回路】基本から応用まで段階的な実例【検索・フィルタ】カテゴリ・複雑度・タグでの絞り込み【ワンクリック読み込み】${TERMS.GALLERY_MODE}から直接${TERMS.FREE_MODE}で開く【学習リソース】回路の仕組み・応用例の詳細説明`,
+      answer: `【${TERMS.TRUTH_TABLE}】任意の${TERMS.CIRCUIT}の完全な${TERMS.TRUTH_TABLE}を自動生成【${TERMS.SIGNAL}フロー】リアルタイムで${TERMS.SIGNAL}の流れを視覚化【タイミングチャート】時間的な${TERMS.SIGNAL}変化の記録と表示【ビジュアライザー】${TERMS.CIRCUIT}統計とパターン認識`,
     },
     {
       question: `🎓 ${TERMS.LEARNING_MODE}パネル操作`,
@@ -95,8 +92,8 @@ const helpContents: Record<TabId, HelpContent[]> = {
       answer: `【回路統計】${TERMS.GATE}数・${TERMS.WIRE}数・アクティブ${TERMS.GATE}数の表示【パターン認識】回路パターンの自動認識【リアルタイム更新】回路変更に連動した表示更新【${TERMS.GATE}ハイライト】マウスオーバーで${TERMS.GATE}強調【デスクトップ専用】画面右側パネルで利用可能`,
     },
     {
-      question: `🚀 未実装機能・将来計画`,
-      answer: `【シミュレーションモード】タイムライン機能付きシミュレーション（開発中）【コラボレーションモード】リアルタイム共同編集（計画中）【エクスポート拡張】PNG画像・PDF出力（準備中）【URL共有】回路をURLで共有（準備中）【AI支援】回路設計アシスタント（研究中）【モバイル最適化】タッチ操作の更なる改善（継続中）`,
+      question: `🚀 今後の実装予定`,
+      answer: `【${TERMS.PUZZLE_MODE}】制約付き問題解決モード（開発中）【${TERMS.GALLERY_MODE}】サンプル${TERMS.CIRCUIT}ライブラリ（開発中）【画像エクスポート】PNG・PDF形式での${TERMS.CIRCUIT}図出力（準備中）【コラボレーション】リアルタイム共同編集（計画中）【AI支援】${TERMS.CIRCUIT}設計アシスタント（研究中）`,
     },
   ],
 };
@@ -126,11 +123,23 @@ export const HelpPanel: React.FC<HelpPanelProps> = ({
   const filteredContent = searchQuery
     ? Object.entries(helpContents).flatMap(([tabId, contents]) =>
         contents
-          .filter(
-            item =>
-              item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              item.answer.toLowerCase().includes(searchQuery.toLowerCase())
-          )
+          .filter(item => {
+            const query = searchQuery.toLowerCase();
+            const questionMatch = item.question.toLowerCase().includes(query);
+            
+            let answerMatch = false;
+            if (typeof item.answer === 'string') {
+              answerMatch = item.answer.toLowerCase().includes(query);
+            } else if (Array.isArray(item.answer)) {
+              answerMatch = item.answer.some(
+                section => 
+                  section.label.toLowerCase().includes(query) ||
+                  section.content.toLowerCase().includes(query)
+              );
+            }
+            
+            return questionMatch || answerMatch;
+          })
           .map(item => ({ ...item, tabId }))
       )
     : helpContents[activeTab].map(item => ({ ...item, tabId: activeTab }));
@@ -200,7 +209,18 @@ export const HelpPanel: React.FC<HelpPanelProps> = ({
               </div>
               {expandedItems.has(item.question) && (
                 <div className="help-answer">
-                  {item.answer}
+                  {Array.isArray(item.answer) ? (
+                    <div className="help-answer-list">
+                      {item.answer.map((section, idx) => (
+                        <div key={idx} className="help-answer-item">
+                          <span className="help-answer-label">【{section.label}】</span>
+                          <span className="help-answer-content">{section.content}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    item.answer
+                  )}
                   {searchQuery && (
                     <div className="search-context">
                       (

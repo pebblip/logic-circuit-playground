@@ -295,6 +295,43 @@
   white-space: pre-line;
 }
 
+.help-answer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.help-answer-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border-left: 3px solid var(--color-primary-border);
+  transition: all 0.2s ease;
+}
+
+.help-answer-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-left-color: var(--color-primary);
+  transform: translateX(2px);
+}
+
+.help-answer-label {
+  font-weight: 600;
+  color: var(--color-primary);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.help-answer-content {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 @keyframes expand {
   from {
     opacity: 0;

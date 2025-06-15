@@ -1,6 +1,7 @@
 import React from 'react';
 import type { GateType, CustomGateDefinition } from '@/types/circuit';
 import { GateThumbnail } from './GateThumbnail';
+import { TERMS } from '@/features/learning-mode/data/terms';
 
 interface GateCardProps {
   type: GateType | 'CUSTOM';
@@ -43,8 +44,8 @@ export const GateCard: React.FC<GateCardProps> = ({
   const title = isDisabled
     ? '学習モードではこのゲートは使用できません'
     : type === 'CUSTOM'
-      ? '左クリック: 詳細表示 | 右クリック: 真理値表表示 | ダブルクリック: 内部回路表示'
-      : '左クリック: 詳細表示 | ドラッグしてキャンバスに配置';
+      ? `左${TERMS.CLICK}: 詳細表示 | 右${TERMS.CLICK}: 真理値表表示 | ${TERMS.DOUBLE_CLICK}: 内部回路表示`
+      : `左${TERMS.CLICK}: 詳細表示 | ${TERMS.DRAG}してキャンバスに${TERMS.PLACE}`;
 
   return (
     <div
