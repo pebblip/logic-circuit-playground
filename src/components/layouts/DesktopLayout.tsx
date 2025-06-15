@@ -43,9 +43,11 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
     if (mode === '学習モード') {
       // Picture-in-Picture学習パネルを開く
       setIsPipLearningOpen(true);
-      // フリーモードに戻す（並行表示のため）
-      setAppMode('フリーモード');
+      // 学習モードをアクティブに設定（ボタンが光るように）
+      setAppMode('学習モード');
     } else {
+      // 他のモードの場合は学習パネルを閉じる
+      setIsPipLearningOpen(false);
       setAppMode(mode as AppMode);
     }
   };
@@ -179,7 +181,10 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
       {/* Picture-in-Picture学習パネル */}
       <FloatingLearningPanel
         isOpen={isPipLearningOpen}
-        onClose={() => setIsPipLearningOpen(false)}
+        onClose={() => {
+          setIsPipLearningOpen(false);
+          setAppMode('フリーモード');
+        }}
         onOpenHelp={handleOpenHelp}
       />
 

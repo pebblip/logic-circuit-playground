@@ -148,23 +148,7 @@ export const Header: React.FC<HeaderProps> = ({
             </>
           )}
 
-          {/* 学習モード時の表示 */}
-          {activeMode === TERMS.LEARNING_MODE && (
-            <div className="learning-mode-status">
-              <span className="learning-progress">
-                {/* ここに進捗表示を追加予定 */}
-                <span
-                  style={{
-                    color: 'rgba(255, 255, 255, 0.6)',
-                    fontSize: '14px',
-                    marginRight: '12px',
-                  }}
-                >
-                  学習中
-                </span>
-              </span>
-            </div>
-          )}
+          {/* 学習モード時の表示は削除（モードボタンで十分わかるため） */}
 
           {/* パズルモード時の表示 */}
           {activeMode === TERMS.PUZZLE_MODE && (

@@ -392,12 +392,12 @@
   background: var(--color-bg-elevated);
   border-radius: var(--border-radius-lg);
   padding: 4px;
-  gap: 4px;
+  gap: 8px; /* 4px → 8px に増加してボタン間のスペースを改善 */
   flex-shrink: 0;
 }
 
 .mode-tab {
-  padding: var(--spacing-sm) var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-xl);
   background: transparent;
   border: none;
   border-radius: var(--border-radius-md);

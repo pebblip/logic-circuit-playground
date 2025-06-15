@@ -44,7 +44,7 @@ const DEFAULT_SETTINGS: TimingChartSettings = {
 // 初期状態
 const INITIAL_STATE: TimingChartState = {
   isVisible: false,
-  panelHeight: 500,
+  panelHeight: 250, // 500 → 250に縮小（1クロックしか表示しないため）
   timeWindow: { start: 0, end: 3000 }, // 3秒窓でCLOCK周期(1000ms)×3サイクル表示
   timeScale: 'ms',
   autoScale: true,
@@ -189,8 +189,6 @@ export const createTimingChartSlice: StateCreator<
       const { scrollState, timeWindow, autoScroll } = state.timingChart;
       const windowWidth = timeWindow.end - timeWindow.start;
       
-      console.log(`[TimingChart] updateCurrentTime: ${simulationTime}ms`);
-      
       let newTimeWindow = timeWindow;
       
       // オシロスコープモード：現在時刻追従
@@ -207,8 +205,6 @@ export const createTimingChartSlice: StateCreator<
             start: Math.max(0, newStart),
             end: newEnd
           };
-          
-          console.log(`[TimingChart] Auto-scroll: ${newTimeWindow.start}-${newTimeWindow.end}`);
         }
       }
       
@@ -623,14 +619,11 @@ export const createTimingChartSlice: StateCreator<
 
     // === 🌟 新実装：イベント処理 ===
     processTimingEvents: (events: TimingEvent[]) => {
-      console.log(`[TimingChart] processTimingEvents called with ${events.length} events`);
       if (events.length === 0) return;
       
       const state = get().timingChart;
-      console.log(`[TimingChart] isPaused: ${state.isPaused}, traces: ${state.traces.length}`);
       
       if (state.isPaused) {
-        console.log(`[TimingChart] Skipping events due to pause`);
         return;
       }
       
@@ -644,7 +637,6 @@ export const createTimingChartSlice: StateCreator<
                  e.pinIndex === trace.pinIndex
           );
           
-          console.log(`[TimingChart] Trace ${trace.name} (${trace.gateId}): ${relevantEvents.length} relevant events`);
           if (relevantEvents.length === 0) return trace;
           
           hasChanges = true;
@@ -656,8 +648,6 @@ export const createTimingChartSlice: StateCreator<
           
           // 容量制限を適用
           const limited = sorted.slice(-currentState.timingChart.settings.captureDepth);
-          
-          console.log(`[TimingChart] Trace ${trace.name}: ${trace.events.length} -> ${limited.length} events`);
           
           return {
             ...trace,

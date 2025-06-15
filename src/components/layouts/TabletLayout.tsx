@@ -36,8 +36,9 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
         onModeChange={mode => {
           if (mode === '学習モード') {
             setIsPipLearningOpen(true);
-            setAppMode('フリーモード');
+            setAppMode('学習モード');
           } else {
+            setIsPipLearningOpen(false);
             setAppMode(mode as AppMode);
           }
         }}
@@ -81,7 +82,10 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
       {/* Picture-in-Picture学習パネル */}
       <FloatingLearningPanel
         isOpen={isPipLearningOpen}
-        onClose={() => setIsPipLearningOpen(false)}
+        onClose={() => {
+          setIsPipLearningOpen(false);
+          setAppMode('フリーモード');
+        }}
         onOpenHelp={handleOpenHelp}
       />
 

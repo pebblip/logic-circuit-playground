@@ -84,28 +84,9 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
       console.warn('WaveformCanvas: Canvas context not available');
       return;
     }
-    
-    console.log('WaveformCanvas: Drawing with', {
-      traces: traces.length,
-      traceNames: traces.map(t => t.name),
-      timeWindow,
-      dimensions
-    });
-    
-    // トレースの詳細情報をログ出力
-    traces.forEach((trace, i) => {
-      console.log(`WaveformCanvas: Trace ${i} (${trace.name}):`, {
-        gateId: trace.gateId,
-        events: trace.events.length,
-        eventTimes: trace.events.map(e => `${e.time}ms=${e.value}`).slice(0, 5), // 最初の5つ
-        visible: trace.visible,
-        color: trace.color
-      });
-    });
 
       // キャンバスクリアと高DPI対応のスケーリング
     const dpr = window.devicePixelRatio || 1;
-    console.log('WaveformCanvas: Clearing canvas and setting DPR', dpr);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // save/restoreがJSDOMで利用できない場合があるため、条件付きで実行
     const hasSaveRestore = typeof ctx.save === 'function' && typeof ctx.restore === 'function';
@@ -126,13 +107,6 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     const drawWidth = dimensions.width / dpr;
     const drawHeight = dimensions.height / dpr;
     
-    console.log('WaveformCanvas: Canvas dimensions', { 
-      width: drawWidth, 
-      height: drawHeight, 
-      dpr,
-      rawDimensions: dimensions
-    });
-    
     if (drawWidth <= 0 || drawHeight <= 0) {
       console.error('WaveformCanvas: Invalid canvas dimensions', { drawWidth, drawHeight });
       return;
@@ -141,16 +115,8 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     // 背景クリア（見やすいダークグレー背景）
     ctx.fillStyle = '#2a2a2a';
     ctx.fillRect(0, 0, drawWidth, drawHeight);
-    console.log('WaveformCanvas: Background filled with #2a2a2a');
     
-    // デバッグ：キャンバスが正しく描画されているか確認
-    if (drawWidth <= 0 || drawHeight <= 0) {
-      console.warn('WaveformCanvas: Invalid canvas dimensions', { drawWidth, drawHeight, dimensions });
-      return;
-    }
-
     // 高品質グリッド描画
-    console.log('WaveformCanvas: Drawing grid');
     drawTimingGrid(ctx, drawWidth, drawHeight, timeWindow, timeScale);
 
     // 波形レイアウト計算
@@ -160,7 +126,6 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     const edgeTransitionWidth = 3; // エッジの遷移幅
 
     // 信号区切り線（改善版）
-    console.log('WaveformCanvas: Drawing signal separators for', totalSignals, 'signals');
     drawSignalSeparators(ctx, drawWidth, drawHeight, totalSignals, signalHeight);
 
     // 各トレースのシンプル描画
@@ -178,11 +143,8 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
 
     // トレースがない場合のエレガントなデモ波形
     if (traces.length === 0) {
-      console.log('WaveformCanvas: Drawing demo waveform');
       drawDemoWaveform(ctx, signalHeight, waveformAmplitude, drawWidth);
     } else {
-      console.log('WaveformCanvas: Drawing', traces.length, 'traces');
-      
       // CLOCK同期のための視覚的ヒント（シンプルな時間マーカー）
       if (traces.some(t => t.name === 'CLK')) {
         drawClockSyncMarkers(ctx, drawWidth, drawHeight, timeWindow);
@@ -266,8 +228,6 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     width: number,
     timeWindow: TimeWindow
   ) => {
-    console.log('🎨 Drawing optimized waveform for trace:', trace.name, 'events:', trace.events.length);
-    
     // 🌟 最適化：時間窓前後のイベントも考慮して連続性を保つ
     const windowDuration = timeWindow.end - timeWindow.start;
     const extendedStart = timeWindow.start - windowDuration * 0.1; // 10%余裕
@@ -277,8 +237,6 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     const relevantEvents = trace.events.filter(
       event => event.time >= extendedStart && event.time <= extendedEnd
     );
-    
-    console.log(`🎨 Trace ${trace.name}: ${relevantEvents.length} relevant events in extended window [${extendedStart}-${extendedEnd}]`);
 
     // 描画スタイル設定
     ctx.strokeStyle = trace.color || '#00ff88';
@@ -296,26 +254,20 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     if (eventsBeforeWindow.length > 0) {
       const lastEventBeforeWindow = eventsBeforeWindow[eventsBeforeWindow.length - 1];
       currentValue = Boolean(lastEventBeforeWindow.value);
-      console.log(`🎯 Initial value from previous event (${lastEventBeforeWindow.time}ms): ${currentValue}`);
     }
     
     // 開始点の描画
     const initialY = currentValue ? centerY - amplitude : centerY + amplitude;
     ctx.moveTo(0, initialY);
-    console.log(`🎯 Starting at Y=${initialY} (value=${currentValue})`);
 
     // 🌟 時間窓内のイベントを処理
     const visibleEvents = relevantEvents.filter(
       event => event.time >= timeWindow.start && event.time <= timeWindow.end
     );
     
-    console.log(`🎨 Processing ${visibleEvents.length} visible events`);
-    
     visibleEvents.forEach((event, index) => {
       const eventX = ((event.time - timeWindow.start) / (timeWindow.end - timeWindow.start)) * width;
       const newValue = Boolean(event.value);
-      
-      console.log(`🎯 Event ${index}: time=${event.time}ms, X=${eventX}px, value=${newValue}`);
       
       // エッジ遷移の処理
       if (currentValue !== newValue) {
@@ -329,7 +281,6 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
         ctx.lineTo(eventX, targetY);
         
         currentValue = newValue;
-        console.log(`🔄 Edge transition at X=${eventX}: ${!newValue} -> ${newValue}`);
       } else {
         // 値が変わらない場合は水平線のみ
         const currentY = currentValue ? centerY - amplitude : centerY + amplitude;
@@ -340,22 +291,9 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     // 🌟 最終点まで延長（現在値を維持）
     const finalY = currentValue ? centerY - amplitude : centerY + amplitude;
     ctx.lineTo(width, finalY);
-    console.log(`🎯 Ending at Y=${finalY} (value=${currentValue})`);
     
     // 描画実行
     ctx.stroke();
-    
-    // 🔍 デバッグ：波形の範囲を可視化（開発時のみ）
-    if (false) { // デバッグ時は true に
-      ctx.strokeStyle = 'rgba(255, 255, 0, 0.3)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, centerY - amplitude - 5);
-      ctx.lineTo(width, centerY - amplitude - 5);
-      ctx.moveTo(0, centerY + amplitude + 5);
-      ctx.lineTo(width, centerY + amplitude + 5);
-      ctx.stroke();
-    }
   };
 
   // シンプル化：エッジマーカー削除
@@ -366,7 +304,6 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     amplitude: number,
     width: number
   ) => {
-    console.log('Drawing demo waveform with dimensions:', { signalHeight, amplitude, width });
     const centerY = signalHeight / 2;
     
     // シンプルで鮮明なデモクロック波形

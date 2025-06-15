@@ -94,9 +94,7 @@ const ClockGateRenderer: React.FC<SpecialGateRendererProps> = ({
   const frequency = gate.metadata?.frequency || 1;
   const [isHovered, setIsHovered] = React.useState(false);
   
-  // 🎯 タイミングチャート用の選択状態
-  const { selectedClockGateId } = useCircuitStore();
-  const isSelectedForTiming = selectedClockGateId === gate.id;
+  // タイミングチャートマークは削除
 
   return (
     <>
@@ -114,14 +112,8 @@ const ClockGateRenderer: React.FC<SpecialGateRendererProps> = ({
           cy="0"
           r="45"
           fill="#1a1a1a"
-          stroke={
-            isSelectedForTiming 
-              ? '#ff6b35' // オレンジ色でタイミングチャート選択を示す
-              : isSelected 
-                ? '#00aaff' 
-                : '#444'
-          }
-          strokeWidth={isSelected || isSelectedForTiming ? '3' : '2'}
+          stroke={isSelected ? '#00aaff' : '#444'}
+          strokeWidth={isSelected ? '3' : '2'}
         >
           {/* パルスアニメーション */}
           <animate
@@ -157,28 +149,6 @@ const ClockGateRenderer: React.FC<SpecialGateRendererProps> = ({
           <text className="gate-text u-text-md" x="0" y="35">
             {frequency}Hz
           </text>
-        )}
-        
-        {/* タイミングチャート選択インジケータ */}
-        {isSelectedForTiming && (
-          <g>
-            <circle
-              cx="25"
-              cy="-25"
-              r="8"
-              fill="#ff6b35"
-              opacity="0.9"
-            />
-            <text 
-              className="gate-text" 
-              x="25" 
-              y="-20" 
-              fontSize="10"
-              fill="white"
-            >
-              📊
-            </text>
-          </g>
         )}
         {/* 時計アニメーション */}
         <circle

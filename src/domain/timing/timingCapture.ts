@@ -128,7 +128,6 @@ export class CircuitTimingCapture implements TimingEventCapture {
    */
   setSimulationStartTime(startTime?: number): void {
     this.simulationStartTime = startTime || performance.now();
-    console.log(`[TimingCapture] Simulation start time set to ${this.simulationStartTime}`);
   }
 
   /**
@@ -136,7 +135,6 @@ export class CircuitTimingCapture implements TimingEventCapture {
    */
   resetSimulationTime(): void {
     this.simulationStartTime = null;
-    console.log('[TimingCapture] Simulation time reset');
   }
 
   /**
@@ -170,8 +168,6 @@ export class CircuitTimingCapture implements TimingEventCapture {
     const events: TimingEvent[] = [];
     const currentTime = this.getRelativeTime(); // 相対時間を使用
     const currentCircuit = evaluationResult.data.circuit;
-    
-    console.log(`[TimingCapture] Capturing events at relative time: ${currentTime}ms`);
 
     // 前回の状態と比較して変化を検出
     if (previousState) {

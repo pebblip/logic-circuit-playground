@@ -5,13 +5,9 @@
 import React, { useCallback, useState, useRef } from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChartBarIcon, Cog6ToothIcon, XMarkIcon, CameraIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon, ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { WaveformCanvas } from './WaveformCanvas';
-import { SignalList } from './SignalList';
-import { TimeAxis } from './TimeAxis';
 import { TimeCursor } from './TimeCursor';
-import { TimingChartSettings } from './TimingChartSettings';
-import { debug } from '@/shared/debug';
 
 interface TimingChartPanelProps {
   className?: string;
@@ -20,7 +16,6 @@ interface TimingChartPanelProps {
 export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({ 
   className = '' 
 }) => {
-  const [showSettings, setShowSettings] = useState(false);
   const [isDraggingHeight, setIsDraggingHeight] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const resizeStartRef = useRef<{ y: number; height: number }>({ y: 0, height: 0 });
@@ -44,47 +39,13 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
   } = timingChart;
 
   const {
-    togglePanel,
     hidePanel,
     setPanelHeight,
     setCursor,
-    hideCursor,
-    updateSettings,
-    zoomIn,
-    zoomOut,
-    fitToData,
-    resetView,
-    exportData,
-    addTrace,
-    addTraceFromGate
+    hideCursor
   } = timingChartActions;
 
-  // 選択されたCLOCKゲートのトレースを自動作成・管理
-  React.useEffect(() => {
-    if (!isVisible || !selectedClockGateId) return;
-
-    console.log(`[TimingChartPanel] Managing trace for selected CLOCK: ${selectedClockGateId}`);
-    
-    // 選択されたCLOCKゲートを取得
-    const selectedClock = gates.find(gate => gate.id === selectedClockGateId && gate.type === 'CLOCK');
-    if (!selectedClock) {
-      console.log(`[TimingChartPanel] Selected CLOCK gate not found: ${selectedClockGateId}`);
-      return;
-    }
-    
-    // 既にトレースが存在するかチェック
-    const existingTrace = traces.find(
-      t => t.gateId === selectedClockGateId && t.pinType === 'output' && t.pinIndex === 0
-    );
-    
-    if (!existingTrace) {
-      console.log(`[TimingChartPanel] Creating trace for selected CLOCK: ${selectedClockGateId}`);
-      const traceId = addTraceFromGate(selectedClock, 'output', 0);
-      console.log(`[TimingChartPanel] Created trace ID: ${traceId}`);
-    } else {
-      console.log(`[TimingChartPanel] Trace already exists for selected CLOCK: ${selectedClockGateId}`);
-    }
-  }, [isVisible, selectedClockGateId, gates, traces, addTraceFromGate]);
+  // 自動トレース作成は削除 - 明示的にユーザーが選択した場合のみ表示
 
   // パネル高さのリサイズハンドラ
   const handleResizeStart = useCallback((e: React.MouseEvent) => {
@@ -131,116 +92,10 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
     hideCursor();
   }, [hideCursor]);
 
-  // スクリーンショット機能
-  const handleScreenshot = useCallback(async () => {
-    try {
-      // WaveformCanvasからcanvas要素を取得
-      const panelElement = panelRef.current;
-      if (!panelElement) {
-        throw new Error('Panel element not found');
-      }
 
-      const canvasElement = panelElement.querySelector('canvas');
-      if (!canvasElement) {
-        throw new Error('Canvas element not found');
-      }
 
-      // Canvasの内容をPNGとしてエクスポート
-      const dataURL = canvasElement.toDataURL('image/png', 1.0);
-      
-      // ダウンロード用のリンクを作成
-      const link = document.createElement('a');
-      link.download = `timing_chart_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`;
-      link.href = dataURL;
-      
-      // 一時的にDOMに追加してクリック、その後削除
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      debug.log('[TimingChart] Screenshot exported successfully');
-    } catch (error) {
-      debug.error('[TimingChart] Screenshot failed:', error);
-      // ユーザーへのエラー通知（簡易的）
-      alert('スクリーンショットの保存に失敗しました。ブラウザがCanvas APIをサポートしていない可能性があります。');
-    }
-  }, []);
-
-  // データエクスポート
-  const handleExport = useCallback(() => {
-    try {
-      const csvData = exportData('csv');
-      const blob = new Blob([csvData], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `timing_chart_${Date.now()}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      debug.error('[TimingChart] Export failed:', error);
-    }
-  }, [exportData]);
-
-  // ズーム操作ハンドラー
-  const handleZoomIn = useCallback(() => {
-    zoomIn();
-  }, [zoomIn]);
-
-  const handleZoomOut = useCallback(() => {
-    zoomOut();
-  }, [zoomOut]);
-
-  const handleZoomToFit = useCallback(() => {
-    if (traces.length > 0) {
-      fitToData();
-    } else {
-      resetView();
-    }
-  }, [traces.length, fitToData, resetView]);
-
-  // キーボードショートカット
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isVisible) return;
-      
-      // Ctrl/Cmd + (+/-/0) でズーム操作
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
-        switch (e.key) {
-          case '+':
-          case '=':
-            e.preventDefault();
-            handleZoomIn();
-            break;
-          case '-':
-            e.preventDefault();
-            handleZoomOut();
-            break;
-          case '0':
-            e.preventDefault();
-            handleZoomToFit();
-            break;
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isVisible, handleZoomIn, handleZoomOut, handleZoomToFit]);
-
-  // 🎯 選択されたCLOCKのトレースのみ表示
-  const visibleTraces = traces.filter(trace => {
-    // 表示設定がfalseなら除外
-    if (!trace.visible) return false;
-    
-    // 選択されたCLOCKがない場合は何も表示しない
-    if (!selectedClockGateId) return false;
-    
-    // 選択されたCLOCKのトレースのみ表示
-    return trace.gateId === selectedClockGateId;
-  });
+  // 表示設定がtrueのトレースのみ表示
+  const visibleTraces = traces.filter(trace => trace.visible);
 
   return (
     <div className={`timing-chart-panel ${className}`}>
@@ -266,54 +121,8 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
               </div>
               
               <div className="header-right">
-                {/* ズーム制御 */}
-                <div className="zoom-controls">
-                  <button
-                    onClick={handleZoomIn}
-                    className="timing-chart-button zoom-button"
-                    title="ズームイン (Ctrl++)"
-                  >
-                    <MagnifyingGlassPlusIcon />
-                  </button>
-                  <button
-                    onClick={handleZoomOut}
-                    className="timing-chart-button zoom-button"
-                    title="ズームアウト (Ctrl+-)"
-                  >
-                    <MagnifyingGlassMinusIcon />
-                  </button>
-                  <button
-                    onClick={handleZoomToFit}
-                    className="timing-chart-button zoom-button"
-                    title="全体表示 (Ctrl+0)"
-                  >
-                    <ArrowsPointingOutIcon />
-                  </button>
-                </div>
-
-                {/* 機能ボタン */}
+                {/* 最小限の機能 */}
                 <div className="function-controls">
-                  <button
-                    onClick={handleScreenshot}
-                    className="timing-chart-button"
-                    title="PNG画像として保存"
-                  >
-                    <CameraIcon />
-                  </button>
-                  <button
-                    onClick={handleExport}
-                    className="timing-chart-button"
-                    title="CSVエクスポート"
-                  >
-                    📊
-                  </button>
-                  <button
-                    onClick={() => setShowSettings(!showSettings)}
-                    className="timing-chart-button"
-                    title="設定"
-                  >
-                    <Cog6ToothIcon />
-                  </button>
                   <button
                     onClick={hidePanel}
                     className="timing-chart-button"
@@ -342,17 +151,10 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
                 ))}
                 {visibleTraces.length === 0 && (
                   <div className="no-signals">
-                    {selectedClockGateId ? (
-                      <>
-                        <p>選択されたCLOCKの</p>
-                        <p>波形を準備中...</p>
-                      </>
-                    ) : (
-                      <>
-                        <p>CLOCKゲートをクリックして</p>
-                        <p>タイミングチャートに表示</p>
-                      </>
-                    )}
+                    <p>まだ信号が追加されていません</p>
+                    <p>ゲートを右クリックして</p>
+                    <p>「タイミングチャートに追加」</p>
+                    <p>を選択してください</p>
                   </div>
                 )}
               </div>
@@ -380,15 +182,6 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
               </div>
             </div>
 
-            {/* 下：時間軸（横断） */}
-            <div className="timing-chart-time-axis">
-              <div className="time-axis-spacer" /> {/* 信号名エリア分のスペーサー */}
-              <TimeAxis
-                timeWindow={timeWindow}
-                timeScale={timeScale}
-                settings={settings}
-              />
-            </div>
           </motion.div>
         )}
       </AnimatePresence>

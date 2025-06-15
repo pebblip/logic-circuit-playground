@@ -35,14 +35,7 @@ export function useGateEvents(gate: Gate): UseGateEventsResult {
       return;
     }
 
-    // 🎯 CLOCKゲートの場合は専用の選択処理
-    if (gate.type === 'CLOCK') {
-      console.log(`[GateEvents] CLOCK gate clicked: ${gate.id}`);
-      setSelectedClockGate(gate.id);
-      // 通常の選択も行う
-      selectGate(gate.id);
-      return;
-    }
+    // CLOCKゲートも通常のゲートと同じ処理
 
     // Shift/Ctrl/Cmdキーが押されている場合の複数選択
     if (event.shiftKey || event.ctrlKey || event.metaKey) {

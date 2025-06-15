@@ -82,38 +82,7 @@ export const createGateOperationsSlice: StateCreator<
     // 履歴に追加
     get().saveToHistory();
 
-    // 🎯 CLOCKゲート配置時の特別処理
-    if (type === 'CLOCK') {
-      // 少し遅延させてstore更新後に処理
-      setTimeout(() => {
-        const currentState = get();
-        
-        // 🌟 最初のCLOCKの場合は自動選択
-        const clockGates = currentState.gates.filter(g => g.type === 'CLOCK');
-        if (clockGates.length === 1 && !currentState.selectedClockGateId) {
-          console.log(`🎯 Auto-selecting first CLOCK: ${newGate.id}`);
-          currentState.setSelectedClockGate(newGate.id);
-        }
-        
-        if (currentState.timingChartActions) {
-          // 選択されたCLOCKのトレースのみ作成
-          if (currentState.selectedClockGateId === newGate.id) {
-            const existingTrace = currentState.timingChart.traces.find(
-              t => t.gateId === newGate.id && t.pinType === 'output'
-            );
-            if (!existingTrace) {
-              console.log(`🎯 Creating trace for selected CLOCK: ${newGate.id}`);
-              currentState.timingChartActions.addTraceFromGate(
-                currentState.gates.find(g => g.id === newGate.id)!,
-                'output',
-                0
-              );
-              globalTimingCapture.watchGate(newGate.id, 'output', 0);
-            }
-          }
-        }
-      }, 50);
-    }
+    // CLOCKゲートは配置されるが、自動選択は行わない
 
     return newGate;
   },
