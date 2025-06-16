@@ -1,4 +1,8 @@
 import type { Gate, Wire } from '../../../types';
+import { COMPARATOR_4BIT } from './comparator-circuit';
+import { PARITY_CHECKER } from './parity-checker';
+import { MAJORITY_VOTER } from './majority-voter';
+import { SEVEN_SEGMENT_DECODER } from './seven-segment';
 
 export interface CircuitMetadata {
   id: string;
@@ -586,4 +590,10 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
       },
     ],
   },
+  
+  // 基本ゲートで作る高度な回路
+  COMPARATOR_4BIT,
+  PARITY_CHECKER,
+  MAJORITY_VOTER,
+  SEVEN_SEGMENT_DECODER,
 ];
