@@ -5,7 +5,8 @@ export const comparatorStructuredLesson: StructuredLesson = {
   id: 'comparator',
   title: '比較器 - 数の大小判定装置',
   description: '2つの数値を比較して大小関係を判定する回路を作ります',
-  objective: '1ビット比較器の構築を通じて、条件分岐の基礎原理を理解し、CPUの判断機能の根幹を習得する',
+  objective:
+    '1ビット比較器の構築を通じて、条件分岐の基礎原理を理解し、CPUの判断機能の根幹を習得する',
   category: '基本回路',
   lessonType: 'build',
   difficulty: 'intermediate',
@@ -219,7 +220,12 @@ export const comparatorStructuredLesson: StructuredLesson = {
         },
         {
           type: 'table',
-          headers: ['ビット数', '1ビット比較器数', 'ゲート数（概算）', '遅延時間'],
+          headers: [
+            'ビット数',
+            '1ビット比較器数',
+            'ゲート数（概算）',
+            '遅延時間',
+          ],
           rows: [
             ['1ビット', '1個', '6個', '2ゲート遅延'],
             ['4ビット', '4個', '24個', '4ゲート遅延'],
@@ -303,12 +309,7 @@ export const comparatorStructuredLesson: StructuredLesson = {
         {
           type: 'quiz',
           question: '1ビット比較器でA=1、B=0のとき、どの出力が1になる？',
-          options: [
-            'A=B',
-            'A>B',
-            'A<B',
-            'すべて0',
-          ],
+          options: ['A=B', 'A>B', 'A<B', 'すべて0'],
           correctIndex: 1,
         },
         {

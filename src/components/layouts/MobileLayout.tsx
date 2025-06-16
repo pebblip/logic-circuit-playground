@@ -21,7 +21,7 @@ export const MobileLayout: React.FC<MobileLayoutProps> = () => {
           ⚠️ モバイル版は開発中です - UI/UXが未完成の状態です
         </span>
       </div>
-      
+
       {/* キャンバス */}
       <div className="mobile-canvas-container">
         <MobileCanvas />

@@ -103,7 +103,9 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     // エラーハンドリング
     if (!customGate?.internalCircuit) {
       handleError(
-        new Error(`Internal circuit not found for custom gate: ${previewingCustomGateId}`),
+        new Error(
+          `Internal circuit not found for custom gate: ${previewingCustomGateId}`
+        ),
         'Canvas',
         {
           userAction: 'カスタムゲートプレビュー開始',
@@ -260,16 +262,12 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
 
       // ゲートが1つもない場合は早期リターン
       if (gatesArray.length === 0) {
-        handleError(
-          'No gates in internal circuit',
-          'Canvas',
-          {
-            userAction: 'カスタムゲート内部回路表示',
-            severity: 'medium',
-            showToUser: true,
-            logToConsole: true,
-          }
-        );
+        handleError('No gates in internal circuit', 'Canvas', {
+          userAction: 'カスタムゲート内部回路表示',
+          severity: 'medium',
+          showToUser: true,
+          logToConsole: true,
+        });
         setViewBox({ x: 0, y: 0, width: 1200, height: 800 });
         resetZoom();
         return;
@@ -385,15 +383,17 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     }
 
     // 🌟 新設計：CLOCKゲート検出時にオシロスコープモード開始
-    const clockGateCount = displayData.displayGates.filter(gate => gate.type === 'CLOCK').length;
+    const clockGateCount = displayData.displayGates.filter(
+      gate => gate.type === 'CLOCK'
+    ).length;
     const previousCount = (globalTimingCapture as any)._lastClockCount || 0;
-    
+
     if (clockGateCount > 0 && clockGateCount !== previousCount) {
       // シミュレーション開始時間をリセット
       globalTimingCapture.resetSimulationTime();
       globalTimingCapture.setSimulationStartTime();
       (globalTimingCapture as any)._lastClockCount = clockGateCount;
-      
+
       // 🎯 オシロスコープライクなスクロール開始
       const currentState = useCircuitStore.getState();
       if (currentState.timingChartActions) {
@@ -403,19 +403,24 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         currentState.timingChartActions.startContinuousScroll();
         console.log('[Canvas] 🚀 Started continuous scroll mode');
       }
-      
-      console.log(`[Canvas] 🎯 Initialized timing chart for ${clockGateCount} CLOCK gates`);
+
+      console.log(
+        `[Canvas] 🎯 Initialized timing chart for ${clockGateCount} CLOCK gates`
+      );
     }
 
     // 🎯 CLOCKゲートの最高周波数に応じて更新間隔を動的調整（パフォーマンス最適化）
     const runningClockGates = displayData.displayGates.filter(
       gate => gate.type === 'CLOCK' && gate.metadata?.isRunning
     );
-    
-    const maxClockFrequency = runningClockGates.length > 0 
-      ? Math.max(...runningClockGates.map(gate => gate.metadata?.frequency || 1))
-      : 1;
-    
+
+    const maxClockFrequency =
+      runningClockGates.length > 0
+        ? Math.max(
+            ...runningClockGates.map(gate => gate.metadata?.frequency || 1)
+          )
+        : 1;
+
     // サンプリング定理に従い、最低でも最高周波数の4倍で更新
     const requiredUpdateHz = Math.max(maxClockFrequency * 4, 10);
     const updateInterval = Math.min(1000 / requiredUpdateHz, 100); // 最大100ms
@@ -426,14 +431,14 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       const hasActiveClocks = currentState.gates.some(
         gate => gate.type === 'CLOCK' && gate.metadata?.isRunning
       );
-      
+
       if (!hasActiveClocks) return;
 
       const previousCircuit: Circuit = {
         gates: currentState.gates,
         wires: currentState.wires,
       };
-      
+
       const result = evaluateCircuit(previousCircuit, defaultConfig);
 
       if (isSuccess(result)) {
@@ -442,39 +447,43 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
           result,
           previousCircuit
         );
-        
+
         // Zustand storeを更新（パフォーマンス最適化：出力変更チェック）
-        const hasOutputChanges = result.data.circuit.gates.some((newGate, index) => {
-          const oldGate = currentState.gates[index];
-          return !oldGate || newGate.output !== oldGate.output;
-        });
-        
+        const hasOutputChanges = result.data.circuit.gates.some(
+          (newGate, index) => {
+            const oldGate = currentState.gates[index];
+            return !oldGate || newGate.output !== oldGate.output;
+          }
+        );
+
         if (hasOutputChanges) {
           useCircuitStore.setState({
             gates: [...result.data.circuit.gates],
             wires: [...result.data.circuit.wires],
           });
         }
-        
+
         // 現在時刻更新（オシロスコープモード駆動）
         const currentSimTime = globalTimingCapture.getCurrentSimulationTime();
         if (currentState.timingChartActions && currentSimTime !== undefined) {
           currentState.timingChartActions.updateCurrentTime(currentSimTime);
         }
-        
+
         // タイミングイベント処理（条件付き）
         if (timingEvents.length > 0) {
           currentState.timingChartActions?.processTimingEvents(timingEvents);
         }
 
         // CLOCKゲートの自動トレース作成（初回のみ、パフォーマンス最適化）
-        const clockGates = result.data.circuit.gates.filter(gate => gate.type === 'CLOCK');
+        const clockGates = result.data.circuit.gates.filter(
+          gate => gate.type === 'CLOCK'
+        );
         clockGates.forEach(gate => {
           // CLOCKゲートのトレースが存在しない場合は作成
           const existingTrace = currentState.timingChart.traces.find(
             t => t.gateId === gate.id && t.pinType === 'output'
           );
-          
+
           if (!existingTrace && currentState.timingChartActions) {
             currentState.timingChartActions.addTraceFromGate(gate, 'output', 0);
             globalTimingCapture.watchGate(gate.id, 'output', 0);
@@ -482,16 +491,12 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
         });
       } else {
         // 回路評価失敗時の統一エラーハンドリング
-        handleError(
-          result.error,
-          'Canvas - CLOCKゲートシミュレーション',
-          {
-            userAction: '回路シミュレーション実行',
-            severity: 'high',
-            showToUser: true,
-            logToConsole: true,
-          }
-        );
+        handleError(result.error, 'Canvas - CLOCKゲートシミュレーション', {
+          userAction: '回路シミュレーション実行',
+          severity: 'high',
+          showToUser: true,
+          logToConsole: true,
+        });
       }
     }, updateInterval); // 動的更新間隔
 
@@ -995,7 +1000,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       </svg>
 
       {/* 🎯 キャンバス内ズームコントロール */}
-      <div 
+      <div
         className="zoom-controls canvas-overlay"
         style={{
           position: 'absolute',
@@ -1004,21 +1009,32 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
           zIndex: 10,
         }}
       >
-        <button className="zoom-button" onClick={zoomOut} title="ズームアウト（マウスホイール下）">
+        <button
+          className="zoom-button"
+          onClick={zoomOut}
+          title="ズームアウト（マウスホイール下）"
+        >
           <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
             <path d="M19 13H5v-2h14v2z" />
           </svg>
         </button>
-        <button className="zoom-button zoom-reset" onClick={resetZoom} title="ズームリセット（ダブルクリック）">
+        <button
+          className="zoom-button zoom-reset"
+          onClick={resetZoom}
+          title="ズームリセット（ダブルクリック）"
+        >
           {Math.round(scale * 100)}%
         </button>
-        <button className="zoom-button" onClick={zoomIn} title="ズームイン（マウスホイール上）">
+        <button
+          className="zoom-button"
+          onClick={zoomIn}
+          title="ズームイン（マウスホイール上）"
+        >
           <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
             <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
           </svg>
         </button>
       </div>
-
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
 
 export const ErrorNotification: React.FC = () => {

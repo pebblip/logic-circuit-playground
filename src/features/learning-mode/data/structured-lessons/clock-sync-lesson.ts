@@ -5,7 +5,8 @@ export const clockSyncStructuredLesson: StructuredLesson = {
   id: 'clock-sync',
   title: 'クロック同期 - デジタル回路の指揮者',
   description: '複数の回路を正確なタイミングで同期動作させる技術を学びます',
-  objective: '複数D-FFの同期制御回路の構築を通じて、デジタルシステムの時間管理技術とCPUの動作原理を習得する',
+  objective:
+    '複数D-FFの同期制御回路の構築を通じて、デジタルシステムの時間管理技術とCPUの動作原理を習得する',
   category: '順序回路',
   lessonType: 'build',
   difficulty: 'advanced',
@@ -177,7 +178,15 @@ export const clockSyncStructuredLesson: StructuredLesson = {
         },
         {
           type: 'table',
-          headers: ['クロック前', 'D1', 'D2', 'クロック後', 'Q1', 'Q2', '同期性'],
+          headers: [
+            'クロック前',
+            'D1',
+            'D2',
+            'クロック後',
+            'Q1',
+            'Q2',
+            '同期性',
+          ],
           rows: [
             ['初期', '0', '0', '1回目', '0', '0', '同時更新'],
             ['1回目', '1', '0', '2回目', '1', '0', '同時更新'],
@@ -213,7 +222,12 @@ export const clockSyncStructuredLesson: StructuredLesson = {
           type: 'table',
           headers: ['項目', '同期システム', '非同期システム', '実際の使用'],
           rows: [
-            ['動作タイミング', '統一クロック', '各自のペース', '同期：CPU、メモリ'],
+            [
+              '動作タイミング',
+              '統一クロック',
+              '各自のペース',
+              '同期：CPU、メモリ',
+            ],
             ['設計複雑さ', '単純', '複雑', '同期：大多数'],
             ['電力効率', '一定消費', '必要時のみ', '非同期：省電力機器'],
             ['信頼性', '高い', '注意必要', '同期：重要システム'],

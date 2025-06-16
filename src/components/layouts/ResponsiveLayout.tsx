@@ -17,7 +17,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   const { breakpoint } = useResponsive();
   const { loadFromShareUrl } = useCircuitStore();
   const [shareLoadMessage, setShareLoadMessage] = useState<string | null>(null);
-  
+
   useKeyboardShortcuts();
 
   // 共有URLからの自動読み込み
@@ -29,14 +29,14 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
         setTimeout(() => setShareLoadMessage(null), 3000);
       }
     };
-    
+
     checkAndLoadShareUrl();
   }, [loadFromShareUrl]);
 
   return (
     <>
       {shareLoadMessage && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: '20px',
@@ -55,10 +55,10 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
           {shareLoadMessage}
         </div>
       )}
-      
+
       {/* 統一エラーハンドリングシステム通知 */}
       <ErrorNotificationPanel />
-      
+
       {(() => {
         switch (breakpoint) {
           case 'mobile':

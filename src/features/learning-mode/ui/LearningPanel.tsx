@@ -5,11 +5,10 @@ import { lessons, lessonCategories, getLearningStats } from '../data/lessons';
 import { LessonStepRenderer } from '../components/LessonStepRenderer';
 import type { GateType } from '../../../types/circuit';
 import { TERMS } from '../data/terms';
-import { 
-  getAvailableLessons, 
-  getQualityStats, 
+import {
+  getAvailableLessons,
+  getQualityStats,
   getLessonQuality,
-  isProductionReady 
 } from '../data/lesson-quality';
 import './LearningPanel.css';
 
@@ -96,7 +95,7 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
   const isDebugMode = import.meta.env.VITE_DEBUG_MODE === 'true';
   const availableLessonIds = getAvailableLessons(isDebugMode, 'beta'); // beta以上を本番表示
   const qualityStats = getQualityStats();
-  
+
   const lockedLessonsCount = isDebugMode
     ? lessons.filter(lesson =>
         lesson.prerequisites.some(prereq => !completedLessons.has(prereq))
@@ -363,7 +362,10 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                 <div className="lessons-grid">
                   {category.lessons.map(lessonId => {
                     // 品質チェック：本番環境では低品質レッスンを非表示
-                    if (!isDebugMode && !availableLessonIds.includes(lessonId)) {
+                    if (
+                      !isDebugMode &&
+                      !availableLessonIds.includes(lessonId)
+                    ) {
                       return null;
                     }
 
@@ -407,24 +409,31 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({
                             )}
                             {/* 品質バッジ（デバッグモードのみ） */}
                             {isDebugMode && qualityInfo && (
-                              <span 
+                              <span
                                 className={`quality-badge quality-${qualityInfo.level}`}
                                 title={`品質: ${qualityInfo.level} (${qualityInfo.completionScore}%)`}
                               >
-                                {qualityInfo.level === 'production' ? '✨' :
-                                 qualityInfo.level === 'beta' ? '🔧' :
-                                 qualityInfo.level === 'draft' ? '📝' : '💭'}
+                                {qualityInfo.level === 'production'
+                                  ? '✨'
+                                  : qualityInfo.level === 'beta'
+                                    ? '🔧'
+                                    : qualityInfo.level === 'draft'
+                                      ? '📝'
+                                      : '💭'}
                               </span>
                             )}
                           </h3>
                           <p className="lesson-description">
                             {lesson.description}
                             {/* 品質情報（デバッグモードのみ） */}
-                            {isDebugMode && qualityInfo && qualityInfo.issues.length > 0 && (
-                              <span className="quality-issues">
-                                <br />🔧 {qualityInfo.issues.join(', ')}
-                              </span>
-                            )}
+                            {isDebugMode &&
+                              qualityInfo &&
+                              qualityInfo.issues.length > 0 && (
+                                <span className="quality-issues">
+                                  <br />
+                                  🔧 {qualityInfo.issues.join(', ')}
+                                </span>
+                              )}
                           </p>
                           <div className="lesson-meta">
                             <span className="lesson-difficulty">

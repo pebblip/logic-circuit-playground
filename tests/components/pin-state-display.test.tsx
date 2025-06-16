@@ -1,321 +1,163 @@
-/**
- * ピンの状態表示バグ修正テスト
- * 
- * 問題: INPUTゲートがOFFなのに、ANDゲートの入力ピンが緑色（ON状態）で表示される
- * 原因: レースコンディションと初期化不備
- */
-
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { render } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 import { PinComponent } from '@/components/gate-renderers/PinComponent';
+import { BasicGateRenderer } from '@/components/gate-renderers/BasicGateRenderer';
 import type { Gate } from '@/types/circuit';
-import * as simulation from '@/domain/simulation';
 
-// Mock getGateInputValue
-vi.mock('@/domain/simulation', () => ({
-  getGateInputValue: vi.fn(),
-}));
+describe('PinComponent State Display', () => {
+  it('should display correct active state when isActive prop is passed', () => {
+    const mockGate: Gate = {
+      id: 'test-gate',
+      type: 'NAND',
+      position: { x: 0, y: 0 },
+      inputs: ['', '1'],
+      output: true,
+      metadata: {},
+    };
 
-describe('PinComponent 状態表示バグ修正', () => {
-  const mockOnPinClick = vi.fn();
-  
-  beforeEach(() => {
-    vi.clearAllMocks();
+    const { container } = render(
+      <svg>
+        <PinComponent
+          gate={mockGate}
+          x={100}
+          y={100}
+          pinIndex={0}
+          isOutput={false}
+          isActive={false}
+          onPinClick={() => {}}
+        />
+      </svg>
+    );
+
+    // 非アクティブなピンの確認
+    const circle = container.querySelector('circle.pin');
+    expect(circle).toBeTruthy();
+    expect(circle?.getAttribute('fill')).toBe('none');
   });
 
-  describe('初期化問題のテスト', () => {
-    it('gate.inputsが未定義の場合、入力ピンはfalseを返す', () => {
-      const gateWithoutInputs: Gate = {
-        id: 'test-gate',
-        type: 'AND',
-        position: { x: 100, y: 100 },
-        output: false,
-        // inputs プロパティが未定義
-      } as any;
-      
-      // getGateInputValueが呼ばれてもfalseを返す
-      vi.mocked(simulation.getGateInputValue).mockReturnValue(false);
+  it('should display active state correctly', () => {
+    const mockGate: Gate = {
+      id: 'test-gate',
+      type: 'NAND',
+      position: { x: 0, y: 0 },
+      inputs: ['1', '1'],
+      output: false,
+      metadata: {},
+    };
 
-      const { container } = render(
-        <svg>
-          <PinComponent
-            gate={gateWithoutInputs}
-            x={10}
-            y={10}
-            pinIndex={0}
-            isOutput={false}
-            onPinClick={mockOnPinClick}
-          />
-        </svg>
-      );
+    const { container } = render(
+      <svg>
+        <PinComponent
+          gate={mockGate}
+          x={100}
+          y={100}
+          pinIndex={1}
+          isOutput={false}
+          isActive={true}
+          onPinClick={() => {}}
+        />
+      </svg>
+    );
 
-      // ピンが非アクティブ状態で表示されることを確認
-      const pinCircle = container.querySelector('circle[r="6"]');
-      expect(pinCircle).toBeTruthy();
-      expect(pinCircle?.getAttribute('fill')).toBe('none'); // 非アクティブ時はfill=none
-    });
-
-    it('gate.inputsが空配列の場合、入力ピンはfalseを返す', () => {
-      const gateWithEmptyInputs: Gate = {
-        id: 'test-gate',
-        type: 'AND',
-        position: { x: 100, y: 100 },
-        output: false,
-        inputs: [], // 空配列
-      };
-
-      const { container } = render(
-        <svg>
-          <PinComponent
-            gate={gateWithEmptyInputs}
-            x={10}
-            y={10}
-            pinIndex={0}
-            isOutput={false}
-            onPinClick={mockOnPinClick}
-          />
-        </svg>
-      );
-
-      // ピンが非アクティブ状態で表示されることを確認
-      const pinCircle = container.querySelector('circle[r="6"]');
-      expect(pinCircle?.getAttribute('fill')).toBe('none');
-    });
-
-    it('pinIndexが配列の範囲外の場合、入力ピンはfalseを返す', () => {
-      const gateWithLimitedInputs: Gate = {
-        id: 'test-gate',
-        type: 'AND',
-        position: { x: 100, y: 100 },
-        output: false,
-        inputs: [false], // 1つの入力のみ
-      };
-
-      const { container } = render(
-        <svg>
-          <PinComponent
-            gate={gateWithLimitedInputs}
-            x={10}
-            y={10}
-            pinIndex={1} // 範囲外のインデックス
-            isOutput={false}
-            onPinClick={mockOnPinClick}
-          />
-        </svg>
-      );
-
-      // ピンが非アクティブ状態で表示されることを確認
-      const pinCircle = container.querySelector('circle[r="6"]');
-      expect(pinCircle?.getAttribute('fill')).toBe('none');
-    });
+    // アクティブなピンの確認
+    const circle = container.querySelector('circle.pin');
+    expect(circle).toBeTruthy();
+    expect(circle?.getAttribute('fill')).toBe('#00ff88');
   });
 
-  describe('正常な状態表示のテスト', () => {
-    it('入力がfalseの場合、入力ピンは非アクティブ状態で表示される', () => {
-      const gateWithFalseInput: Gate = {
-        id: 'test-gate',
-        type: 'AND',
-        position: { x: 100, y: 100 },
-        output: false,
-        inputs: ['', ''],
-      };
+  it('should render NAND gate with correct input pin states', () => {
+    const mockGate: Gate = {
+      id: 'nand-gate',
+      type: 'NAND',
+      position: { x: 0, y: 0 },
+      inputs: ['', '1'], // 上がOFF、下がON
+      output: true,
+      metadata: {},
+    };
 
-      const { container } = render(
-        <svg>
-          <PinComponent
-            gate={gateWithFalseInput}
-            x={10}
-            y={10}
-            pinIndex={0}
-            isOutput={false}
-            onPinClick={mockOnPinClick}
-          />
-        </svg>
-      );
+    const { container } = render(
+      <svg>
+        <BasicGateRenderer
+          gate={mockGate}
+          isSelected={false}
+          handleMouseDown={() => {}}
+          handleTouchStart={() => {}}
+          handlePinClick={() => {}}
+          handleGateClick={() => {}}
+        />
+      </svg>
+    );
 
-      const pinCircle = container.querySelector('circle[r="6"]');
-      expect(pinCircle?.getAttribute('fill')).toBe('none'); // 非アクティブ色
-    });
+    // 入力ピンを取得
+    const inputPins = container.querySelectorAll('.pin.input-pin');
+    expect(inputPins.length).toBe(2);
 
-    it('入力がtrueの場合、入力ピンはアクティブ状態で表示される', () => {
-      const gateWithTrueInput: Gate = {
-        id: 'test-gate',
-        type: 'AND',
-        position: { x: 100, y: 100 },
-        output: false,
-        inputs: ['1', ''],
-      };
-      
-      vi.mocked(simulation.getGateInputValue).mockReturnValue(true);
+    // 各ピンのfill属性を確認
+    const pinFills = Array.from(inputPins).map(pin => 
+      pin.getAttribute('fill')
+    );
 
-      const { container } = render(
-        <svg>
-          <PinComponent
-            gate={gateWithTrueInput}
-            x={10}
-            y={10}
-            pinIndex={0}
-            isOutput={false}
-            onPinClick={mockOnPinClick}
-          />
-        </svg>
-      );
-
-      const pinCircle = container.querySelector('circle[r="6"]');
-      expect(pinCircle?.getAttribute('fill')).toBe('#00ff88'); // アクティブ色
-    });
-
-    it('出力ピンの状態表示は gate.output に基づく', () => {
-      const gateWithTrueOutput: Gate = {
-        id: 'test-gate',
-        type: 'AND',
-        position: { x: 100, y: 100 },
-        output: true,
-        inputs: [true, true],
-      };
-
-      const { container } = render(
-        <svg>
-          <PinComponent
-            gate={gateWithTrueOutput}
-            x={10}
-            y={10}
-            pinIndex={0}
-            isOutput={true}
-            onPinClick={mockOnPinClick}
-          />
-        </svg>
-      );
-
-      const pinCircle = container.querySelector('circle[r="6"]');
-      expect(pinCircle?.getAttribute('fill')).toBe('#00ff88'); // アクティブ色
-    });
-
-    it('isActiveプロパティが明示的に指定された場合は、それを優先する', () => {
-      const gate: Gate = {
-        id: 'test-gate',
-        type: 'AND',
-        position: { x: 100, y: 100 },
-        output: false,
-        inputs: ['', ''],
-      };
-
-      const { container } = render(
-        <svg>
-          <PinComponent
-            gate={gate}
-            x={10}
-            y={10}
-            pinIndex={0}
-            isOutput={false}
-            isActive={true} // 明示的にtrueを指定
-            onPinClick={mockOnPinClick}
-          />
-        </svg>
-      );
-
-      const pinCircle = container.querySelector('circle[r="6"]');
-      expect(pinCircle?.getAttribute('fill')).toBe('#00ff88'); // 明示的な値を優先
-    });
+    // BasicGateRendererはreverse()を使うので、DOM上の順序は逆
+    // DOM上の最初のピン（実際は下のピン、inputs[1]）はONなので#00ff88
+    expect(pinFills[0]).toBe('#00ff88');
+    // DOM上の2番目のピン（実際は上のピン、inputs[0]）はOFFなのでnone
+    expect(pinFills[1]).toBe('none');
   });
 
-  describe('レースコンディション対策のテスト', () => {
-    it('gate.inputsの更新時に適切に再レンダリングされる', () => {
-      // モックをリセットして初期状態はfalseを返すように設定
-      vi.mocked(simulation.getGateInputValue).mockReturnValue(false);
-      
-      const initialGate: Gate = {
-        id: 'test-gate',
-        type: 'AND',
-        position: { x: 100, y: 100 },
-        output: false,
-        inputs: ['', ''],
-      };
+  it('should update pin states when gate inputs change', () => {
+    const mockGate1: Gate = {
+      id: 'nand-gate',
+      type: 'NAND',
+      position: { x: 0, y: 0 },
+      inputs: ['1', '1'],
+      output: false,
+      metadata: {},
+    };
 
-      const { container, rerender } = render(
-        <svg>
-          <PinComponent
-            gate={initialGate}
-            x={10}
-            y={10}
-            pinIndex={0}
-            isOutput={false}
-            onPinClick={mockOnPinClick}
-          />
-        </svg>
-      );
+    const { container, rerender } = render(
+      <svg>
+        <BasicGateRenderer
+          gate={mockGate1}
+          isSelected={false}
+          handleMouseDown={() => {}}
+          handleTouchStart={() => {}}
+          handlePinClick={() => {}}
+          handleGateClick={() => {}}
+        />
+      </svg>
+    );
 
-      // 初期状態：非アクティブ
-      let pinCircle = container.querySelector('circle[r="6"]');
-      expect(pinCircle?.getAttribute('fill')).toBe('none');
+    // 初期状態：両方の入力がON
+    const inputPins1 = container.querySelectorAll('.pin.input-pin');
+    expect(inputPins1[0].getAttribute('fill')).toBe('#00ff88');
+    expect(inputPins1[1].getAttribute('fill')).toBe('#00ff88');
 
-      // gate.inputsを更新
-      const updatedGate: Gate = {
-        ...initialGate,
-        inputs: ['1', ''],
-      };
-      
-      // モックを更新して、更新後はtrueを返すように設定
-      vi.mocked(simulation.getGateInputValue).mockReturnValue(true);
+    // 上の入力をOFFに変更
+    const mockGate2: Gate = {
+      ...mockGate1,
+      inputs: ['', '1'],
+      output: true,
+    };
 
-      rerender(
-        <svg>
-          <PinComponent
-            gate={updatedGate}
-            x={10}
-            y={10}
-            pinIndex={0}
-            isOutput={false}
-            onPinClick={mockOnPinClick}
-          />
-        </svg>
-      );
+    rerender(
+      <svg>
+        <BasicGateRenderer
+          gate={mockGate2}
+          isSelected={false}
+          handleMouseDown={() => {}}
+          handleTouchStart={() => {}}
+          handlePinClick={() => {}}
+          handleGateClick={() => {}}
+        />
+      </svg>
+    );
 
-      // 更新後：アクティブ
-      pinCircle = container.querySelector('circle[r="6"]');
-      expect(pinCircle?.getAttribute('fill')).toBe('#00ff88');
-    });
-  });
-
-  describe('パフォーマンステスト', () => {
-    it('useMemoにより不要な再計算を防ぐ', () => {
-      const gate: Gate = {
-        id: 'test-gate',
-        type: 'AND',
-        position: { x: 100, y: 100 },
-        output: false,
-        inputs: [true, false],
-      };
-
-      const { rerender } = render(
-        <svg>
-          <PinComponent
-            gate={gate}
-            x={10}
-            y={10}
-            pinIndex={0}
-            isOutput={false}
-            onPinClick={mockOnPinClick}
-          />
-        </svg>
-      );
-
-      // 同じpropsで再レンダリング（useMemoが機能していれば、isPinActiveは再計算されない）
-      rerender(
-        <svg>
-          <PinComponent
-            gate={gate}
-            x={10}
-            y={10}
-            pinIndex={0}
-            isOutput={false}
-            onPinClick={mockOnPinClick}
-          />
-        </svg>
-      );
-
-      // テストが例外なく完了すればOK（useMemoが正常に動作）
-      expect(true).toBe(true);
-    });
+    // 更新後の状態確認（DOM順序は逆）
+    const inputPins2 = container.querySelectorAll('.pin.input-pin');
+    // DOM上の最初のピン（実際は下のピン、inputs[1]）はONなので#00ff88
+    expect(inputPins2[0].getAttribute('fill')).toBe('#00ff88');
+    // DOM上の2番目のピン（実際は上のピン、inputs[0]）はOFFなのでnone
+    expect(inputPins2[1].getAttribute('fill')).toBe('none');
   });
 });

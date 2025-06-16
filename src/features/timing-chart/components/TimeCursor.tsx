@@ -17,19 +17,20 @@ export const TimeCursor: React.FC<TimeCursorProps> = ({
   cursor,
   timeWindow,
   panelHeight,
-  className = ''
+  className = '',
 }) => {
   // カーソルの位置を計算（0-1の比率）
   const cursorPosition = useMemo(() => {
     const duration = timeWindow.end - timeWindow.start;
     if (duration <= 0) return 0;
-    
+
     const relativeTime = cursor.time - timeWindow.start;
     return Math.max(0, Math.min(1, relativeTime / duration));
   }, [cursor.time, timeWindow]);
 
   // カーソルが表示範囲内にあるかチェック
-  const isInRange = cursor.time >= timeWindow.start && cursor.time <= timeWindow.end;
+  const isInRange =
+    cursor.time >= timeWindow.start && cursor.time <= timeWindow.end;
 
   // 信号値の整理
   const signalEntries = useMemo(() => {
@@ -43,7 +44,9 @@ export const TimeCursor: React.FC<TimeCursorProps> = ({
   }
 
   return (
-    <div className={`time-cursor absolute inset-0 pointer-events-none ${className}`}>
+    <div
+      className={`time-cursor absolute inset-0 pointer-events-none ${className}`}
+    >
       {/* 縦線カーソル */}
       <div
         className="absolute top-0 bottom-0 w-0.5 bg-red-400 z-10"
@@ -51,7 +54,7 @@ export const TimeCursor: React.FC<TimeCursorProps> = ({
       >
         {/* カーソル上部のインジケーター */}
         <div className="absolute -top-2 -left-2 w-4 h-4 bg-red-400 transform rotate-45 border border-red-300" />
-        
+
         {/* 時間表示 */}
         <div className="absolute -top-8 -left-12 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
           {timingChartUtils.formatTime(cursor.time, 'ms')}
@@ -65,7 +68,7 @@ export const TimeCursor: React.FC<TimeCursorProps> = ({
           style={{
             left: `${Math.min(80, cursorPosition * 100)}%`, // 画面端で調整
             top: '20px',
-            maxHeight: `${Math.max(200, panelHeight - 100)}px`
+            maxHeight: `${Math.max(200, panelHeight - 100)}px`,
           }}
         >
           {/* ヘッダー */}
@@ -90,15 +93,18 @@ export const TimeCursor: React.FC<TimeCursorProps> = ({
                   {/* TODO: トレースIDから表示名を取得 */}
                   {traceId}
                 </span>
-                <span className={`
+                <span
+                  className={`
                   font-mono font-bold px-2 py-1 rounded text-xs
-                  ${value === true 
-                    ? 'bg-green-600 text-white' 
-                    : value === false 
-                    ? 'bg-gray-600 text-white'
-                    : 'bg-yellow-600 text-black'
+                  ${
+                    value === true
+                      ? 'bg-green-600 text-white'
+                      : value === false
+                        ? 'bg-gray-600 text-white'
+                        : 'bg-yellow-600 text-black'
                   }
-                `}>
+                `}
+                >
                   {value === true ? 'H' : value === false ? 'L' : '?'}
                 </span>
               </div>
@@ -108,7 +114,8 @@ export const TimeCursor: React.FC<TimeCursorProps> = ({
           {/* フッター（統計） */}
           <div className="px-3 py-2 border-t border-gray-700 bg-gray-800 rounded-b-lg">
             <div className="text-xs text-gray-400">
-              {signalEntries.length} 信号, {signalEntries.filter(([_, v]) => v === true).length} HIGH
+              {signalEntries.length} 信号,{' '}
+              {signalEntries.filter(([_, v]) => v === true).length} HIGH
             </div>
           </div>
         </div>
@@ -120,7 +127,7 @@ export const TimeCursor: React.FC<TimeCursorProps> = ({
           // 各信号トレースの高さ位置を計算（仮想的）
           const traceHeight = 40; // 1トレースあたりの高さ
           const yPosition = 20 + index * traceHeight; // ヘッダー分をオフセット
-          
+
           return (
             <div
               key={`guide-${traceId}`}
@@ -146,7 +153,7 @@ export const SignalValueDisplay: React.FC<SignalValueDisplayProps> = ({
   traceId,
   traceName,
   value,
-  color = '#ffffff'
+  color = '#ffffff',
 }) => {
   const valueIcon = useMemo(() => {
     switch (value) {
@@ -170,21 +177,19 @@ export const SignalValueDisplay: React.FC<SignalValueDisplayProps> = ({
         className="w-2 h-2 rounded-full flex-shrink-0"
         style={{ backgroundColor: color }}
       />
-      
+
       {/* 信号名 */}
-      <span className="text-gray-300 truncate flex-1 text-xs">
-        {traceName}
-      </span>
-      
+      <span className="text-gray-300 truncate flex-1 text-xs">{traceName}</span>
+
       {/* 値表示 */}
       <div className="flex items-center gap-1">
-        <span className="text-xs text-gray-400">
-          {valueIcon.icon}
-        </span>
-        <span className={`
+        <span className="text-xs text-gray-400">{valueIcon.icon}</span>
+        <span
+          className={`
           px-1.5 py-0.5 rounded text-xs font-mono font-bold text-white
           ${valueIcon.bg}
-        `}>
+        `}
+        >
           {valueIcon.text}
         </span>
       </div>
@@ -244,7 +249,10 @@ const styles = `
 `;
 
 // スタイルの注入
-if (typeof window !== 'undefined' && !document.querySelector('#time-cursor-styles')) {
+if (
+  typeof window !== 'undefined' &&
+  !document.querySelector('#time-cursor-styles')
+) {
   const styleSheet = document.createElement('style');
   styleSheet.id = 'time-cursor-styles';
   styleSheet.textContent = styles;

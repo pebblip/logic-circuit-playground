@@ -4,7 +4,7 @@ export const counterStructuredLesson: StructuredLesson = {
   id: 'counter',
   title: 'カウンタ - 数を数える回路',
   description: '2ビットバイナリカウンタを段階的に構築します',
-  difficulty: 'advanced', 
+  difficulty: 'advanced',
   prerequisites: ['d-flip-flop'],
   estimatedMinutes: 20,
   availableGates: ['OUTPUT', 'CLOCK', 'D-FF', 'NOT', 'OR'],
@@ -27,7 +27,7 @@ export const counterStructuredLesson: StructuredLesson = {
           rows: [
             ['初期', '0', '0', '0'],
             ['1回目', '0', '1', '1'],
-            ['2回目', '1', '0', '2'], 
+            ['2回目', '1', '0', '2'],
             ['3回目', '1', '1', '3'],
             ['4回目', '0', '0', '0（リセット）'],
           ],
@@ -161,10 +161,7 @@ export const counterStructuredLesson: StructuredLesson = {
         {
           type: 'list',
           ordered: true,
-          items: [
-            '上：Q1（上位ビット）',
-            '下：Q0（下位ビット）',
-          ],
+          items: ['上：Q1（上位ビット）', '下：Q0（下位ビット）'],
         },
       ],
       action: { type: 'place-gate', gateType: 'OUTPUT' },

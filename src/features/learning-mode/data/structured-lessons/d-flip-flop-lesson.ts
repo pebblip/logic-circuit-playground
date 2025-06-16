@@ -5,7 +5,8 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
   id: 'd-flip-flop',
   title: 'Dフリップフロップ - 1ビットメモリ',
   description: 'データを記憶できる基本的な順序回路を作ります',
-  objective: 'クロック同期でデータを記憶する回路を理解し、順序回路の基本概念を習得する',
+  objective:
+    'クロック同期でデータを記憶する回路を理解し、順序回路の基本概念を習得する',
   category: '順序回路',
   lessonType: 'gate-intro',
   difficulty: 'advanced',
@@ -120,7 +121,7 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
           elements: [
             { text: `${TERMS.OUTPUT}ゲート`, emphasis: true },
             'を2つ配置します。',
-            'Q（記憶値）とQ\'（反転値）の表示用です。',
+            "Q（記憶値）とQ'（反転値）の表示用です。",
           ],
         },
         {
@@ -133,7 +134,7 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
             'INPUT→D-FFのD入力へ接続。',
             'CLOCK→D-FFのCLK入力へ接続。',
             'D-FFのQ出力→OUTPUT（上）へ接続。',
-            'D-FFのQ\'出力→OUTPUT（下）へ接続。',
+            "D-FFのQ'出力→OUTPUT（下）へ接続。",
           ],
         },
         {
@@ -198,8 +199,18 @@ export const dFlipFlopStructuredLesson: StructuredLesson = {
           type: 'table',
           headers: ['方式', '動作', '特徴', '用途'],
           rows: [
-            ['D-FF（エッジトリガ）', 'CLKの0→1の瞬間', '安定・ノイズに強い', 'レジスタ、カウンタ'],
-            ['Dラッチ（レベルトリガ）', 'CLK=1の間', '構造が簡単', '一時的な保持'],
+            [
+              'D-FF（エッジトリガ）',
+              'CLKの0→1の瞬間',
+              '安定・ノイズに強い',
+              'レジスタ、カウンタ',
+            ],
+            [
+              'Dラッチ（レベルトリガ）',
+              'CLK=1の間',
+              '構造が簡単',
+              '一時的な保持',
+            ],
           ],
         },
         {

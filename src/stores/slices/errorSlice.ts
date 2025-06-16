@@ -1,6 +1,6 @@
 /**
  * ErrorSlice - 統一エラーハンドリングシステム
- * 
+ *
  * 既存の単純なエラーシステムから統一エラーハンドリングシステムに移行。
  * 後方互換性を保ちながら新機能を提供。
  */
@@ -34,7 +34,9 @@ export interface ErrorState {
 }
 
 export interface ErrorActions {
-  showErrorNotification: (notification: Omit<ErrorNotification, 'id' | 'timestamp'>) => void;
+  showErrorNotification: (
+    notification: Omit<ErrorNotification, 'id' | 'timestamp'>
+  ) => void;
   dismissError: (id: string) => void;
   dismissAllErrors: () => void;
   setVisibility: (visible: boolean) => void;
@@ -48,14 +50,16 @@ export interface ErrorSlice {
   notifications: ErrorNotification[];
   maxNotifications: number;
   isVisible: boolean;
-  
-  showErrorNotification: (notification: Omit<ErrorNotification, 'id' | 'timestamp'>) => void;
+
+  showErrorNotification: (
+    notification: Omit<ErrorNotification, 'id' | 'timestamp'>
+  ) => void;
   dismissError: (id: string) => void;
   dismissAllErrors: () => void;
   setVisibility: (visible: boolean) => void;
   dismissErrorsByType: (type: ErrorNotification['type']) => void;
   cleanupOldErrors: (maxAge: number) => void;
-  
+
   // 🔄 既存APIとの互換性（内部的に新システムを使用）
   setError: (message: string, type: 'connection' | 'general') => void;
   clearError: () => void;
@@ -72,7 +76,7 @@ const isDuplicate = (
   newNotification: Omit<ErrorNotification, 'id' | 'timestamp'>
 ): boolean => {
   return notifications.some(
-    (existing) =>
+    existing =>
       existing.title === newNotification.title &&
       existing.context === newNotification.context &&
       existing.type === newNotification.type &&
@@ -81,13 +85,17 @@ const isDuplicate = (
 };
 
 // 既存のエラータイプを新システムに変換
-const convertLegacyError = (message: string, type: 'connection' | 'general'): Omit<ErrorNotification, 'id' | 'timestamp'> => {
+const convertLegacyError = (
+  message: string,
+  type: 'connection' | 'general'
+): Omit<ErrorNotification, 'id' | 'timestamp'> => {
   if (type === 'connection') {
     return {
       type: 'error',
       title: '配線に失敗しました',
       message,
-      userMessage: 'ピン同士を正しく接続できませんでした。接続元と接続先のピンを確認してください。',
+      userMessage:
+        'ピン同士を正しく接続できませんでした。接続元と接続先のピンを確認してください。',
       context: 'wire-connection',
       duration: 3000, // 既存の3秒自動削除を維持
     };
@@ -115,12 +123,15 @@ export const createErrorSlice: StateCreator<
   isVisible: false,
 
   // 🆕 エラー通知を追加
-  showErrorNotification: (notification) => {
+  showErrorNotification: notification => {
     const current = get();
-    
+
     // 重複チェック
     if (isDuplicate(current.notifications, notification)) {
-      console.warn('[ErrorSlice] Duplicate notification ignored:', notification.title);
+      console.warn(
+        '[ErrorSlice] Duplicate notification ignored:',
+        notification.title
+      );
       return;
     }
 
@@ -131,18 +142,25 @@ export const createErrorSlice: StateCreator<
       dismissed: false,
     };
 
-    set((state) => {
+    set(state => {
       let updatedNotifications = [...state.notifications, newNotification];
-      
+
       // 最大数を超えた場合、古い通知を削除
       if (updatedNotifications.length > state.maxNotifications) {
         updatedNotifications.sort((a, b) => {
-          const priorityOrder: Record<string, number> = { error: 3, warning: 2, info: 1 };
+          const priorityOrder: Record<string, number> = {
+            error: 3,
+            warning: 2,
+            info: 1,
+          };
           const priorityDiff = priorityOrder[b.type] - priorityOrder[a.type];
           if (priorityDiff !== 0) return priorityDiff;
           return b.timestamp - a.timestamp;
         });
-        updatedNotifications = updatedNotifications.slice(0, state.maxNotifications);
+        updatedNotifications = updatedNotifications.slice(
+          0,
+          state.maxNotifications
+        );
       }
 
       return {
@@ -161,10 +179,10 @@ export const createErrorSlice: StateCreator<
   },
 
   // 🆕 特定のエラーを削除
-  dismissError: (id) => {
-    set((state) => ({
+  dismissError: id => {
+    set(state => ({
       ...state,
-      notifications: state.notifications.map((notification) =>
+      notifications: state.notifications.map(notification =>
         notification.id === id
           ? { ...notification, dismissed: true }
           : notification
@@ -172,25 +190,25 @@ export const createErrorSlice: StateCreator<
     }));
 
     setTimeout(() => {
-      set((state) => ({
+      set(state => ({
         ...state,
-        notifications: state.notifications.filter((n) => !n.dismissed),
+        notifications: state.notifications.filter(n => !n.dismissed),
       }));
     }, 300);
   },
 
   // 🆕 すべてのエラーを削除
   dismissAllErrors: () => {
-    set((state) => ({
+    set(state => ({
       ...state,
-      notifications: state.notifications.map((notification) => ({
+      notifications: state.notifications.map(notification => ({
         ...notification,
         dismissed: true,
       })),
     }));
 
     setTimeout(() => {
-      set((state) => ({
+      set(state => ({
         ...state,
         notifications: [],
         isVisible: false,
@@ -199,18 +217,18 @@ export const createErrorSlice: StateCreator<
   },
 
   // 🆕 表示状態を設定
-  setVisibility: (visible) => {
-    set((state) => ({
+  setVisibility: visible => {
+    set(state => ({
       ...state,
       isVisible: visible,
     }));
   },
 
   // 🆕 特定タイプのエラーのみ削除
-  dismissErrorsByType: (type) => {
-    set((state) => ({
+  dismissErrorsByType: type => {
+    set(state => ({
       ...state,
-      notifications: state.notifications.map((notification) =>
+      notifications: state.notifications.map(notification =>
         notification.type === type
           ? { ...notification, dismissed: true }
           : notification
@@ -218,21 +236,21 @@ export const createErrorSlice: StateCreator<
     }));
 
     setTimeout(() => {
-      set((state) => ({
+      set(state => ({
         ...state,
-        notifications: state.notifications.filter((n) => !n.dismissed),
+        notifications: state.notifications.filter(n => !n.dismissed),
       }));
     }, 300);
   },
 
   // 🆕 古いエラーを自動削除
-  cleanupOldErrors: (maxAge) => {
+  cleanupOldErrors: maxAge => {
     const cutoffTime = Date.now() - maxAge;
-    
-    set((state) => ({
+
+    set(state => ({
       ...state,
       notifications: state.notifications.filter(
-        (notification) => notification.timestamp > cutoffTime
+        notification => notification.timestamp > cutoffTime
       ),
     }));
   },
@@ -255,7 +273,7 @@ export const createErrorSlice: StateCreator<
       errorMessage: null,
       errorType: null,
     });
-    
+
     // 新システムでも対応する通知をクリア
     get().dismissErrorsByType('error');
   },

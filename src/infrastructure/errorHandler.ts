@@ -1,11 +1,11 @@
 /**
  * 統一エラーハンドラー
- * 
+ *
  * アプリケーション全体で使用する統一的なエラーハンドリングシステム。
  * 異なるタイプのエラーを分類し、適切なユーザー向けメッセージを生成します。
  */
 
-import { ErrorNotification } from '@/stores/slices/errorSlice';
+import type { ErrorNotification } from '@/stores/slices/errorSlice';
 import { useCircuitStore } from '@/stores/circuitStore';
 
 // エラータイプの定義
@@ -36,7 +36,7 @@ const ERROR_MESSAGE_TEMPLATES = {
     suggestions: [
       '接続線を確認してください',
       '元に戻すボタンで前の状態に戻せます',
-      'すべてクリアして最初から作り直すこともできます'
+      'すべてクリアして最初から作り直すこともできます',
     ],
     severity: 'high' as const,
   },
@@ -45,7 +45,7 @@ const ERROR_MESSAGE_TEMPLATES = {
     userMessage: 'カスタムゲートの定義が正しくありません。',
     suggestions: [
       'カスタムゲートを削除して作り直してください',
-      'ツールパレットから基本ゲートを使用してください'
+      'ツールパレットから基本ゲートを使用してください',
     ],
     severity: 'medium' as const,
   },
@@ -54,7 +54,7 @@ const ERROR_MESSAGE_TEMPLATES = {
     userMessage: 'ピン同士を正しく接続できませんでした。',
     suggestions: [
       '接続元と接続先のピンを確認してください',
-      'ゲートに既に接続されているピンは使用できません'
+      'ゲートに既に接続されているピンは使用できません',
     ],
     severity: 'low' as const,
   },
@@ -63,7 +63,7 @@ const ERROR_MESSAGE_TEMPLATES = {
     userMessage: 'ファイル形式が正しくないか、破損している可能性があります。',
     suggestions: [
       '別のファイルを選択してください',
-      'ファイル形式がJSON形式であることを確認してください'
+      'ファイル形式がJSON形式であることを確認してください',
     ],
     severity: 'medium' as const,
   },
@@ -72,7 +72,7 @@ const ERROR_MESSAGE_TEMPLATES = {
     userMessage: 'カスタムゲートの内部回路を表示できません。',
     suggestions: [
       'Escキーでプレビューモードを終了してください',
-      'カスタムゲートを削除して作り直してください'
+      'カスタムゲートを削除して作り直してください',
     ],
     severity: 'medium' as const,
   },
@@ -82,7 +82,7 @@ const ERROR_MESSAGE_TEMPLATES = {
     suggestions: [
       'ゲートの数を減らすことをお勧めします',
       '不要なゲートを削除してください',
-      '回路を分割することを検討してください'
+      '回路を分割することを検討してください',
     ],
     severity: 'low' as const,
   },
@@ -91,10 +91,10 @@ const ERROR_MESSAGE_TEMPLATES = {
     userMessage: '申し訳ございません。予期しない問題が発生しました。',
     suggestions: [
       'ページを再読み込みしてください',
-      '問題が続く場合は、作業内容を保存してください'
+      '問題が続く場合は、作業内容を保存してください',
     ],
     severity: 'medium' as const,
-  }
+  },
 } as const;
 
 // エラー分類関数
@@ -111,22 +111,34 @@ const classifyError = (error: unknown): ErrorType => {
       default:
         // エラーメッセージによる分類
         const message = error.message.toLowerCase();
-        if (message.includes('circuit evaluation') || message.includes('回路の評価')) {
+        if (
+          message.includes('circuit evaluation') ||
+          message.includes('回路の評価')
+        ) {
           return ErrorType.CIRCUIT_EVALUATION_FAILED;
         }
         if (message.includes('wire connection') || message.includes('配線')) {
           return ErrorType.WIRE_CONNECTION_FAILED;
         }
-        if (message.includes('custom gate') || message.includes('カスタムゲート')) {
+        if (
+          message.includes('custom gate') ||
+          message.includes('カスタムゲート')
+        ) {
           return ErrorType.CUSTOM_GATE_INVALID;
         }
         if (message.includes('file load') || message.includes('ファイル')) {
           return ErrorType.FILE_LOAD_FAILED;
         }
-        if (message.includes('preview mode') || message.includes('プレビュー')) {
+        if (
+          message.includes('preview mode') ||
+          message.includes('プレビュー')
+        ) {
           return ErrorType.PREVIEW_MODE_ERROR;
         }
-        if (message.includes('performance') || message.includes('パフォーマンス')) {
+        if (
+          message.includes('performance') ||
+          message.includes('パフォーマンス')
+        ) {
           return ErrorType.PERFORMANCE_WARNING;
         }
         return ErrorType.UNKNOWN_ERROR;
@@ -163,62 +175,83 @@ const generateActions = (
   errorType: ErrorType,
   customActions?: Array<{ label: string; action: () => void }>
 ): Array<{ label: string; action: () => void; isPrimary?: boolean }> => {
-  const actions: Array<{ label: string; action: () => void; isPrimary?: boolean }> = [];
+  const actions: Array<{
+    label: string;
+    action: () => void;
+    isPrimary?: boolean;
+  }> = [];
 
   // カスタムアクションを追加
   if (customActions) {
-    actions.push(...customActions.map(action => ({ ...action, isPrimary: false })));
+    actions.push(
+      ...customActions.map(action => ({ ...action, isPrimary: false }))
+    );
   }
 
   // エラータイプに応じたデフォルトアクション
   switch (errorType) {
     case ErrorType.CIRCUIT_EVALUATION_FAILED:
       actions.push(
-        { label: '元に戻す', action: () => {
-          // TODO: 実際のundo機能と連携
-          console.log('Undo action triggered');
-        }, isPrimary: true },
-        { label: 'すべてクリア', action: () => {
-          // TODO: 実際のclear機能と連携
-          console.log('Clear all action triggered');
-        }}
+        {
+          label: '元に戻す',
+          action: () => {
+            // TODO: 実際のundo機能と連携
+            console.log('Undo action triggered');
+          },
+          isPrimary: true,
+        },
+        {
+          label: 'すべてクリア',
+          action: () => {
+            // TODO: 実際のclear機能と連携
+            console.log('Clear all action triggered');
+          },
+        }
       );
       break;
-    
+
     case ErrorType.CUSTOM_GATE_INVALID:
-      actions.push(
-        { label: 'ゲートを削除', action: () => {
+      actions.push({
+        label: 'ゲートを削除',
+        action: () => {
           // TODO: 実際の削除機能と連携
           console.log('Delete gate action triggered');
-        }, isPrimary: true }
-      );
+        },
+        isPrimary: true,
+      });
       break;
-    
+
     case ErrorType.FILE_LOAD_FAILED:
-      actions.push(
-        { label: '別のファイルを選択', action: () => {
+      actions.push({
+        label: '別のファイルを選択',
+        action: () => {
           // TODO: ファイル選択ダイアログと連携
           console.log('Select file action triggered');
-        }, isPrimary: true }
-      );
+        },
+        isPrimary: true,
+      });
       break;
-    
+
     case ErrorType.PREVIEW_MODE_ERROR:
-      actions.push(
-        { label: 'プレビューを終了', action: () => {
+      actions.push({
+        label: 'プレビューを終了',
+        action: () => {
           // TODO: プレビューモード終了機能と連携
           console.log('Exit preview action triggered');
-        }, isPrimary: true }
-      );
+        },
+        isPrimary: true,
+      });
       break;
-    
+
     case ErrorType.PERFORMANCE_WARNING:
-      actions.push(
-        { label: 'ゲートを削除', action: () => {
+      actions.push({
+        label: 'ゲートを削除',
+        action: () => {
           // TODO: 選択削除機能と連携
           console.log('Delete gates action triggered');
-        }, isPrimary: true }
-      );
+        },
+        isPrimary: true,
+      });
       break;
   }
 
@@ -258,7 +291,7 @@ export const handleError = (
     const actions = generateActions(errorType, customActions);
 
     let notification;
-    
+
     if (severity === 'low' || errorType === ErrorType.PERFORMANCE_WARNING) {
       notification = createWarningNotification(
         template.title,
@@ -299,7 +332,10 @@ export const handleError = (
         store.showErrorNotification(notification);
       } else {
         // フォールバック: コンソールに出力（テスト環境など）
-        console.warn('[ErrorHandler] Error store not available, falling back to console:', notification);
+        console.warn(
+          '[ErrorHandler] Error store not available, falling back to console:',
+          notification
+        );
       }
     } catch (error) {
       // ストアアクセスエラーの場合のフォールバック
@@ -313,7 +349,9 @@ export const handleError = (
 const createErrorNotification = (
   title: string,
   userMessage: string,
-  options?: Partial<Omit<ErrorNotification, 'id' | 'timestamp' | 'title' | 'userMessage'>>
+  options?: Partial<
+    Omit<ErrorNotification, 'id' | 'timestamp' | 'title' | 'userMessage'>
+  >
 ): Omit<ErrorNotification, 'id' | 'timestamp'> => ({
   type: 'error',
   title,
@@ -325,7 +363,9 @@ const createErrorNotification = (
 const createWarningNotification = (
   title: string,
   userMessage: string,
-  options?: Partial<Omit<ErrorNotification, 'id' | 'timestamp' | 'title' | 'userMessage'>>
+  options?: Partial<
+    Omit<ErrorNotification, 'id' | 'timestamp' | 'title' | 'userMessage'>
+  >
 ): Omit<ErrorNotification, 'id' | 'timestamp'> => ({
   type: 'warning',
   title,
@@ -337,7 +377,9 @@ const createWarningNotification = (
 const createInfoNotification = (
   title: string,
   userMessage: string,
-  options?: Partial<Omit<ErrorNotification, 'id' | 'timestamp' | 'title' | 'userMessage'>>
+  options?: Partial<
+    Omit<ErrorNotification, 'id' | 'timestamp' | 'title' | 'userMessage'>
+  >
 ): Omit<ErrorNotification, 'id' | 'timestamp'> => ({
   type: 'info',
   title,
@@ -347,7 +389,11 @@ const createInfoNotification = (
 });
 
 // 便利なヘルパー関数
-export const handleCircuitError = (error: unknown, context: string, userAction?: string) => {
+export const handleCircuitError = (
+  error: unknown,
+  context: string,
+  userAction?: string
+) => {
   handleError(error, context, {
     userAction,
     severity: 'high',
@@ -355,7 +401,11 @@ export const handleCircuitError = (error: unknown, context: string, userAction?:
   });
 };
 
-export const handleWarning = (message: string, context: string, userAction?: string) => {
+export const handleWarning = (
+  message: string,
+  context: string,
+  userAction?: string
+) => {
   handleError(message, context, {
     userAction,
     severity: 'low',
@@ -363,15 +413,15 @@ export const handleWarning = (message: string, context: string, userAction?: str
   });
 };
 
-export const handleInfo = (message: string, context: string, userAction?: string) => {
-  const notification = createInfoNotification(
-    '情報',
-    message,
-    {
-      context: userAction ? `${context} - ${userAction}` : context,
-    }
-  );
-  
+export const handleInfo = (
+  message: string,
+  context: string,
+  userAction?: string
+) => {
+  const notification = createInfoNotification('情報', message, {
+    context: userAction ? `${context} - ${userAction}` : context,
+  });
+
   // 実際のエラーストアに通知を送信
   try {
     const store = useCircuitStore.getState();
@@ -379,11 +429,17 @@ export const handleInfo = (message: string, context: string, userAction?: string
       store.showErrorNotification(notification);
     } else {
       // フォールバック: コンソールに出力（テスト環境など）
-      console.info('[ErrorHandler] Info notification (store not available):', notification);
+      console.info(
+        '[ErrorHandler] Info notification (store not available):',
+        notification
+      );
     }
   } catch (error) {
     // ストアアクセスエラーの場合のフォールバック
-    console.info('[ErrorHandler] Info notification (store error):', notification);
+    console.info(
+      '[ErrorHandler] Info notification (store error):',
+      notification
+    );
   }
 };
 

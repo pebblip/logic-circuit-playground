@@ -2,13 +2,14 @@
  * タイミングチャート機能のイベント捕捉システム
  */
 
-import type { 
-  TimingEvent, 
-  TimeMs, 
-  SignalValue 
-} from '@/types/timing';
+import type { TimingEvent, TimeMs, SignalValue } from '@/types/timing';
 import type { Gate } from '@/types/circuit';
-import type { Circuit, Result, CircuitEvaluationResult, ApiError } from '@/domain/simulation/core/types';
+import type {
+  Circuit,
+  Result,
+  CircuitEvaluationResult,
+  ApiError,
+} from '@/domain/simulation/core/types';
 import { timingChartUtils } from '@/utils/timingChart';
 
 /**
@@ -20,18 +21,22 @@ export interface TimingEventCapture {
     evaluationResult: Result<CircuitEvaluationResult, ApiError>,
     previousState?: Circuit
   ): TimingEvent[];
-  
+
   // 特定のゲートの状態変化を監視
-  watchGate(gateId: string, pinType: 'input' | 'output', pinIndex?: number): void;
+  watchGate(
+    gateId: string,
+    pinType: 'input' | 'output',
+    pinIndex?: number
+  ): void;
   unwatchGate(gateId: string): void;
-  
+
   // CLOCKゲートのイベント捕捉
   captureClockEvents(clockGates: Gate[]): TimingEvent[];
-  
+
   // イベント履歴管理
   getEvents(startTime?: TimeMs, endTime?: TimeMs): TimingEvent[];
   clearEvents(beforeTime?: TimeMs): void;
-  
+
   // 統計情報
   getStats(): {
     totalEvents: number;
@@ -67,25 +72,28 @@ class TimingEventBuffer {
 
   addEvent(event: TimingEvent): void {
     this.buffer.push(event);
-    
+
     if (this.buffer.length >= this.batchSize) {
       this.flush();
     } else if (!this.flushTimer) {
-      this.flushTimer = window.setTimeout(() => this.flush(), this.flushInterval);
+      this.flushTimer = window.setTimeout(
+        () => this.flush(),
+        this.flushInterval
+      );
     }
   }
 
   flush(): void {
     if (this.buffer.length === 0) return;
-    
+
     const events = [...this.buffer];
     this.buffer = [];
-    
+
     if (this.flushTimer) {
       clearTimeout(this.flushTimer);
       this.flushTimer = undefined;
     }
-    
+
     if (this.onFlush) {
       this.onFlush(events);
     }
@@ -111,11 +119,11 @@ export class CircuitTimingCapture implements TimingEventCapture {
   private simulationStartTime: number | null = null; // シミュレーション開始時刻
 
   constructor(onEventBatch?: (events: TimingEvent[]) => void) {
-    this.eventBuffer = new TimingEventBuffer((events) => {
+    this.eventBuffer = new TimingEventBuffer(events => {
       // バッファからのイベントを履歴に追加
       this.eventHistory.push(...events);
       this.cleanupOldEvents();
-      
+
       // 外部コールバック呼び出し
       if (onEventBatch) {
         onEventBatch(events);
@@ -173,9 +181,14 @@ export class CircuitTimingCapture implements TimingEventCapture {
     if (previousState) {
       // ゲートの出力変化を検出
       currentCircuit.gates.forEach((currentGate: Gate) => {
-        const previousGate = previousState.gates.find((g: Gate) => g.id === currentGate.id);
-        
-        if (previousGate && this.hasGateOutputChanged(currentGate, previousGate)) {
+        const previousGate = previousState.gates.find(
+          (g: Gate) => g.id === currentGate.id
+        );
+
+        if (
+          previousGate &&
+          this.hasGateOutputChanged(currentGate, previousGate)
+        ) {
           const event: TimingEvent = {
             id: timingChartUtils.generateEventId(),
             time: currentTime,
@@ -184,7 +197,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
             pinIndex: 0,
             value: this.getGateOutputValue(currentGate),
             previousValue: this.getGateOutputValue(previousGate),
-            source: 'circuit-evaluation'
+            source: 'circuit-evaluation',
           };
           events.push(event);
         }
@@ -192,8 +205,8 @@ export class CircuitTimingCapture implements TimingEventCapture {
         // 特定の監視対象ゲートの入力変化も検出
         if (this.watchers.has(currentGate.id)) {
           const inputEvents = this.captureGateInputChanges(
-            currentGate, 
-            previousGate, 
+            currentGate,
+            previousGate,
             currentTime
           );
           events.push(...inputEvents);
@@ -209,7 +222,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
           pinType: 'output',
           pinIndex: 0,
           value: this.getGateOutputValue(gate),
-          source: 'initial-state'
+          source: 'initial-state',
         };
         events.push(event);
       });
@@ -237,7 +250,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
       const watcherKey = `${gate.id}_output_0`;
       const watcher = this.watchers.get(watcherKey);
       const currentValue = gate.output;
-      
+
       if (watcher && watcher.lastValue !== currentValue) {
         const event: TimingEvent = {
           id: timingChartUtils.generateEventId(),
@@ -247,10 +260,10 @@ export class CircuitTimingCapture implements TimingEventCapture {
           pinIndex: 0,
           value: currentValue,
           previousValue: watcher.lastValue,
-          source: 'clock-tick'
+          source: 'clock-tick',
         };
         events.push(event);
-        
+
         // 監視状態を更新
         watcher.lastValue = currentValue;
         watcher.lastUpdateTime = currentTime;
@@ -268,12 +281,12 @@ export class CircuitTimingCapture implements TimingEventCapture {
    */
   watchGate(gateId: string, pinType: 'input' | 'output', pinIndex = 0): void {
     const watcherKey = `${gateId}_${pinType}_${pinIndex}`;
-    
+
     if (!this.watchers.has(watcherKey)) {
       this.watchers.set(watcherKey, {
         gateId,
         pinType,
-        pinIndex
+        pinIndex,
       });
     }
   }
@@ -286,7 +299,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
     const keysToDelete = Array.from(this.watchers.keys()).filter(key =>
       key.startsWith(`${gateId}_`)
     );
-    
+
     keysToDelete.forEach(key => this.watchers.delete(key));
   }
 
@@ -314,21 +327,27 @@ export class CircuitTimingCapture implements TimingEventCapture {
     if (beforeTime === undefined) {
       this.eventHistory = [];
     } else {
-      this.eventHistory = this.eventHistory.filter(event => event.time >= beforeTime);
+      this.eventHistory = this.eventHistory.filter(
+        event => event.time >= beforeTime
+      );
     }
   }
 
   /**
    * 統計情報の取得
    */
-  getStats(): { totalEvents: number; eventsPerSecond: number; memoryUsage: number } {
+  getStats(): {
+    totalEvents: number;
+    eventsPerSecond: number;
+    memoryUsage: number;
+  } {
     const now = performance.now();
     const recentEvents = this.eventHistory.filter(e => now - e.time < 1000); // 直近1秒
-    
+
     return {
       totalEvents: this.eventHistory.length,
       eventsPerSecond: recentEvents.length,
-      memoryUsage: this.estimateMemoryUsage()
+      memoryUsage: this.estimateMemoryUsage(),
     };
   }
 
@@ -354,7 +373,9 @@ export class CircuitTimingCapture implements TimingEventCapture {
   // === Private Methods ===
 
   private hasGateOutputChanged(current: Gate, previous: Gate): boolean {
-    return this.getGateOutputValue(current) !== this.getGateOutputValue(previous);
+    return (
+      this.getGateOutputValue(current) !== this.getGateOutputValue(previous)
+    );
   }
 
   private getGateOutputValue(gate: Gate): SignalValue {
@@ -365,18 +386,20 @@ export class CircuitTimingCapture implements TimingEventCapture {
   }
 
   private captureGateInputChanges(
-    currentGate: Gate, 
-    previousGate: Gate | undefined, 
+    currentGate: Gate,
+    previousGate: Gate | undefined,
     currentTime: TimeMs
   ): TimingEvent[] {
     const events: TimingEvent[] = [];
-    
+
     // 入力変化の検出ロジック（ゲートタイプ別に実装）
     // ここでは基本的な実装のみ
     if ('inputs' in currentGate && previousGate && 'inputs' in previousGate) {
       currentGate.inputs.forEach((currentInput, index) => {
-        const previousInput = (previousGate as typeof currentGate).inputs[index];
-        
+        const previousInput = (previousGate as typeof currentGate).inputs[
+          index
+        ];
+
         if (currentInput !== previousInput) {
           const event: TimingEvent = {
             id: timingChartUtils.generateEventId(),
@@ -386,13 +409,13 @@ export class CircuitTimingCapture implements TimingEventCapture {
             pinIndex: index,
             value: this.convertToSignalValue(currentInput),
             previousValue: this.convertToSignalValue(previousInput),
-            source: 'input-change'
+            source: 'input-change',
           };
           events.push(event);
         }
       });
     }
-    
+
     return events;
   }
 
@@ -416,7 +439,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
     if (input === 'false' || input === '0') return false;
     if (input === 'unknown') return 'unknown';
     if (input === 'high-z') return 'high-z';
-    
+
     // デフォルトでは文字列を真偽値として解釈
     return Boolean(input);
   }
@@ -426,7 +449,10 @@ export class CircuitTimingCapture implements TimingEventCapture {
  * CLOCK専用のイベント捕捉システム
  */
 export class ClockTimingCapture {
-  private clockStates = new Map<string, { lastValue: boolean; lastTime: TimeMs }>();
+  private clockStates = new Map<
+    string,
+    { lastValue: boolean; lastTime: TimeMs }
+  >();
 
   /**
    * CLOCKゲートの周期を自動検出
@@ -440,7 +466,7 @@ export class ClockTimingCapture {
 
     const periods = [];
     for (let i = 1; i < risingEdges.length; i++) {
-      periods.push(risingEdges[i].time - risingEdges[i-1].time);
+      periods.push(risingEdges[i].time - risingEdges[i - 1].time);
     }
 
     // 平均周期を返す
@@ -456,7 +482,7 @@ export class ClockTimingCapture {
   ): TimingEvent[] {
     const markers: TimingEvent[] = [];
     const period = this.detectClockPeriod(clockEvents);
-    
+
     // 時間窓内の同期点を生成
     let currentTime = timeWindow.start;
     while (currentTime <= timeWindow.end) {
@@ -467,11 +493,11 @@ export class ClockTimingCapture {
         pinType: 'output',
         pinIndex: 0,
         value: true,
-        source: 'sync-marker'
+        source: 'sync-marker',
       });
       currentTime += period;
     }
-    
+
     return markers;
   }
 }

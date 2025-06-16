@@ -5,7 +5,8 @@ export const encoderStructuredLesson: StructuredLesson = {
   id: 'encoder',
   title: 'エンコーダ - 入力を数値に変換',
   description: '複数の入力から対応するバイナリコードを生成する回路を作ります',
-  objective: 'ボタン入力をバイナリコードに変換する原理を理解し、デジタル入力システムの基礎を習得する',
+  objective:
+    'ボタン入力をバイナリコードに変換する原理を理解し、デジタル入力システムの基礎を習得する',
   category: '基本回路',
   lessonType: 'build',
   difficulty: 'intermediate',
@@ -218,8 +219,18 @@ export const encoderStructuredLesson: StructuredLesson = {
           type: 'table',
           headers: ['種類', '複数入力時', '回路規模', '用途'],
           rows: [
-            ['通常エンコーダ', '誤動作', 'シンプル', '排他的入力が保証される場合'],
-            ['優先エンコーダ', '最高優先度を出力', '複雑', 'キーボード、割り込み処理'],
+            [
+              '通常エンコーダ',
+              '誤動作',
+              'シンプル',
+              '排他的入力が保証される場合',
+            ],
+            [
+              '優先エンコーダ',
+              '最高優先度を出力',
+              '複雑',
+              'キーボード、割り込み処理',
+            ],
           ],
         },
         {
@@ -304,12 +315,7 @@ export const encoderStructuredLesson: StructuredLesson = {
         {
           type: 'quiz',
           question: '8個の入力を扱うエンコーダの出力ビット数は？',
-          options: [
-            '2ビット',
-            '3ビット',
-            '4ビット',
-            '8ビット',
-          ],
+          options: ['2ビット', '3ビット', '4ビット', '8ビット'],
           correctIndex: 1,
         },
         {

@@ -5,7 +5,8 @@ export const aluBasicsStructuredLesson: StructuredLesson = {
   id: 'alu-basics',
   title: 'ALU基礎 - CPUの計算エンジン',
   description: '算術論理演算装置（ALU）の基本を理解し簡易版を作ります',
-  objective: '演算選択機能を持つ基本ALUの構築を通じて、CPUの計算処理の核心を理解し、デジタル演算システムの基礎を習得する',
+  objective:
+    '演算選択機能を持つ基本ALUの構築を通じて、CPUの計算処理の核心を理解し、デジタル演算システムの基礎を習得する',
   category: '基本回路',
   lessonType: 'build',
   difficulty: 'advanced',

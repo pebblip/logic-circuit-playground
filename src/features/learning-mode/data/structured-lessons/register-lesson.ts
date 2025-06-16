@@ -5,7 +5,8 @@ export const registerStructuredLesson: StructuredLesson = {
   id: 'register',
   title: 'レジスタ - 複数ビットの記憶装置',
   description: '複数のビットを同時に記憶・転送できる回路を作ります',
-  objective: '複数D-FFの並列配置による同期記憶システムを構築し、CPUの高速メモリ機構の基礎を習得する',
+  objective:
+    '複数D-FFの並列配置による同期記憶システムを構築し、CPUの高速メモリ機構の基礎を習得する',
   category: '順序回路',
   lessonType: 'build',
   difficulty: 'advanced',
@@ -60,7 +61,12 @@ export const registerStructuredLesson: StructuredLesson = {
           headers: ['方式', '4ビット転送時間', 'クロック数', '用途'],
           rows: [
             ['シリアル（1ビットずつ）', '4クロック', '4回', '通信、配線節約'],
-            ['パラレル（4ビット同時）', '1クロック', '1回', 'CPU内部、高速処理'],
+            [
+              'パラレル（4ビット同時）',
+              '1クロック',
+              '1回',
+              'CPU内部、高速処理',
+            ],
           ],
         },
         {
@@ -301,12 +307,7 @@ export const registerStructuredLesson: StructuredLesson = {
         {
           type: 'quiz',
           question: '32ビットレジスタを構成するのに必要なD-FFの個数は？',
-          options: [
-            '8個',
-            '16個',
-            '32個',
-            '64個',
-          ],
+          options: ['8個', '16個', '32個', '64個'],
           correctIndex: 2,
         },
         {

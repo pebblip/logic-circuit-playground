@@ -5,7 +5,8 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
   id: 'shift-register',
   title: 'シフトレジスタ - データの順次移動',
   description: 'データを順番に送り出す・受け取る回路を作ります',
-  objective: 'D-FFの連鎖によるデータシフト機構を構築し、シリアル通信とデータ転送の基礎原理を習得する',
+  objective:
+    'D-FFの連鎖によるデータシフト機構を構築し、シリアル通信とデータ転送の基礎原理を習得する',
   category: '順序回路',
   lessonType: 'build',
   difficulty: 'advanced',
@@ -302,13 +303,9 @@ export const shiftRegisterStructuredLesson: StructuredLesson = {
         },
         {
           type: 'quiz',
-          question: '8ビットデータをシフトレジスタで完全に受信するのに必要なクロック数は？',
-          options: [
-            '1クロック',
-            '4クロック',
-            '8クロック',
-            '16クロック',
-          ],
+          question:
+            '8ビットデータをシフトレジスタで完全に受信するのに必要なクロック数は？',
+          options: ['1クロック', '4クロック', '8クロック', '16クロック'],
           correctIndex: 2,
         },
         {

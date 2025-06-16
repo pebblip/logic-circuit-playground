@@ -2,26 +2,26 @@
  * タイミングチャート機能のユーティリティ関数
  */
 
-import type { 
-  TimingTrace, 
-  TimingEvent, 
-  TimeMs, 
-  TimeScale, 
+import type {
+  TimingTrace,
+  TimingEvent,
+  TimeMs,
+  TimeScale,
   SignalValue,
-  TimingChartUtils 
+  TimingChartUtils,
 } from '@/types/timing';
 import type { Gate } from '@/types/circuit';
 
 // 信号波形の色パレット（8色セット）
 const SIGNAL_COLORS = [
-  '#00ff88',  // 緑（アクティブ色）
-  '#88ddff',  // 水色
-  '#ffaa00',  // オレンジ
-  '#ff6b9d',  // ピンク
-  '#c471ed',  // 紫
-  '#12d8fa',  // 青
-  '#f093fb',  // ライトピンク
-  '#ffeaa7',  // イエロー
+  '#00ff88', // 緑（アクティブ色）
+  '#88ddff', // 水色
+  '#ffaa00', // オレンジ
+  '#ff6b9d', // ピンク
+  '#c471ed', // 紫
+  '#12d8fa', // 青
+  '#f093fb', // ライトピンク
+  '#ffeaa7', // イエロー
 ] as const;
 
 // CLOCK専用色
@@ -52,10 +52,14 @@ export const timingChartUtils: TimingChartUtils = {
   /**
    * トレース表示名を生成
    */
-  generateTraceName(gateId: string, pinType: 'input' | 'output', pinIndex: number): string {
+  generateTraceName(
+    gateId: string,
+    pinType: 'input' | 'output',
+    pinIndex: number
+  ): string {
     // ゲートIDから基本名を抽出し、短縮（例: "gate-1749abc" → "1749"）
     const baseName = gateId.replace(/^gate[-_]/, '').substring(0, 4);
-    
+
     if (pinType === 'output') {
       return `${baseName}`;
     } else {
@@ -89,13 +93,16 @@ export const timingChartUtils: TimingChartUtils = {
   /**
    * 指定時刻における各信号の値を計算
    */
-  calculateSignalValuesAtTime(traces: TimingTrace[], time: TimeMs): Record<string, SignalValue> {
+  calculateSignalValuesAtTime(
+    traces: TimingTrace[],
+    time: TimeMs
+  ): Record<string, SignalValue> {
     const signalValues: Record<string, SignalValue> = {};
 
     traces.forEach(trace => {
       // 指定時刻以前の最後のイベントを見つける
       const relevantEvents = trace.events.filter(event => event.time <= time);
-      
+
       if (relevantEvents.length === 0) {
         signalValues[trace.id] = false; // デフォルト値
       } else {
@@ -105,7 +112,7 @@ export const timingChartUtils: TimingChartUtils = {
     });
 
     return signalValues;
-  }
+  },
 };
 
 /**
@@ -113,10 +120,14 @@ export const timingChartUtils: TimingChartUtils = {
  */
 export function timeScaleToNumber(scale: TimeScale): number {
   switch (scale) {
-    case 'us': return 0.001;
-    case 'ms': return 1;
-    case 's': return 1000;
-    default: return 1;
+    case 'us':
+      return 0.001;
+    case 'ms':
+      return 1;
+    case 's':
+      return 1000;
+    default:
+      return 1;
   }
 }
 
@@ -124,7 +135,7 @@ export function timeScaleToNumber(scale: TimeScale): number {
  * 時間窓が有効かチェック
  */
 export function isValidTimeWindow(start: TimeMs, end: TimeMs): boolean {
-  return start >= 0 && end > start && (end - start) > 0.1; // 最小100μs
+  return start >= 0 && end > start && end - start > 0.1; // 最小100μs
 }
 
 /**
@@ -151,9 +162,13 @@ const clockNameMap = new Map<string, string>();
 /**
  * トレース名の自動生成（ゲート情報から）
  */
-export function generateTraceNameFromGate(gate: Gate, pinType: 'input' | 'output', pinIndex: number): string {
+export function generateTraceNameFromGate(
+  gate: Gate,
+  pinType: 'input' | 'output',
+  pinIndex: number
+): string {
   const gateType = getGateType(gate);
-  
+
   // CLOCKゲートの場合は分かりやすい名前
   if (gateType === 'CLOCK') {
     // 既存のCLOCKゲートかチェック
@@ -164,10 +179,10 @@ export function generateTraceNameFromGate(gate: Gate, pinType: 'input' | 'output
     }
     return clockNameMap.get(gate.id)!;
   }
-  
+
   // その他のゲート（分かりやすい短縮名）
   const shortName = gateType.substring(0, 3); // AND, OR, NOT, XOR など
-  
+
   if (pinType === 'output') {
     return shortName;
   } else {
@@ -183,24 +198,24 @@ export function getClockTraceColor(gateId?: string): string {
   if (!gateId) {
     return CLOCK_COLOR;
   }
-  
+
   // 複数CLOCKの場合は色を変える
   const clockNames = Array.from(clockNameMap.entries());
   const clockIndex = clockNames.findIndex(([id]) => id === gateId);
-  
+
   if (clockIndex === -1) {
     return CLOCK_COLOR; // フォールバック
   }
-  
+
   // CLOCK専用色パレット
   const clockColors = [
-    '#00ff88',  // 緑（1番目のCLOCK）
-    '#ff6b9d',  // ピンク（2番目のCLOCK）
-    '#12d8fa',  // 青（3番目のCLOCK）
-    '#ffaa00',  // オレンジ（4番目のCLOCK）
-    '#c471ed',  // 紫（5番目のCLOCK）
+    '#00ff88', // 緑（1番目のCLOCK）
+    '#ff6b9d', // ピンク（2番目のCLOCK）
+    '#12d8fa', // 青（3番目のCLOCK）
+    '#ffaa00', // オレンジ（4番目のCLOCK）
+    '#c471ed', // 紫（5番目のCLOCK）
   ];
-  
+
   return clockColors[clockIndex % clockColors.length];
 }
 
@@ -229,24 +244,30 @@ export function deduplicateEvents(events: TimingEvent[]): TimingEvent[] {
 /**
  * 時間窓外のイベントを除去
  */
-export function filterEventsInTimeWindow(events: TimingEvent[], timeWindow: { start: TimeMs; end: TimeMs }): TimingEvent[] {
-  return events.filter(event => 
-    event.time >= timeWindow.start && event.time <= timeWindow.end
+export function filterEventsInTimeWindow(
+  events: TimingEvent[],
+  timeWindow: { start: TimeMs; end: TimeMs }
+): TimingEvent[] {
+  return events.filter(
+    event => event.time >= timeWindow.start && event.time <= timeWindow.end
   );
 }
 
 /**
  * イベント統計の計算
  */
-export function calculateEventStats(events: TimingEvent[], timeWindow: { start: TimeMs; end: TimeMs }) {
+export function calculateEventStats(
+  events: TimingEvent[],
+  timeWindow: { start: TimeMs; end: TimeMs }
+) {
   const windowDuration = timeWindow.end - timeWindow.start;
   const eventsInWindow = filterEventsInTimeWindow(events, timeWindow);
-  
+
   return {
     totalEvents: events.length,
     eventsInWindow: eventsInWindow.length,
     eventsPerSecond: eventsInWindow.length / (windowDuration / 1000),
-    timeSpan: windowDuration
+    timeSpan: windowDuration,
   };
 }
 
@@ -255,14 +276,14 @@ export function calculateEventStats(events: TimingEvent[], timeWindow: { start: 
  */
 export function estimateMemoryUsage(traces: TimingTrace[]): number {
   let totalSize = 0;
-  
+
   traces.forEach(trace => {
     // 各イベントのメモリサイズを推定（平均200バイト）
     totalSize += trace.events.length * 200;
     // トレース自体のメタデータ（平均500バイト）
     totalSize += 500;
   });
-  
+
   return Math.round(totalSize / 1024); // KB単位
 }
 
@@ -277,17 +298,18 @@ export function debugTrace(trace: TimingTrace): void {
   console.log('Color:', trace.color);
   console.log('Events:', trace.events.length);
   console.log('Visible:', trace.visible);
-  
+
   if (trace.events.length > 0) {
     console.log('First Event:', trace.events[0]);
     console.log('Last Event:', trace.events[trace.events.length - 1]);
-    
+
     // 信号変化の統計
-    const transitions = trace.events.filter((event, index) => 
-      index === 0 || event.value !== trace.events[index - 1].value
+    const transitions = trace.events.filter(
+      (event, index) =>
+        index === 0 || event.value !== trace.events[index - 1].value
     );
     console.log('Transitions:', transitions.length);
   }
-  
+
   console.groupEnd();
 }

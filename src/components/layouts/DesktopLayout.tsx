@@ -140,7 +140,16 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
               >
                 📟
               </button>
-              <div className="control-separator" style={{ width: '1px', height: '24px', background: 'var(--color-border-subtle)', margin: '0 4px', opacity: 0.5 }} />
+              <div
+                className="control-separator"
+                style={{
+                  width: '1px',
+                  height: '24px',
+                  background: 'var(--color-border-subtle)',
+                  margin: '0 4px',
+                  opacity: 0.5,
+                }}
+              />
               <button
                 className={`tool-button ${timingChart.isVisible ? 'active' : ''}`}
                 title="タイミングチャート"

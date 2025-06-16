@@ -51,13 +51,18 @@ export class CircuitShareService {
       // JSON化してBase64エンコード
       // 注：圧縮ライブラリが使えないため、直接Base64エンコード
       const json = JSON.stringify(shareData);
-      const encoded = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))))
+      const encoded = btoa(
+        encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+          String.fromCharCode(parseInt(p1, 16))
+        )
+      )
         .replace(/\+/g, '-')
         .replace(/\//g, '_')
         .replace(/=/g, '');
 
       // URLを構築
-      const baseUrl = options.baseUrl || window.location.origin + window.location.pathname;
+      const baseUrl =
+        options.baseUrl || window.location.origin + window.location.pathname;
       const shareUrl = `${baseUrl}?${this.URL_PARAM_KEY}=${encoded}`;
 
       // URL長チェック
@@ -70,22 +75,26 @@ export class CircuitShareService {
             c: undefined, // カスタムゲート定義を除外
           })),
         };
-        
+
         const minimalJson = JSON.stringify(minimalShareData);
-        const minimalEncoded = btoa(encodeURIComponent(minimalJson).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))))
+        const minimalEncoded = btoa(
+          encodeURIComponent(minimalJson).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+            String.fromCharCode(parseInt(p1, 16))
+          )
+        )
           .replace(/\+/g, '-')
           .replace(/\//g, '_')
           .replace(/=/g, '');
-        
+
         const minimalShareUrl = `${baseUrl}?${this.URL_PARAM_KEY}=${minimalEncoded}`;
-        
+
         if (minimalShareUrl.length > this.MAX_URL_LENGTH) {
           return {
             success: false,
             error: `回路が大きすぎて共有URLを生成できません（${gates.length}個のゲート、${wires.length}本のワイヤー）。回路を小さくしてから共有してください。`,
           };
         }
-        
+
         return {
           success: true,
           url: minimalShareUrl,
@@ -108,9 +117,7 @@ export class CircuitShareService {
   /**
    * 共有URLから回路データを復元
    */
-  public static async parseShareUrl(
-    url: string
-  ): Promise<{
+  public static async parseShareUrl(url: string): Promise<{
     success: boolean;
     data?: {
       name?: string;
@@ -124,7 +131,7 @@ export class CircuitShareService {
       // URLからパラメータを抽出
       const urlObj = new URL(url, window.location.origin);
       const encoded = urlObj.searchParams.get(this.URL_PARAM_KEY);
-      
+
       if (!encoded) {
         return {
           success: false,
@@ -139,19 +146,25 @@ export class CircuitShareService {
           .replace(/_/g, '/')
           .padEnd(encoded.length + ((4 - (encoded.length % 4)) % 4), '=')
       );
-      
+
       // JSONパース
-      const json = decodeURIComponent(decoded.split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      const json = decodeURIComponent(
+        decoded
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
       if (!json) {
         return {
           success: false,
-          error: '回路データのデコードに失敗しました。URLが破損している可能性があります。',
+          error:
+            '回路データのデコードに失敗しました。URLが破損している可能性があります。',
         };
       }
 
       // JSONパース
       const shareData = JSON.parse(json);
-      
+
       // バージョンチェック
       if (shareData.v !== 1) {
         return {

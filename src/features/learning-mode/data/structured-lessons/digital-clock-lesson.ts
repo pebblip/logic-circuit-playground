@@ -5,7 +5,8 @@ export const digitalClockStructuredLesson: StructuredLesson = {
   id: 'digital-clock',
   title: 'タイマー回路 - 時を数える基本システム',
   description: 'クロック同期を活用した時間制御の基本回路を作ります',
-  objective: '4ビットカウンターとクロック制御を組み合わせたタイマー回路の構築を通じて、時間管理システムの基礎原理を習得する',
+  objective:
+    '4ビットカウンターとクロック制御を組み合わせたタイマー回路の構築を通じて、時間管理システムの基礎原理を習得する',
   category: '応用システム',
   lessonType: 'build',
   difficulty: 'advanced',
@@ -301,12 +302,7 @@ export const digitalClockStructuredLesson: StructuredLesson = {
         {
           type: 'quiz',
           question: '4ビットカウンターが16回クロックされた後の値は？',
-          options: [
-            '15（1111）',
-            '16（10000）',
-            '0（0000）',
-            '1（0001）',
-          ],
+          options: ['15（1111）', '16（10000）', '0（0000）', '1（0001）'],
           correctIndex: 2,
         },
         {

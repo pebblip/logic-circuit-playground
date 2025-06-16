@@ -18,7 +18,6 @@ import {
   getInputPinPosition,
   getOutputPinPosition,
 } from '@domain/analysis/pinPositionCalculator';
-import { globalTimingCapture } from '@/domain/timing/timingCapture';
 
 export interface GateOperationsSlice {
   addGate: (type: GateType, position: Position) => Gate;
@@ -258,8 +257,13 @@ export const createGateOperationsSlice: StateCreator<
 
       // 🎯 削除されるゲートに選択されたCLOCKが含まれている場合、選択をクリア
       let newSelectedClockGateId = state.selectedClockGateId;
-      if (state.selectedClockGateId && gateIdsToDelete.includes(state.selectedClockGateId)) {
-        console.log(`🎯 Clearing selected CLOCK because it's being deleted: ${state.selectedClockGateId}`);
+      if (
+        state.selectedClockGateId &&
+        gateIdsToDelete.includes(state.selectedClockGateId)
+      ) {
+        console.log(
+          `🎯 Clearing selected CLOCK because it's being deleted: ${state.selectedClockGateId}`
+        );
         newSelectedClockGateId = null;
       }
 

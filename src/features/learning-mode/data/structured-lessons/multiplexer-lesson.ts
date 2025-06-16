@@ -5,7 +5,8 @@ export const multiplexerStructuredLesson: StructuredLesson = {
   id: 'multiplexer',
   title: 'マルチプレクサ - データ選択スイッチ',
   description: '複数の入力から1つを選んで出力する回路を作ります',
-  objective: '選択信号によってデータ入力を切り替える原理を理解し、デジタルスイッチングシステムの基礎を習得する',
+  objective:
+    '選択信号によってデータ入力を切り替える原理を理解し、デジタルスイッチングシステムの基礎を習得する',
   category: '基本回路',
   lessonType: 'build',
   difficulty: 'intermediate',
@@ -219,7 +220,12 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         },
         {
           type: 'table',
-          headers: ['データ入力数', '選択信号ビット数', 'ANDゲート数', '用途例'],
+          headers: [
+            'データ入力数',
+            '選択信号ビット数',
+            'ANDゲート数',
+            '用途例',
+          ],
           rows: [
             ['2個', '1ビット', '2個', '基本的な選択'],
             ['4個', '2ビット', '4個', 'センサー選択'],
@@ -303,12 +309,7 @@ export const multiplexerStructuredLesson: StructuredLesson = {
         {
           type: 'quiz',
           question: '8-to-1マルチプレクサに必要な選択信号のビット数は？',
-          options: [
-            '2ビット',
-            '3ビット',
-            '4ビット',
-            '8ビット',
-          ],
+          options: ['2ビット', '3ビット', '4ビット', '8ビット'],
           correctIndex: 1,
         },
         {

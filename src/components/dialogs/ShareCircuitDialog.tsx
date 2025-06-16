@@ -11,15 +11,15 @@ export const ShareCircuitDialog: React.FC<ShareCircuitDialogProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { 
-    shareUrl, 
-    isGeneratingShareUrl, 
-    shareError, 
-    generateShareUrl, 
+  const {
+    shareUrl,
+    isGeneratingShareUrl,
+    shareError,
+    generateShareUrl,
     clearShareUrl,
     gates,
   } = useCircuitStore();
-  
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [copied, setCopied] = useState(false);
@@ -62,7 +62,7 @@ export const ShareCircuitDialog: React.FC<ShareCircuitDialogProps> = ({
             ×
           </button>
         </div>
-        
+
         <div className="share-dialog-content">
           {gates.length === 0 ? (
             <div className="empty-circuit-message">
@@ -71,69 +71,65 @@ export const ShareCircuitDialog: React.FC<ShareCircuitDialogProps> = ({
             </div>
           ) : (
             <>
-            <div className="form-group">
-              <label htmlFor="circuit-name">回路名（オプション）</label>
-              <input
-                id="circuit-name"
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="例: 半加算器"
-                disabled={isGeneratingShareUrl}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="circuit-description">説明（オプション）</label>
-              <textarea
-                id="circuit-description"
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                placeholder="例: 2ビットの加算を行う基本的な回路"
-                rows={3}
-                disabled={isGeneratingShareUrl}
-              />
-            </div>
-
-            <button
-              className="generate-button"
-              onClick={handleGenerate}
-              disabled={isGeneratingShareUrl}
-            >
-              {isGeneratingShareUrl ? '生成中...' : '共有URLを生成'}
-            </button>
-
-            {shareError && (
-              <div className="error-message">
-                {shareError}
+              <div className="form-group">
+                <label htmlFor="circuit-name">回路名（オプション）</label>
+                <input
+                  id="circuit-name"
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="例: 半加算器"
+                  disabled={isGeneratingShareUrl}
+                />
               </div>
-            )}
 
-            {shareUrl && (
-              <div className="share-result">
-                <label>共有URL</label>
-                <div className="url-container">
-                  <input
-                    type="text"
-                    value={shareUrl}
-                    readOnly
-                    onClick={e => (e.target as HTMLInputElement).select()}
-                  />
-                  <button
-                    className="copy-button"
-                    onClick={handleCopy}
-                    title="URLをコピー"
-                  >
-                    {copied ? '✅' : '📋'}
-                  </button>
+              <div className="form-group">
+                <label htmlFor="circuit-description">説明（オプション）</label>
+                <textarea
+                  id="circuit-description"
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder="例: 2ビットの加算を行う基本的な回路"
+                  rows={3}
+                  disabled={isGeneratingShareUrl}
+                />
+              </div>
+
+              <button
+                className="generate-button"
+                onClick={handleGenerate}
+                disabled={isGeneratingShareUrl}
+              >
+                {isGeneratingShareUrl ? '生成中...' : '共有URLを生成'}
+              </button>
+
+              {shareError && <div className="error-message">{shareError}</div>}
+
+              {shareUrl && (
+                <div className="share-result">
+                  <label>共有URL</label>
+                  <div className="url-container">
+                    <input
+                      type="text"
+                      value={shareUrl}
+                      readOnly
+                      onClick={e => (e.target as HTMLInputElement).select()}
+                    />
+                    <button
+                      className="copy-button"
+                      onClick={handleCopy}
+                      title="URLをコピー"
+                    >
+                      {copied ? '✅' : '📋'}
+                    </button>
+                  </div>
+                  <p className="share-note">
+                    このURLを共有すると、他の人があなたの回路を開くことができます。
+                  </p>
                 </div>
-                <p className="share-note">
-                  このURLを共有すると、他の人があなたの回路を開くことができます。
-                </p>
-              </div>
-            )}
-          </>
-        )}
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

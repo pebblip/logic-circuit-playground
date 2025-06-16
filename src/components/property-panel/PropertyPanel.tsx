@@ -196,8 +196,7 @@ export const PropertyPanel: React.FC = () => {
   if (selectedGate) {
     // 配置済みゲートの学習リソース判定
     const hasDescription =
-      selectedGate.type === 'CUSTOM' ||
-      gateDescriptions[selectedGate.type];
+      selectedGate.type === 'CUSTOM' || gateDescriptions[selectedGate.type];
     const hasTruthTable =
       selectedGate.type === 'CUSTOM' ||
       ['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'].includes(selectedGate.type);
@@ -209,7 +208,7 @@ export const PropertyPanel: React.FC = () => {
           selectedGate={selectedGate}
           updateClockFrequency={updateClockFrequency}
         />
-        
+
         {/* 配置済みゲートにも学習リソースを表示 */}
         {(hasDescription || hasTruthTable) && (
           <div className="property-group">
@@ -274,7 +273,8 @@ export const PropertyPanel: React.FC = () => {
           <DetailModal
             gateType={selectedGate.type}
             customGateDefinition={
-              selectedGate.type === 'CUSTOM' && 'customGateDefinition' in selectedGate
+              selectedGate.type === 'CUSTOM' &&
+              'customGateDefinition' in selectedGate
                 ? selectedGate.customGateDefinition
                 : undefined
             }
@@ -288,7 +288,13 @@ export const PropertyPanel: React.FC = () => {
           <TruthTableModal
             selectedGate={selectedGate}
             gateType={selectedGate.type}
-            customGateId={selectedGate.type === 'CUSTOM' && 'customGateDefinition' in selectedGate && selectedGate.customGateDefinition ? selectedGate.customGateDefinition.id : undefined}
+            customGateId={
+              selectedGate.type === 'CUSTOM' &&
+              'customGateDefinition' in selectedGate &&
+              selectedGate.customGateDefinition
+                ? selectedGate.customGateDefinition.id
+                : undefined
+            }
             showTruthTableModal={showTruthTableModal}
             onClose={() => setShowTruthTableModal(false)}
           />

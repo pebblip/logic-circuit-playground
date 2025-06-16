@@ -64,6 +64,7 @@ export const BasicGateRenderer: React.FC<BasicGateRendererProps> = ({
               y={y}
               pinIndex={index}
               isOutput={false}
+              isActive={getGateInputValue(gate, index)}
               onPinClick={handlePinClick}
             />
           );

@@ -154,4 +154,8 @@ export interface CircuitStoreActions {
   clearError: () => void;
 }
 
-export type CircuitStore = CircuitStoreState & CircuitStoreActions & TimingChartSlice & ClockSelectionSlice & ErrorSlice;
+export type CircuitStore = CircuitStoreState &
+  CircuitStoreActions &
+  TimingChartSlice &
+  ClockSelectionSlice &
+  ErrorSlice;

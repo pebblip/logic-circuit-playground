@@ -169,10 +169,7 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'list',
           ordered: false,
-          items: [
-            'NOTゲート：Q0、Q1の反転用',
-            'ANDゲート：各状態の検出用',
-          ],
+          items: ['NOTゲート：Q0、Q1の反転用', 'ANDゲート：各状態の検出用'],
         },
       ],
       action: { type: 'place-gate', gateType: 'NOT' },
@@ -226,10 +223,7 @@ export const trafficLightStructuredLesson: StructuredLesson = {
         {
           type: 'list',
           ordered: false,
-          items: [
-            '1段目のD入力：Q0とQ1のNOR',
-            '2段目のD入力：Q0の状態',
-          ],
+          items: ['1段目のD入力：Q0とQ1のNOR', '2段目のD入力：Q0の状態'],
         },
       ],
       action: { type: 'connect-wire' },

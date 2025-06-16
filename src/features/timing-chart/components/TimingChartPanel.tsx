@@ -13,20 +13,19 @@ interface TimingChartPanelProps {
   className?: string;
 }
 
-export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({ 
-  className = '' 
+export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
+  className = '',
 }) => {
   const [isDraggingHeight, setIsDraggingHeight] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
-  const resizeStartRef = useRef<{ y: number; height: number }>({ y: 0, height: 0 });
+  const resizeStartRef = useRef<{ y: number; height: number }>({
+    y: 0,
+    height: 0,
+  });
 
   // Zustand storeから状態とアクションを取得
-  const {
-    timingChart,
-    timingChartActions,
-    gates,
-    selectedClockGateId
-  } = useCircuitStore();
+  const { timingChart, timingChartActions, gates, selectedClockGateId } =
+    useCircuitStore();
 
   const {
     isVisible,
@@ -35,64 +34,68 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
     timeWindow,
     timeScale,
     cursor,
-    settings
+    settings,
   } = timingChart;
 
-  const {
-    hidePanel,
-    setPanelHeight,
-    setCursor,
-    hideCursor
-  } = timingChartActions;
+  const { hidePanel, setPanelHeight, setCursor, hideCursor } =
+    timingChartActions;
 
   // 自動トレース作成は削除 - 明示的にユーザーが選択した場合のみ表示
 
   // パネル高さのリサイズハンドラ
-  const handleResizeStart = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDraggingHeight(true);
-    resizeStartRef.current = {
-      y: e.clientY,
-      height: panelHeight
-    };
+  const handleResizeStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsDraggingHeight(true);
+      resizeStartRef.current = {
+        y: e.clientY,
+        height: panelHeight,
+      };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaY = resizeStartRef.current.y - e.clientY; // 上に引っ張ると高くなる
-      const newHeight = Math.max(200, Math.min(600, resizeStartRef.current.height + deltaY));
-      setPanelHeight(newHeight);
-    };
+      const handleMouseMove = (e: MouseEvent) => {
+        const deltaY = resizeStartRef.current.y - e.clientY; // 上に引っ張ると高くなる
+        const newHeight = Math.max(
+          200,
+          Math.min(600, resizeStartRef.current.height + deltaY)
+        );
+        setPanelHeight(newHeight);
+      };
 
-    const handleMouseUp = () => {
-      setIsDraggingHeight(false);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
+      const handleMouseUp = () => {
+        setIsDraggingHeight(false);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  }, [panelHeight, setPanelHeight]);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    },
+    [panelHeight, setPanelHeight]
+  );
 
   // 波形エリアでのマウス操作
-  const handleWaveformMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!panelRef.current) return;
+  const handleWaveformMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!panelRef.current) return;
 
-    const rect = panelRef.current.getBoundingClientRect();
-    const signalListWidth = 120; // 信号リストの幅
-    const x = e.clientX - rect.left - signalListWidth;
-    const waveformWidth = rect.width - signalListWidth;
-    
-    if (x >= 0 && x <= waveformWidth) {
-      const timeRatio = x / waveformWidth;
-      const cursorTime = timeWindow.start + (timeWindow.end - timeWindow.start) * timeRatio;
-      setCursor(cursorTime);
-    }
-  }, [timeWindow, setCursor]);
+      const rect = panelRef.current.getBoundingClientRect();
+      const signalListWidth = 120; // 信号リストの幅
+      const x = e.clientX - rect.left - signalListWidth;
+      const waveformWidth = rect.width - signalListWidth;
+
+      if (x >= 0 && x <= waveformWidth) {
+        const timeRatio = x / waveformWidth;
+        const cursorTime =
+          timeWindow.start + (timeWindow.end - timeWindow.start) * timeRatio;
+        setCursor(cursorTime);
+      }
+    },
+    [timeWindow, setCursor]
+  );
 
   const handleWaveformMouseLeave = useCallback(() => {
     hideCursor();
   }, [hideCursor]);
-
-
 
   // 表示設定がtrueのトレースのみ表示
   const visibleTraces = traces.filter(trace => trace.visible);
@@ -119,7 +122,7 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
                   {visibleTraces.length} traces
                 </span>
               </div>
-              
+
               <div className="header-right">
                 {/* 最小限の機能 */}
                 <div className="function-controls">
@@ -141,11 +144,13 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
                 <div className="signal-names-header">信号</div>
                 {visibleTraces.map(trace => (
                   <div key={trace.id} className="signal-name-item">
-                    <div 
+                    <div
                       className="signal-color-indicator"
                       style={{ backgroundColor: trace.color }}
                     />
-                    <span className="signal-name" title={trace.name}>{trace.name}</span>
+                    <span className="signal-name" title={trace.name}>
+                      {trace.name}
+                    </span>
                     <span className="signal-events">{trace.events.length}</span>
                   </div>
                 ))}
@@ -160,7 +165,7 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
               </div>
 
               {/* 右：波形エリア（広く） */}
-              <div 
+              <div
                 className="timing-chart-waveform-area"
                 onMouseMove={handleWaveformMouseMove}
                 onMouseLeave={handleWaveformMouseLeave}
@@ -171,7 +176,7 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
                   timeScale={timeScale}
                   settings={settings}
                 />
-                
+
                 {cursor && (
                   <TimeCursor
                     cursor={cursor}
@@ -181,7 +186,6 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
                 )}
               </div>
             </div>
-
           </motion.div>
         )}
       </AnimatePresence>
@@ -521,7 +525,10 @@ const styles = `
 `;
 
 // スタイルの注入
-if (typeof window !== 'undefined' && !document.querySelector('#timing-chart-styles')) {
+if (
+  typeof window !== 'undefined' &&
+  !document.querySelector('#timing-chart-styles')
+) {
   const styleSheet = document.createElement('style');
   styleSheet.id = 'timing-chart-styles';
   styleSheet.textContent = styles;

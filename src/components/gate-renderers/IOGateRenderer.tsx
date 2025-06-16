@@ -109,6 +109,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
           y={0}
           pinIndex={0}
           isOutput={false}
+          isActive={getGateInputValue(gate, 0)}
           onPinClick={handlePinClick}
         />
       </>

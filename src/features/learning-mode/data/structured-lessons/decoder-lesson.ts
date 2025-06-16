@@ -5,7 +5,8 @@ export const decoderStructuredLesson: StructuredLesson = {
   id: 'decoder',
   title: 'デコーダ - コードから信号を選択',
   description: 'バイナリコードから特定の出力を選択する回路を作ります',
-  objective: 'バイナリコードを個別の出力信号に変換する原理を理解し、デジタル表示システムの基礎を習得する',
+  objective:
+    'バイナリコードを個別の出力信号に変換する原理を理解し、デジタル表示システムの基礎を習得する',
   category: '基本回路',
   lessonType: 'build',
   difficulty: 'intermediate',
@@ -213,8 +214,20 @@ export const decoderStructuredLesson: StructuredLesson = {
           type: 'table',
           headers: ['回路', '入力', '出力', '機能', '用途例'],
           rows: [
-            ['エンコーダ', '多数（ワンホット）', '少数（バイナリ）', '圧縮', 'キーボード'],
-            ['デコーダ', '少数（バイナリ）', '多数（ワンホット）', '展開', '表示装置'],
+            [
+              'エンコーダ',
+              '多数（ワンホット）',
+              '少数（バイナリ）',
+              '圧縮',
+              'キーボード',
+            ],
+            [
+              'デコーダ',
+              '少数（バイナリ）',
+              '多数（ワンホット）',
+              '展開',
+              '表示装置',
+            ],
           ],
         },
         {
@@ -307,12 +320,7 @@ export const decoderStructuredLesson: StructuredLesson = {
         {
           type: 'quiz',
           question: '3-to-8デコーダで入力が「101」のとき、ONになる出力は？',
-          options: [
-            'Y3',
-            'Y5',
-            'Y6',
-            'Y7',
-          ],
+          options: ['Y3', 'Y5', 'Y6', 'Y7'],
           correctIndex: 1,
         },
         {

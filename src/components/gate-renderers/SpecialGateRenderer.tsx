@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Gate } from '@/types/circuit';
 import { getGateInputValue } from '@/domain/simulation';
-import { useCircuitStore } from '@/stores/circuitStore';
 
 interface SpecialGateRendererProps {
   gate: Gate;
@@ -93,7 +92,7 @@ const ClockGateRenderer: React.FC<SpecialGateRendererProps> = ({
 }) => {
   const frequency = gate.metadata?.frequency || 1;
   const [isHovered, setIsHovered] = React.useState(false);
-  
+
   // タイミングチャートマークは削除
 
   return (

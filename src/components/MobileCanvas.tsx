@@ -177,9 +177,13 @@ export const MobileCanvas: React.FC<MobileCanvasProps> = ({
         const gateId = pin.getAttribute('data-gate-id');
         const pinIndex = pin.getAttribute('data-pin-index');
         if (gateId && pinIndex) {
-          pin.addEventListener('touchstart', e => {
-            handlePinTouch(e as TouchEvent, gateId, parseInt(pinIndex));
-          }, { passive: true });
+          pin.addEventListener(
+            'touchstart',
+            e => {
+              handlePinTouch(e as TouchEvent, gateId, parseInt(pinIndex));
+            },
+            { passive: true }
+          );
         }
       });
 
@@ -188,9 +192,13 @@ export const MobileCanvas: React.FC<MobileCanvasProps> = ({
       gates.forEach(gate => {
         const gateId = gate.getAttribute('data-gate-id');
         if (gateId) {
-          gate.addEventListener('touchstart', e => {
-            handleGateTouch(e as TouchEvent, gateId);
-          }, { passive: true });
+          gate.addEventListener(
+            'touchstart',
+            e => {
+              handleGateTouch(e as TouchEvent, gateId);
+            },
+            { passive: true }
+          );
         }
       });
     };

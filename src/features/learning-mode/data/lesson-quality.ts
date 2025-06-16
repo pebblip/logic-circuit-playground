@@ -3,18 +3,18 @@
  * 本番環境でリリース可能な品質レベルを管理
  */
 
-export type LessonQualityLevel = 
+export type LessonQualityLevel =
   | 'production' // 本番リリース可能（高品質・完成済み）
-  | 'beta'       // ベータ版（基本機能完成、改善余地あり）
-  | 'draft'      // ドラフト版（未完成・開発中）
-  | 'concept';   // コンセプト段階（アイデアのみ）
+  | 'beta' // ベータ版（基本機能完成、改善余地あり）
+  | 'draft' // ドラフト版（未完成・開発中）
+  | 'concept'; // コンセプト段階（アイデアのみ）
 
 export interface LessonQualityInfo {
   level: LessonQualityLevel;
   completionScore: number; // 0-100の完成度スコア
-  issues: string[];        // 未解決の問題点
-  lastReviewed: string;    // 最終レビュー日
-  reviewer?: string;       // レビュアー
+  issues: string[]; // 未解決の問題点
+  lastReviewed: string; // 最終レビュー日
+  reviewer?: string; // レビュアー
 }
 
 /**
@@ -43,10 +43,7 @@ export const QUALITY_STANDARDS = {
   },
   draft: {
     minScore: 40,
-    requirements: [
-      '基本的なステップ構成',
-      '概要説明あり',
-    ],
+    requirements: ['基本的なステップ構成', '概要説明あり'],
   },
 } as const;
 
@@ -64,7 +61,7 @@ export const LESSON_QUALITY_MAP: Record<string, LessonQualityInfo> = {
     reviewer: 'system',
   },
   'and-gate': {
-    level: 'production', 
+    level: 'production',
     completionScore: 92,
     issues: ['実習部分の強化必要'],
     lastReviewed: '2024-12-13',
@@ -116,7 +113,7 @@ export const LESSON_QUALITY_MAP: Record<string, LessonQualityInfo> = {
     lastReviewed: '2024-12-13',
     reviewer: 'system',
   },
-  'comparator': {
+  comparator: {
     level: 'production',
     completionScore: 91,
     issues: [],
@@ -125,21 +122,21 @@ export const LESSON_QUALITY_MAP: Record<string, LessonQualityInfo> = {
   },
 
   // コンセプト段階（大幅な改善必要）
-  'encoder': {
+  encoder: {
     level: 'production',
     completionScore: 91,
     issues: [],
     lastReviewed: '2024-12-13',
     reviewer: 'system',
   },
-  'decoder': {
+  decoder: {
     level: 'production',
     completionScore: 90,
     issues: [],
     lastReviewed: '2024-12-13',
     reviewer: 'system',
   },
-  'multiplexer': {
+  multiplexer: {
     level: 'production',
     completionScore: 89,
     issues: [],
@@ -169,14 +166,14 @@ export const LESSON_QUALITY_MAP: Record<string, LessonQualityInfo> = {
     lastReviewed: '2024-12-13',
     reviewer: 'system',
   },
-  'counter': {
+  counter: {
     level: 'beta',
     completionScore: 80,
     issues: ['実装部分の強化必要'],
     lastReviewed: '2024-12-13',
     reviewer: 'system',
   },
-  'register': {
+  register: {
     level: 'production',
     completionScore: 91,
     issues: [],
@@ -234,7 +231,12 @@ export function getAvailableLessons(
     return Object.keys(LESSON_QUALITY_MAP);
   }
 
-  const qualityOrder: LessonQualityLevel[] = ['production', 'beta', 'draft', 'concept'];
+  const qualityOrder: LessonQualityLevel[] = [
+    'production',
+    'beta',
+    'draft',
+    'concept',
+  ];
   const minIndex = qualityOrder.indexOf(minQualityLevel);
 
   return Object.entries(LESSON_QUALITY_MAP)

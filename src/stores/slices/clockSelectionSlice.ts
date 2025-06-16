@@ -21,11 +21,11 @@ export const createClockSelectionSlice: StateCreator<
   // CLOCK選択状態を設定（自動トレース作成は削除）
   setSelectedClockGate: (gateId: string | null) => {
     console.log(`[ClockSelection] Setting selected CLOCK: ${gateId}`);
-    
+
     set(state => ({
-      selectedClockGateId: gateId
+      selectedClockGateId: gateId,
     }));
-    
+
     // 自動トレース作成は削除 - ユーザーが明示的に追加する必要がある
   },
 
@@ -38,13 +38,13 @@ export const createClockSelectionSlice: StateCreator<
   clearClockSelection: () => {
     console.log(`[ClockSelection] Clearing CLOCK selection`);
     set(state => ({
-      selectedClockGateId: null
+      selectedClockGateId: null,
     }));
-    
+
     // タイミングチャートもクリア
     const state = get();
     if (state.timingChartActions) {
       state.timingChartActions.clearAllTraces();
     }
-  }
+  },
 });

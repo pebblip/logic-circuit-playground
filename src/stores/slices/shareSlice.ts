@@ -24,7 +24,7 @@ export const createShareSlice: StateCreator<
 
   generateShareUrl: async (name?: string, description?: string) => {
     set({ isGeneratingShareUrl: true, shareError: null });
-    
+
     const state = get();
     const result = await CircuitShareService.createShareUrl(
       state.gates,
@@ -33,14 +33,14 @@ export const createShareSlice: StateCreator<
     );
 
     if (result.success && result.url) {
-      set({ 
-        shareUrl: result.url, 
-        isGeneratingShareUrl: false 
+      set({
+        shareUrl: result.url,
+        isGeneratingShareUrl: false,
       });
     } else {
-      set({ 
+      set({
         shareError: result.error || '共有URLの生成に失敗しました',
-        isGeneratingShareUrl: false 
+        isGeneratingShareUrl: false,
       });
     }
   },
@@ -51,12 +51,12 @@ export const createShareSlice: StateCreator<
     }
 
     const result = await CircuitShareService.loadFromCurrentUrl();
-    
+
     if (result.success && result.data) {
       // 新しいIDを生成（重複を避けるため）
       // 古いIDから新しいIDへのマッピングを作成
       const idMapping: Record<string, string> = {};
-      
+
       const gates = result.data.gates.map(gate => {
         const newId = IdGenerator.generateGateId();
         idMapping[gate.id] = newId;
@@ -65,7 +65,7 @@ export const createShareSlice: StateCreator<
           id: newId,
         };
       });
-      
+
       // ワイヤーのゲートIDを新しいIDに更新
       const wires = result.data.wires.map(wire => ({
         ...wire,

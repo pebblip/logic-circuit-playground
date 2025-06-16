@@ -4,7 +4,12 @@
 
 import React from 'react';
 import { ChartBarIcon } from '@heroicons/react/24/outline';
-import type { TimingTrace, TimeWindow, TimeScale, TimingChartSettings, TimingEvent } from '@/types/timing';
+import type {
+  TimingTrace,
+  TimeWindow,
+  TimeScale,
+  TimingChartSettings,
+} from '@/types/timing';
 import { useCircuitStore } from '@/stores/circuitStore';
 
 interface WaveformCanvasProps {
@@ -20,14 +25,17 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
   timeWindow,
   timeScale,
   settings,
-  className = ''
+  className = '',
 }) => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  const [dimensions, setDimensions] = React.useState({ width: 800, height: 400 });
-  
+  const [dimensions, setDimensions] = React.useState({
+    width: 800,
+    height: 400,
+  });
+
   // Circuit store
   const { gates } = useCircuitStore();
-  
+
   // シミュレーション状態をCLOCKゲートの存在で判定
   const isSimulationRunning = React.useMemo(() => {
     return gates.some(gate => gate.type === 'CLOCK');
@@ -41,17 +49,17 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
       if (canvasRef.current?.parentElement) {
         const rect = canvasRef.current.parentElement.getBoundingClientRect();
         const dpr = window.devicePixelRatio || 1;
-        
+
         // 最小サイズを保証
         const width = Math.max(rect.width, 100);
         const height = Math.max(rect.height, 100);
-        
+
         // 高DPI対応でより鮮明な描画
-        setDimensions({ 
-          width: width * dpr, 
-          height: height * dpr 
+        setDimensions({
+          width: width * dpr,
+          height: height * dpr,
         });
-        
+
         if (canvasRef.current) {
           canvasRef.current.style.width = `${width}px`;
           canvasRef.current.style.height = `${height}px`;
@@ -85,11 +93,12 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
       return;
     }
 
-      // キャンバスクリアと高DPI対応のスケーリング
+    // キャンバスクリアと高DPI対応のスケーリング
     const dpr = window.devicePixelRatio || 1;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // save/restoreがJSDOMで利用できない場合があるため、条件付きで実行
-    const hasSaveRestore = typeof ctx.save === 'function' && typeof ctx.restore === 'function';
+    const hasSaveRestore =
+      typeof ctx.save === 'function' && typeof ctx.restore === 'function';
     if (hasSaveRestore) {
       ctx.save();
     }
@@ -106,16 +115,19 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     // 描画領域計算
     const drawWidth = dimensions.width / dpr;
     const drawHeight = dimensions.height / dpr;
-    
+
     if (drawWidth <= 0 || drawHeight <= 0) {
-      console.error('WaveformCanvas: Invalid canvas dimensions', { drawWidth, drawHeight });
+      console.error('WaveformCanvas: Invalid canvas dimensions', {
+        drawWidth,
+        drawHeight,
+      });
       return;
     }
 
     // 背景クリア（見やすいダークグレー背景）
     ctx.fillStyle = '#2a2a2a';
     ctx.fillRect(0, 0, drawWidth, drawHeight);
-    
+
     // 高品質グリッド描画
     drawTimingGrid(ctx, drawWidth, drawHeight, timeWindow, timeScale);
 
@@ -126,17 +138,23 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     const edgeTransitionWidth = 3; // エッジの遷移幅
 
     // 信号区切り線（改善版）
-    drawSignalSeparators(ctx, drawWidth, drawHeight, totalSignals, signalHeight);
+    drawSignalSeparators(
+      ctx,
+      drawWidth,
+      drawHeight,
+      totalSignals,
+      signalHeight
+    );
 
     // 各トレースのシンプル描画
     traces.forEach((trace, index) => {
       const centerY = (index + 0.5) * signalHeight;
       drawSimpleWaveform(
-        ctx, 
-        trace, 
-        centerY, 
+        ctx,
+        trace,
+        centerY,
         waveformAmplitude,
-        drawWidth, 
+        drawWidth,
         timeWindow
       );
     });
@@ -152,12 +170,19 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     }
 
     // シンプル化：複雑なリアルタイムカーソーとFPS表示削除
-    
+
     // スケール状態をリストア（可能な場合のみ）
     if (hasSaveRestore) {
       ctx.restore();
     }
-  }, [traces, timeWindow, dimensions, timeScale, isSimulationRunning, settings.autoCapture]);
+  }, [
+    traces,
+    timeWindow,
+    dimensions,
+    timeScale,
+    isSimulationRunning,
+    settings.autoCapture,
+  ]);
 
   // === プロフェッショナル品質描画ヘルパー関数 ===
 
@@ -169,11 +194,11 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     timeScale: TimeScale
   ) => {
     const duration = timeWindow.end - timeWindow.start;
-    
+
     // 主要グリッド線（時間軸）
     ctx.strokeStyle = 'rgba(100, 100, 100, 0.5)';
     ctx.lineWidth = 1;
-    
+
     const majorGridCount = 10;
     const majorInterval = width / majorGridCount;
     for (let i = 0; i <= majorGridCount; i++) {
@@ -187,11 +212,12 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     // 補助グリッド線
     ctx.strokeStyle = 'rgba(60, 60, 60, 0.3)';
     ctx.lineWidth = 0.5;
-    
+
     const minorGridCount = majorGridCount * 5;
     const minorInterval = width / minorGridCount;
     for (let i = 0; i <= minorGridCount; i++) {
-      if (i % 5 !== 0) { // 主要線と重複しない
+      if (i % 5 !== 0) {
+        // 主要線と重複しない
         const x = i * minorInterval;
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -210,7 +236,7 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
   ) => {
     ctx.strokeStyle = 'rgba(100, 100, 100, 0.5)';
     ctx.lineWidth = 1;
-    
+
     for (let i = 1; i < totalSignals; i++) {
       const y = i * signalHeight;
       ctx.beginPath();
@@ -232,7 +258,7 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     const windowDuration = timeWindow.end - timeWindow.start;
     const extendedStart = timeWindow.start - windowDuration * 0.1; // 10%余裕
     const extendedEnd = timeWindow.end + windowDuration * 0.1;
-    
+
     // 関連するすべてのイベントを取得（時間窓外も含む）
     const relevantEvents = trace.events.filter(
       event => event.time >= extendedStart && event.time <= extendedEnd
@@ -245,17 +271,20 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     ctx.lineCap = 'square'; // エッジを鮮明に
     ctx.lineJoin = 'miter';
     ctx.beginPath();
-    
+
     // 🎯 初期値の正確な計算
     let currentValue = false; // デフォルトはLOW
-    
+
     // 時間窓開始前の最後のイベントから初期値を決定
-    const eventsBeforeWindow = trace.events.filter(event => event.time < timeWindow.start);
+    const eventsBeforeWindow = trace.events.filter(
+      event => event.time < timeWindow.start
+    );
     if (eventsBeforeWindow.length > 0) {
-      const lastEventBeforeWindow = eventsBeforeWindow[eventsBeforeWindow.length - 1];
+      const lastEventBeforeWindow =
+        eventsBeforeWindow[eventsBeforeWindow.length - 1];
       currentValue = Boolean(lastEventBeforeWindow.value);
     }
-    
+
     // 開始点の描画
     const initialY = currentValue ? centerY - amplitude : centerY + amplitude;
     ctx.moveTo(0, initialY);
@@ -264,26 +293,33 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     const visibleEvents = relevantEvents.filter(
       event => event.time >= timeWindow.start && event.time <= timeWindow.end
     );
-    
+
     visibleEvents.forEach((event, index) => {
-      const eventX = ((event.time - timeWindow.start) / (timeWindow.end - timeWindow.start)) * width;
+      const eventX =
+        ((event.time - timeWindow.start) /
+          (timeWindow.end - timeWindow.start)) *
+        width;
       const newValue = Boolean(event.value);
-      
+
       // エッジ遷移の処理
       if (currentValue !== newValue) {
         // 現在値から新しい値への遷移
-        const currentY = currentValue ? centerY - amplitude : centerY + amplitude;
+        const currentY = currentValue
+          ? centerY - amplitude
+          : centerY + amplitude;
         const targetY = newValue ? centerY - amplitude : centerY + amplitude;
-        
+
         // 水平線を引いてからエッジ
         ctx.lineTo(eventX, currentY);
         // 垂直エッジ
         ctx.lineTo(eventX, targetY);
-        
+
         currentValue = newValue;
       } else {
         // 値が変わらない場合は水平線のみ
-        const currentY = currentValue ? centerY - amplitude : centerY + amplitude;
+        const currentY = currentValue
+          ? centerY - amplitude
+          : centerY + amplitude;
         ctx.lineTo(eventX, currentY);
       }
     });
@@ -291,7 +327,7 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     // 🌟 最終点まで延長（現在値を維持）
     const finalY = currentValue ? centerY - amplitude : centerY + amplitude;
     ctx.lineTo(width, finalY);
-    
+
     // 描画実行
     ctx.stroke();
   };
@@ -305,37 +341,41 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     width: number
   ) => {
     const centerY = signalHeight / 2;
-    
+
     // シンプルで鮮明なデモクロック波形
     ctx.strokeStyle = '#00ff88';
     ctx.lineWidth = 3;
     ctx.setLineDash([]);
     ctx.shadowBlur = 0; // シャドウ無効化で鮮明に
-    
+
     ctx.beginPath();
     let isHigh = false;
     ctx.moveTo(0, centerY + amplitude);
-    
+
     const period = 100; // デモクロック周期（実際のCLOCK周期100msに合わせる）
     for (let x = 0; x < width; x += period) {
       const y = isHigh ? centerY - amplitude : centerY + amplitude;
       ctx.lineTo(x, y);
-      ctx.lineTo(x + period/2, y);
-      
+      ctx.lineTo(x + period / 2, y);
+
       const nextY = isHigh ? centerY + amplitude : centerY - amplitude;
-      ctx.lineTo(x + period/2, nextY);
+      ctx.lineTo(x + period / 2, nextY);
       ctx.lineTo(x + period, nextY);
-      
+
       isHigh = !isHigh;
     }
-    
+
     ctx.stroke();
-    
+
     // デモラベル（改善版）
     ctx.fillStyle = 'rgba(102, 102, 102, 0.8)';
     ctx.font = 'bold 11px -apple-system, system-ui, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('🕐 CLOCKゲートを配置すると波形が表示されます', 15, centerY - amplitude - 15);
+    ctx.fillText(
+      '🕐 CLOCKゲートを配置すると波形が表示されます',
+      15,
+      centerY - amplitude - 15
+    );
   };
 
   // CLOCK同期の視覚的マーカー
@@ -348,38 +388,51 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     // 100ms周期のCLOCKに合わせて50ms間隔でマーカー（エッジを強調）
     const duration = timeWindow.end - timeWindow.start;
     const markerInterval = 50; // CLOCKの半周期（エッジマーカー）
-    
+
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
     ctx.lineWidth = 1;
     ctx.setLineDash([2, 2]);
-    
-    for (let time = timeWindow.start; time <= timeWindow.end; time += markerInterval) {
+
+    for (
+      let time = timeWindow.start;
+      time <= timeWindow.end;
+      time += markerInterval
+    ) {
       const x = ((time - timeWindow.start) / duration) * width;
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, height);
       ctx.stroke();
     }
-    
+
     ctx.setLineDash([]); // リセット
   };
 
   // シンプル化：リアルタイムカーソー削除
 
   return (
-    <div className={`waveform-canvas ${className}`} style={{ position: 'relative', width: '100%', height: '100%', minHeight: '200px', border: '1px solid rgba(0, 255, 136, 0.2)' }}>
+    <div
+      className={`waveform-canvas ${className}`}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        minHeight: '200px',
+        border: '1px solid rgba(0, 255, 136, 0.2)',
+      }}
+    >
       <canvas
         ref={canvasRef}
         width={dimensions.width}
         height={dimensions.height}
-        style={{ 
-          width: '100%', 
+        style={{
+          width: '100%',
           height: '100%',
           backgroundColor: '#1a1a1a',
-          border: '1px solid rgba(0, 255, 136, 0.1)'
+          border: '1px solid rgba(0, 255, 136, 0.1)',
         }}
       />
-      
+
       {/* 横長レイアウト用のコンパクトなオーバーレイ */}
       {traces.length === 0 && (
         <div className="waveform-empty-overlay">
@@ -389,7 +442,7 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
           </div>
         </div>
       )}
-      
+
       {/* シンプル化：一時停止ボタンとデバッグ情報削除 */}
     </div>
   );
@@ -595,7 +648,10 @@ const styles = `
 `;
 
 // スタイルの注入
-if (typeof window !== 'undefined' && !document.querySelector('#waveform-canvas-styles')) {
+if (
+  typeof window !== 'undefined' &&
+  !document.querySelector('#waveform-canvas-styles')
+) {
   const styleSheet = document.createElement('style');
   styleSheet.id = 'waveform-canvas-styles';
   styleSheet.textContent = styles;

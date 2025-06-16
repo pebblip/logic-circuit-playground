@@ -1,10 +1,15 @@
 /**
  * 統一エラーハンドリングシステムの動作テスト
- * 
+ *
  * 新しいシステムが正常に動作するかをテストするための一時的なファイル
  */
 
-import { handleError, handleCircuitError, handleWarning, handleInfo, ErrorType } from './infrastructure/errorHandler';
+import {
+  handleError,
+  handleCircuitError,
+  handleWarning,
+  handleInfo,
+} from './infrastructure/errorHandler';
 
 // テスト実行関数
 export const testUnifiedErrorSystem = () => {
@@ -13,7 +18,7 @@ export const testUnifiedErrorSystem = () => {
   // 1. 基本的なエラーハンドリング
   console.log('\n1. 基本的なエラーハンドリング');
   handleError(new Error('テスト用エラー'), 'test-context', {
-    userAction: 'テストボタンクリック'
+    userAction: 'テストボタンクリック',
   });
 
   // 2. 回路評価エラー
@@ -42,19 +47,15 @@ export const testUnifiedErrorSystem = () => {
 
   // 5. 特定のエラータイプテスト
   console.log('\n5. カスタムゲートエラー');
-  handleError(
-    'カスタムゲートの定義が無効です',
-    'custom-gate-validation',
-    {
-      severity: 'medium',
-      actions: [
-        {
-          label: 'テストアクション',
-          action: () => console.log('テストアクション実行'),
-        }
-      ]
-    }
-  );
+  handleError('カスタムゲートの定義が無効です', 'custom-gate-validation', {
+    severity: 'medium',
+    actions: [
+      {
+        label: 'テストアクション',
+        action: () => console.log('テストアクション実行'),
+      },
+    ],
+  });
 
   console.log('\n=== テスト完了 ===');
 };

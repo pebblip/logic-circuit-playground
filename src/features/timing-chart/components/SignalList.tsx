@@ -23,7 +23,7 @@ const SignalItem: React.FC<SignalItemProps> = ({
   trace,
   onRemove,
   onToggleVisibility,
-  onColorChange
+  onColorChange,
 }) => {
   const [isEditing, setIsEditing] = React.useState(false);
   const [editedName, setEditedName] = React.useState(trace.name);
@@ -39,18 +39,24 @@ const SignalItem: React.FC<SignalItemProps> = ({
     // onRename(trace.id, editedName);
   }, [editedName]);
 
-  const handleNameKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleNameSubmit();
-    } else if (e.key === 'Escape') {
-      setIsEditing(false);
-      setEditedName(trace.name);
-    }
-  }, [handleNameSubmit, trace.name]);
+  const handleNameKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        handleNameSubmit();
+      } else if (e.key === 'Escape') {
+        setIsEditing(false);
+        setEditedName(trace.name);
+      }
+    },
+    [handleNameSubmit, trace.name]
+  );
 
-  const handleColorChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onColorChange(trace.id, e.target.value);
-  }, [trace.id, onColorChange]);
+  const handleColorChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onColorChange(trace.id, e.target.value);
+    },
+    [trace.id, onColorChange]
+  );
 
   return (
     <div className="signal-item group flex items-center gap-2 p-2 hover:bg-gray-700 transition-colors">
@@ -75,7 +81,7 @@ const SignalItem: React.FC<SignalItemProps> = ({
           <input
             type="text"
             value={editedName}
-            onChange={(e) => setEditedName(e.target.value)}
+            onChange={e => setEditedName(e.target.value)}
             onBlur={handleNameSubmit}
             onKeyDown={handleNameKeyDown}
             className="w-full bg-gray-800 text-white text-xs px-1 py-0.5 border border-gray-500 rounded"
@@ -90,7 +96,7 @@ const SignalItem: React.FC<SignalItemProps> = ({
             {trace.name}
           </span>
         )}
-        
+
         {/* メタデータ */}
         {trace.metadata?.gateType && (
           <span className="text-xs text-gray-400 truncate block">
@@ -127,28 +133,34 @@ const SignalItem: React.FC<SignalItemProps> = ({
   );
 };
 
-export const SignalList: React.FC<SignalListProps> = ({ 
-  traces, 
-  className = '' 
+export const SignalList: React.FC<SignalListProps> = ({
+  traces,
+  className = '',
 }) => {
   const { timingChartActions } = useCircuitStore();
-  const { 
-    removeTrace, 
-    toggleTraceVisibility, 
-    updateTraceColor 
-  } = timingChartActions;
+  const { removeTrace, toggleTraceVisibility, updateTraceColor } =
+    timingChartActions;
 
-  const handleRemove = useCallback((traceId: string) => {
-    removeTrace(traceId);
-  }, [removeTrace]);
+  const handleRemove = useCallback(
+    (traceId: string) => {
+      removeTrace(traceId);
+    },
+    [removeTrace]
+  );
 
-  const handleToggleVisibility = useCallback((traceId: string) => {
-    toggleTraceVisibility(traceId);
-  }, [toggleTraceVisibility]);
+  const handleToggleVisibility = useCallback(
+    (traceId: string) => {
+      toggleTraceVisibility(traceId);
+    },
+    [toggleTraceVisibility]
+  );
 
-  const handleColorChange = useCallback((traceId: string, color: string) => {
-    updateTraceColor(traceId, color);
-  }, [updateTraceColor]);
+  const handleColorChange = useCallback(
+    (traceId: string, color: string) => {
+      updateTraceColor(traceId, color);
+    },
+    [updateTraceColor]
+  );
 
   // 信号統計の計算
   const stats = React.useMemo(() => {
@@ -163,7 +175,9 @@ export const SignalList: React.FC<SignalListProps> = ({
       <div className="signal-list-header p-3 border-b border-gray-600 bg-gray-800">
         <h4 className="text-xs font-semibold text-white mb-1">信号一覧</h4>
         <div className="text-xs text-gray-400">
-          <div>{stats.visible}/{stats.total} 表示中</div>
+          <div>
+            {stats.visible}/{stats.total} 表示中
+          </div>
           <div>{stats.totalEvents} イベント</div>
         </div>
       </div>
@@ -174,7 +188,9 @@ export const SignalList: React.FC<SignalListProps> = ({
           <div className="p-4 text-center text-gray-500">
             <div className="text-xs mb-2">信号なし</div>
             <div className="text-xs text-gray-600">
-              ゲートをクリックして<br />信号を追加
+              ゲートをクリックして
+              <br />
+              信号を追加
             </div>
           </div>
         ) : (
@@ -263,7 +279,10 @@ const styles = `
 `;
 
 // スタイルの注入
-if (typeof window !== 'undefined' && !document.querySelector('#signal-list-styles')) {
+if (
+  typeof window !== 'undefined' &&
+  !document.querySelector('#signal-list-styles')
+) {
   const styleSheet = document.createElement('style');
   styleSheet.id = 'signal-list-styles';
   styleSheet.textContent = styles;

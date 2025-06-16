@@ -1,249 +1,174 @@
-/**
- * ピン状態同期の統合テスト
- * 
- * 実際のワイヤー接続時にピンの状態表示が正しく同期されることを確認
- */
-
+import React from 'react';
+import { render, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
 import { useCircuitStore } from '@/stores/circuitStore';
-import type { Gate, Wire } from '@/types/circuit';
-import { create } from 'zustand';
+import { GateComponent } from '@/components/Gate';
+import { evaluateCircuit } from '@/domain/simulation/core/circuitEvaluation';
 
-describe('ピン状態同期 統合テスト', () => {
-  let useStore: ReturnType<typeof create<any>>;
-  let mockStore: any;
-
+describe('Pin State Synchronization', () => {
   beforeEach(() => {
-    // 独立したストアインスタンスを作成
-    useStore = create(() => ({
-      gates: [] as Gate[],
-      wires: [] as Wire[],
-      addGate: (type: string, position: { x: number; y: number }) => {
-        const newGate: Gate = {
-          id: `gate-${Date.now()}-${Math.random()}`,
-          type: type as any,
-          position,
-          output: type === 'INPUT' ? false : false, // INPUTゲートは初期状態でOFF
-          inputs: type !== 'INPUT' ? [] : undefined,
-        };
-        
-        useStore.setState((state: any) => ({
-          gates: [...state.gates, newGate]
-        }));
-        
-        return newGate;
-      },
-      startWireDrawing: (gateId: string, pinIndex: number) => {
-        useStore.setState((state: any) => ({
-          isDrawingWire: true,
-          wireStart: { gateId, pinIndex }
-        }));
-      },
-      endWireDrawing: (gateId: string, pinIndex: number) => {
-        const state = useStore.getState();
-        if (!state.wireStart) return;
-        
-        const newWire: Wire = {
-          id: `wire-${Date.now()}-${Math.random()}`,
-          from: state.wireStart,
-          to: { gateId, pinIndex }
-        };
-        
-        useStore.setState((prevState: any) => ({
-          wires: [...prevState.wires, newWire],
-          isDrawingWire: false,
-          wireStart: null
-        }));
-        
-        // 回路評価をシミュレート
-        act(() => {
-          evaluateCircuitAndUpdatePins();
-        });
-      },
-      updateGateOutput: (gateId: string, output: boolean) => {
-        useStore.setState((state: any) => ({
-          gates: state.gates.map((gate: Gate) =>
-            gate.id === gateId ? { ...gate, output } : gate
-          )
-        }));
-        
-        // 回路評価をシミュレート
-        act(() => {
-          evaluateCircuitAndUpdatePins();
-        });
-      }
-    }));
-    
-    mockStore = useStore.getState();
-  });
-
-  // 簡易回路評価シミュレーション
-  const evaluateCircuitAndUpdatePins = () => {
-    const state = useStore.getState();
-    const { gates, wires } = state;
-    
-    // 各ゲートの入力を計算
-    const updatedGates = gates.map((gate: Gate) => {
-      if (gate.type === 'INPUT') {
-        return gate; // INPUTゲートは手動制御
-      }
-      
-      // 入力ピンに接続されたワイヤーを探す
-      const inputWires = wires.filter((wire: Wire) => wire.to.gateId === gate.id);
-      const inputs: boolean[] = [];
-      
-      inputWires.forEach((wire: Wire) => {
-        const sourceGate = gates.find((g: Gate) => g.id === wire.from.gateId);
-        if (sourceGate) {
-          inputs[wire.to.pinIndex] = sourceGate.output;
-        }
-      });
-      
-      // ゲートタイプに応じた出力計算
-      let output = false;
-      if (gate.type === 'AND') {
-        output = inputs.length >= 2 && inputs[0] && inputs[1];
-      } else if (gate.type === 'OR') {
-        output = inputs.length >= 2 && (inputs[0] || inputs[1]);
-      }
-      
-      return { ...gate, inputs, output };
-    });
-    
-    useStore.setState({ gates: updatedGates });
-  };
-
-  describe('INPUTゲートとANDゲートの接続テスト', () => {
-    it('INPUTゲートがOFFの時、ANDゲートの入力ピンもOFFで表示される', async () => {
-      // 1. INPUTゲートを2つ作成（両方ともOFF）
-      const input1 = mockStore.addGate('INPUT', { x: 100, y: 100 });
-      const input2 = mockStore.addGate('INPUT', { x: 100, y: 200 });
-      
-      // 2. ANDゲートを作成
-      const andGate = mockStore.addGate('AND', { x: 300, y: 150 });
-      
-      // 3. ワイヤーで接続
-      mockStore.startWireDrawing(input1.id, -1); // 出力ピン
-      mockStore.endWireDrawing(andGate.id, 0); // 入力ピン0
-      
-      mockStore.startWireDrawing(input2.id, -1); // 出力ピン
-      mockStore.endWireDrawing(andGate.id, 1); // 入力ピン1
-      
-      // 4. 状態確認
-      const state = useStore.getState();
-      const updatedAndGate = state.gates.find((g: Gate) => g.id === andGate.id);
-      
-      expect(updatedAndGate).toBeDefined();
-      expect(updatedAndGate?.inputs).toEqual([false, false]);
-      expect(updatedAndGate?.output).toBe(false);
-    });
-
-    it('INPUTゲートをONにすると、ANDゲートの対応する入力ピンがONになる', async () => {
-      // 1. 上記のテストと同じセットアップ
-      const input1 = mockStore.addGate('INPUT', { x: 100, y: 100 });
-      const input2 = mockStore.addGate('INPUT', { x: 100, y: 200 });
-      const andGate = mockStore.addGate('AND', { x: 300, y: 150 });
-      
-      mockStore.startWireDrawing(input1.id, -1);
-      mockStore.endWireDrawing(andGate.id, 0);
-      
-      mockStore.startWireDrawing(input2.id, -1);
-      mockStore.endWireDrawing(andGate.id, 1);
-      
-      // 2. input1をONにする
-      mockStore.updateGateOutput(input1.id, true);
-      
-      // 3. 状態確認
-      const state = useStore.getState();
-      const updatedAndGate = state.gates.find((g: Gate) => g.id === andGate.id);
-      
-      expect(updatedAndGate?.inputs).toEqual([true, false]); // 1つ目だけON
-      expect(updatedAndGate?.output).toBe(false); // ANDなので両方ONでないとfalse
-    });
-
-    it('両方のINPUTゲートをONにすると、ANDゲートの出力もONになる', async () => {
-      // セットアップ
-      const input1 = mockStore.addGate('INPUT', { x: 100, y: 100 });
-      const input2 = mockStore.addGate('INPUT', { x: 100, y: 200 });
-      const andGate = mockStore.addGate('AND', { x: 300, y: 150 });
-      
-      mockStore.startWireDrawing(input1.id, -1);
-      mockStore.endWireDrawing(andGate.id, 0);
-      
-      mockStore.startWireDrawing(input2.id, -1);
-      mockStore.endWireDrawing(andGate.id, 1);
-      
-      // 両方をONにする
-      mockStore.updateGateOutput(input1.id, true);
-      mockStore.updateGateOutput(input2.id, true);
-      
-      // 状態確認
-      const state = useStore.getState();
-      const updatedAndGate = state.gates.find((g: Gate) => g.id === andGate.id);
-      
-      expect(updatedAndGate?.inputs).toEqual([true, true]);
-      expect(updatedAndGate?.output).toBe(true);
+    // ストアをリセット
+    useCircuitStore.setState({
+      gates: [],
+      wires: [],
+      selectedGateIds: new Set(),
+      selectedWireIds: new Set(),
     });
   });
 
-  describe('状態更新タイミングのテスト', () => {
-    it('ワイヤー接続直後に即座に状態が同期される', async () => {
-      const input = mockStore.addGate('INPUT', { x: 100, y: 100 });
-      const andGate = mockStore.addGate('AND', { x: 300, y: 150 });
-      
-      // INPUTをONにしてからワイヤー接続
-      mockStore.updateGateOutput(input.id, true);
-      
-      mockStore.startWireDrawing(input.id, -1);
-      mockStore.endWireDrawing(andGate.id, 0);
-      
-      // 接続直後の状態確認
-      const state = useStore.getState();
-      const updatedAndGate = state.gates.find((g: Gate) => g.id === andGate.id);
-      
-      expect(updatedAndGate?.inputs).toBeDefined();
-      expect(updatedAndGate?.inputs?.[0]).toBe(true); // 即座に反映されているはず
+  it('should correctly update NAND gate input pin states when inputs change', () => {
+    const store = useCircuitStore.getState();
+    
+    // 2つのINPUTゲートとNANDゲートを作成
+    const input1 = {
+      id: 'input1',
+      type: 'INPUT' as const,
+      position: { x: 100, y: 100 },
+      inputs: [],
+      output: false,
+      metadata: {},
+    };
+    
+    const input2 = {
+      id: 'input2',
+      type: 'INPUT' as const,
+      position: { x: 100, y: 200 },
+      inputs: [],
+      output: false,
+      metadata: {},
+    };
+    
+    const nandGate = {
+      id: 'nand1',
+      type: 'NAND' as const,
+      position: { x: 300, y: 150 },
+      inputs: ['', ''],
+      output: true,
+      metadata: {},
+    };
+    
+    // ゲートを追加
+    store.addGate(input1);
+    store.addGate(input2);
+    store.addGate(nandGate);
+    
+    // ワイヤーを追加
+    store.addWire({
+      id: 'wire1',
+      from: { gateId: 'input1', pinIndex: -1 },
+      to: { gateId: 'nand1', pinIndex: 0 },
+      isActive: false,
     });
-
-    it('複数のワイヤー接続でも状態が正しく保持される', async () => {
-      const input1 = mockStore.addGate('INPUT', { x: 100, y: 100 });
-      const input2 = mockStore.addGate('INPUT', { x: 100, y: 200 });
-      const andGate = mockStore.addGate('AND', { x: 300, y: 150 });
-      
-      // 1つ目のワイヤー接続
-      mockStore.startWireDrawing(input1.id, -1);
-      mockStore.endWireDrawing(andGate.id, 0);
-      
-      let state = useStore.getState();
-      let updatedAndGate = state.gates.find((g: Gate) => g.id === andGate.id);
-      expect(updatedAndGate?.inputs).toEqual([false, undefined]); // 1つ目だけ設定
-      
-      // 2つ目のワイヤー接続
-      mockStore.startWireDrawing(input2.id, -1);
-      mockStore.endWireDrawing(andGate.id, 1);
-      
-      state = useStore.getState();
-      updatedAndGate = state.gates.find((g: Gate) => g.id === andGate.id);
-      expect(updatedAndGate?.inputs).toEqual([false, false]); // 両方設定済み
+    
+    store.addWire({
+      id: 'wire2',
+      from: { gateId: 'input2', pinIndex: -1 },
+      to: { gateId: 'nand1', pinIndex: 1 },
+      isActive: false,
     });
+    
+    // 初期状態を評価
+    const circuit1 = {
+      gates: store.gates,
+      wires: store.wires,
+      metadata: {},
+    };
+    
+    const result1 = evaluateCircuit(circuit1);
+    expect(result1.success).toBe(true);
+    if (result1.success) {
+      const updatedCircuit1 = result1.data.circuit;
+      
+      // NANDゲートの初期状態確認（両入力がfalseなのでoutputはtrue）
+      const nand1 = updatedCircuit1.gates.find(g => g.id === 'nand1');
+      expect(nand1?.output).toBe(true);
+      expect(nand1?.inputs).toEqual(['', '']);
+    }
+    
+    // 両方のINPUTをONにする
+    store.updateGate('input1', { output: true });
+    store.updateGate('input2', { output: true });
+    
+    const circuit2 = {
+      gates: store.gates,
+      wires: store.wires,
+      metadata: {},
+    };
+    
+    const result2 = evaluateCircuit(circuit2);
+    expect(result2.success).toBe(true);
+    if (result2.success) {
+      const updatedCircuit2 = result2.data.circuit;
+      
+      // NANDゲートの状態確認（両入力がtrueなのでoutputはfalse）
+      const nand2 = updatedCircuit2.gates.find(g => g.id === 'nand1');
+      expect(nand2?.output).toBe(false);
+      expect(nand2?.inputs).toEqual(['1', '1']);
+    }
+    
+    // 上のINPUTのみOFFにする
+    store.updateGate('input1', { output: false });
+    
+    const circuit3 = {
+      gates: store.gates,
+      wires: store.wires,
+      metadata: {},
+    };
+    
+    const result3 = evaluateCircuit(circuit3);
+    expect(result3.success).toBe(true);
+    if (result3.success) {
+      const updatedCircuit3 = result3.data.circuit;
+      
+      // NANDゲートの状態確認（片方がfalseなのでoutputはtrue）
+      const nand3 = updatedCircuit3.gates.find(g => g.id === 'nand1');
+      expect(nand3?.output).toBe(true);
+      expect(nand3?.inputs).toEqual(['', '1']); // ここが重要：正しく更新されているか
+      
+      // ワイヤーの状態も確認
+      const wire1 = updatedCircuit3.wires.find(w => w.id === 'wire1');
+      const wire2 = updatedCircuit3.wires.find(w => w.id === 'wire2');
+      expect(wire1?.isActive).toBe(false);
+      expect(wire2?.isActive).toBe(true);
+    }
   });
 
-  describe('エラーケースのテスト', () => {
-    it('存在しないピンインデックスに接続しようとした場合の処理', async () => {
-      const input = mockStore.addGate('INPUT', { x: 100, y: 100 });
-      const andGate = mockStore.addGate('AND', { x: 300, y: 150 });
+  it('should render NAND gate pins with correct active states', () => {
+    const nandGate = {
+      id: 'nand1',
+      type: 'NAND' as const,
+      position: { x: 300, y: 150 },
+      inputs: ['', '1'], // 上の入力はOFF、下の入力はON
+      output: true,
+      metadata: {},
+    };
+    
+    const { container } = render(
+      <svg>
+        <GateComponent gate={nandGate} />
+      </svg>
+    );
+    
+    // ピンの要素を取得
+    const pins = container.querySelectorAll('.pin');
+    expect(pins.length).toBe(3); // 2つの入力ピン + 1つの出力ピン
+    
+    // 入力ピンの状態を確認（順序に注意）
+    const inputPins = container.querySelectorAll('.input-pin');
+    expect(inputPins.length).toBe(2);
+    
+    // 各ピンのfill属性を確認
+    inputPins.forEach((pin, index) => {
+      const circle = pin as SVGCircleElement;
+      const fill = circle.getAttribute('fill');
       
-      // 無効なピンインデックス（ANDゲートは通常0,1のみ）
-      mockStore.startWireDrawing(input.id, -1);
-      mockStore.endWireDrawing(andGate.id, 5); // 無効なインデックス
-      
-      const state = useStore.getState();
-      const updatedAndGate = state.gates.find((g: Gate) => g.id === andGate.id);
-      
-      // エラーが発生せず、安全に処理される
-      expect(updatedAndGate).toBeDefined();
-      expect(updatedAndGate?.inputs?.[5]).toBe(false); // 無効インデックスでも安全
+      if (index === 0) {
+        // 上の入力ピン（inputs[0] = ''）
+        expect(fill).toBe('none');
+      } else {
+        // 下の入力ピン（inputs[1] = '1'）
+        expect(fill).toBe('#00ff88');
+      }
     });
   });
 });

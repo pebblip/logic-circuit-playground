@@ -26,7 +26,7 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
   const gateData = useMemo(() => {
     const fromGate = gates.find(g => g.id === wire.from.gateId);
     const toGate = gates.find(g => g.id === wire.to.gateId);
-    
+
     // ゲートが見つからない場合のエラーハンドリング
     if (!fromGate) {
       handleError(
@@ -40,7 +40,7 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
         }
       );
     }
-    
+
     if (!toGate) {
       handleError(
         `Wire connection failed: To gate not found (${wire.to.gateId})`,
@@ -53,14 +53,14 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
         }
       );
     }
-    
+
     return { fromGate, toGate };
   }, [gates, wire.from.gateId, wire.to.gateId, wire.id]);
 
   // パス計算をメモ化（パフォーマンス最適化）
   const pathData = useMemo(() => {
     const { fromGate, toGate } = gateData;
-    
+
     if (!fromGate || !toGate) return null;
 
     // ピン位置計算を統一化されたユーティリティから取得
@@ -74,7 +74,14 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
       const to = getInputPinPosition(toGate, wire.to.pinIndex);
 
       // ピン位置の妥当性チェック
-      if (!from || !to || !isFinite(from.x) || !isFinite(from.y) || !isFinite(to.x) || !isFinite(to.y)) {
+      if (
+        !from ||
+        !to ||
+        !isFinite(from.x) ||
+        !isFinite(from.y) ||
+        !isFinite(to.x) ||
+        !isFinite(to.y)
+      ) {
         handleError(
           `Invalid pin positions calculated for wire ${wire.id}`,
           'Wire Component',
@@ -91,19 +98,15 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
       // ベジェ曲線のパスを生成
       const midX = (from.x + to.x) / 2;
       const path = `M ${from.x} ${from.y} Q ${midX} ${from.y} ${midX} ${(from.y + to.y) / 2} T ${to.x} ${to.y}`;
-      
+
       return { path, from, to };
     } catch (error) {
-      handleError(
-        error,
-        'Wire Component',
-        {
-          userAction: 'ワイヤーパス計算',
-          severity: 'medium',
-          showToUser: false,
-          logToConsole: true,
-        }
-      );
+      handleError(error, 'Wire Component', {
+        userAction: 'ワイヤーパス計算',
+        severity: 'medium',
+        showToUser: false,
+        logToConsole: true,
+      });
       return null;
     }
   }, [gateData, wire.from.pinIndex, wire.to.pinIndex]);

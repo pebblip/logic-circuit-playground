@@ -30,7 +30,7 @@ export const PinComponent: React.FC<PinComponentProps> = ({
   // アクティブ状態の判定（防御的プログラミングで安全性を強化）
   // useMemoを削除して確実な状態更新を保証
   let isPinActive = false;
-  
+
   if (isActive !== undefined) {
     isPinActive = isActive;
   } else if (isOutput) {

@@ -1,6 +1,6 @@
 /**
  * 統一エラーハンドリングシステム用通知パネル
- * 
+ *
  * 新しいErrorSliceを使用した通知表示コンポーネント
  */
 
@@ -10,7 +10,8 @@ import type { ErrorNotification } from '@/stores/slices/errorSlice';
 import './ErrorNotificationPanel.css';
 
 export const ErrorNotificationPanel: React.FC = () => {
-  const { notifications, isVisible, dismissError, setVisibility } = useCircuitStore();
+  const { notifications, isVisible, dismissError, setVisibility } =
+    useCircuitStore();
 
   // 表示する通知がない、または非表示の場合は何も表示しない
   if (!isVisible || notifications.length === 0) {
@@ -18,7 +19,9 @@ export const ErrorNotificationPanel: React.FC = () => {
   }
 
   // 非削除状態の通知のみ表示
-  const activeNotifications = notifications.filter((n: ErrorNotification) => !n.dismissed);
+  const activeNotifications = notifications.filter(
+    (n: ErrorNotification) => !n.dismissed
+  );
 
   if (activeNotifications.length === 0) {
     return null;
@@ -26,14 +29,14 @@ export const ErrorNotificationPanel: React.FC = () => {
 
   return (
     <div className="error-notification-panel">
-      {activeNotifications.map((notification) => (
+      {activeNotifications.map(notification => (
         <ErrorNotificationItem
           key={notification.id}
           notification={notification}
           onDismiss={() => dismissError(notification.id)}
         />
       ))}
-      
+
       {/* パネル全体を閉じるボタン */}
       {activeNotifications.length > 1 && (
         <div className="error-panel-footer">
@@ -113,19 +116,19 @@ const ErrorNotificationItem: React.FC<ErrorNotificationItemProps> = ({
           ✕
         </button>
       </div>
-      
+
       <div className="error-notification-body">
         <div className="error-notification-user-message">
           {notification.userMessage}
         </div>
-        
+
         {notification.context && (
           <div className="error-notification-context">
             コンテキスト: {notification.context}
           </div>
         )}
       </div>
-      
+
       {notification.actions && notification.actions.length > 0 && (
         <div className="error-notification-actions">
           {notification.actions.map((action: any, index: number) => (

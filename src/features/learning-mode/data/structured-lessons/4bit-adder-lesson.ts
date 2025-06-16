@@ -161,7 +161,13 @@ export const fourBitAdderStructuredLesson: StructuredLesson = {
         },
         {
           type: 'table',
-          headers: ['計算', 'A（2進数）', 'B（2進数）', '結果（2進数）', '10進数'],
+          headers: [
+            '計算',
+            'A（2進数）',
+            'B（2進数）',
+            '結果（2進数）',
+            '10進数',
+          ],
           rows: [
             ['3 + 5', '0011', '0101', '1000', '8'],
             ['7 + 9', '0111', '1001', '10000', '16'],

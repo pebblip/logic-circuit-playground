@@ -5,7 +5,8 @@ export const srLatchStructuredLesson: StructuredLesson = {
   id: 'sr-latch',
   title: 'SRラッチ - 最もシンプルなメモリ',
   description: 'セット・リセット機能を持つ基本的な記憶回路を作ります',
-  objective: 'フィードバックによる双安定回路の動作を理解し、記憶回路の基本原理を習得する',
+  objective:
+    'フィードバックによる双安定回路の動作を理解し、記憶回路の基本原理を習得する',
   category: '順序回路',
   lessonType: 'gate-intro',
   difficulty: 'advanced',
@@ -65,9 +66,9 @@ export const srLatchStructuredLesson: StructuredLesson = {
         },
         {
           type: 'table',
-          headers: ['S', 'R', 'Q(次の状態)', 'Q\'(反転)', '動作'],
+          headers: ['S', 'R', 'Q(次の状態)', "Q'(反転)", '動作'],
           rows: [
-            ['0', '0', 'Q(保持)', 'Q\'(保持)', '現在の状態を維持'],
+            ['0', '0', 'Q(保持)', "Q'(保持)", '現在の状態を維持'],
             ['1', '0', '1', '0', 'セット（Q=1に設定）'],
             ['0', '1', '0', '1', 'リセット（Q=0に設定）'],
             ['1', '1', '禁止', '禁止', '使用禁止（不定状態）'],
@@ -118,7 +119,7 @@ export const srLatchStructuredLesson: StructuredLesson = {
           elements: [
             { text: `${TERMS.OUTPUT}ゲート`, emphasis: true },
             'を2つ配置します。',
-            'Q（状態）とQ\'（反転状態）の表示用です。',
+            "Q（状態）とQ'（反転状態）の表示用です。",
           ],
         },
         {
@@ -131,12 +132,12 @@ export const srLatchStructuredLesson: StructuredLesson = {
             'S入力→SR-LATCHのS入力へ接続。',
             'R入力→SR-LATCHのR入力へ接続。',
             'SR-LATCHのQ出力→OUTPUT（上）へ接続。',
-            'SR-LATCHのQ\'出力→OUTPUT（下）へ接続。',
+            "SR-LATCHのQ'出力→OUTPUT（下）へ接続。",
           ],
         },
         {
           type: 'note',
-          text: '配線のコツ：QとQ\'は常に反対の値を示します（禁止状態を除く）',
+          text: "配線のコツ：QとQ'は常に反対の値を示します（禁止状態を除く）",
         },
       ],
     },
@@ -196,9 +197,21 @@ export const srLatchStructuredLesson: StructuredLesson = {
           type: 'table',
           headers: ['種類', '構造', 'トリガ方式', '同期性', '用途'],
           rows: [
-            ['SRラッチ', '2ゲート', 'レベルトリガ', '非同期', '状態保持、デバウンス'],
+            [
+              'SRラッチ',
+              '2ゲート',
+              'レベルトリガ',
+              '非同期',
+              '状態保持、デバウンス',
+            ],
             ['Dラッチ', '4ゲート', 'レベルトリガ', '部分同期', '一時的な保持'],
-            ['D-FF', '20素子', 'エッジトリガ', '完全同期', 'レジスタ、カウンタ'],
+            [
+              'D-FF',
+              '20素子',
+              'エッジトリガ',
+              '完全同期',
+              'レジスタ、カウンタ',
+            ],
           ],
         },
         {
@@ -207,7 +220,7 @@ export const srLatchStructuredLesson: StructuredLesson = {
         },
         {
           type: 'text',
-          text: 'S=1、R=1では両方の出力が0になり、QとQ\'が同じ値という矛盾が生じます。この状態から両入力を同時に0にすると、どちらが1になるか予測できません（競合状態）。',
+          text: "S=1、R=1では両方の出力が0になり、QとQ'が同じ値という矛盾が生じます。この状態から両入力を同時に0にすると、どちらが1になるか予測できません（競合状態）。",
         },
         {
           type: 'heading',

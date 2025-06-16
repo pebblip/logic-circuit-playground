@@ -43,6 +43,7 @@ export const GateSection: React.FC<GateSectionProps> = ({
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
               onClick={() => !isDisabled && onGateClick(type)}
+              testId={`${type}-button`}
             />
           );
         })}
