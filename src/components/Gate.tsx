@@ -77,79 +77,71 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
       };
 
       // 基本ゲート (AND, OR, NOT, XOR, NAND, NOR)
-    if (['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'].includes(gate.type)) {
+      if (['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'].includes(gate.type)) {
+        return (
+          <BasicGateRenderer
+            {...baseProps}
+            handleGateClick={wrappedHandleGateClick}
+          />
+        );
+      }
+
+      // 入出力ゲート
+      if (gate.type === 'INPUT' || gate.type === 'OUTPUT') {
+        return (
+          <IOGateRenderer
+            {...baseProps}
+            handleGateClick={wrappedHandleGateClick}
+            handleInputClick={wrappedHandleInputClick}
+            handleInputDoubleClick={wrappedHandleInputDoubleClick}
+          />
+        );
+      }
+
+      // 特殊ゲート
+      if (['CLOCK', 'D-FF', 'SR-LATCH', 'MUX'].includes(gate.type)) {
+        return (
+          <SpecialGateRenderer
+            {...baseProps}
+            handleGateClick={wrappedHandleGateClick}
+          />
+        );
+      }
+
+      // カスタムゲート
+      if (gate.type === 'CUSTOM') {
+        return (
+          <CustomGateRenderer
+            {...baseProps}
+            handleGateClick={wrappedHandleGateClick}
+          />
+        );
+      }
+
+      // 未知のゲートタイプの場合
+      handleError(`Unknown gate type: ${gate.type}`, 'Gate Component', {
+        userAction: 'ゲート描画',
+        severity: 'medium',
+        showToUser: true,
+        logToConsole: true,
+      });
+
+      // フォールバック: 基本的なゲートレンダラーを使用
       return (
         <BasicGateRenderer
           {...baseProps}
           handleGateClick={wrappedHandleGateClick}
         />
       );
-    }
-
-    // 入出力ゲート
-    if (gate.type === 'INPUT' || gate.type === 'OUTPUT') {
-      return (
-        <IOGateRenderer
-          {...baseProps}
-          handleGateClick={wrappedHandleGateClick}
-          handleInputClick={wrappedHandleInputClick}
-          handleInputDoubleClick={wrappedHandleInputDoubleClick}
-        />
-      );
-    }
-
-    // 特殊ゲート
-    if (['CLOCK', 'D-FF', 'SR-LATCH', 'MUX'].includes(gate.type)) {
-      return (
-        <SpecialGateRenderer
-          {...baseProps}
-          handleGateClick={wrappedHandleGateClick}
-        />
-      );
-    }
-
-    // カスタムゲート
-    if (gate.type === 'CUSTOM') {
-      return (
-        <CustomGateRenderer
-          {...baseProps}
-          handleGateClick={wrappedHandleGateClick}
-        />
-      );
-    }
-
-    // 未知のゲートタイプの場合
-    handleError(
-      `Unknown gate type: ${gate.type}`,
-      'Gate Component',
-      {
-        userAction: 'ゲート描画',
-        severity: 'medium',
-        showToUser: true,
-        logToConsole: true,
-      }
-    );
-
-    // フォールバック: 基本的なゲートレンダラーを使用
-    return (
-      <BasicGateRenderer
-        {...baseProps}
-        handleGateClick={wrappedHandleGateClick}
-      />
-    );
     } catch (error) {
       // レンダリング中の予期しないエラー
-      handleError(
-        error,
-        'Gate Component',
-        {
-          userAction: 'ゲート描画',
-          severity: 'high',
-          showToUser: true,
-          logToConsole: true,
-        }
-      );
-      
+      handleError(error, 'Gate Component', {
+        userAction: 'ゲート描画',
+        severity: 'high',
+        showToUser: true,
+        logToConsole: true,
+      });
+
       // 最低限のフォールバック表示
       return (
         <g>
@@ -198,8 +190,12 @@ export const GateComponent = memo(GateComponentImpl, (prevProps, nextProps) => {
     prevProps.gate.position.y === nextProps.gate.position.y &&
     prevProps.gate.output === nextProps.gate.output &&
     prevProps.isHighlighted === nextProps.isHighlighted &&
+    // 入力状態の変更もチェック（ピン状態の同期のため）
+    JSON.stringify(prevProps.gate.inputs) ===
+      JSON.stringify(nextProps.gate.inputs) &&
     // メタデータの変更（CLOCK頻度など）もチェック
-    JSON.stringify(prevProps.gate.metadata) === JSON.stringify(nextProps.gate.metadata)
+    JSON.stringify(prevProps.gate.metadata) ===
+      JSON.stringify(nextProps.gate.metadata)
   );
 });
 
