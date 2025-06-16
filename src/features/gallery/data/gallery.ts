@@ -1,68 +1,18 @@
 import type { Gate, Wire } from '../../../types';
 
-export type CircuitCategory =
-  | 'basic'
-  | 'intermediate'
-  | 'advanced'
-  | 'creative'
-  | 'educational';
-export type CircuitComplexity = 'simple' | 'moderate' | 'complex' | 'expert';
-
 export interface CircuitMetadata {
   id: string;
   title: string;
   description: string;
-  author: string;
-  createdAt: string;
-  updatedAt: string;
-
-  // 分類
-  category: CircuitCategory;
-  tags: string[];
-
-  // 統計
-  likes: number;
-  views: number;
-  complexity: CircuitComplexity;
-
-  // 回路データ
   gates: Gate[];
   wires: Wire[];
-
-  // プレビュー
-  thumbnail?: string; // base64 SVG
-  isPublic: boolean;
-  isFeatured: boolean;
 }
 
-export interface GalleryFilter {
-  category?: CircuitMetadata['category'];
-  complexity?: CircuitMetadata['complexity'];
-  tags?: string[];
-  author?: string;
-  searchQuery?: string;
-}
-
-export interface GallerySortOption {
-  field: 'createdAt' | 'likes' | 'views' | 'title';
-  direction: 'asc' | 'desc';
-}
-
-// ultrathink: 美しく実用的なサンプル回路集
 export const FEATURED_CIRCUITS: CircuitMetadata[] = [
   {
     id: 'half-adder',
     title: '半加算器',
-    description:
-      '2つの1ビット数を加算する基本回路。コンピュータの計算の原点です。',
-    author: 'システム',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-    category: 'educational',
-    tags: ['加算', '基本', '論理回路'],
-    likes: 156,
-    views: 2341,
-    complexity: 'simple',
+    description: '2つの1ビット数を加算する基本回路。コンピュータの計算の原点です。',
     gates: [
       {
         id: 'input-a',
@@ -145,376 +95,495 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
         isActive: false,
       },
     ],
-    isPublic: true,
-    isFeatured: true,
   },
 
   {
     id: 'sr-latch',
-    title: 'SRラッチ',
-    description:
-      '状態を記憶する最も基本的な順序回路。メモリの基本構成要素です。',
-    author: 'システム',
-    createdAt: '2024-01-02T00:00:00Z',
-    updatedAt: '2024-01-02T00:00:00Z',
-    category: 'educational',
-    tags: ['記憶', '順序回路', 'ラッチ'],
-    likes: 89,
-    views: 1456,
-    complexity: 'moderate',
+    title: 'SR ラッチ',
+    description: 'Set/Resetで状態を記憶する基本的なメモリ素子。デジタル回路におけるメモリの基礎概念を学べます。',
     gates: [
+      // Set入力
       {
-        id: 'input-s',
+        id: 'input_s',
+        type: 'INPUT',
+        position: { x: 100, y: 150 },
+        output: false,
+        inputs: [],
+      },
+      // Reset入力
+      {
+        id: 'input_r',
+        type: 'INPUT',
+        position: { x: 100, y: 250 },
+        output: false,
+        inputs: [],
+      },
+      // SR-LATCHゲート（専用ゲート）
+      {
+        id: 'sr_latch',
+        type: 'SR-LATCH',
+        position: { x: 300, y: 200 },
+        output: false,
+        inputs: [],
+        metadata: { state: false },
+      },
+      // Q出力（主出力）
+      {
+        id: 'output_q',
+        type: 'OUTPUT',
+        position: { x: 500, y: 150 },
+        output: false,
+        inputs: [],
+      },
+      // Q_BAR出力（反転出力）
+      {
+        id: 'output_q_bar',
+        type: 'OUTPUT',
+        position: { x: 500, y: 250 },
+        output: false,
+        inputs: [],
+      },
+    ],
+    wires: [
+      // S入力をSR-LATCHのS入力に接続
+      {
+        id: 'w_s_latch',
+        from: { gateId: 'input_s', pinIndex: -1 },
+        to: { gateId: 'sr_latch', pinIndex: 0 }, // S入力
+        isActive: false,
+      },
+      // R入力をSR-LATCHのR入力に接続
+      {
+        id: 'w_r_latch',
+        from: { gateId: 'input_r', pinIndex: -1 },
+        to: { gateId: 'sr_latch', pinIndex: 1 }, // R入力
+        isActive: false,
+      },
+      // SR-LATCHのQ出力を主出力Qに接続
+      {
+        id: 'w_latch_q',
+        from: { gateId: 'sr_latch', pinIndex: -1 }, // Q出力
+        to: { gateId: 'output_q', pinIndex: 0 },
+        isActive: false,
+      },
+      // SR-LATCHのQ_BAR出力を反転出力に接続
+      {
+        id: 'w_latch_q_bar',
+        from: { gateId: 'sr_latch', pinIndex: -2 }, // Q_BAR出力
+        to: { gateId: 'output_q_bar', pinIndex: 0 },
+        isActive: false,
+      },
+    ],
+  },
+
+  {
+    id: 'traffic-light',
+    title: '信号機制御回路',
+    description: '2つのスイッチで信号機の3色を制御する回路。実世界の応用例です。',
+    gates: [
+      // 制御スイッチ
+      {
+        id: 'switch1',
         type: 'INPUT',
         position: { x: 100, y: 150 },
         output: false,
         inputs: [],
       },
       {
-        id: 'input-r',
+        id: 'switch2',
         type: 'INPUT',
-        position: { x: 100, y: 300 },
+        position: { x: 100, y: 250 },
         output: false,
         inputs: [],
       },
-      {
-        id: 'nor1',
-        type: 'NOR',
-        position: { x: 300, y: 180 },
-        output: false,
-        inputs: [],
-      },
-      {
-        id: 'nor2',
-        type: 'NOR',
-        position: { x: 300, y: 270 },
-        output: false,
-        inputs: [],
-      },
-      {
-        id: 'output-q',
-        type: 'OUTPUT',
-        position: { x: 500, y: 180 },
-        output: false,
-        inputs: [],
-      },
-      {
-        id: 'output-qbar',
-        type: 'OUTPUT',
-        position: { x: 500, y: 270 },
-        output: false,
-        inputs: [],
-      },
-    ],
-    wires: [
-      {
-        id: 'w1',
-        from: { gateId: 'input-s', pinIndex: -1 },
-        to: { gateId: 'nor1', pinIndex: 0 },
-        isActive: false,
-      },
-      {
-        id: 'w2',
-        from: { gateId: 'input-r', pinIndex: -1 },
-        to: { gateId: 'nor2', pinIndex: 1 },
-        isActive: false,
-      },
-      {
-        id: 'w3',
-        from: { gateId: 'nor1', pinIndex: -1 },
-        to: { gateId: 'output-q', pinIndex: 0 },
-        isActive: false,
-      },
-      {
-        id: 'w4',
-        from: { gateId: 'nor2', pinIndex: -1 },
-        to: { gateId: 'output-qbar', pinIndex: 0 },
-        isActive: false,
-      },
-      {
-        id: 'w5',
-        from: { gateId: 'nor1', pinIndex: -1 },
-        to: { gateId: 'nor2', pinIndex: 0 },
-        isActive: false,
-      },
-      {
-        id: 'w6',
-        from: { gateId: 'nor2', pinIndex: -1 },
-        to: { gateId: 'nor1', pinIndex: 1 },
-        isActive: false,
-      },
-    ],
-    isPublic: true,
-    isFeatured: true,
-  },
-
-  {
-    id: 'traffic-light',
-    title: '信号機制御回路',
-    description: '3色の信号機を制御する創造的な回路。実世界の応用例です。',
-    author: 'システム',
-    createdAt: '2024-01-03T00:00:00Z',
-    updatedAt: '2024-01-03T00:00:00Z',
-    category: 'creative',
-    tags: ['信号機', '制御', '実用'],
-    likes: 234,
-    views: 3821,
-    complexity: 'complex',
-    gates: [
-      {
-        id: 'clock',
-        type: 'CLOCK',
-        position: { x: 100, y: 200 },
-        output: false,
-        inputs: [],
-        metadata: { frequency: 1, startTime: 0 },
-      },
-      {
-        id: 'counter1',
-        type: 'D-FF',
-        position: { x: 250, y: 150 },
-        output: false,
-        inputs: [],
-      },
-      {
-        id: 'counter2',
-        type: 'D-FF',
-        position: { x: 250, y: 250 },
-        output: false,
-        inputs: [],
-      },
+      // 論理ゲート
       {
         id: 'not1',
         type: 'NOT',
-        position: { x: 400, y: 150 },
+        position: { x: 250, y: 150 },
         output: false,
         inputs: [],
       },
       {
         id: 'not2',
         type: 'NOT',
+        position: { x: 250, y: 250 },
+        output: false,
+        inputs: [],
+      },
+      {
+        id: 'and_red',
+        type: 'AND',
+        position: { x: 400, y: 100 },
+        output: false,
+        inputs: [],
+      },
+      {
+        id: 'and_yellow',
+        type: 'AND',
         position: { x: 400, y: 200 },
         output: false,
         inputs: [],
       },
-      {
-        id: 'and1',
-        type: 'AND',
-        position: { x: 550, y: 120 },
-        output: false,
-        inputs: [],
-      },
-      {
-        id: 'and2',
-        type: 'AND',
-        position: { x: 550, y: 200 },
-        output: false,
-        inputs: [],
-      },
+      // 信号機の3色
       {
         id: 'red',
         type: 'OUTPUT',
-        position: { x: 700, y: 120 },
+        position: { x: 550, y: 100 },
         output: false,
         inputs: [],
       },
       {
         id: 'yellow',
         type: 'OUTPUT',
-        position: { x: 700, y: 200 },
+        position: { x: 550, y: 200 },
         output: false,
         inputs: [],
       },
       {
         id: 'green',
         type: 'OUTPUT',
-        position: { x: 700, y: 280 },
+        position: { x: 550, y: 300 },
         output: false,
         inputs: [],
       },
     ],
-    wires: [],
-    isPublic: true,
-    isFeatured: true,
+    wires: [
+      // スイッチをNOTに接続
+      {
+        id: 'w_switch1_not1',
+        from: { gateId: 'switch1', pinIndex: -1 },
+        to: { gateId: 'not1', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w_switch2_not2',
+        from: { gateId: 'switch2', pinIndex: -1 },
+        to: { gateId: 'not2', pinIndex: 0 },
+        isActive: false,
+      },
+      // 赤信号: switch1=OFF, switch2=OFF
+      {
+        id: 'w_not1_red',
+        from: { gateId: 'not1', pinIndex: -1 },
+        to: { gateId: 'and_red', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w_not2_red',
+        from: { gateId: 'not2', pinIndex: -1 },
+        to: { gateId: 'and_red', pinIndex: 1 },
+        isActive: false,
+      },
+      // 黄信号: switch1=ON, switch2=OFF
+      {
+        id: 'w_switch1_yellow',
+        from: { gateId: 'switch1', pinIndex: -1 },
+        to: { gateId: 'and_yellow', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w_not2_yellow',
+        from: { gateId: 'not2', pinIndex: -1 },
+        to: { gateId: 'and_yellow', pinIndex: 1 },
+        isActive: false,
+      },
+      // 緑信号: switch2=ON（switch1は関係なし）
+      {
+        id: 'w_switch2_green',
+        from: { gateId: 'switch2', pinIndex: -1 },
+        to: { gateId: 'green', pinIndex: 0 },
+        isActive: false,
+      },
+      // 出力接続
+      {
+        id: 'w_and_red_output',
+        from: { gateId: 'and_red', pinIndex: -1 },
+        to: { gateId: 'red', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w_and_yellow_output',
+        from: { gateId: 'and_yellow', pinIndex: -1 },
+        to: { gateId: 'yellow', pinIndex: 0 },
+        isActive: false,
+      },
+    ],
   },
 
   {
-    id: 'pattern-generator',
-    title: 'パターン生成器',
-    description:
-      '美しい波形パターンを生成するアート的な回路。創造性の表現です。',
-    author: 'アーティスト',
-    createdAt: '2024-01-04T00:00:00Z',
-    updatedAt: '2024-01-04T00:00:00Z',
-    category: 'creative',
-    tags: ['パターン', 'アート', '波形'],
-    likes: 178,
-    views: 2156,
-    complexity: 'complex',
-    gates: [],
-    wires: [],
-    isPublic: true,
-    isFeatured: true,
+    id: 'decoder',
+    title: 'デコーダー回路',
+    description: '2ビット入力を4つの出力に変換する回路。バイナリコードを具体的な選択信号に変換する重要な回路を学べます。',
+    gates: [
+      // 入力A（下位ビット）
+      {
+        id: 'input_a',
+        type: 'INPUT',
+        position: { x: 100, y: 150 },
+        output: false,
+        inputs: [],
+      },
+      // 入力B（上位ビット）
+      {
+        id: 'input_b',
+        type: 'INPUT',
+        position: { x: 100, y: 250 },
+        output: false,
+        inputs: [],
+      },
+      // NOT A
+      {
+        id: 'not_a',
+        type: 'NOT',
+        position: { x: 200, y: 150 },
+        output: false,
+        inputs: [],
+      },
+      // NOT B
+      {
+        id: 'not_b',
+        type: 'NOT',
+        position: { x: 200, y: 250 },
+        output: false,
+        inputs: [],
+      },
+      // AND 出力0（A'B' = 00）
+      {
+        id: 'and_00',
+        type: 'AND',
+        position: { x: 350, y: 100 },
+        output: false,
+        inputs: [],
+      },
+      // AND 出力1（A'B = 01）
+      {
+        id: 'and_01',
+        type: 'AND',
+        position: { x: 350, y: 170 },
+        output: false,
+        inputs: [],
+      },
+      // AND 出力2（AB' = 10）
+      {
+        id: 'and_10',
+        type: 'AND',
+        position: { x: 350, y: 240 },
+        output: false,
+        inputs: [],
+      },
+      // AND 出力3（AB = 11）
+      {
+        id: 'and_11',
+        type: 'AND',
+        position: { x: 350, y: 310 },
+        output: false,
+        inputs: [],
+      },
+      // 出力0
+      {
+        id: 'output_0',
+        type: 'OUTPUT',
+        position: { x: 500, y: 100 },
+        output: false,
+        inputs: [],
+      },
+      // 出力1
+      {
+        id: 'output_1',
+        type: 'OUTPUT',
+        position: { x: 500, y: 170 },
+        output: false,
+        inputs: [],
+      },
+      // 出力2
+      {
+        id: 'output_2',
+        type: 'OUTPUT',
+        position: { x: 500, y: 240 },
+        output: false,
+        inputs: [],
+      },
+      // 出力3
+      {
+        id: 'output_3',
+        type: 'OUTPUT',
+        position: { x: 500, y: 310 },
+        output: false,
+        inputs: [],
+      },
+    ],
+    wires: [
+      // A入力の配線
+      {
+        id: 'w_a_not',
+        from: { gateId: 'input_a', pinIndex: -1 },
+        to: { gateId: 'not_a', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w_a_and10',
+        from: { gateId: 'input_a', pinIndex: -1 },
+        to: { gateId: 'and_10', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w_a_and11',
+        from: { gateId: 'input_a', pinIndex: -1 },
+        to: { gateId: 'and_11', pinIndex: 0 },
+        isActive: false,
+      },
+      // B入力の配線
+      {
+        id: 'w_b_not',
+        from: { gateId: 'input_b', pinIndex: -1 },
+        to: { gateId: 'not_b', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w_b_and01',
+        from: { gateId: 'input_b', pinIndex: -1 },
+        to: { gateId: 'and_01', pinIndex: 1 },
+        isActive: false,
+      },
+      {
+        id: 'w_b_and11',
+        from: { gateId: 'input_b', pinIndex: -1 },
+        to: { gateId: 'and_11', pinIndex: 1 },
+        isActive: false,
+      },
+      // NOT出力の配線
+      {
+        id: 'w_not_a_and00',
+        from: { gateId: 'not_a', pinIndex: -1 },
+        to: { gateId: 'and_00', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w_not_a_and01',
+        from: { gateId: 'not_a', pinIndex: -1 },
+        to: { gateId: 'and_01', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w_not_b_and00',
+        from: { gateId: 'not_b', pinIndex: -1 },
+        to: { gateId: 'and_00', pinIndex: 1 },
+        isActive: false,
+      },
+      {
+        id: 'w_not_b_and10',
+        from: { gateId: 'not_b', pinIndex: -1 },
+        to: { gateId: 'and_10', pinIndex: 1 },
+        isActive: false,
+      },
+      // 出力配線
+      {
+        id: 'w_and00_out',
+        from: { gateId: 'and_00', pinIndex: -1 },
+        to: { gateId: 'output_0', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w_and01_out',
+        from: { gateId: 'and_01', pinIndex: -1 },
+        to: { gateId: 'output_1', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w_and10_out',
+        from: { gateId: 'and_10', pinIndex: -1 },
+        to: { gateId: 'output_2', pinIndex: 0 },
+        isActive: false,
+      },
+      {
+        id: 'w_and11_out',
+        from: { gateId: 'and_11', pinIndex: -1 },
+        to: { gateId: 'output_3', pinIndex: 0 },
+        isActive: false,
+      },
+    ],
   },
 
   {
-    id: 'multiplexer-demo',
-    title: '4:1マルチプレクサー',
-    description: '4つの入力から1つを選択する回路。データ選択の基本です。',
-    author: 'システム',
-    createdAt: '2024-01-05T00:00:00Z',
-    updatedAt: '2024-01-05T00:00:00Z',
-    category: 'intermediate',
-    tags: ['マルチプレクサー', 'データ選択', '中級'],
-    likes: 143,
-    views: 1889,
-    complexity: 'moderate',
-    gates: [],
-    wires: [],
-    isPublic: true,
-    isFeatured: true,
+    id: 'binary-counter',
+    title: '2ビットバイナリカウンタ',
+    description: 'クロック信号に同期してカウントアップする回路。デジタル回路の基本となるカウンタ動作を体験できます。',
+    gates: [
+      // クロック入力
+      {
+        id: 'clock',
+        type: 'CLOCK',
+        position: { x: 100, y: 200 },
+        output: false,
+        inputs: [],
+        metadata: {
+          frequency: 0.5, // 0.5Hz (2秒周期)
+          isRunning: true,
+          startTime: Date.now(),
+        },
+      },
+      // バイナリカウンタ
+      {
+        id: 'counter',
+        type: 'BINARY_COUNTER',
+        position: { x: 300, y: 200 },
+        output: false,
+        outputs: [false, false],
+        inputs: [''],
+        metadata: {
+          bitCount: 2,
+          currentValue: 0,
+          previousClockState: false,
+        },
+      },
+      // 出力（Q0: LSB）
+      {
+        id: 'output_q0',
+        type: 'OUTPUT',
+        position: { x: 500, y: 170 },
+        output: false,
+        inputs: [],
+      },
+      // 出力（Q1: MSB）
+      {
+        id: 'output_q1',
+        type: 'OUTPUT',
+        position: { x: 500, y: 230 },
+        output: false,
+        inputs: [],
+      },
+      // 7セグメント風表示用（オプション）
+      {
+        id: 'display',
+        type: 'OUTPUT',
+        position: { x: 600, y: 200 },
+        output: false,
+        inputs: [],
+      },
+    ],
+    wires: [
+      // クロック -> カウンタCLK
+      {
+        id: 'w_clk',
+        from: { gateId: 'clock', pinIndex: -1 },
+        to: { gateId: 'counter', pinIndex: 0 },
+        isActive: false,
+      },
+      // カウンタQ0 -> 出力Q0
+      {
+        id: 'w_q0',
+        from: { gateId: 'counter', pinIndex: -1 },
+        to: { gateId: 'output_q0', pinIndex: 0 },
+        isActive: false,
+      },
+      // カウンタQ1 -> 出力Q1
+      {
+        id: 'w_q1',
+        from: { gateId: 'counter', pinIndex: -2 },
+        to: { gateId: 'output_q1', pinIndex: 0 },
+        isActive: false,
+      },
+    ],
   },
 ];
-
-// 人気タグ一覧
-export const POPULAR_TAGS = [
-  '基本',
-  '中級',
-  '上級',
-  '加算',
-  '記憶',
-  '順序回路',
-  'ラッチ',
-  'フリップフロップ',
-  'カウンタ',
-  'マルチプレクサー',
-  'デコーダー',
-  'エンコーダー',
-  '制御',
-  '信号機',
-  'アート',
-  'パターン',
-  '波形',
-  '実用',
-  '教育',
-  '創造的',
-];
-
-// カテゴリ表示名
-export const CATEGORY_LABELS = {
-  basic: '🟢 基本',
-  intermediate: '🟡 中級',
-  advanced: '🟠 上級',
-  creative: '🎨 創造的',
-  educational: '📚 教育',
-} as const;
-
-// 複雑さ表示名
-export const COMPLEXITY_LABELS = {
-  simple: '⭐ シンプル',
-  moderate: '⭐⭐ 標準',
-  complex: '⭐⭐⭐ 複雑',
-  expert: '⭐⭐⭐⭐ エキスパート',
-} as const;
-
-// ギャラリーユーティリティ関数
-export class GalleryService {
-  /**
-   * 回路をフィルタリング
-   */
-  static filterCircuits(
-    circuits: CircuitMetadata[],
-    filter: GalleryFilter
-  ): CircuitMetadata[] {
-    return circuits.filter(circuit => {
-      // カテゴリフィルタ
-      if (filter.category && circuit.category !== filter.category) {
-        return false;
-      }
-
-      // 複雑さフィルタ
-      if (filter.complexity && circuit.complexity !== filter.complexity) {
-        return false;
-      }
-
-      // タグフィルタ
-      if (filter.tags && filter.tags.length > 0) {
-        if (!filter.tags.every(tag => circuit.tags.includes(tag))) {
-          return false;
-        }
-      }
-
-      // 作者フィルタ
-      if (filter.author && circuit.author !== filter.author) {
-        return false;
-      }
-
-      // 検索クエリ
-      if (filter.searchQuery) {
-        const query = filter.searchQuery.toLowerCase();
-        const searchable =
-          `${circuit.title} ${circuit.description} ${circuit.tags.join(' ')}`.toLowerCase();
-        if (!searchable.includes(query)) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }
-
-  /**
-   * 回路をソート
-   */
-  static sortCircuits(
-    circuits: CircuitMetadata[],
-    sort: GallerySortOption
-  ): CircuitMetadata[] {
-    return [...circuits].sort((a, b) => {
-      let aValue: string | number | Date = a[
-        sort.field as keyof CircuitMetadata
-      ] as string | number | Date;
-      let bValue: string | number | Date = b[
-        sort.field as keyof CircuitMetadata
-      ] as string | number | Date;
-
-      // 文字列の場合は小文字で比較
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
-
-      if (sort.direction === 'asc') {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-      }
-    });
-  }
-
-  /**
-   * 回路の複雑さを計算
-   */
-  static calculateComplexity(
-    gates: Gate[],
-    wires: Wire[]
-  ): CircuitMetadata['complexity'] {
-    const gateCount = gates.length;
-    const wireCount = wires.length;
-    const totalElements = gateCount + wireCount;
-
-    if (totalElements <= 5) return 'simple';
-    if (totalElements <= 15) return 'moderate';
-    if (totalElements <= 30) return 'complex';
-    return 'expert';
-  }
-
-  /**
-   * 回路のサムネイルを生成
-   */
-  static generateThumbnail(_gates: Gate[], _wires: Wire[]): string {
-    // 簡単なSVGサムネイルを生成
-    // 実際の実装では、回路を小さくレンダリングしてbase64化
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmYWZjIi8+PC9zdmc+';
-  }
-}

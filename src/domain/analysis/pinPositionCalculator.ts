@@ -81,6 +81,13 @@ export function getInputPinPosition(gate: Gate, pinIndex: number): Position {
       };
     }
 
+    case 'BINARY_COUNTER':
+      // CLK入力: 左側中央
+      return {
+        x: x - 60,
+        y: y,
+      };
+
     default: {
       // AND、OR、XOR、NAND、NOR: Gate.tsxの実際のピン位置
       // 入力ピン: cx="-45" cy="-10" (ピン0), cy="10" (ピン1)
@@ -166,6 +173,17 @@ export function getOutputPinPosition(
       return {
         x: x + 60,
         y: y,
+      };
+    }
+
+    case 'BINARY_COUNTER': {
+      // ビット数に応じて出力ピンを配置
+      const bitCount = gate.metadata?.bitCount || 2;
+      const spacing = 30;
+      const startY = -((bitCount - 1) * spacing) / 2;
+      return {
+        x: x + 60,
+        y: y + startY + pinIndex * spacing,
       };
     }
 

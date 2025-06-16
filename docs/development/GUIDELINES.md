@@ -3,7 +3,7 @@
 > Claude と User のための実践的開発プロセス
 
 ## 📄 必須確認事項
-**セッション開始時は必ず [PROGRESS.md](../../PROGRESS.md) を確認してください**
+**セッション開始時は必ず [PROGRESS.md](../management/PROGRESS.md) を確認してください**
 
 ## 🎯 基本原則
 
@@ -23,7 +23,7 @@
 ### 1. セッション開始
 ```bash
 # 進捗確認
-cat PROGRESS.md
+cat docs/management/PROGRESS.md
 
 # 現状把握
 git log --oneline -10
@@ -293,7 +293,7 @@ git commit -m "<type>: <summary>
 ### 次のセッションでの確認
 ```bash
 # 1. 進捗確認
-cat PROGRESS.md
+cat docs/management/PROGRESS.md
 
 # 2. 現状把握
 git log --oneline -10
@@ -316,10 +316,10 @@ npm test
 ## 📚 関連ドキュメント
 
 - [README.md](../../README.md) - プロジェクト概要
-- [PROGRESS.md](../../PROGRESS.md) - 進捗管理
+- [PROGRESS.md](../management/PROGRESS.md) - 進捗管理
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - 技術アーキテクチャ
 - [ROADMAP.md](./ROADMAP.md) - 開発ロードマップ
-- [RETROSPECTIVE_2025-06-16.md](./RETROSPECTIVE_2025-06-16.md) - 最新のレトロスペクティブ
+- [retrospectives/2025-06-16.md](./retrospectives/2025-06-16.md) - 最新のレトロスペクティブ
 
 ---
 

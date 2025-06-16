@@ -650,6 +650,9 @@ function collectGateInputs(
     case 'MUX':
       inputCount = 3;
       break;
+    case 'BINARY_COUNTER':
+      inputCount = 1;
+      break;
     case 'CUSTOM':
       if ('customGateDefinition' in gate && gate.customGateDefinition) {
         inputCount = gate.customGateDefinition.inputs.length;
@@ -743,6 +746,27 @@ function updateGateMetadata(gate: Gate, inputs: boolean[]): void {
         gate.metadata = {
           ...gate.metadata,
           startTime: Date.now(),
+        };
+      }
+      break;
+
+    case 'BINARY_COUNTER':
+      // バイナリカウンタのメタデータ更新
+      if (inputs.length >= 1) {
+        const clk = inputs[0];
+        const prevClk = gate.metadata?.previousClockState || false;
+        const bitCount = (gate.metadata?.bitCount as number) || 2;
+        let currentValue = (gate.metadata?.currentValue as number) || 0;
+
+        // 立ち上がりエッジ検出
+        if (!prevClk && clk) {
+          currentValue = (currentValue + 1) % (1 << bitCount);
+        }
+
+        gate.metadata = {
+          ...gate.metadata,
+          currentValue,
+          previousClockState: clk,
         };
       }
       break;

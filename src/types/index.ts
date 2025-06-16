@@ -16,6 +16,7 @@ export type {
   DFlipFlopGate,
   SRLatchGate,
   MuxGate,
+  BinaryCounterGate,
 } from './gates';
 
 // 定数のエクスポート
@@ -27,4 +28,5 @@ export {
   isDFlipFlopGate,
   isSRLatchGate,
   isMuxGate,
+  isBinaryCounterGate,
 } from './gates';

@@ -15,7 +15,7 @@
 - レスポンシブデザイン対応（デスクトップ・タブレット・モバイル）
 
 ## 📊 必ず確認すること
-**セッション開始時は必ず [PROGRESS.md](PROGRESS.md) を確認してください**
+**セッション開始時は必ず [PROGRESS.md](docs/management/PROGRESS.md) を確認してください**
 - 現在の進捗状況
 - 前回の作業内容
 - 次回の作業予定
@@ -23,25 +23,25 @@
 
 ```bash
 # セッション開始時の必須コマンド
-cat PROGRESS.md          # 進捗確認
-git log --oneline -5     # 最近のコミット
-npm test                 # テスト状態
+cat docs/management/PROGRESS.md          # 進捗確認
+git log --oneline -5                     # 最近のコミット
+npm test                                 # テスト状態
 ```
 
 ## 📚 ドキュメント構造
 
 ### 必読ドキュメント
-1. `PROGRESS.md` - **進捗管理とセッション引き継ぎ（最重要）**
+1. `docs/management/PROGRESS.md` - **進捗管理とセッション引き継ぎ（最重要）**
 2. `docs/development/GUIDELINES.md` - 開発ガイドライン（コーディング規約、品質基準）
 3. `docs/development/ARCHITECTURE.md` - アーキテクチャ（Hybrid Feature-Domain）
 4. `docs/development/ROADMAP.md` - 開発ロードマップ
-5. `docs/PROJECT_BLUEPRINT.md` - プロジェクト全体の青写真
+5. `docs/management/PROJECT_BLUEPRINT.md` - プロジェクト全体の青写真
 
 ### 実践的ドキュメント（セッション中によく参照）
-- `docs/QUICK_START.md` - 5分で始めるガイド（環境構築・初回実行）
-- `docs/FAQ.md` - よくある質問と解決方法（最優先トラブルシューティング）
-- `docs/TROUBLESHOOTING.md` - 技術的問題の詳細解決方法
-- `docs/COMMAND_REFERENCE.md` - 全コマンドの完全ガイド
+- `docs/user-guide/QUICK_START.md` - 5分で始めるガイド（環境構築・初回実行）
+- `docs/user-guide/FAQ.md` - よくある質問と解決方法（最優先トラブルシューティング）
+- `docs/user-guide/TROUBLESHOOTING.md` - 技術的問題の詳細解決方法
+- `docs/user-guide/COMMAND_REFERENCE.md` - 全コマンドの完全ガイド
 
 ### モックアップ
 - `docs/design/mockups/final-gate-design.html` - ゲートのデザイン仕様
@@ -54,12 +54,12 @@ npm test                 # テスト状態
 3. **ユーザーファースト** - 使いやすさを常に意識
 
 ### デバッグ・修正時の約束
+詳細は [開発ガイドライン](docs/development/GUIDELINES.md#-デバッグプロセス) を参照
+
 1. **分析してから実装** - 原因を特定してから修正
 2. **ユーザーの承認を得る** - 方針を提示してから進める
 3. **テストで検証** - 問題を再現してから修正
 4. **影響範囲を明確に** - 変更の影響を事前に確認
-
-詳細は [開発ガイドライン](docs/development/GUIDELINES.md#-デバッグプロセス) を参照
 
 ### コーディング規約
 ```typescript
@@ -331,8 +331,8 @@ const updatedCircuit = evaluateCircuitLegacy(circuit); // エラーが見えな�
 ## 📋 セッション開始時のチェックリスト
 
 ### 必須確認事項
-1. [ ] [PROGRESS.md](PROGRESS.md)で現在の進捗確認
-2. [ ] [QUALITY_REVIEW.md](QUALITY_REVIEW.md)で品質状況確認
+1. [ ] [PROGRESS.md](docs/management/PROGRESS.md)で現在の進捗確認
+2. [ ] [QUALITY_REVIEW.md](docs/management/QUALITY_REVIEW.md)で品質状況確認
 3. [ ] [CHANGELOG.md](CHANGELOG.md)で最新の変更確認
 4. [ ] `git log --oneline -5`で最近のコミット確認
 5. [ ] `npm run typecheck`で型エラーなしを確認

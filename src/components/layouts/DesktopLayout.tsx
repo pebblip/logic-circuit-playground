@@ -7,6 +7,7 @@ import { FloatingLearningPanel } from '../../features/learning-mode/ui/FloatingL
 import { CircuitVisualizerPanel } from '../CircuitVisualizerPanel';
 import { HelpPanel } from '../HelpPanel';
 import { TimingChartPanel } from '../../features/timing-chart/components/TimingChartPanel';
+import { GalleryPanel } from '../../features/gallery/ui/GalleryPanel';
 import { useCircuitStore } from '../../stores/circuitStore';
 import type { AppMode } from '../../types/appMode';
 import { TERMS } from '../../features/learning-mode/data/terms';
@@ -91,85 +92,93 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
       />
 
       {/* 左サイドバー - ツールパレット */}
-      <aside className="sidebar-left">
-        <ToolPalette />
-      </aside>
+      {appMode !== TERMS.GALLERY_MODE && (
+        <aside className="sidebar-left">
+          <ToolPalette />
+        </aside>
+      )}
 
       {/* メインキャンバス */}
       <main className="main-canvas">
-        {/* キャンバス */}
-        <div className="canvas-container">
-          <Canvas highlightedGateId={highlightedGateId} />
+        {appMode === TERMS.GALLERY_MODE ? (
+          <GalleryPanel isVisible={true} />
+        ) : (
+          <>
+            {/* キャンバス */}
+            <div className="canvas-container">
+              <Canvas highlightedGateId={highlightedGateId} />
 
-          {/* フローティングアクションボタン（FAB） - キャンバス内に配置 */}
-          {viewMode !== 'custom-gate-preview' && (
-            <div className="canvas-toolbar">
-              <button
-                className="tool-button"
-                title="元に戻す (Ctrl+Z)"
-                onClick={undo}
-                disabled={!canUndo()}
-                style={{ opacity: canUndo() ? 1 : 0.5 }}
-              >
-                ↩️
-              </button>
-              <button
-                className="tool-button"
-                title="やり直し (Ctrl+Y)"
-                onClick={redo}
-                disabled={!canRedo()}
-                style={{ opacity: canRedo() ? 1 : 0.5 }}
-              >
-                ↪️
-              </button>
-              <button
-                className="tool-button"
-                title="すべてクリア"
-                onClick={() => {
-                  if (window.confirm('すべての回路を削除しますか？')) {
-                    clearAll();
-                  }
-                }}
-              >
-                🗑️
-              </button>
-              <button
-                className={`tool-button ${isVisualizerOpen ? 'active' : ''}`}
-                title="ビジュアライザー"
-                onClick={() => setIsVisualizerOpen(!isVisualizerOpen)}
-              >
-                📟
-              </button>
-              <div
-                className="control-separator"
-                style={{
-                  width: '1px',
-                  height: '24px',
-                  background: 'var(--color-border-subtle)',
-                  margin: '0 4px',
-                  opacity: 0.5,
-                }}
-              />
-              <button
-                className={`tool-button ${timingChart.isVisible ? 'active' : ''}`}
-                title="タイミングチャート"
-                onClick={() => timingChartActions.togglePanel()}
-              >
-                📊
-              </button>
+              {/* フローティングアクションボタン（FAB） - キャンバス内に配置 */}
+              {viewMode !== 'custom-gate-preview' && (
+                <div className="canvas-toolbar">
+                  <button
+                    className="tool-button"
+                    title="元に戻す (Ctrl+Z)"
+                    onClick={undo}
+                    disabled={!canUndo()}
+                    style={{ opacity: canUndo() ? 1 : 0.5 }}
+                  >
+                    ↩️
+                  </button>
+                  <button
+                    className="tool-button"
+                    title="やり直し (Ctrl+Y)"
+                    onClick={redo}
+                    disabled={!canRedo()}
+                    style={{ opacity: canRedo() ? 1 : 0.5 }}
+                  >
+                    ↪️
+                  </button>
+                  <button
+                    className="tool-button"
+                    title="すべてクリア"
+                    onClick={() => {
+                      if (window.confirm('すべての回路を削除しますか？')) {
+                        clearAll();
+                      }
+                    }}
+                  >
+                    🗑️
+                  </button>
+                  <button
+                    className={`tool-button ${isVisualizerOpen ? 'active' : ''}`}
+                    title="ビジュアライザー"
+                    onClick={() => setIsVisualizerOpen(!isVisualizerOpen)}
+                  >
+                    📟
+                  </button>
+                  <div
+                    className="control-separator"
+                    style={{
+                      width: '1px',
+                      height: '24px',
+                      background: 'var(--color-border-subtle)',
+                      margin: '0 4px',
+                      opacity: 0.5,
+                    }}
+                  />
+                  <button
+                    className={`tool-button ${timingChart.isVisible ? 'active' : ''}`}
+                    title="タイミングチャート"
+                    onClick={() => timingChartActions.togglePanel()}
+                  >
+                    📊
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* ステータスバー */}
-        <div className="status-bar">
-          <div className="status-item">
-            <span>ゲート: {gates.length}</span>
-          </div>
-          <div className="status-item">
-            <span>接続: {wires.length}</span>
-          </div>
-        </div>
+            {/* ステータスバー */}
+            <div className="status-bar">
+              <div className="status-item">
+                <span>ゲート: {gates.length}</span>
+              </div>
+              <div className="status-item">
+                <span>接続: {wires.length}</span>
+              </div>
+            </div>
+          </>
+        )}
       </main>
 
       {/* 右サイドバー */}

@@ -6,7 +6,7 @@ export type { GateType, CustomGateDefinition } from './circuit';
 // ゲートタイプの詳細定義
 export type BasicGateType = 'AND' | 'OR' | 'NOT' | 'XOR' | 'NAND' | 'NOR';
 export type IOGateType = 'INPUT' | 'OUTPUT';
-export type SpecialGateType = 'CLOCK' | 'D-FF' | 'SR-LATCH' | 'MUX';
+export type SpecialGateType = 'CLOCK' | 'D-FF' | 'SR-LATCH' | 'MUX' | 'BINARY_COUNTER';
 export type CustomGateType = 'CUSTOM';
 export type AllGateType =
   | BasicGateType
@@ -42,6 +42,13 @@ export interface MuxGate extends Gate {
   selectInputs: string[]; // 1, 2, or 3 select lines
 }
 
+export interface BinaryCounterGate extends Gate {
+  type: 'BINARY_COUNTER';
+  bitCount: number; // 1, 2, 4, or 8 bits
+  currentValue: number;
+  previousClockState: boolean;
+}
+
 export interface CustomGate extends Gate {
   type: 'CUSTOM';
   customGateDefinition: CustomGateDefinition;
@@ -66,6 +73,7 @@ export const GATE_SIZES = {
   'D-FF': { width: 100, height: 80 },
   'SR-LATCH': { width: 100, height: 80 },
   MUX: { width: 100, height: 100 },
+  BINARY_COUNTER: { width: 120, height: 100 },
 
   // カスタムゲート（デフォルト、実際は可変）
   CUSTOM: { width: 100, height: 80 },
@@ -90,6 +98,7 @@ export const PIN_CONFIGS = {
   'D-FF': { inputs: 2, outputs: 2 }, // D, CLK -> Q, Q̄
   'SR-LATCH': { inputs: 2, outputs: 2 }, // S, R -> Q, Q̄
   MUX: { inputs: -1, outputs: 1 }, // 可変
+  BINARY_COUNTER: { inputs: 1, outputs: -1 }, // CLK入力, ビット数分の出力
 
   // カスタムゲート（可変）
   CUSTOM: { inputs: -1, outputs: -1 }, // 可変
@@ -110,6 +119,10 @@ export function isSRLatchGate(gate: Gate): gate is SRLatchGate {
 
 export function isMuxGate(gate: Gate): gate is MuxGate {
   return gate.type === 'MUX';
+}
+
+export function isBinaryCounterGate(gate: Gate): gate is BinaryCounterGate {
+  return gate.type === 'BINARY_COUNTER';
 }
 
 export function isCustomGate(gate: Gate): gate is CustomGate {

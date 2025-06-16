@@ -180,6 +180,9 @@ function evaluateGateLogic(
       case 'MUX':
         return evaluateMuxGate(inputs);
 
+      case 'BINARY_COUNTER':
+        return evaluateBinaryCounterGate(gate, inputs);
+
       case 'CUSTOM':
         return evaluateCustomGate(gate, inputs, config);
 
@@ -326,6 +329,45 @@ function evaluateMuxGate(
   // S=0 => Y=I0, S=1 => Y=I1
   const output = select ? i1 : i0;
   return success([output]);
+}
+
+/**
+ * バイナリカウンタゲート評価
+ */
+function evaluateBinaryCounterGate(
+  gate: Readonly<Gate>,
+  inputs: readonly boolean[]
+): Result<readonly boolean[], EvaluationError> {
+  if (inputs.length < 1) {
+    return failure(
+      createEvaluationError(
+        'BINARY_COUNTER gate requires 1 input (CLK)',
+        'INPUT_COLLECTION',
+        { gateId: gate.id }
+      )
+    );
+  }
+
+  const clk = inputs[0]; // Clock input
+  
+  // メタデータからビット数とカウンタ値を取得
+  const bitCount = (gate.metadata?.bitCount as number) || 2; // デフォルト2ビット
+  const previousClockState = gate.metadata?.previousClockState || false;
+  let currentValue = (gate.metadata?.currentValue as number) || 0;
+
+  // 立ち上がりエッジ検出
+  if (!previousClockState && clk) {
+    // カウントアップ（モジュロ演算でオーバーフロー処理）
+    currentValue = (currentValue + 1) % (1 << bitCount);
+  }
+
+  // ビット毎の出力を生成
+  const outputs: boolean[] = [];
+  for (let i = 0; i < bitCount; i++) {
+    outputs.push((currentValue & (1 << i)) !== 0);
+  }
+
+  return success(outputs);
 }
 
 // ===============================
@@ -487,6 +529,8 @@ function getExpectedInputCount(gate: Readonly<Gate>): number {
       return 2;
     case 'MUX':
       return 3;
+    case 'BINARY_COUNTER':
+      return 1;
     case 'CUSTOM':
       if (isCustomGate(gate) && gate.customGateDefinition) {
         return gate.customGateDefinition.inputs.length;

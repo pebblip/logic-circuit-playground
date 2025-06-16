@@ -12,6 +12,7 @@ export type GateType =
   | 'D-FF'
   | 'SR-LATCH'
   | 'MUX'
+  | 'BINARY_COUNTER'
   | 'CUSTOM';
 
 export interface Position {

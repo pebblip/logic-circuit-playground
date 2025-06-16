@@ -305,8 +305,8 @@ npm run build
 
 - [QUICK_START.md](./QUICK_START.md) - 5分で始めるガイド
 - [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) - 詳細なトラブルシューティング
-- [GUIDELINES.md](./development/GUIDELINES.md) - 開発ガイドライン
-- [ARCHITECTURE.md](./development/ARCHITECTURE.md) - 技術アーキテクチャ
+- [GUIDELINES.md](../development/GUIDELINES.md) - 開発ガイドライン
+- [ARCHITECTURE.md](../development/ARCHITECTURE.md) - 技術アーキテクチャ
 
 ## 💬 それでも解決しない場合
 

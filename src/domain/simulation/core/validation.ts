@@ -147,6 +147,7 @@ export function validateGateType(
     'D-FF',
     'SR-LATCH',
     'MUX',
+    'BINARY_COUNTER',
     'CUSTOM',
   ];
   if (!validGateTypes.includes(gateType)) {
@@ -275,6 +276,9 @@ export function validateGateInputs(
       break;
     case 'MUX':
       expectedInputCount = 3;
+      break;
+    case 'BINARY_COUNTER':
+      expectedInputCount = 1;
       break;
     case 'CUSTOM':
       if ('customGateDefinition' in gate && gate.customGateDefinition) {

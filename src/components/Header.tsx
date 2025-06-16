@@ -107,6 +107,18 @@ export const Header: React.FC<HeaderProps> = ({
           >
             {TERMS.FREE_MODE}
           </button>
+          <button
+            className={`mode-tab ${activeMode === TERMS.PUZZLE_MODE ? 'active' : ''}`}
+            onClick={() => onModeChange(TERMS.PUZZLE_MODE)}
+          >
+            {TERMS.PUZZLE_MODE}
+          </button>
+          <button
+            className={`mode-tab ${activeMode === TERMS.GALLERY_MODE ? 'active' : ''}`}
+            onClick={() => onModeChange(TERMS.GALLERY_MODE)}
+          >
+            {TERMS.GALLERY_MODE}
+          </button>
         </div>
 
         <div className="header-actions">

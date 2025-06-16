@@ -177,19 +177,19 @@ npm run typecheck && npm run test && npm run build
 ## 📚 ドキュメント
 
 ### 🚀 スタートガイド
-- [🚀 クイックスタート](./docs/QUICK_START.md) - 5分で始めるLogicCirc
-- [❓ FAQ](./docs/FAQ.md) - よくある質問と解決方法
-- [🔧 トラブルシューティング](./docs/TROUBLESHOOTING.md) - 詳細な問題解決ガイド
-- [📋 コマンドリファレンス](./docs/COMMAND_REFERENCE.md) - 全コマンドの完全ガイド
+- [🚀 クイックスタート](./docs/user-guide/QUICK_START.md) - 5分で始めるLogicCirc
+- [❓ FAQ](./docs/user-guide/FAQ.md) - よくある質問と解決方法
+- [🔧 トラブルシューティング](./docs/user-guide/TROUBLESHOOTING.md) - 詳細な問題解決ガイド
+- [📋 コマンドリファレンス](./docs/user-guide/COMMAND_REFERENCE.md) - 全コマンドの完全ガイド
 
 ### 📖 設計・開発
 - [ドキュメント構成](./docs/README.md) - ドキュメントの全体像と関係
-- [プロジェクト設計書](./docs/PROJECT_BLUEPRINT.md) - 全体設計（What & Why）
+- [プロジェクト設計書](./docs/management/PROJECT_BLUEPRINT.md) - 全体設計（What & Why）
 - [技術アーキテクチャ](./docs/development/ARCHITECTURE.md) - 実装詳細（How）
 - [開発ロードマップ](./docs/development/ROADMAP.md) - 開発計画（When）
 - [開発ガイドライン](./docs/development/GUIDELINES.md) - 実践的開発プロセスと品質基準
 - [UIデザイン](./docs/design/mockups/) - モックアップとデザイン仕様
-- [変更履歴](./docs/CHANGELOG.md) - バージョン履歴と変更内容
+- [変更履歴](./CHANGELOG.md) - バージョン履歴と変更内容
 
 ## 📅 開発状況
 

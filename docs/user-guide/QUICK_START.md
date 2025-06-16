@@ -124,10 +124,10 @@ npm run build
 
 ## 📖 関連ドキュメント
 
-- [GUIDELINES.md](./development/GUIDELINES.md) - 開発ガイドライン
-- [ARCHITECTURE.md](./development/ARCHITECTURE.md) - アーキテクチャ解説
+- [GUIDELINES.md](../development/GUIDELINES.md) - 開発ガイドライン
+- [ARCHITECTURE.md](../development/ARCHITECTURE.md) - アーキテクチャ解説
 - [FAQ.md](./FAQ.md) - よくある質問
-- [CLAUDE.md](../CLAUDE.md) - Claude向け開発ガイド
+- [CLAUDE.md](../../CLAUDE.md) - Claude向け開発ガイド
 
 ---
 

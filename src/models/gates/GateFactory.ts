@@ -69,6 +69,18 @@ export class GateFactory {
           },
         };
 
+      case 'BINARY_COUNTER':
+        return {
+          ...baseGate,
+          inputs: [''], // CLK input only
+          outputs: [false, false], // デフォルト2ビット（4カウント）
+          metadata: {
+            bitCount: 2,
+            currentValue: 0,
+            previousClockState: false,
+          },
+        };
+
       case 'CUSTOM':
         // カスタムゲートは後で設定される
         return baseGate;

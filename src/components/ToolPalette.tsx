@@ -32,6 +32,7 @@ const SPECIAL_GATES: { type: GateType; label: string }[] = [
   { type: 'D-FF', label: 'D-FF' },
   { type: 'SR-LATCH', label: 'SR-LATCH' },
   { type: 'MUX', label: 'MUX' },
+  { type: 'BINARY_COUNTER', label: 'COUNTER' },
 ];
 
 // デモ用カスタムゲート定義（教育的価値の高いもののみ）
