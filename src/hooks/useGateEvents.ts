@@ -25,7 +25,7 @@ export function useGateEvents(gate: Gate): UseGateEventsResult {
   } = useCircuitStore();
 
   const isSelected =
-    selectedGateId === gate.id || selectedGateIds.includes(gate.id);
+    selectedGateId === gate.id || (selectedGateIds && Array.isArray(selectedGateIds) ? selectedGateIds.includes(gate.id) : false);
 
   const handleGateClick = (event: React.MouseEvent, hasDragged: boolean) => {
     event.stopPropagation();

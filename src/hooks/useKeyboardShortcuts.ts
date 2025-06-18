@@ -122,7 +122,7 @@ export const useKeyboardShortcuts = () => {
         !event.shiftKey
       ) {
         event.preventDefault();
-        const allGateIds = gates.map(gate => gate.id);
+        const allGateIds = gates && Array.isArray(gates) ? gates.map(gate => gate.id) : [];
         setSelectedGates(allGateIds);
       }
 

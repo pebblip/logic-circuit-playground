@@ -61,6 +61,12 @@ describe('useKeyboardShortcuts', () => {
       deleteWire: vi.fn(),
       copySelection: vi.fn(),
       paste: vi.fn(),
+      canPaste: vi.fn().mockReturnValue(true),
+      gates: [],
+      setSelectedGates: vi.fn(),
+      clearSelection: vi.fn(),
+      isDrawingWire: false,
+      cancelWireDrawing: vi.fn(),
     };
 
     (useCircuitStore as any).mockReturnValue(mockStore);

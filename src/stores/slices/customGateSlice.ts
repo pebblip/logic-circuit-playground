@@ -179,6 +179,11 @@ export const createCustomGateSlice: StateCreator<
 
     // カスタムゲートを追加
     get().addCustomGate(definition);
-    alert('カスタムゲートが作成されました！');
+    // テスト環境対応: alertの代わりにconsole.log
+    if (typeof window !== 'undefined' && window.alert) {
+      alert('カスタムゲートが作成されました！');
+    } else {
+      console.log('✅ カスタムゲートが作成されました！');
+    }
   },
 });

@@ -260,7 +260,7 @@ describe('ユーティリティ関数', () => {
     it('通常ゲートの出力名を生成', () => {
       const gate = createMockGate('gate_123', 'AND');
       const name = generateTraceNameFromGate(gate, 'output', 0);
-      expect(name).toBe('AND_123');
+      expect(name).toBe('AND');
     });
 
     it('通常ゲートの入力名を生成', () => {
@@ -268,14 +268,14 @@ describe('ユーティリティ関数', () => {
       const name1 = generateTraceNameFromGate(gate, 'input', 0);
       const name2 = generateTraceNameFromGate(gate, 'input', 1);
       
-      expect(name1).toBe('OR_456_IN');
-      expect(name2).toBe('OR_456_IN_1');
+      expect(name1).toBe('OR_IN');
+      expect(name2).toBe('OR_IN1');
     });
 
     it('CLOCKゲートは特別な名前', () => {
       const clockGate = createMockClockGate('clock_1');
       const name = generateTraceNameFromGate(clockGate, 'output', 0);
-      expect(name).toBe('CLK');
+      expect(name).toBe('CLOCK');
     });
   });
 

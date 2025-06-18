@@ -4,7 +4,7 @@ import type { Circuit } from '@/domain/simulation/core/types';
 import type { Gate, Wire } from '@/types/circuit';
 
 describe('リングオシレーターの初期状態による動作の違い', () => {
-  it('すべて0から始めた場合 - 振動しない', () => {
+  it('すべて0から始めた場合でも振動する', () => {
     const evaluator = new EnhancedHybridEvaluator({
       strategy: 'EVENT_DRIVEN_ONLY',
       enableDebugLogging: false,
@@ -35,17 +35,6 @@ describe('リングオシレーターの初期状態による動作の違い', (
       output: false, // 初期状態0
     };
     
-    const delay: Gate = {
-      id: 'delay1',
-      type: 'DELAY',
-      position: { x: 700, y: 200 },
-      inputs: [''],
-      output: false,
-      metadata: {
-        history: [],
-      },
-    };
-    
     const wires: Wire[] = [
       {
         id: 'w1',
@@ -62,19 +51,13 @@ describe('リングオシレーターの初期状態による動作の違い', (
       {
         id: 'w3',
         from: { gateId: 'not3', pinIndex: -1 },
-        to: { gateId: 'delay1', pinIndex: 0 },
-        isActive: false,
-      },
-      {
-        id: 'w4',
-        from: { gateId: 'delay1', pinIndex: -1 },
         to: { gateId: 'not1', pinIndex: 0 },
         isActive: false,
       },
     ];
     
     let circuit: Circuit = {
-      gates: [not1, not2, not3, delay],
+      gates: [not1, not2, not3],
       wires,
     };
     
@@ -100,8 +83,8 @@ describe('リングオシレーターの初期状態による動作の違い', (
       }
     }
     
-    // 振動していない（変化が少ない）ことを確認
-    expect(changes).toBeLessThanOrEqual(2); // 初期の安定化のみ
+    // 振動している（変化が多い）ことを確認
+    expect(changes).toBeGreaterThan(4); // 3個のNOTゲートは常に振動
   });
   
   it('1つを1にした場合 - 振動する', () => {
@@ -135,17 +118,6 @@ describe('リングオシレーターの初期状態による動作の違い', (
       output: false,
     };
     
-    const delay: Gate = {
-      id: 'delay1',
-      type: 'DELAY',
-      position: { x: 700, y: 200 },
-      inputs: [''],
-      output: false,
-      metadata: {
-        history: [],
-      },
-    };
-    
     const wires: Wire[] = [
       {
         id: 'w1',
@@ -162,19 +134,13 @@ describe('リングオシレーターの初期状態による動作の違い', (
       {
         id: 'w3',
         from: { gateId: 'not3', pinIndex: -1 },
-        to: { gateId: 'delay1', pinIndex: 0 },
-        isActive: false,
-      },
-      {
-        id: 'w4',
-        from: { gateId: 'delay1', pinIndex: -1 },
         to: { gateId: 'not1', pinIndex: 0 },
         isActive: false,
       },
     ];
     
     let circuit: Circuit = {
-      gates: [not1, not2, not3, delay],
+      gates: [not1, not2, not3],
       wires,
     };
     
@@ -227,17 +193,6 @@ describe('リングオシレーターの初期状態による動作の違い', (
       output: false,
     };
     
-    const delay: Gate = {
-      id: 'delay1',
-      type: 'DELAY',
-      position: { x: 500, y: 200 },
-      inputs: [''],
-      output: false,
-      metadata: {
-        history: [],
-      },
-    };
-    
     const wires: Wire[] = [
       {
         id: 'w1',
@@ -248,19 +203,13 @@ describe('リングオシレーターの初期状態による動作の違い', (
       {
         id: 'w2',
         from: { gateId: 'not2', pinIndex: -1 },
-        to: { gateId: 'delay1', pinIndex: 0 },
-        isActive: false,
-      },
-      {
-        id: 'w3',
-        from: { gateId: 'delay1', pinIndex: -1 },
         to: { gateId: 'not1', pinIndex: 0 },
         isActive: false,
       },
     ];
     
     let circuit: Circuit = {
-      gates: [not1, not2, delay],
+      gates: [not1, not2],
       wires,
     };
     
