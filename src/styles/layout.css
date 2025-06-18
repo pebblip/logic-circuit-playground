@@ -476,6 +476,26 @@
   /* 位置はインラインスタイルで動的制御 */
 }
 
+/* ズームコントロール */
+.zoom-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--border-radius-lg);
+  backdrop-filter: blur(8px);
+}
+
+/* 配線スタイルボタンとズームボタンの区切り */
+.zoom-controls > div[style*="height: 1px"] {
+  width: 1px !important;
+  height: 20px !important;
+  margin: 0 4px !important;
+}
+
 /* レスポンシブ対応：モバイルでのズームコントロール */
 @media (max-width: 768px) {
   .zoom-controls.canvas-overlay {

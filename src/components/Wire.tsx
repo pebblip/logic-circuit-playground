@@ -6,6 +6,7 @@ import {
   getOutputPinPosition,
 } from '../domain/analysis/pinPositionCalculator';
 import { handleError } from '@/infrastructure/errorHandler';
+import { generateWirePath } from '@/utils/wirePathGenerator';
 
 interface WireComponentProps {
   wire: Wire;
@@ -18,6 +19,7 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
 }) => {
   const storeGates = useCircuitStore(state => state.gates);
   const deleteWire = useCircuitStore(state => state.deleteWire);
+  const wireStyle = useCircuitStore(state => state.wireStyle);
 
   // プロパティで渡されたゲートがあればそれを使用、なければstoreから取得
   const gates = propGates || storeGates;
@@ -95,9 +97,12 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
         return null;
       }
 
-      // ベジェ曲線のパスを生成
-      const midX = (from.x + to.x) / 2;
-      const path = `M ${from.x} ${from.y} Q ${midX} ${from.y} ${midX} ${(from.y + to.y) / 2} T ${to.x} ${to.y}`;
+      // 選択されたスタイルでパスを生成
+      const path = generateWirePath({
+        from,
+        to,
+        style: wireStyle
+      });
 
       return { path, from, to };
     } catch (error) {
@@ -109,7 +114,7 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
       });
       return null;
     }
-  }, [gateData, wire.from.pinIndex, wire.to.pinIndex]);
+  }, [gateData, wire.from.pinIndex, wire.to.pinIndex, wireStyle]);
 
   if (!pathData) return null;
 

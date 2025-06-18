@@ -11,6 +11,7 @@ import type { TimingChartSlice } from './slices/timingChartSlice';
 import type { ClockSelectionSlice } from './slices/clockSelectionSlice';
 import type { ErrorSlice } from './slices/errorSlice';
 import type { SimulationSlice } from './slices/simulationSlice';
+import type { PreferencesSlice } from './slices/preferencesSlice';
 
 // Re-export AppMode
 export type { AppMode };
@@ -161,4 +162,5 @@ export type CircuitStore = CircuitStoreState &
   TimingChartSlice &
   ClockSelectionSlice &
   ErrorSlice &
-  SimulationSlice;
+  SimulationSlice &
+  PreferencesSlice;

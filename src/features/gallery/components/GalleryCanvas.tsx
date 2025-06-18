@@ -6,6 +6,7 @@ import { WireComponent } from '../../../components/Wire';
 import { formatCircuitWithAnimation } from '../../../domain/circuit/layout';
 import { EnhancedHybridEvaluator } from '@/domain/simulation/event-driven-minimal';
 import type { Circuit } from '@domain/simulation/core/types';
+import { CanvasControls } from '@/components/canvas/components/CanvasControls';
 import './GalleryCanvas.css';
 
 interface GalleryCanvasProps {
@@ -23,6 +24,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({ circuit }) => {
   const [displayGates, setDisplayGates] = React.useState<Gate[]>([]);
   const [displayWires, setDisplayWires] = React.useState<Wire[]>([]);
   const [needsFormatting, setNeedsFormatting] = React.useState(false);
+  const [scale, setScale] = React.useState(1);
   const animationRef = useRef<number | null>(null);
   const displayWiresRef = useRef<Wire[]>([]);
   const displayGatesRef = useRef<Gate[]>([]);
@@ -220,6 +222,19 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({ circuit }) => {
     setNeedsFormatting(false);
   };
 
+  // ズーム機能（将来的に実装）
+  const handleZoomIn = () => {
+    setScale(prev => Math.min(prev * 1.2, 3));
+  };
+
+  const handleZoomOut = () => {
+    setScale(prev => Math.max(prev / 1.2, 0.3));
+  };
+
+  const handleResetZoom = () => {
+    setScale(1);
+  };
+
   if (!circuit) {
     return (
       <div className="gallery-canvas-empty">
@@ -234,18 +249,21 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({ circuit }) => {
 
   return (
     <div className="gallery-canvas-container">
-      {/* ツールバー */}
-      <div className="gallery-canvas-toolbar">
-        <div className="toolbar-title">
-          <span className="toolbar-icon">🎮</span>
-          <span>インタラクティブプレビュー</span>
-        </div>
-        {needsFormatting && (
-          <button className="format-button" onClick={handleAutoFormat}>
-            🔧 自動整形
-          </button>
-        )}
-      </div>
+      {/* 自動整形ボタンを右下に移動 */}
+      {needsFormatting && (
+        <button 
+          className="format-button floating-format-button" 
+          onClick={handleAutoFormat}
+          style={{
+            position: 'absolute',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 10
+          }}
+        >
+          🔧 自動整形
+        </button>
+      )}
 
       {/* キャンバス */}
       <svg
@@ -286,6 +304,14 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({ circuit }) => {
           />
         ))}
       </svg>
+
+      {/* ズームコントロール（配線スタイル切り替え含む） */}
+      <CanvasControls
+        scale={scale}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onResetZoom={handleResetZoom}
+      />
 
       {/* 循環回路の情報 */}
       {circuit?.simulationConfig?.needsAnimation || 

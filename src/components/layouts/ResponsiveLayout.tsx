@@ -15,10 +15,15 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   children,
 }) => {
   const { breakpoint } = useResponsive();
-  const { loadFromShareUrl } = useCircuitStore();
+  const { loadFromShareUrl, loadPreferences } = useCircuitStore();
   const [shareLoadMessage, setShareLoadMessage] = useState<string | null>(null);
 
   useKeyboardShortcuts();
+
+  // 設定の読み込み
+  useEffect(() => {
+    loadPreferences();
+  }, [loadPreferences]);
 
   // 共有URLからの自動読み込み
   useEffect(() => {
