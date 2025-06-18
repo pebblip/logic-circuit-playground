@@ -180,10 +180,17 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
           let needsUpdate = false;
           
           const newGates = currentState.gates.map(gate => {
-            if (gate.type === 'CLOCK' && gate.metadata?.frequency) {
+            if (gate.type === 'CLOCK' && gate.metadata?.frequency && gate.metadata?.isRunning) {
               const frequency = gate.metadata.frequency as number;
               const period = 1000 / frequency;
-              const shouldBeOn = Math.floor(now / period) % 2 === 0;
+              
+              // startTimeの取得（Core APIと一致させる）
+              const startTime = gate.metadata.startTime !== undefined ? 
+                (gate.metadata.startTime as number) : now;
+              const elapsed = now - startTime;
+              
+              const shouldBeOn = Math.floor(elapsed / period) % 2 === 1;
+              
               
               if (gate.output !== shouldBeOn) {
                 needsUpdate = true;

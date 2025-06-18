@@ -21,7 +21,12 @@ describe('PropertyPanel', () => {
       selectedGateId: null,
       gates: [],
       updateGate: mockUpdateGate,
-      deleteGate: mockDeleteGate
+      deleteGate: mockDeleteGate,
+      updateClockFrequency: vi.fn(),
+      updateGateTiming: vi.fn(),
+      selectedToolGateType: null,
+      selectedToolCustomGateId: null,
+      customGates: []
     } as any);
   });
 
@@ -45,7 +50,12 @@ describe('PropertyPanel', () => {
       selectedGateId: 'and1',
       gates: [selectedGate],
       updateGate: mockUpdateGate,
-      deleteGate: mockDeleteGate
+      deleteGate: mockDeleteGate,
+      updateClockFrequency: vi.fn(),
+      updateGateTiming: vi.fn(),
+      selectedToolGateType: null,
+      selectedToolCustomGateId: null,
+      customGates: []
     } as any);
     
     render(<PropertyPanel />);
@@ -79,7 +89,12 @@ describe('PropertyPanel', () => {
       selectedGateId: 'clock1',
       gates: [clockGate],
       updateGate: mockUpdateGate,
-      deleteGate: mockDeleteGate
+      deleteGate: mockDeleteGate,
+      updateClockFrequency: vi.fn(),
+      updateGateTiming: vi.fn(),
+      selectedToolGateType: null,
+      selectedToolCustomGateId: null,
+      customGates: []
     } as any);
     
     render(<PropertyPanel />);
@@ -145,7 +160,12 @@ describe('PropertyPanel', () => {
       selectedGateId: 'custom1',
       gates: [customGate],
       updateGate: mockUpdateGate,
-      deleteGate: mockDeleteGate
+      deleteGate: mockDeleteGate,
+      updateClockFrequency: vi.fn(),
+      updateGateTiming: vi.fn(),
+      selectedToolGateType: null,
+      selectedToolCustomGateId: null,
+      customGates: []
     } as any);
     
     render(<PropertyPanel />);
@@ -179,7 +199,12 @@ describe('PropertyPanel', () => {
       selectedGateId: 'gate1',
       gates: [gate],
       updateGate: mockUpdateGate,
-      deleteGate: mockDeleteGate
+      deleteGate: mockDeleteGate,
+      updateClockFrequency: vi.fn(),
+      updateGateTiming: vi.fn(),
+      selectedToolGateType: null,
+      selectedToolCustomGateId: null,
+      customGates: []
     } as any);
     
     render(<PropertyPanel />);
@@ -207,7 +232,12 @@ describe('PropertyPanel', () => {
       selectedGateId: 'srlatch1',
       gates: [srLatchGate],
       updateGate: mockUpdateGate,
-      deleteGate: mockDeleteGate
+      deleteGate: mockDeleteGate,
+      updateClockFrequency: vi.fn(),
+      updateGateTiming: vi.fn(),
+      selectedToolGateType: null,
+      selectedToolCustomGateId: null,
+      customGates: []
     } as any);
     
     render(<PropertyPanel />);
@@ -237,7 +267,12 @@ describe('PropertyPanel', () => {
       selectedGateId: 'gate1',
       gates: [gate],
       updateGate: mockUpdateGate,
-      deleteGate: mockDeleteGate
+      deleteGate: mockDeleteGate,
+      updateClockFrequency: vi.fn(),
+      updateGateTiming: vi.fn(),
+      selectedToolGateType: null,
+      selectedToolCustomGateId: null,
+      customGates: []
     } as any);
     
     render(<PropertyPanel />);
@@ -280,7 +315,12 @@ describe('PropertyPanel', () => {
         selectedGateId: gate.id,
         gates: [gate],
         updateGate: mockUpdateGate,
-        deleteGate: mockDeleteGate
+        deleteGate: mockDeleteGate,
+        updateClockFrequency: vi.fn(),
+        updateGateTiming: vi.fn(),
+        selectedToolGateType: null,
+        selectedToolCustomGateId: null,
+        customGates: []
       } as any);
       
       const { rerender } = render(<PropertyPanel />);

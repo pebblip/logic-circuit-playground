@@ -1,5 +1,37 @@
 # 変更履歴
 
+## [未リリース] - 2025-06-18
+
+### 追加
+- **遅延モード実装（Phase 1）** 🚀
+  - EventDrivenEngine: 統合されたイベント駆動エンジン
+  - ゲートごとの伝播遅延サポート（Gate.timing.propagationDelay）
+  - DEFAULT_GATE_DELAYS定数（教育目的の値）
+  - DelayModeDebugger: 開発者向けデバッグツール
+  - HybridEvaluatorの遅延モード対応
+  - **カスタムゲートの遅延モード対応（Week 3）** ✨
+    - 内部回路に基づく遅延計算（クリティカルパス解析）
+    - カスタムゲートの内部回路評価実装
+    - EventDrivenEngineでのカスタムゲート完全サポート
+  - **UI・ユーザー設定（Phase 2 Week 1）** 🎨
+    - 遅延モードON/OFFトグルボタン（ツールバー）
+    - 遅延モードステータス表示（ステータスバー）
+    - シミュレーション設定の統一管理（SimulationSlice）
+
+### テスト
+- 3-NOTリングオシレータ（遅延モード）: 6ns周期で発振成功 ✅
+- SR-LATCH（遅延モード）: Set/Reset動作を正確にシミュレート
+- D-FF（遅延モード）: クロックエッジから5ns後に出力変化
+- パフォーマンステスト: 100ゲート規模で実用的な速度（11.7ms）
+- カスタムゲート（遅延モード）: 内部回路の遅延を正確に反映 ✅
+
+### 変更
+- MinimalEventDrivenEngineをEventDrivenEngineに統合
+
+### 削除
+- _future-implementationディレクトリ（7,000行）
+- .bakファイル（7ファイル）
+
 ## [未リリース] - 2025-06-17
 
 ### 追加

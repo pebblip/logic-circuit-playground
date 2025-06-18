@@ -4,6 +4,12 @@ export const SR_LATCH_BASIC = {
   id: 'sr-latch-basic',
   title: 'SRラッチ（基本ゲート版）',
   description: 'NORゲート2つで作る最も基本的な記憶回路。循環依存を持つ回路の代表例です。',
+  simulationConfig: {
+    needsAnimation: false,
+    updateInterval: 100,
+    expectedBehavior: 'memory_circuit' as const,
+    minimumCycles: 5
+  },
   gates: [
     // 入力
     {

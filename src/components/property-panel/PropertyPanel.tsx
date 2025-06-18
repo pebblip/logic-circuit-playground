@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
 import { GateInfo } from './GateInfo';
 import { ClockControls } from './ClockControls';
+import { TimingControls } from './TimingControls';
 import { DetailModal } from './DetailModal';
 import { TruthTableModal } from './TruthTableModal';
 import { gateDescriptions } from '@/data/gateDescriptions';
@@ -12,6 +13,7 @@ export const PropertyPanel: React.FC = () => {
     gates,
     selectedGateId,
     updateClockFrequency,
+    updateGateTiming,
     selectedToolGateType,
     selectedToolCustomGateId,
     customGates,
@@ -39,7 +41,7 @@ export const PropertyPanel: React.FC = () => {
         }
         return customGate?.displayName || 'カスタムゲート';
       }
-      return `${selectedToolGateType}${selectedToolGateType.match(/^(INPUT|OUTPUT|CLOCK)$/) ? '' : 'ゲート'}`;
+      return `${selectedToolGateType}${selectedToolGateType?.match(/^(INPUT|OUTPUT|CLOCK)$/) ? '' : 'ゲート'}`;
     }
     if (selectedGate) {
       return 'インスタンス状態';
@@ -204,6 +206,10 @@ export const PropertyPanel: React.FC = () => {
     return (
       <aside className="property-panel">
         <GateInfo selectedGate={selectedGate} />
+        <TimingControls
+          selectedGate={selectedGate}
+          updateGateTiming={updateGateTiming}
+        />
         <ClockControls
           selectedGate={selectedGate}
           updateClockFrequency={updateClockFrequency}

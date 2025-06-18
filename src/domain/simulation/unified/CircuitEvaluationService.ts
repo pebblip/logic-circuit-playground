@@ -36,6 +36,7 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
       strategy: this.config.strategy,
       enableDebugLogging: this.config.enableDebugLogging,
       autoSelectionThresholds: this.config.autoSelectionThresholds,
+      delayMode: this.config.delayMode,
     });
   }
 

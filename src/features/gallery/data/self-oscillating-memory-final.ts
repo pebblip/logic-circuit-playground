@@ -12,6 +12,12 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
   id: 'self-oscillating-memory-final',
   title: '🌀 セルフオシレーティングメモリ（最終版）',
   description: '2つのNORゲートによる非安定マルチバイブレータ！確実に振動し、XORで検出します。',
+  simulationConfig: {
+    needsAnimation: true,
+    updateInterval: 150,
+    expectedBehavior: 'oscillator' as const,
+    minimumCycles: 15
+  },
   gates: [
     // 制御入力
     {

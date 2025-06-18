@@ -4,24 +4,22 @@ export const JOHNSON_COUNTER = {
   id: 'johnson-counter',
   title: '💫 ジョンソンカウンター',
   description: '美しい回転パターンを生成する循環シフトレジスタ。反転フィードバックにより魔法のような連続パターンを作り出します！',
+  simulationConfig: {
+    needsAnimation: true,
+    updateInterval: 200,
+    expectedBehavior: 'sequence_generator' as const,
+    minimumCycles: 12,
+    clockFrequency: 1
+  },
   gates: [
     // CLOCK (1Hz)
     {
       id: 'clock',
       type: 'CLOCK' as const,
       position: { x: 100, y: 200 },
-      output: false,
+      output: true,
       inputs: [],
-      metadata: { frequency: 1 },
-    },
-    
-    // リセット入力
-    {
-      id: 'reset',
-      type: 'INPUT' as const,
-      position: { x: 100, y: 100 },
-      output: false,
-      inputs: [],
+      metadata: { frequency: 1, isRunning: true, startTime: Date.now() },
     },
     
     // 4ビットシフトレジスタ
@@ -31,7 +29,7 @@ export const JOHNSON_COUNTER = {
       position: { x: 200, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { state: false },
+      metadata: { qOutput: false, previousClockState: false },
     },
     {
       id: 'dff1',
@@ -39,7 +37,7 @@ export const JOHNSON_COUNTER = {
       position: { x: 300, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { state: false },
+      metadata: { qOutput: false, previousClockState: false },
     },
     {
       id: 'dff2',
@@ -47,7 +45,7 @@ export const JOHNSON_COUNTER = {
       position: { x: 400, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { state: false },
+      metadata: { qOutput: false, previousClockState: false },
     },
     {
       id: 'dff3',
@@ -55,7 +53,7 @@ export const JOHNSON_COUNTER = {
       position: { x: 500, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { state: false },
+      metadata: { qOutput: false, previousClockState: false },
     },
     
     // 反転フィードバック用NOTゲート
@@ -241,6 +239,42 @@ export const JOHNSON_COUNTER = {
       id: 'and_state_111',
       type: 'AND' as const,
       position: { x: 400, y: 450 },
+      output: false,
+      inputs: ['', ''],
+    },
+    
+    // 状態110デコーダー用の中間ロジック (dff2 & dff1)
+    {
+      id: 'and_state_110_mid',
+      type: 'AND' as const,
+      position: { x: 500, y: 400 },
+      output: false,
+      inputs: ['', ''],
+    },
+    
+    // 状態110デコーダー用の最終ロジック ((dff2 & dff1) & ~dff0)
+    {
+      id: 'and_state_110',
+      type: 'AND' as const,
+      position: { x: 500, y: 450 },
+      output: false,
+      inputs: ['', ''],
+    },
+    
+    // 状態100デコーダー用の中間ロジック (~dff1 & ~dff0)
+    {
+      id: 'and_state_100_mid',
+      type: 'AND' as const,
+      position: { x: 600, y: 400 },
+      output: false,
+      inputs: ['', ''],
+    },
+    
+    // 状態100デコーダー用の最終ロジック (dff2 & (~dff1 & ~dff0))
+    {
+      id: 'and_state_100',
+      type: 'AND' as const,
+      position: { x: 600, y: 450 },
       output: false,
       inputs: ['', ''],
     },
@@ -492,6 +526,74 @@ export const JOHNSON_COUNTER = {
       id: 'state111_out',
       from: { gateId: 'and_state_111', pinIndex: -1 },
       to: { gateId: 'state_111', pinIndex: 0 },
+      isActive: false,
+    },
+    
+    // 状態110の検出 (dff2 & dff1 & ~dff0)
+    // 中間ロジック: dff2 & dff1
+    {
+      id: 'dff2_to_state110_mid',
+      from: { gateId: 'dff2', pinIndex: -1 },
+      to: { gateId: 'and_state_110_mid', pinIndex: 0 },
+      isActive: false,
+    },
+    {
+      id: 'dff1_to_state110_mid',
+      from: { gateId: 'dff1', pinIndex: -1 },
+      to: { gateId: 'and_state_110_mid', pinIndex: 1 },
+      isActive: false,
+    },
+    // 最終ロジック: (dff2 & dff1) & ~dff0
+    {
+      id: 'state110_mid_to_final',
+      from: { gateId: 'and_state_110_mid', pinIndex: -1 },
+      to: { gateId: 'and_state_110', pinIndex: 0 },
+      isActive: false,
+    },
+    {
+      id: 'not0_to_state110',
+      from: { gateId: 'not0', pinIndex: -1 },
+      to: { gateId: 'and_state_110', pinIndex: 1 },
+      isActive: false,
+    },
+    {
+      id: 'state110_out',
+      from: { gateId: 'and_state_110', pinIndex: -1 },
+      to: { gateId: 'state_110', pinIndex: 0 },
+      isActive: false,
+    },
+    
+    // 状態100の検出 (dff2 & ~dff1 & ~dff0)
+    // 中間ロジック: ~dff1 & ~dff0
+    {
+      id: 'not1_to_state100_mid',
+      from: { gateId: 'not1', pinIndex: -1 },
+      to: { gateId: 'and_state_100_mid', pinIndex: 0 },
+      isActive: false,
+    },
+    {
+      id: 'not0_to_state100_mid',
+      from: { gateId: 'not0', pinIndex: -1 },
+      to: { gateId: 'and_state_100_mid', pinIndex: 1 },
+      isActive: false,
+    },
+    // 最終ロジック: dff2 & (~dff1 & ~dff0)
+    {
+      id: 'dff2_to_state100',
+      from: { gateId: 'dff2', pinIndex: -1 },
+      to: { gateId: 'and_state_100', pinIndex: 0 },
+      isActive: false,
+    },
+    {
+      id: 'state100_mid_to_final',
+      from: { gateId: 'and_state_100_mid', pinIndex: -1 },
+      to: { gateId: 'and_state_100', pinIndex: 1 },
+      isActive: false,
+    },
+    {
+      id: 'state100_out',
+      from: { gateId: 'and_state_100', pinIndex: -1 },
+      to: { gateId: 'state_100', pinIndex: 0 },
       isActive: false,
     },
   ],

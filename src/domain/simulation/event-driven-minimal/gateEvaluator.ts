@@ -1,162 +1,108 @@
 /**
- * ゲート評価関数
- * 各ゲートタイプの論理を実装
+ * イベント駆動シミュレーション用のゲート評価
  */
 
 import type { Gate } from '../../../types/circuit';
 import type { GateState } from './types';
+import { evaluateGateUnified } from '../core/gateEvaluation';
+import { isCustomGate } from '../../../types/gates';
+import { evaluateCustomGateByInternalCircuit } from '../core/customGateInternalCircuitEvaluator';
+import { defaultConfig } from '../core/types';
 
 /**
- * ゲートを評価して新しい出力を計算
+ * ゲートを評価し、新しい出力値を返す
  */
 export function evaluateGate(
   gate: Gate,
   inputs: boolean[],
   state: GateState
 ): boolean[] {
-  switch (gate.type) {
-    case 'INPUT':
-      return [gate.output];
-    
-    case 'OUTPUT':
-      return [inputs[0] || false];
-    
-    case 'AND':
-      return [inputs[0] && inputs[1]];
-    
-    case 'OR':
-      return [inputs[0] || inputs[1]];
-    
-    case 'NOT':
-      return [!inputs[0]];
-    
-    case 'XOR':
-      return [inputs[0] !== inputs[1]];
-    
-    case 'NAND':
-      return [!(inputs[0] && inputs[1])];
-    
-    case 'NOR':
-      return [!(inputs[0] || inputs[1])];
-    
-    case 'CLOCK': {
-      // CLOCKゲートは特殊処理
-      const frequency = gate.metadata?.frequency || 1;
-      const isRunning = gate.metadata?.isRunning || false;
-      if (!isRunning) return [false];
+  // カスタムゲートの特別処理
+  if (isCustomGate(gate) && gate.customGateDefinition) {
+    // 内部回路評価を優先
+    if (gate.customGateDefinition.internalCircuit) {
+      const result = evaluateCustomGateByInternalCircuit(
+        gate.customGateDefinition,
+        inputs,
+        defaultConfig
+      );
       
-      // 簡易実装：前回の状態を反転
-      const currentOutput = state.outputs[0] || false;
-      return [!currentOutput]; // TODO: 実際の時間ベース実装
+      if (result.success) {
+        return [...result.data];
+      }
     }
     
-    case 'D-FF': {
-      // D-フリップフロップ
-      const d = inputs[0] || false;
-      const clk = inputs[1] || false;
-      const prevClk = state.previousInputs?.[1] || false;
-      
-      // 立ち上がりエッジ検出
-      if (!prevClk && clk) {
-        return [d, !d]; // Q出力とQ̄出力
-      }
-      
-      // 状態保持
-      const currentQ = state.outputs[0] || false;
-      return [currentQ, !currentQ];
-    }
-    
-    case 'SR-LATCH': {
-      // SR-ラッチ
-      const s = inputs[0] || false;
-      const r = inputs[1] || false;
-      const currentQ = state.outputs[0] || false;
-      
-      let newQ = currentQ;
-      
-      if (s && !r) {
-        newQ = true; // Set
-      } else if (!s && r) {
-        newQ = false; // Reset
-      } else if (s && r) {
-        newQ = currentQ; // 不定（現状維持）
-      } else {
-        newQ = currentQ; // Hold
-      }
-      
-      return [newQ, !newQ]; // QとQ̄の2つの出力
-    }
-    
-    case 'MUX': {
-      // マルチプレクサ
-      const a = inputs[0] || false;
-      const b = inputs[1] || false;
-      const sel = inputs[2] || false;
-      
-      return [sel ? b : a];
-    }
-    
-    case 'BINARY_COUNTER': {
-      // バイナリカウンタ
-      const clk = inputs[0] || false;
-      const prevClk = state.previousInputs?.[0] || false;
-      const bitCount = gate.metadata?.bitCount || 2;
-      let currentValue = (state.metadata?.currentValue as number) || 0;
-      
-      // 立ち上がりエッジでカウント
-      if (!prevClk && clk) {
-        currentValue = (currentValue + 1) % (1 << bitCount);
-        state.metadata = { ...state.metadata, currentValue };
-      }
-      
-      // ビット毎の出力
-      const outputs: boolean[] = [];
-      for (let i = 0; i < bitCount; i++) {
-        outputs.push((currentValue & (1 << i)) !== 0);
-      }
-      
-      return outputs;
-    }
-    
-    case 'CUSTOM': {
-      // カスタムゲート（真理値表ベース）
-      if (!gate.customGateDefinition?.truthTable) {
-        return state.outputs; // 変化なし
-      }
-      
-      const inputPattern = inputs.map(i => i ? '1' : '0').join('');
+    // 真理値表による評価
+    if (gate.customGateDefinition.truthTable) {
+      const inputPattern = inputs.map(v => v ? '1' : '0').join('');
       const outputPattern = gate.customGateDefinition.truthTable[inputPattern];
       
       if (outputPattern) {
         return outputPattern.split('').map(bit => bit === '1');
       }
-      
-      return state.outputs; // デフォルト
     }
     
-    case 'DELAY': {
-      // 遅延ゲート（3サイクル遅延）
-      const history = (state.metadata?.history || []) as boolean[];
-      const currentInput = inputs[0] || false;
+    // フォールバック
+    return [false];
+  }
+  
+  // D-FFとSR-LATCHの特別処理（状態保持ゲート）
+  if (gate.type === 'D-FF') {
+    if (inputs.length >= 2) {
+      const d = inputs[0];
+      const clk = inputs[1];
+      // 重要：前回評価時のクロック状態を取得（現在のクロック状態ではない）
+      const prevClk = typeof state.metadata?.previousClockState === 'boolean' 
+        ? state.metadata.previousClockState 
+        : false;
+      let qOutput = typeof state.metadata?.qOutput === 'boolean'
+        ? state.metadata.qOutput
+        : false;
       
-      // 3サイクル前の値を出力（なければfalse）
-      const output = history.length >= 3 ? history[0] : false;
-      
-      // 履歴に現在の入力を追加
-      const newHistory = [...history, currentInput];
-      
-      // 履歴を最大3つまで保持
-      if (newHistory.length > 3) {
-        newHistory.shift();
+      // 立ち上がりエッジ検出
+      if (!prevClk && clk) {
+        qOutput = d;
       }
+      // 注意：previousClockStateの更新は評価前に行われているため、ここでは更新しない
       
-      // メタデータを更新
-      state.metadata = { ...state.metadata, history: newHistory };
-      
-      return [output];
+      return [qOutput, !qOutput];
     }
-    
-    default:
-      return state.outputs; // 未対応のゲートは現状維持
+    return [false, true];
+  }
+  
+  if (gate.type === 'SR-LATCH') {
+    if (inputs.length >= 2) {
+      const s = inputs[0];
+      const r = inputs[1];
+      let qOutput = typeof state.metadata?.qOutput === 'boolean'
+        ? state.metadata.qOutput
+        : false;
+      
+      // S=1, R=0 => Q=1
+      if (s && !r) {
+        qOutput = true;
+      }
+      // S=0, R=1 => Q=0
+      else if (!s && r) {
+        qOutput = false;
+      }
+      // S=0, R=0 => 状態保持
+      // S=1, R=1 => 不定状態（現在の状態を保持）
+      
+      return [qOutput, !qOutput];
+    }
+    return [false, true];
+  }
+  
+  // 通常のゲートは統合評価関数を使用（ただしメタデータを渡す）
+  const gateWithUpdatedMetadata = { ...gate, metadata: state.metadata };
+  const result = evaluateGateUnified(gateWithUpdatedMetadata, inputs, defaultConfig);
+  
+  if (result.success) {
+    return [...result.data.outputs];
+  } else {
+    // エラーの場合はデフォルト値を返す
+    console.warn(`Gate evaluation failed: ${result.error.message}`);
+    return [false];
   }
 }

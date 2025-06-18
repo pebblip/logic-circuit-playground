@@ -3,7 +3,13 @@ import type { Gate, Wire } from '../../../types';
 export const CHAOS_GENERATOR = {
   id: 'chaos-generator',
   title: '🌀 カオス発生器（LFSR）',
-  description: '線形フィードバックシフトレジスタによる疑似ランダム生成器。暗号学や乱数生成に使われる驚異的な循環回路です！',
+  description: '線形フィードバックシフトレジスタによる疑似ランダム生成器。暗号学や乱数生成に使われる高度な循環回路です。',
+  simulationConfig: {
+    needsAnimation: true,
+    updateInterval: 150,
+    expectedBehavior: 'oscillator' as const,
+    minimumCycles: 20
+  },
   gates: [
     // CLOCK (1Hz)
     {
@@ -12,7 +18,7 @@ export const CHAOS_GENERATOR = {
       position: { x: 100, y: 150 },
       output: true, // 初期状態でONにしてクロック信号を見やすく
       inputs: [],
-      metadata: { frequency: 1 },
+      metadata: { frequency: 1, isRunning: true, startTime: Date.now() },
     },
     
     // 4ビットシフトレジスタ（D-FFで構成）
@@ -22,7 +28,7 @@ export const CHAOS_GENERATOR = {
       position: { x: 200, y: 200 },
       output: true, // 初期値
       inputs: ['', ''],
-      metadata: { state: true },
+      metadata: { qOutput: true, previousClockState: false },
     },
     {
       id: 'dff2',
@@ -30,7 +36,7 @@ export const CHAOS_GENERATOR = {
       position: { x: 300, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { state: false },
+      metadata: { qOutput: false, previousClockState: false },
     },
     {
       id: 'dff3',
@@ -38,7 +44,7 @@ export const CHAOS_GENERATOR = {
       position: { x: 400, y: 200 },
       output: true,
       inputs: ['', ''],
-      metadata: { state: true },
+      metadata: { qOutput: true, previousClockState: false },
     },
     {
       id: 'dff4',
@@ -46,7 +52,7 @@ export const CHAOS_GENERATOR = {
       position: { x: 500, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { state: false },
+      metadata: { qOutput: false, previousClockState: false },
     },
     
     // XORフィードバック（多項式: x^4 + x^3 + 1）

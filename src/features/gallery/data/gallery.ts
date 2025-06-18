@@ -4,12 +4,20 @@ import { PARITY_CHECKER } from './parity-checker';
 import { MAJORITY_VOTER } from './majority-voter';
 import { SEVEN_SEGMENT_DECODER } from './seven-segment';
 import { SR_LATCH_BASIC } from './sr-latch-circuit';
-import { RING_OSCILLATOR } from './ring-oscillator';
+import { SIMPLE_RING_OSCILLATOR } from './simple-ring-oscillator';
 import { CHAOS_GENERATOR } from './chaos-generator';
 import { FIBONACCI_COUNTER } from './fibonacci-counter';
 import { JOHNSON_COUNTER } from './johnson-counter';
-import { SELF_OSCILLATING_MEMORY } from './self-oscillating-memory';
+import { SELF_OSCILLATING_MEMORY_FINAL } from './self-oscillating-memory-final';
 import { MANDALA_CIRCUIT } from './mandala-circuit';
+
+export interface SimulationConfig {
+  needsAnimation?: boolean;      // オシレーション回路かどうか
+  updateInterval?: number;       // 更新間隔（ms）
+  expectedBehavior?: 'oscillator' | 'sequence_generator' | 'memory_circuit' | 'logic_gate';
+  minimumCycles?: number;        // テスト用最小サイクル数
+  clockFrequency?: number;       // CLOCKゲートの周波数（Hz）
+}
 
 export interface CircuitMetadata {
   id: string;
@@ -17,6 +25,7 @@ export interface CircuitMetadata {
   description: string;
   gates: Gate[];
   wires: Wire[];
+  simulationConfig?: SimulationConfig;  // 🆕 シミュレーション設定を統合
 }
 
 export const FEATURED_CIRCUITS: CircuitMetadata[] = [
@@ -29,7 +38,7 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
         id: 'input-a',
         type: 'INPUT',
         position: { x: 100, y: 150 },
-        output: false,
+        output: true,
         inputs: [],
       },
       {
@@ -136,7 +145,7 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
         position: { x: 300, y: 200 },
         output: false,
         inputs: [],
-        metadata: { state: false },
+        metadata: { qOutput: false },
       },
       // Q出力（主出力）
       {
@@ -394,12 +403,12 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
   
   // 循環回路（イベント駆動シミュレーション対応）
   SR_LATCH_BASIC,
-  RING_OSCILLATOR,
+  SIMPLE_RING_OSCILLATOR,
   
   // 循環回路（高度）
   CHAOS_GENERATOR,
   FIBONACCI_COUNTER,
   JOHNSON_COUNTER,
-  SELF_OSCILLATING_MEMORY,
+  SELF_OSCILLATING_MEMORY_FINAL,
   MANDALA_CIRCUIT,
 ];

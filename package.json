@@ -17,6 +17,8 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "test:e2e": "cypress run --headless",
+    "validate:gallery": "node scripts/validate-gallery-circuits.js",
+    "check:gallery": "npm run validate:gallery",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "lint": "eslint src --ext .ts,.tsx --max-warnings 0",

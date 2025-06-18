@@ -3,69 +3,69 @@ import type { CircuitMetadata } from './gallery';
 /**
  * 4ビット比較器回路
  * 2つの4ビット数値を比較して、A>B, A=B, A<B を判定
- * 基本ゲートのみで実装された教育的価値の高い回路
+ * A=8, B=3でデモンストレーション（A>Bが光る）
  */
 export const COMPARATOR_4BIT: CircuitMetadata = {
   id: '4bit-comparator',
   title: '4ビット比較器',
   description: '2つの4ビット数値を比較。A>B、A=B、A<Bを判定する実用的な回路。基本ゲートの組み合わせで高度な機能を実現！',
   gates: [
-    // A入力（4ビット）
+    // A入力（4ビット）- A=8 (1000)
     {
       id: 'a3',
       type: 'INPUT',
       position: { x: 50, y: 100 },
-      output: false,
+      output: true, // MSB of 8
       inputs: [],
     },
     {
       id: 'a2',
       type: 'INPUT',
       position: { x: 50, y: 150 },
-      output: false,
+      output: false, // bit 2 of 8
       inputs: [],
     },
     {
       id: 'a1',
       type: 'INPUT',
       position: { x: 50, y: 200 },
-      output: false,
+      output: false, // bit 1 of 8
       inputs: [],
     },
     {
       id: 'a0',
       type: 'INPUT',
       position: { x: 50, y: 250 },
-      output: false,
+      output: false, // LSB of 8
       inputs: [],
     },
-    // B入力（4ビット）
+    // B入力（4ビット）- B=3 (0011)
     {
       id: 'b3',
       type: 'INPUT',
       position: { x: 50, y: 350 },
-      output: false,
+      output: false, // MSB of 3
       inputs: [],
     },
     {
       id: 'b2',
       type: 'INPUT',
       position: { x: 50, y: 400 },
-      output: false,
+      output: false, // bit 2 of 3
       inputs: [],
     },
     {
       id: 'b1',
       type: 'INPUT',
       position: { x: 50, y: 450 },
-      output: false,
+      output: true, // bit 1 of 3
       inputs: [],
     },
     {
       id: 'b0',
       type: 'INPUT',
       position: { x: 50, y: 500 },
-      output: false,
+      output: true, // LSB of 3
       inputs: [],
     },
     // 各ビット位置での等価性チェック (XNOR)

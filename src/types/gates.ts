@@ -6,7 +6,7 @@ export type { GateType, CustomGateDefinition } from './circuit';
 // ゲートタイプの詳細定義
 export type BasicGateType = 'AND' | 'OR' | 'NOT' | 'XOR' | 'NAND' | 'NOR';
 export type IOGateType = 'INPUT' | 'OUTPUT';
-export type SpecialGateType = 'CLOCK' | 'D-FF' | 'SR-LATCH' | 'MUX' | 'BINARY_COUNTER' | 'DELAY';
+export type SpecialGateType = 'CLOCK' | 'D-FF' | 'SR-LATCH' | 'MUX' | 'BINARY_COUNTER';
 export type CustomGateType = 'CUSTOM';
 export type AllGateType =
   | BasicGateType
@@ -74,7 +74,6 @@ export const GATE_SIZES = {
   'SR-LATCH': { width: 100, height: 80 },
   MUX: { width: 100, height: 100 },
   BINARY_COUNTER: { width: 120, height: 100 },
-  DELAY: { width: 80, height: 60 },
 
   // カスタムゲート（デフォルト、実際は可変）
   CUSTOM: { width: 100, height: 80 },
@@ -100,7 +99,6 @@ export const PIN_CONFIGS = {
   'SR-LATCH': { inputs: 2, outputs: 2 }, // S, R -> Q, Q̄
   MUX: { inputs: -1, outputs: 1 }, // 可変
   BINARY_COUNTER: { inputs: 1, outputs: -1 }, // CLK入力, ビット数分の出力
-  DELAY: { inputs: 1, outputs: 1 }, // 単一入力、単一出力
 
   // カスタムゲート（可変）
   CUSTOM: { inputs: -1, outputs: -1 }, // 可変

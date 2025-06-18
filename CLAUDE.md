@@ -1,347 +1,338 @@
-# LogiCirc - 開発ガイド for Claude
+# LogiCirc - 開発ガイド
 
 ## 🎯 プロジェクト概要
-このプロジェクトは教育用の論理回路シミュレータです。ユーザーは様々な論理ゲートを配置・接続して回路を作成し、リアルタイムでシミュレーションできます。
+教育用論理回路シミュレータの開発手順と品質管理方法を記載します。実際の開発で発生した問題の対策と予防方法をまとめています。
 
-### 主な特徴
-- ドラッグ&ドロップによる直感的なゲート配置
-- リアルタイムシミュレーション（coreAPIベース）
-- 視覚的フィードバック（アクティブな信号の表示）
-- 特殊ゲート対応（CLOCK、D-FF、SR-LATCH、MUX）
-- カスタムゲート作成機能（回路から新しいゲートを作成）
-- 真理値表自動生成・表示機能
-- 学習モード（構造化コンテンツによる段階的学習）
-- 型安全性重視のコード基盤（ESLint準拠）
-- レスポンシブデザイン対応（デスクトップ・タブレット・モバイル）
+### 核心機能
+- インタラクティブな論理回路設計環境
+- リアルタイム回路シミュレーション
+- 教育用学習モードとギャラリー機能
+- 高度なカスタムゲート作成機能
 
-## 📊 必ず確認すること
-**セッション開始時は必ず [PROGRESS.md](docs/management/PROGRESS.md) を確認してください**
-- 現在の進捗状況
-- 前回の作業内容
-- 次回の作業予定
-- 未解決の課題
-
-```bash
-# セッション開始時の必須コマンド
-cat docs/management/PROGRESS.md          # 進捗確認
-git log --oneline -5                     # 最近のコミット
-npm test                                 # テスト状態
-```
-
-## 📚 ドキュメント構造
-
-### 必読ドキュメント
-1. `docs/management/PROGRESS.md` - **進捗管理とセッション引き継ぎ（最重要）**
-2. `docs/development/GUIDELINES.md` - 開発ガイドライン（コーディング規約、品質基準）
-3. `docs/development/ARCHITECTURE.md` - アーキテクチャ（Hybrid Feature-Domain）
-4. `docs/development/ROADMAP.md` - 開発ロードマップ
-5. `docs/management/PROJECT_BLUEPRINT.md` - プロジェクト全体の青写真
-
-### 実践的ドキュメント（セッション中によく参照）
-- `docs/user-guide/QUICK_START.md` - 5分で始めるガイド（環境構築・初回実行）
-- `docs/user-guide/FAQ.md` - よくある質問と解決方法（最優先トラブルシューティング）
-- `docs/user-guide/TROUBLESHOOTING.md` - 技術的問題の詳細解決方法
-- `docs/user-guide/COMMAND_REFERENCE.md` - 全コマンドの完全ガイド
-
-### モックアップ
-- `docs/design/mockups/final-gate-design.html` - ゲートのデザイン仕様
-
-## 🛠️ 開発ルール
+## 🏗️ 開発哲学
 
 ### 基本原則
-1. **動く製品を最優先** - 完璧よりも動作を重視
-2. **段階的な改善** - 小さな変更を積み重ねる
-3. **ユーザーファースト** - 使いやすさを常に意識
+1. **品質優先**: 動作する確実な機能を段階的に構築
+2. **予防的思考**: 問題の発生を事前に防ぐ設計
+3. **継続的検証**: 全ての変更に対する多層的な確認
+4. **謙虚な姿勢**: 完璧は存在しない前提での開発
 
-### デバッグ・修正時の約束
-詳細は [開発ガイドライン](docs/development/GUIDELINES.md#-デバッグプロセス) を参照
+### 品質に対する考え方
+- 完璧なシステムは存在しない
+- 自動化は補助手段であり、人的確認を代替しない
+- 過去の成功は将来の失敗を保証しない
+- 小さな見落としが大きな問題を引き起こす
 
-1. **分析してから実装** - 原因を特定してから修正
-2. **ユーザーの承認を得る** - 方針を提示してから進める
-3. **テストで検証** - 問題を再現してから修正
-4. **影響範囲を明確に** - 変更の影響を事前に確認
+## 🛡️ 不具合予防システム
 
-### コーディング規約
+### Level 1: 設計段階での予防
+#### データ・ロジック統合原則
 ```typescript
-// ✅ 良い例：明確な型定義
-interface Gate {
-  id: string;
-  type: GateType;
-  position: Position;
-  inputs: string[];
-  output: boolean;
-  metadata?: Record<string, unknown>; // 特殊ゲート用
+// ✅ 推奨: 設定とデータの統合
+export const CIRCUIT_DATA = {
+  id: 'example-circuit',
+  gates: [...],
+  wires: [...],
+  behaviorConfig: {           // 動作設定を同じ場所に
+    needsAnimation: true,
+    updateInterval: 200,
+    expectedBehavior: 'oscillator'
+  }
+};
+
+// ❌ 避ける: 設定の分散配置
+// データファイル: export const CIRCUIT_DATA = { gates, wires }
+// 別ファイル: if (title.includes('keyword')) { /* 設定 */ }
+```
+
+#### 型安全性の徹底
+```typescript
+// ✅ 厳密な型定義
+interface CircuitConfig {
+  needsAnimation: boolean;
+  updateInterval: number;
+  expectedBehavior: 'oscillator' | 'logic_gate' | 'memory_circuit';
 }
 
-// ❌ 悪い例：any型の使用
-// const gate: any = { ... }; // ← 使用禁止！
+// ❌ 曖昧な型定義
+// config: any, settings: object, etc.
 ```
 
-### テスト実行
-```bash
-# 単体テストの実行（推奨：高速で詳細）
-npm run test
-
-# 特定のテストファイルのみ実行
-npm run test -- tests/components/TruthTableDisplay.test.tsx
-
-# E2Eテストの実行（開発中によく使う）
-npm run test:e2e
-
-# 特定のE2Eテストのみ実行
-npx cypress run --spec "cypress/e2e/特定のテスト.cy.js"
-
-# ヘッドレスモードでE2Eテスト
-npm run test:e2e:headless
-
-# TypeScriptのチェック
-npm run typecheck
-
-# ビルドの確認
-npm run build
-```
-
-### 重要：テスト実行ガイドライン
-- 新機能追加時は必ず対応するテストケースを追加
-- カスタムゲート関連機能は`TruthTableDisplay.test.tsx`を参考にテスト作成
-- テストカバレッジ80%以上を目標とする
-
-## 📝 コミットルール
-
-### Conventional Commits形式
-```bash
-# 機能追加
-feat: 特殊ゲート（CLOCK、D-FF）を実装
-
-# バグ修正
-fix: SR-LATCHの接続線のずれを修正
-
-# ドキュメント
-docs: 開発ガイドラインを更新
-
-# リファクタリング
-refactor: ゲートファクトリーパターンを導入
-
-# テスト
-test: 特殊ゲートの統合テストを追加
-```
-
-## 🏗️ アーキテクチャ要点
-
-### Hybrid Feature-Domain Architecture
-```
-src/
-├── domain/                    # ドメインロジック
-│   ├── analysis/             # 真理値表生成・回路分析
-│   ├── circuit/              # 回路レイアウト・操作
-│   └── simulation/           # coreAPI：純粋関数シミュレーション
-│       └── core/             # Result<T,E>パターン実装
-├── stores/                   # Zustand状態管理
-│   └── slices/              # 機能別スライス
-├── components/               # UIコンポーネント
-│   ├── dialogs/             # モーダルダイアログ
-│   ├── gate/                # ゲート関連コンポーネント
-│   ├── layouts/             # レスポンシブレイアウト
-│   └── tool-palette/        # ツールパレット
-├── features/                 # 機能別実装
-│   ├── gallery/             # ギャラリーモード
-│   ├── learning-mode/       # 学習モード
-│   └── puzzle-mode/         # パズルモード
-├── hooks/                   # カスタムフック
-├── infrastructure/         # インフラ層
-└── types/                  # 型定義
-```
-
-### 重要ファイル
-- `src/stores/circuitStore.ts` - 中央状態管理
-- `src/domain/simulation/core/circuitEvaluation.ts` - coreAPI回路評価
-- `src/domain/simulation/core/gateEvaluation.ts` - coreAPIゲート評価
-- `src/components/TruthTableDisplay.tsx` - 真理値表表示
-- `src/components/ToolPalette.tsx` - カスタムゲート作成
-- `src/domain/analysis/pinPositionCalculator.ts` - ピン位置計算
-- `src/models/gates/GateFactory.ts` - ゲート生成ファクトリー
-- `src/features/learning-mode/` - 学習モード
-
-## 🔧 よくある問題と解決方法
-
-### 1. 共有URL復元時の接続線問題 ✅修正済み
-**原因**: ゲートIDの再生成時にワイヤー接続が更新されない
-**解決**: IDマッピングを作成してワイヤー接続を正しく更新
-**場所**: `src/stores/slices/shareSlice.ts`
-
-### 2. CLOCKゲートの高周波数問題 ✅修正済み
-**原因**: 固定更新間隔（100ms）による低サンプリングレート
-**解決**: 動的更新間隔（Nyquist定理準拠、最高周波数の4倍）
-**場所**: `src/components/Canvas.tsx`
-
-### 3. タイミングチャート表示問題 ✅修正済み
-**原因**: CLOCKゲート選択状態の管理不備
-**解決**: clockSelectionSliceで選択状態を専用管理
-**場所**: `src/stores/slices/clockSelectionSlice.ts`
-
-### 4. ヘルプコンテンツの改行問題 ✅修正済み
-**原因**: `\n`文字が正しく表示されない
-**解決**: 構造化リスト表示で視覚的に改善
-**場所**: `src/components/HelpPanel.tsx`
-
-### 現在の既知問題
-1. **大規模回路のパフォーマンス**: 100+ゲートで遅延
-2. **モバイルタッチ精度**: ピン接続の困難さ
-3. **テストカバレッジ**: 一部機能で不足
-
-### デバッグ手順
-1. `npm run typecheck` - 型エラーチェック
-2. `npm run lint` - コード品質チェック  
-3. `npm run test` - 単体テスト実行
-4. ブラウザ開発者ツールでコンソール確認
-
-## 💡 開発のコツ
-
-### 座標系の扱い
-- SVG座標系を使用（左上が原点）
-- マウスイベントではSVG座標に変換が必要
+### Level 2: 実装段階での予防
+#### 命名規則の統一
 ```typescript
-const point = svg.createSVGPoint();
-point.x = event.clientX;
-point.y = event.clientY;
-const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
+// ✅ 一貫した命名
+metadata: {
+  qOutput: boolean;           // D-FFの出力
+  qBarOutput: boolean;        // D-FFの反転出力
+  previousClockState: boolean; // クロック状態記録
+}
+
+// ❌ 非一貫な命名
+// state, output, prevState, etc.
 ```
 
-### 状態管理
-- Zustandを使用（シンプルで高速）
-- Immerは使わない（プロキシ問題を避ける）
-- 更新は必ずimmutableに
-- coreAPIではResult<T,E>パターンでエラーハンドリング
-
-### coreAPIシミュレーション（推奨）
+#### 自動フォールバック機能
 ```typescript
-// ✅ 良い例：coreAPI使用
-const result = evaluateCircuit(circuit, config);
+// 設定漏れ時の安全な動作
+const needsAnimation = circuit?.behaviorConfig?.needsAnimation ?? 
+  detectAnimationNeed(circuit); // 自動検出による補完
+```
+
+### Level 3: テスト段階での予防
+#### 多層テスト戦略
+1. **構造テスト**: データ整合性の自動検証
+2. **動作テスト**: 期待される振る舞いの確認
+3. **統合テスト**: コンポーネント間の連携確認
+4. **回帰テスト**: 既存機能の動作保証
+
+#### 必須テストパターン
+```typescript
+describe('新機能のテスト', () => {
+  it('基本構造が正しい', () => {
+    // データ整合性
+  });
+  
+  it('期待動作を実行する', () => {
+    // 機能動作
+  });
+  
+  it('エラー状態を適切に処理する', () => {
+    // エラーハンドリング
+  });
+  
+  it('既存機能に影響しない', () => {
+    // 回帰防止
+  });
+});
+```
+
+### Level 4: デプロイ段階での予防
+#### 段階的リリース検証
+1. **型チェック**: `npm run typecheck`
+2. **自動テスト**: `npm run test`
+3. **手動確認**: ブラウザでの実際の動作確認
+4. **統合確認**: 関連機能との相互作用確認
+
+## 🔄 品質保証ワークフロー
+
+### 機能追加時の必須手順
+
+#### 1. 計画段階
+- [ ] 既存システムとの整合性確認
+- [ ] データ構造の統合性確認
+- [ ] 潜在的副作用の評価
+- [ ] テスト戦略の策定
+
+#### 2. 実装段階
+```bash
+# 開発環境での継続的確認
+npm run typecheck:watch  # 型エラーの即座検出
+npm run test            # テストスイート実行
+npm run dev            # 実際の動作確認
+```
+
+#### 3. 検証段階
+- [ ] 自動テストの全通過
+- [ ] 型安全性の確認
+- [ ] ブラウザでの手動確認（最低30秒観察）
+- [ ] 関連機能の動作確認
+- [ ] エラーケースの動作確認
+
+#### 4. 統合段階
+- [ ] コードレビュー（可能な場合）
+- [ ] ドキュメント更新
+- [ ] PROGRESS.mdの更新
+- [ ] 既知問題リストの更新
+
+### ギャラリー回路の特別要件
+
+#### 新規回路追加チェックリスト
+```typescript
+// 必須: 統合された設定
+export const NEW_CIRCUIT = {
+  id: 'unique-circuit-id',
+  title: '回路名',
+  description: '明確な説明',
+  behaviorConfig: {                    // 必須項目
+    needsAnimation: true/false,        // アニメーション要否
+    updateInterval: number,            // 更新間隔(ms)
+    expectedBehavior: BehaviorType,    // 動作タイプ
+    minimumCycles: number             // テスト用サイクル数
+  },
+  gates: [...],
+  wires: [...]
+};
+```
+
+#### 検証手順
+1. **構造確認**: 必須プロパティの存在
+2. **動作確認**: ブラウザでの実際の動作
+3. **テスト作成**: 基本動作テストの追加
+4. **回帰確認**: 既存回路への影響なし
+
+## 🔍 継続的品質管理
+
+### 定期的品質チェック
+```bash
+# 週次実行推奨
+npm run validate:all      # 全体品質チェック
+npm run test:coverage     # テストカバレッジ確認
+npm run analyze:performance # パフォーマンス分析
+```
+
+### 品質メトリクス
+| 指標 | 目標値 | 現在値 | 状態 |
+|------|--------|--------|------|
+| 型安全性 | 100% | 確認中 | 🟡 |
+| テストカバレッジ | 80%+ | 確認中 | 🟡 |
+| 回帰テスト通過率 | 100% | 確認中 | 🟡 |
+| 手動確認完了率 | 100% | 確認中 | 🟡 |
+
+### 問題発生時の対応
+
+#### インシデント対応プロセス
+1. **即座の現状確認**: 影響範囲の特定
+2. **根本原因分析**: 技術的・プロセス的要因の調査
+3. **修正と検証**: 確実な解決策の実装
+4. **予防策策定**: 同種問題の再発防止
+5. **ドキュメント更新**: 知見の蓄積と共有
+
+#### 学習サイクル
+```
+問題発生 → 原因分析 → 対策実装 → プロセス改善 → ドキュメント更新
+```
+
+## 📚 実装ガイド
+
+### 開発環境セットアップ
+```bash
+# セッション開始時の必須確認
+cat docs/management/PROGRESS.md     # 現在の状況把握
+git log --oneline -5               # 最近の変更確認
+npm run typecheck                  # 型エラーチェック
+npm test                          # テスト状態確認
+```
+
+### コーディング標準
+
+#### TypeScript使用規則
+```typescript
+// ✅ 推奨パターン
+interface StrictType {
+  required: string;
+  optional?: number;
+}
+
+const result: Result<Data, Error> = processData(input);
 if (result.success) {
-  const { circuit: updatedCircuit } = result.data;
   // 成功時の処理
 } else {
-  console.error('Evaluation failed:', result.error.message);
+  // エラーハンドリング
 }
 
-// ❌ 旧API（非推奨）
-const updatedCircuit = evaluateCircuitLegacy(circuit); // エラーが見えない
+// ❌ 避けるパターン
+const data: any = getData();        // any型の使用
+throw new Error('Something');       // 不明確なエラー
 ```
 
-### カスタムゲート開発
-- `definition.outputs`の`name`プロパティは必須
-- 真理値表は自動生成される
-- ピン位置計算は`pinPositionCalculator.ts`で統一
+#### エラーハンドリング標準
+```typescript
+// 統一されたエラーハンドリング
+type Result<T, E> = 
+  | { success: true; data: T }
+  | { success: false; error: E };
 
-### パフォーマンス
-- 不要な再レンダリングを避ける（React.memo活用）
-- CLOCKゲートは動的更新間隔（1-20Hz対応、Nyquist定理準拠）
-- 真理値表は計算コストが高いため、キャッシュを活用
-- 大規模回路では仮想化やWebWorker検討
+// 具体的なエラー情報の提供
+interface ValidationError {
+  field: string;
+  message: string;
+  suggestion?: string;
+}
+```
 
-## 🚀 開発アプローチ
+### デバッグ手順
+1. **再現可能性の確認**: 問題の一貫した発生
+2. **最小再現ケースの作成**: 問題の本質的要因の特定
+3. **仮説立案と検証**: 体系的な原因調査
+4. **解決策の実装**: 根本的な問題解決
+5. **回帰防止策の実装**: 同種問題の予防
 
-### 開発の優先順位
-1. **基本機能の安定性**
-   - コア機能の動作保証
-   - エラーハンドリングの充実
-   - ユーザビリティの向上
+## 🎯 プロジェクト管理
 
-2. **段階的な機能拡張**
-   - 学習モードの充実
-   - パズルモードの問題追加
-   - ギャラリーモードの実装
+### 作業管理原則
+- **段階的開発**: 小さな変更の積み重ね
+- **継続的統合**: 変更の早期検証
+- **文書化の徹底**: 知見の確実な記録
+- **振り返りの実施**: 定期的なプロセス改善
 
-3. **利便性の向上**
-   - キーボードショートカット
-   - 履歴機能（元に戻す/やり直し）
-   - 回路保存・共有機能
+### セッション管理
+```bash
+# セッション開始時
+1. PROGRESS.mdで現状確認
+2. 前回の作業内容の把握
+3. 今回の作業計画の策定
+4. リスク要因の事前評価
 
-4. **高度な機能**
-   - 自動レイアウト機能
-   - 回路検証・最適化
-   - パフォーマンス分析
+# セッション終了時
+1. 作業内容のPROGRESS.md更新
+2. 発見した問題の記録
+3. 次回作業の計画更新
+4. 学んだ教訓の文書化
+```
 
-### 主要機能の実装状況（2025-06-15現在）
-- **学習モード**: 構造化レッスンによる段階的学習 ✅
-- **フリーモード**: 自由な回路作成とシミュレーション ✅
-- **真理値表表示**: 自動生成・表示機能 ✅
-- **カスタムゲート**: 回路からゲート作成機能 ✅
-- **タイミングチャート**: CLOCKゲート対応、オシロスコープモード ✅
-- **共有機能**: URL共有、接続線復元対応 ✅
-- **coreAPIシミュレーション**: Result<T,E>パターンで型安全 ✅
-- **レスポンシブ対応**: デスクトップ・タブレット・モバイル対応 ✅
-- **キーボードショートカット**: 効率的な操作 ✅
-- **履歴機能**: 元に戻す/やり直し ✅
-- **回路保存・読み込み**: ローカルストレージ対応 ✅
+## 🔧 ツールとスクリプト
 
-### 今後の実装予定
-- **パズルモード**: 制約付き問題解決（開発中）
-- **ギャラリーモード**: サンプル回路ライブラリ（開発中）
-- **パフォーマンス最適化**: 大規模回路対応（高優先度）
-- **モバイルUX改善**: タッチ操作精度向上（高優先度）
-- **PNG画像エクスポート**: 回路図の画像化（準備中）
-- **AI支援機能**: 回路設計アシスタント（研究中）
+### 開発支援ツール
+```json
+{
+  "scripts": {
+    "dev": "vite",                    // 開発サーバー
+    "build": "npm run typecheck && vite build",  // 本番ビルド
+    "test": "vitest",                 // テスト実行
+    "test:coverage": "vitest --coverage", // カバレッジ確認
+    "typecheck": "tsc --noEmit",      // 型チェック
+    "lint": "eslint src --ext .ts,.tsx", // コード品質
+    "validate:gallery": "node scripts/validate-circuits.js" // 回路検証
+  }
+}
+```
 
-### 技術的基盤
-- **API設計**: coreAPIによる関数型アプローチ
-- **コード品質**: ESLintによる品質管理
-- **型安全性**: TypeScript strict mode対応
-- **ドキュメント**: 開発ガイドラインの整備
+### 品質チェックコマンド
+```bash
+# 総合品質確認
+npm run build && npm run test && npm run lint
 
-## 📋 チェックリスト
+# 特定領域の確認
+npm run validate:gallery          # ギャラリー回路
+npm run test:integration         # 統合テスト
+npm run analyze:bundle          # バンドルサイズ
+```
 
-### 開発前
-- [ ] ドキュメントで関連機能を確認
-- [ ] 関連するテストケースを確認
-- [ ] アーキテクチャガイドラインを確認
+## 📖 関連ドキュメント
 
-### 実装中
-- [ ] TypeScriptの型を正しく使用
-- [ ] エラーハンドリングを適切に
-- [ ] パフォーマンスを意識
+### 必読文書
+- `docs/development/ARCHITECTURE.md` - システム設計
+- `docs/development/GUIDELINES.md` - 技術標準
+- `docs/management/PROGRESS.md` - 進捗管理
+- `docs/user-guide/QUICK_START.md` - 環境構築
 
-### コミット前
-- [ ] `npm run typecheck`でエラーなし
-- [ ] `npm run lint`でエラーなし（警告は許容）
-- [ ] `npm run test`で単体テストが通る
-- [ ] 関連するE2Eテストが通る
-- [ ] コミットメッセージが規約に従っている
-- [ ] カスタムゲート関連の変更は真理値表表示も確認
+### 参考文書
+- `docs/user-guide/FAQ.md` - よくある問題と解決
+- `docs/user-guide/TROUBLESHOOTING.md` - 詳細トラブルシューティング
+- `docs/design/mockups/` - UI/UX仕様
 
-## 🎨 UI/UXの指針
+## 🎉 品質改善のアプローチ
 
-### モックアップ準拠
-- ゲートサイズは`docs/design/mockups/final-gate-design.html`を参照
-- 色使いは既存のCSSに従う（#00ff88がアクティブ色）
+### 品質に対する姿勢
+- **高品質を目指すが、不完全さを受け入れる**
+- **自動化を活用するが、人的確認を怠らない**
+- **過去の成功に慢心せず、新たなリスクに警戒する**
+- **問題を隠さず、学習機会として活用する**
 
-### ユーザビリティ
-- クリック領域は見た目より大きく（特にピン）
-- 視覚的フィードバックは必須
-- エラーは分かりやすく表示
-
-## 📌 重要な注意事項
-
-1. **ViewModelパターンは使わない**（Zustandで十分）
-2. **過度な抽象化は避ける**（シンプルに保つ）
-3. **動作確認は必ずブラウザで**（テストだけでは不十分）
-4. **品質管理**: QUALITY_REVIEW.mdに基づく継続的改善
-5. **進捗管理**: PROGRESS.mdで現在の状況を常に把握
-
-## 📋 セッション開始時のチェックリスト
-
-### 必須確認事項
-1. [ ] [PROGRESS.md](docs/management/PROGRESS.md)で現在の進捗確認
-2. [ ] [QUALITY_REVIEW.md](docs/management/QUALITY_REVIEW.md)で品質状況確認
-3. [ ] [CHANGELOG.md](CHANGELOG.md)で最新の変更確認
-4. [ ] `git log --oneline -5`で最近のコミット確認
-5. [ ] `npm run typecheck`で型エラーなしを確認
-
-### 開発開始前
-- [ ] 作業対象の優先度確認（PROGRESS.mdの「次回の作業候補」参照）
-- [ ] 関連するテストケースの確認
-- [ ] アーキテクチャガイドラインの確認
+### 継続的改善
+このドキュメントも継続的に改善していきます。新たな経験、発見された問題、改良されたプロセスに基づいて定期的に更新し、開発実践の改善を反映させていきます。
 
 ---
 
-**重要**: セッション終了時は必ずPROGRESS.mdを更新してください。
+*最終更新: 2025-06-18 | このドキュメントは実際の開発経験に基づいて継続的に改善されています*

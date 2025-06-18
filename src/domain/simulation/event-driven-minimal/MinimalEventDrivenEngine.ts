@@ -177,7 +177,7 @@ export class MinimalEventDrivenEngine {
       this.circuitState.gateStates.set(gate.id, {
         inputs: new Array(inputCount).fill(false),
         outputs: initialOutputs,
-        metadata: gate.metadata,
+        metadata: gate.metadata ? { ...gate.metadata } : undefined,
       });
       
     }
@@ -378,6 +378,8 @@ export class MinimalEventDrivenEngine {
       currentOutputs: state.outputs.map((v, i) => `output[${i}]=${v}`),
     });
     
+    // メタデータの事前更新は削除（評価後に統一）
+    
     // ゲートを評価
     const newOutputs = evaluateGate(gate, inputs, state);
     
@@ -410,6 +412,48 @@ export class MinimalEventDrivenEngine {
     
     // 入力を記録（次回のエッジ検出用）
     state.previousInputs = [...inputs];
+    
+    // D-FFのメタデータを評価後に更新
+    if (gate.type === 'D-FF' && inputs.length >= 2) {
+      const d = inputs[0];
+      const clk = inputs[1];
+      const prevClk = state.metadata?.previousClockState ?? false;
+      
+      // 立ち上がりエッジでqOutputを更新
+      if (!prevClk && clk && newOutputs.length >= 2) {
+        state.metadata = {
+          ...state.metadata,
+          qOutput: newOutputs[0],     // Q出力
+          qBarOutput: newOutputs[1],  // Q̄出力
+        };
+        
+        this.addDebugTrace(time, 'D-FF_EDGE_DETECTED', {
+          gateId,
+          d,
+          prevClk,
+          clk,
+          qOutput: newOutputs[0],
+          qBarOutput: newOutputs[1]
+        });
+      }
+      
+      // previousClockStateを常に更新
+      state.metadata = {
+        ...state.metadata,
+        previousClockState: clk,
+      };
+    } else if (gate.type === 'SR-LATCH' && inputs.length >= 2) {
+      const s = inputs[0];
+      const r = inputs[1];
+      
+      if (newOutputs.length >= 2) {
+        state.metadata = {
+          ...state.metadata,
+          qOutput: newOutputs[0],     // Q出力
+          qBarOutput: newOutputs[1],  // Q̄出力
+        };
+      }
+    }
     
     return hasChanges;
   }
@@ -458,6 +502,7 @@ export class MinimalEventDrivenEngine {
       // メタデータ更新
       if (state.metadata) {
         gate.metadata = { ...gate.metadata, ...state.metadata };
+        
       }
       
       // 入力値を更新（特にOUTPUTゲートで重要）

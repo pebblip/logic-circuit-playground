@@ -7,6 +7,7 @@ import type { Circuit } from '../core/types';
 import type { Gate, Wire } from '../../../types/circuit';
 import { CircuitAnalyzer } from './CircuitAnalyzer';
 import { MinimalEventDrivenEngine } from './MinimalEventDrivenEngine';
+import { EventDrivenEngine } from '../event-driven';
 import { evaluateCircuit as evaluateTopological } from '../core/circuitEvaluation';
 import { defaultConfig } from '../core/types';
 
@@ -30,6 +31,7 @@ export interface EnhancedEvaluatorConfig {
   };
   enablePerformanceTracking: boolean;
   enableDebugLogging: boolean;
+  delayMode?: boolean;  // 遅延モードの有効/無効
 }
 
 /**
@@ -68,13 +70,14 @@ const DEFAULT_CONFIG: EnhancedEvaluatorConfig = {
 
 export class EnhancedHybridEvaluator {
   private config: EnhancedEvaluatorConfig;
-  private eventDrivenEngine: MinimalEventDrivenEngine;
+  private eventDrivenEngine: EventDrivenEngine;
   private performanceHistory: Map<string, number[]> = new Map();
   
   constructor(config: Partial<EnhancedEvaluatorConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
-    this.eventDrivenEngine = new MinimalEventDrivenEngine({
+    this.eventDrivenEngine = new EventDrivenEngine({
       enableDebug: this.config.enableDebugLogging,
+      delayMode: this.config.delayMode || false,
     });
   }
 
@@ -237,14 +240,123 @@ export class EnhancedHybridEvaluator {
       console.debug('[EnhancedHybridEvaluator] デバッグトレース:', result.debugTrace);
     }
     
-    // 更新された状態で新しいcircuitオブジェクトを返す
+    
+    // ワイヤー情報から入力値を動的に計算
+    const gateInputsMap = new Map<string, boolean[]>();
+    
+    // 各ゲートの入力値をワイヤーから計算
+    for (const gate of circuit.gates) {
+      const inputs: boolean[] = [];
+      const inputCount = this.getGateInputCount(gate);
+      
+      // 初期化
+      for (let i = 0; i < inputCount; i++) {
+        inputs[i] = false;
+      }
+      
+      // ワイヤーから入力値を収集
+      for (const wire of circuit.wires) {
+        if (wire.to.gateId === gate.id) {
+          const sourceGateState = result.finalState?.gateStates.get(wire.from.gateId);
+          if (sourceGateState) {
+            const outputIndex = wire.from.pinIndex === -1 ? 0 : 
+                               wire.from.pinIndex === -2 ? 1 : 0;
+            const value = sourceGateState.outputs[outputIndex] || false;
+            
+            if (wire.to.pinIndex >= 0 && wire.to.pinIndex < inputs.length) {
+              inputs[wire.to.pinIndex] = value;
+            }
+          }
+        }
+      }
+      
+      gateInputsMap.set(gate.id, inputs);
+    }
+    
+    // EventDrivenEngineの結果から正しいゲート状態を反映
+    const updatedGates = circuit.gates.map(gate => {
+      const gateState = result.finalState?.gateStates.get(gate.id);
+      const dynamicInputs = gateInputsMap.get(gate.id) || [];
+      
+      
+      if (gateState) {
+        // GateStateからゲートオブジェクトに正しい状態を反映
+        const updatedGate = { ...gate };
+        
+        // 出力値を反映
+        if (gateState.outputs.length > 0) {
+          updatedGate.output = gateState.outputs[0];
+        }
+        
+        // OUTPUTゲートは入力をそのまま出力に反映
+        if (gate.type === 'OUTPUT' && dynamicInputs.length > 0) {
+          updatedGate.output = dynamicInputs[0];
+        }
+        
+        // 動的に計算した入力値を反映（文字列形式で保存）
+        updatedGate.inputs = dynamicInputs.map(input => input ? '1' : '');
+        
+        // メタデータを更新（D-FF、SR-LATCH等の状態保持ゲート用）
+        if (gateState.metadata) {
+          updatedGate.metadata = { ...updatedGate.metadata, ...gateState.metadata };
+        }
+        
+        return updatedGate;
+      }
+      return { ...gate };
+    });
+    
+    // ワイヤーの状態も更新
+    const updatedWires = circuit.wires.map(wire => {
+      const sourceGateState = result.finalState?.gateStates.get(wire.from.gateId);
+      if (sourceGateState) {
+        // pinIndex -1は出力index 0、pinIndex -2は出力index 1
+        const outputIndex = wire.from.pinIndex === -1 ? 0 : 
+                           wire.from.pinIndex === -2 ? 1 : 0;
+        const isActive = sourceGateState.outputs[outputIndex] || false;
+        return { ...wire, isActive };
+      }
+      return { ...wire };
+    });
+
     return {
       circuit: {
-        gates: circuit.gates.map(g => ({ ...g })),
-        wires: circuit.wires.map(w => ({ ...w }))
+        gates: updatedGates,
+        wires: updatedWires
       },
       warnings,
     };
+  }
+
+  /**
+   * ゲートの入力数を取得
+   */
+  private getGateInputCount(gate: Gate): number {
+    switch (gate.type) {
+      case 'INPUT':
+      case 'CLOCK':
+        return 0;
+      case 'OUTPUT':
+      case 'NOT':
+        return 1;
+      case 'AND':
+      case 'OR':
+      case 'XOR':
+      case 'NAND':
+      case 'NOR':
+      case 'D-FF':
+      case 'SR-LATCH':
+        return 2;
+      case 'MUX':
+        return 3;
+      case 'BINARY_COUNTER':
+        return 1;
+      case 'CUSTOM':
+        // カスタムゲートの場合は定義から取得
+        return gate.customGateDefinition?.inputs.length || 0;
+      default:
+        return 0;
+    }
   }
 
   /**
@@ -379,8 +491,9 @@ export class EnhancedHybridEvaluator {
    */
   updateConfig(config: Partial<EnhancedEvaluatorConfig>): void {
     this.config = { ...this.config, ...config };
-    this.eventDrivenEngine = new MinimalEventDrivenEngine({
+    this.eventDrivenEngine = new EventDrivenEngine({
       enableDebug: this.config.enableDebugLogging,
+      delayMode: this.config.delayMode || false,
     });
   }
 

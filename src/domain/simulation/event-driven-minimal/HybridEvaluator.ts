@@ -5,17 +5,32 @@
 
 import type { Circuit } from '../core/types';
 import { CircuitAnalyzer } from './CircuitAnalyzer';
-import { MinimalEventDrivenEngine } from './MinimalEventDrivenEngine';
+import { EventDrivenEngine } from '../event-driven';
 import { evaluateCircuit as evaluateTopological } from '../core/circuitEvaluation';
 import { defaultConfig } from '../core/types';
 
+export interface HybridEvaluatorConfig {
+  enableDebug?: boolean;
+  delayMode?: boolean;
+}
+
 export class HybridEvaluator {
-  private eventDrivenEngine: MinimalEventDrivenEngine;
+  private eventDrivenEngine: EventDrivenEngine;
   private useEventDriven = false;
+  private config: HybridEvaluatorConfig;
   
-  constructor() {
-    this.eventDrivenEngine = new MinimalEventDrivenEngine({
+  constructor(config: HybridEvaluatorConfig = {}) {
+    this.config = {
       enableDebug: true,
+      delayMode: false,
+      ...config,
+    };
+    
+    this.eventDrivenEngine = new EventDrivenEngine({
+      enableDebug: this.config.enableDebug,
+      delayMode: this.config.delayMode,
+      continueOnOscillation: true,
+      oscillationCyclesAfterDetection: 10,
     });
   }
 
@@ -30,9 +45,21 @@ export class HybridEvaluator {
     if (hasCircular) {
       return this.evaluateWithEventDriven(circuit);
     } else {
+      // 遅延モードONの場合は常にイベント駆動を使用
+      if (this.config.delayMode) {
+        return this.evaluateWithEventDriven(circuit);
+      }
       // 従来のトポロジカルソート方式
       return this.evaluateWithTopological(circuit);
     }
+  }
+  
+  /**
+   * 遅延モードの切り替え
+   */
+  setDelayMode(enabled: boolean): void {
+    this.config.delayMode = enabled;
+    this.eventDrivenEngine.setDelayMode(enabled);
   }
 
   /**

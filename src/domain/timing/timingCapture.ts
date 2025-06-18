@@ -10,7 +10,9 @@ import type {
   CircuitEvaluationResult,
   ApiError,
 } from '@/domain/simulation/core/types';
+import type { SimulationConfig } from '@/stores/slices/simulationSlice';
 import { timingChartUtils } from '@/utils/timingChart';
+import { DEFAULT_GATE_DELAYS } from '@/constants/gateDelays';
 
 /**
  * イベント捕捉システムのインターフェース
@@ -117,6 +119,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
   private maxHistorySize = 50000; // メモリ制限
   private isEnabled = true;
   private simulationStartTime: number | null = null; // シミュレーション開始時刻
+  private simulationConfig: SimulationConfig | null = null; // 遅延モード設定
 
   constructor(onEventBatch?: (events: TimingEvent[]) => void) {
     this.eventBuffer = new TimingEventBuffer(events => {
@@ -143,6 +146,37 @@ export class CircuitTimingCapture implements TimingEventCapture {
    */
   resetSimulationTime(): void {
     this.simulationStartTime = null;
+  }
+
+  /**
+   * シミュレーション設定を更新
+   */
+  updateSimulationConfig(config: SimulationConfig): void {
+    this.simulationConfig = config;
+  }
+
+  /**
+   * ゲートの遅延時間を計算
+   */
+  private calculateGateDelay(gate: Gate): number {
+    if (!this.simulationConfig?.delayMode) {
+      return 0; // 遅延モードOFFの場合は遅延なし
+    }
+
+    // カスタム遅延値があるかチェック
+    const customDelay = this.simulationConfig.customDelays[gate.id];
+    if (customDelay !== undefined) {
+      return customDelay * this.simulationConfig.delayMultiplier;
+    }
+
+    // ゲート固有の遅延値があるかチェック
+    if (gate.timing?.propagationDelay !== undefined) {
+      return gate.timing.propagationDelay * this.simulationConfig.delayMultiplier;
+    }
+
+    // デフォルト遅延値を使用
+    const defaultDelay = DEFAULT_GATE_DELAYS[gate.type] || 1.0;
+    return defaultDelay * this.simulationConfig.delayMultiplier;
   }
 
   /**
@@ -189,15 +223,20 @@ export class CircuitTimingCapture implements TimingEventCapture {
           previousGate &&
           this.hasGateOutputChanged(currentGate, previousGate)
         ) {
+          // 遅延を考慮したイベント時刻を計算
+          const gateDelay = this.calculateGateDelay(currentGate);
+          const delayedTime = currentTime + gateDelay;
+
           const event: TimingEvent = {
             id: timingChartUtils.generateEventId(),
-            time: currentTime,
+            time: delayedTime, // 遅延を考慮した時刻
             gateId: currentGate.id,
             pinType: 'output',
             pinIndex: 0,
             value: this.getGateOutputValue(currentGate),
             previousValue: this.getGateOutputValue(previousGate),
-            source: 'circuit-evaluation',
+            source: `circuit-evaluation-delay:${gateDelay}ms`,
+            propagationDelay: gateDelay, // 適用された遅延
           };
           events.push(event);
         }
@@ -215,6 +254,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
     } else {
       // 初期状態の記録
       currentCircuit.gates.forEach((gate: Gate) => {
+        // 初期状態では遅延は適用しない（すでに安定状態として扱う）
         const event: TimingEvent = {
           id: timingChartUtils.generateEventId(),
           time: currentTime,
@@ -223,6 +263,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
           pinIndex: 0,
           value: this.getGateOutputValue(gate),
           source: 'initial-state',
+          propagationDelay: 0, // 初期状態では遅延なし
         };
         events.push(event);
       });

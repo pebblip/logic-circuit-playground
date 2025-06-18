@@ -107,22 +107,31 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({ circuit }) => {
   // アニメーション対応（CLOCKゲート + オシレーター回路）
   useEffect(() => {
     const hasClockGate = displayGatesRef.current.some(g => g.type === 'CLOCK');
-    const hasOscillatorComponents = displayGatesRef.current.some(g => 
-      g.type === 'DELAY' || 
-      circuit?.title.includes('オシレータ') ||
-      circuit?.title.includes('カオス') ||
-      circuit?.title.includes('メモリ')
-    );
     
-    if (hasClockGate || hasOscillatorComponents) {
+    // 🆕 統合アプローチ: simulationConfig から自動判定
+    const needsAnimation = circuit?.simulationConfig?.needsAnimation ?? 
+      // フォールバック: 既存のロジック（後方互換性）
+      displayGatesRef.current.some(g => 
+        g.type === 'DELAY' || 
+        g.type === 'D-FF' ||
+        circuit?.title.includes('オシレータ') ||
+        circuit?.title.includes('カオス') ||
+        circuit?.title.includes('メモリ') ||
+        circuit?.title.includes('フィボナッチ') ||
+        circuit?.title.includes('マンダラ') ||
+        circuit?.title.includes('ジョンソン')
+      );
+    
+    if (hasClockGate || needsAnimation) {
       let lastUpdateTime = 0;
       let evaluationCount = 0;
       
       const animate = () => {
         const now = Date.now();
         
-        // CLOCKゲート：100ms毎、オシレーター：200ms毎に更新
-        const updateInterval = hasClockGate ? 100 : 200;
+        // 🆕 統合アプローチ: simulationConfig から更新間隔を取得
+        const updateInterval = circuit?.simulationConfig?.updateInterval ?? 
+          (hasClockGate ? 100 : 200); // フォールバック値
         
         if (now - lastUpdateTime > updateInterval) {
           lastUpdateTime = now;
@@ -134,10 +143,16 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({ circuit }) => {
           
           // CLOCKゲートの更新
           currentGates.forEach(gate => {
-            if (gate.type === 'CLOCK' && gate.metadata?.frequency) {
+            if (gate.type === 'CLOCK' && gate.metadata?.frequency && gate.metadata?.isRunning) {
               const frequency = gate.metadata.frequency as number;
               const period = 1000 / frequency;
-              const shouldBeOn = Math.floor(now / period) % 2 === 0;
+              
+              // startTimeの取得（Core APIと一致させる）
+              const startTime = gate.metadata.startTime !== undefined ? 
+                (gate.metadata.startTime as number) : now;
+              const elapsed = now - startTime;
+              
+              const shouldBeOn = Math.floor(elapsed / period) % 2 === 1;
               
               if (gate.output !== shouldBeOn) {
                 gate.output = shouldBeOn;
@@ -147,7 +162,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({ circuit }) => {
           });
           
           // オシレーター回路：定期的に評価して状態を更新
-          if (hasOscillatorComponents) {
+          if (needsAnimation) {
             needsUpdate = true; // オシレーター回路は常に評価
           }
           
@@ -164,14 +179,15 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({ circuit }) => {
               displayWiresRef.current = [...updatedCircuit.wires];
               displayGatesRef.current = [...updatedCircuit.gates];
               
-              // デバッグ情報（開発時のみ）
-              if (import.meta.env.DEV && hasOscillatorComponents && evaluationCount % 10 === 0) {
-                const delayGates = updatedCircuit.gates.filter(g => g.type === 'DELAY');
-                if (delayGates.length > 0) {
-                  console.log(`オシレーター評価 ${evaluationCount}:`, 
-                    delayGates.map(g => `${g.id}=${g.output ? '1' : '0'}`).join(', '));
+              // デバッグ情報（開発時のみ）- 一時的に無効化
+              if (false && import.meta.env.DEV && needsAnimation && evaluationCount % 50 === 0) {
+                const outputGates = updatedCircuit.gates.filter(g => g.type === 'OUTPUT' && (g.id === 'out_a_2' || g.id === 'out_b_2'));
+                if (outputGates.length > 0) {
+                  console.log(`💡 BIT2 OUTPUT:`, 
+                    outputGates.map(g => `${g.id}=${g.output ? '1' : '0'}`).join(', '));
                 }
               }
+              
             } catch (error) {
               console.error('ギャラリー回路評価エラー:', error);
             }
@@ -272,7 +288,9 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({ circuit }) => {
       </svg>
 
       {/* 循環回路の情報 */}
-      {circuit.id.includes('oscillator') || circuit.id.includes('latch') || 
+      {circuit?.simulationConfig?.needsAnimation || 
+       // フォールバック: 既存のロジック（後方互換性）
+       circuit.id.includes('oscillator') || circuit.id.includes('latch') || 
        circuit.id.includes('counter') || circuit.id.includes('chaos') || 
        circuit.id.includes('memory') || circuit.id.includes('mandala') ? (
         <div className="cyclical-warning" style={{ background: 'rgba(0, 255, 136, 0.1)', borderColor: '#00ff88' }}>

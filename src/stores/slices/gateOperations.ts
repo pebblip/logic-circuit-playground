@@ -8,7 +8,7 @@ import type {
 } from '@/types/circuit';
 import { GateFactory } from '@/models/gates/GateFactory';
 import type { Circuit } from '@domain/simulation/core/types';
-import { getGlobalEvaluationService } from '@domain/simulation/unified';
+import { getGlobalEvaluationService, setGlobalEvaluationService, CircuitEvaluationService } from '@domain/simulation/unified';
 import { EnhancedHybridEvaluator } from '@domain/simulation/event-driven-minimal/EnhancedHybridEvaluator';
 import { booleanToDisplayState } from '@domain/simulation';
 import {
@@ -17,7 +17,18 @@ import {
 } from '@domain/analysis/pinPositionCalculator';
 
 // 統一評価サービスを取得
-const evaluationService = getGlobalEvaluationService();
+let evaluationService = getGlobalEvaluationService();
+
+// 評価サービスを遅延モード設定で更新
+function updateEvaluationServiceWithDelayMode(delayMode: boolean) {
+  evaluationService = new CircuitEvaluationService({
+    strategy: 'AUTO_SELECT',
+    enableDebugLogging: false,
+    enablePerformanceTracking: true,
+    delayMode,
+  });
+  setGlobalEvaluationService(evaluationService);
+}
 
 // 統一評価サービスを使用する関数（非同期版）
 async function evaluateCircuitUnified(circuit: Circuit) {
@@ -63,7 +74,7 @@ async function evaluateCircuitUnified(circuit: Circuit) {
 }
 
 // Zustand内での同期使用のための一時的なラッパー関数
-function evaluateCircuitSync(circuit: Circuit) {
+function evaluateCircuitSync(circuit: Circuit, delayMode: boolean = false) {
   // 同期版：EnhancedHybridEvaluatorを直接使用（統一設定適用）
   try {
     // 統一サービスと同じ設定を適用したエバリュエーターを使用
@@ -74,6 +85,7 @@ function evaluateCircuitSync(circuit: Circuit) {
     const evaluator = new EnhancedHybridEvaluator({
       strategy,
       enableDebugLogging: false,
+      delayMode,
     });
     
     const evaluationResult = evaluator.evaluate(circuit);
@@ -133,6 +145,7 @@ export interface GateOperationsSlice {
   deleteGate: (gateId: string) => void;
   updateGateOutput: (gateId: string, output: boolean) => void;
   updateClockFrequency: (gateId: string, frequency: number) => void;
+  updateGateTiming: (gateId: string, timing: Partial<{ propagationDelay: number | undefined }>) => void;
 }
 
 export const createGateOperationsSlice: StateCreator<
@@ -156,7 +169,7 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuitSync(circuit);
+      const result = evaluateCircuitSync(circuit, state.simulationConfig.delayMode);
 
       if (result.success) {
         return {
@@ -195,7 +208,7 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuitSync(circuit);
+      const result = evaluateCircuitSync(circuit, state.simulationConfig.delayMode);
 
       if (result.success) {
         return {
@@ -246,7 +259,7 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuitSync(circuit);
+      const result = evaluateCircuitSync(circuit, state.simulationConfig.delayMode);
 
       if (result.success) {
         return {
@@ -309,7 +322,7 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuitSync(circuit);
+      const result = evaluateCircuitSync(circuit, state.simulationConfig.delayMode);
 
       if (result.success) {
         return {
@@ -363,7 +376,7 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: newWires };
-      const result = evaluateCircuitSync(circuit);
+      const result = evaluateCircuitSync(circuit, state.simulationConfig.delayMode);
 
       if (result.success) {
         return {
@@ -397,7 +410,7 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuitSync(circuit);
+      const result = evaluateCircuitSync(circuit, state.simulationConfig.delayMode);
 
       if (result.success) {
         return {
@@ -432,4 +445,41 @@ export const createGateOperationsSlice: StateCreator<
       return { gates: newGates };
     });
   },
+
+  // ゲートのタイミング設定を更新
+  updateGateTiming: (gateId: string, timing: Partial<{ propagationDelay: number | undefined }>) =>
+    set(state => {
+      const newGates = state.gates.map(gate => {
+        if (gate.id === gateId) {
+          // propagationDelayがundefinedの場合、timingプロパティを削除
+          if (timing.propagationDelay === undefined) {
+            const { timing: _, ...gateWithoutTiming } = gate;
+            return gateWithoutTiming;
+          }
+          
+          return {
+            ...gate,
+            timing: {
+              ...gate.timing,
+              ...timing,
+            },
+          };
+        }
+        return gate;
+      });
+
+      // 回路全体を再評価
+      const circuit: Circuit = { gates: newGates, wires: state.wires };
+      const result = evaluateCircuitSync(circuit, state.simulationConfig.delayMode);
+
+      if (result.success) {
+        return {
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+        };
+      } else {
+        console.warn('Circuit evaluation failed after timing update');
+        return { gates: newGates };
+      }
+    }),
 });

@@ -23,6 +23,22 @@ export const useCanvasSimulation = ({
   displayGates, 
   isReadOnly 
 }: UseCanvasSimulationProps) => {
+  // シミュレーション設定をglobalTimingCaptureに同期
+  useEffect(() => {
+    const currentState = useCircuitStore.getState();
+    globalTimingCapture.updateSimulationConfig(currentState.simulationConfig);
+  }, []);
+
+  // シミュレーション設定の変更を監視して同期
+  useEffect(() => {
+    const unsubscribe = useCircuitStore.subscribe(
+      (state) => {
+        globalTimingCapture.updateSimulationConfig(state.simulationConfig);
+      }
+    );
+    return unsubscribe;
+  }, []);
+
   // CLOCKゲートがある場合、定期的に回路を更新
   useEffect(() => {
     // プレビューモードでは更新しない
@@ -92,6 +108,7 @@ export const useCanvasSimulation = ({
       const enhancedEvaluator = new EnhancedHybridEvaluator({
         strategy: 'AUTO_SELECT',
         enableDebugLogging: false,
+        delayMode: currentState.simulationConfig.delayMode,
       });
       let result;
       

@@ -32,6 +32,8 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
     viewMode,
     timingChart,
     timingChartActions,
+    simulationConfig,
+    setDelayMode,
   } = useCircuitStore();
   const [isVisualizerOpen, setIsVisualizerOpen] = useState(false);
   const [highlightedGateId, setHighlightedGateId] = useState<string | null>(
@@ -173,6 +175,27 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
                   >
                     📊
                   </button>
+                  <div
+                    className="control-separator"
+                    style={{
+                      width: '1px',
+                      height: '24px',
+                      background: 'var(--color-border-subtle)',
+                      margin: '0 4px',
+                      opacity: 0.5,
+                    }}
+                  />
+                  <button
+                    className={`tool-button ${simulationConfig.delayMode ? 'active' : ''}`}
+                    title={`遅延モード: ${simulationConfig.delayMode ? 'ON' : 'OFF'}`}
+                    onClick={() => setDelayMode(!simulationConfig.delayMode)}
+                    style={{
+                      backgroundColor: simulationConfig.delayMode ? 'var(--color-accent)' : undefined,
+                      color: simulationConfig.delayMode ? 'white' : undefined,
+                    }}
+                  >
+                    ⏱️
+                  </button>
                 </div>
               )}
             </div>
@@ -185,6 +208,16 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
               <div className="status-item">
                 <span>接続: {wires.length}</span>
               </div>
+              {simulationConfig.delayMode && (
+                <>
+                  <div className="status-item" style={{ color: 'var(--color-accent)' }}>
+                    <span>⏱️ 遅延モード: ON</span>
+                  </div>
+                  <div className="status-item">
+                    <span>エンジン: イベント駆動</span>
+                  </div>
+                </>
+              )}
             </div>
           </>
         </main>

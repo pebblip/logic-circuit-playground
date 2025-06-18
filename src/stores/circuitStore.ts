@@ -12,6 +12,7 @@ import { createShareSlice } from './slices/shareSlice';
 import { createErrorSlice } from './slices/errorSlice';
 import { createTimingChartSlice } from './slices/timingChartSlice';
 import { createClockSelectionSlice } from './slices/clockSelectionSlice';
+import { createSimulationSlice } from './slices/simulationSlice';
 
 export const useCircuitStore = create<CircuitStore>()((...a) => ({
   // 基本的な状態
@@ -40,4 +41,5 @@ export const useCircuitStore = create<CircuitStore>()((...a) => ({
   ...createErrorSlice(...a),
   ...createTimingChartSlice(...a),
   ...createClockSelectionSlice(...a),
+  ...createSimulationSlice(...a),
 }));

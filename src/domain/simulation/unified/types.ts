@@ -33,6 +33,9 @@ export interface UnifiedEvaluationConfig {
     continueOnOscillation: boolean;
     maxCyclesAfterDetection: number;
   };
+  
+  // 遅延モード設定
+  delayMode?: boolean;
 }
 
 /**
@@ -115,6 +118,7 @@ export const DEFAULT_UNIFIED_CONFIG: UnifiedEvaluationConfig = {
     continueOnOscillation: true,
     maxCyclesAfterDetection: 50,
   },
+  delayMode: false,
 };
 
 /**

@@ -10,6 +10,7 @@ import type { AppMode, ViewMode } from '@/types/appMode';
 import type { TimingChartSlice } from './slices/timingChartSlice';
 import type { ClockSelectionSlice } from './slices/clockSelectionSlice';
 import type { ErrorSlice } from './slices/errorSlice';
+import type { SimulationSlice } from './slices/simulationSlice';
 
 // Re-export AppMode
 export type { AppMode };
@@ -124,6 +125,7 @@ export interface CircuitStoreActions {
   // ゲートの状態更新
   updateGateOutput: (gateId: string, output: boolean) => void;
   updateClockFrequency: (gateId: string, frequency: number) => void;
+  updateGateTiming: (gateId: string, timing: Partial<{ propagationDelay: number | undefined }>) => void;
 
   // Undo/Redo/Clear
   undo: () => void;
@@ -158,4 +160,5 @@ export type CircuitStore = CircuitStoreState &
   CircuitStoreActions &
   TimingChartSlice &
   ClockSelectionSlice &
-  ErrorSlice;
+  ErrorSlice &
+  SimulationSlice;

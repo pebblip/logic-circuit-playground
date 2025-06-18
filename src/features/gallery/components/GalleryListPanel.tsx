@@ -21,7 +21,7 @@ export const GalleryListPanel: React.FC<GalleryListPanelProps> = ({
       ['comparator-4bit', 'parity-checker', 'majority-voter', 'seven-segment-decoder'].includes(circuit.id)
     ),
     cyclical: FEATURED_CIRCUITS.filter(circuit => 
-      ['sr-latch-basic', 'ring-oscillator', 'chaos-generator', 'fibonacci-counter', 'johnson-counter', 'self-oscillating-memory', 'mandala-circuit'].includes(circuit.id)
+      ['sr-latch-basic', 'simple-ring-oscillator', 'chaos-generator', 'fibonacci-counter', 'johnson-counter', 'self-oscillating-memory', 'mandala-circuit'].includes(circuit.id)
     )
   };
 

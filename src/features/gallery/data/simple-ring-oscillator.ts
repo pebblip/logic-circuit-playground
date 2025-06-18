@@ -1,15 +1,31 @@
 import type { Gate, Wire } from '../../../types';
 
-export const RING_OSCILLATOR = {
-  id: 'ring-oscillator',
-  title: 'DELAYリングオシレータ',
-  description: '3つのNOTゲートとDELAYゲートを使った真の発振回路。すべてのゲートの出力を観測でき、信号がループを回る様子が視覚的に理解できます。',
+/**
+ * 🔥 シンプルリングオシレータ（遅延モード版）
+ * 
+ * 改善ポイント：
+ * - DELAYゲート不要
+ * - 3つのNOTゲートのみで発振を実現
+ * - 各NOTゲートの自然な遅延（1ns×3 = 3ns周期）
+ * - 遅延モードONで自動的に動作
+ */
+export const SIMPLE_RING_OSCILLATOR = {
+  id: 'simple-ring-oscillator',
+  title: '🔥 シンプルリングオシレータ（遅延モード版）',
+  description: 'DELAYゲート不要の3-NOTリングオシレータ。遅延モードONで各NOTゲートの自然な1ns遅延により3ns周期で発振します。',
+  simulationConfig: {
+    needsAnimation: true,
+    updateInterval: 100,
+    expectedBehavior: 'oscillator' as const,
+    minimumCycles: 10
+  },
   gates: [
+    // 🔥 たったこれだけ！3つのNOTゲートのみ
     {
       id: 'NOT1',
       type: 'NOT' as const,
       position: { x: 300, y: 200 },
-      output: true, // 初期状態をtrueに設定して発振を開始
+      output: true, // 初期状態をtrueに設定して発振開始
       inputs: [''],
     },
     {
@@ -26,18 +42,8 @@ export const RING_OSCILLATOR = {
       output: false,
       inputs: [''],
     },
-    // DELAYゲート（3サイクル遅延で真の発振を実現）
-    {
-      id: 'DELAY1',
-      type: 'DELAY' as const,
-      position: { x: 500, y: 350 },
-      output: false,
-      inputs: [''],
-      metadata: {
-        history: [], // 3サイクル遅延履歴
-      },
-    },
-    // NOT1の出力確認用
+    
+    // 各ゲートの出力を観測
     {
       id: 'OUT_NOT1',
       type: 'OUTPUT' as const,
@@ -45,7 +51,6 @@ export const RING_OSCILLATOR = {
       output: false,
       inputs: [''],
     },
-    // NOT2の出力確認用
     {
       id: 'OUT_NOT2',
       type: 'OUTPUT' as const,
@@ -53,7 +58,6 @@ export const RING_OSCILLATOR = {
       output: false,
       inputs: [''],
     },
-    // NOT3の出力確認用
     {
       id: 'OUT_NOT3',
       type: 'OUTPUT' as const,
@@ -61,16 +65,9 @@ export const RING_OSCILLATOR = {
       output: false,
       inputs: [''],
     },
-    // DELAYの出力確認用
-    {
-      id: 'OUT_DELAY',
-      type: 'OUTPUT' as const,
-      position: { x: 500, y: 450 },
-      output: false,
-      inputs: [''],
-    },
   ],
   wires: [
+    // 🔥 シンプルなリング接続
     // NOT1 → NOT2
     {
       id: 'w1',
@@ -85,43 +82,31 @@ export const RING_OSCILLATOR = {
       to: { gateId: 'NOT3', pinIndex: 0 },
       isActive: false,
     },
-    // NOT3 → DELAY1
+    // NOT3 → NOT1（フィードバックループ完成）
     {
       id: 'w3',
       from: { gateId: 'NOT3', pinIndex: -1 },
-      to: { gateId: 'DELAY1', pinIndex: 0 },
-      isActive: false,
-    },
-    // DELAY1 → NOT1（フィードバックループ完成）
-    {
-      id: 'w4',
-      from: { gateId: 'DELAY1', pinIndex: -1 },
       to: { gateId: 'NOT1', pinIndex: 0 },
       isActive: false,
     },
+    
     // 観測用接続
     {
-      id: 'w5',
+      id: 'w4',
       from: { gateId: 'NOT1', pinIndex: -1 },
       to: { gateId: 'OUT_NOT1', pinIndex: 0 },
       isActive: false,
     },
     {
-      id: 'w6',
+      id: 'w5',
       from: { gateId: 'NOT2', pinIndex: -1 },
       to: { gateId: 'OUT_NOT2', pinIndex: 0 },
       isActive: false,
     },
     {
-      id: 'w7',
+      id: 'w6',
       from: { gateId: 'NOT3', pinIndex: -1 },
       to: { gateId: 'OUT_NOT3', pinIndex: 0 },
-      isActive: false,
-    },
-    {
-      id: 'w8',
-      from: { gateId: 'DELAY1', pinIndex: -1 },
-      to: { gateId: 'OUT_DELAY', pinIndex: 0 },
       isActive: false,
     },
   ],

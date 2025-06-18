@@ -27,6 +27,7 @@ import {
   createEvaluationError,
 } from './types';
 import { validateGate, validateGateInputs } from './validation';
+import { evaluateCustomGateByInternalCircuit } from './customGateInternalCircuitEvaluator';
 
 // ===============================
 // 統合ゲート評価関数（推奨）
@@ -186,14 +187,6 @@ function evaluateGateLogic(
       case 'CUSTOM':
         return evaluateCustomGate(gate, inputs, config);
 
-      case 'DELAY': {
-        const result = evaluateDelayGate(gate, inputs);
-        if (!result.success) return result;
-        // DELAYゲートは特殊な戻り値を持つので、outputs部分だけを返す
-        // newHistoryはメタデータとして処理される必要がある
-        return success(result.data.outputs);
-      }
-
       default:
         return failure(
           createEvaluationError(
@@ -316,39 +309,6 @@ function evaluateSRLatchGate(
   return success([qOutput, !qOutput]);
 }
 
-/**
- * DELAYゲート評価
- * 入力を3サイクル遅延させて出力する
- */
-function evaluateDelayGate(
-  gate: Readonly<Gate>,
-  inputs: readonly boolean[]
-): Result<{ outputs: readonly boolean[]; newHistory: boolean[] }, EvaluationError> {
-  if (inputs.length < 1) {
-    return failure(
-      createEvaluationError(
-        'DELAY gate requires 1 input',
-        'INPUT_COLLECTION',
-        { gateId: gate.id }
-      )
-    );
-  }
-
-  // 履歴を取得（metadataからhistoryを取得）
-  const history = (gate.metadata?.history || []) as boolean[];
-  
-  // 3サイクル前の値を出力（なければfalse）
-  const output = history.length >= 3 ? history[0] : false;
-  
-  // 現在の入力を履歴に追加（履歴は最大3つまで）
-  const newHistory = [...history, inputs[0]];
-  if (newHistory.length > 3) {
-    newHistory.shift(); // 最古の値を削除
-  }
-
-  // 出力と新しい履歴を返す
-  return success({ outputs: [output], newHistory });
-}
 
 /**
  * MUXゲート評価
@@ -658,15 +618,8 @@ export const defaultCustomGateEvaluator: CustomGateEvaluator = {
     return evaluateByTruthTable(definition, inputs);
   },
 
-  evaluateByInternalCircuit: (_definition, _inputs, _config) => {
-    // 内部回路評価は複雑なため、現在は未実装
-    // 将来的にはcircuitEvaluation.tsで実装予定
-    return failure(
-      createEvaluationError(
-        'Internal circuit evaluation not yet implemented',
-        'GATE_LOGIC'
-      )
-    );
+  evaluateByInternalCircuit: (definition, inputs, config) => {
+    return evaluateCustomGateByInternalCircuit(definition, inputs, config);
   },
 };
 

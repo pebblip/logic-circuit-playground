@@ -4,17 +4,13 @@ export const MANDALA_CIRCUIT = {
   id: 'mandala-circuit',
   title: '🌸 マンダラ回路',
   description: '複数の循環回路が創り出す神秘的な幾何学パターン。3つのリングオシレーターの協調と競合が生み出す美しいマンダラ模様！',
+  simulationConfig: {
+    needsAnimation: true,
+    updateInterval: 200,
+    expectedBehavior: 'oscillator' as const,
+    minimumCycles: 10
+  },
   gates: [
-    // 中央制御クロック
-    {
-      id: 'master_clock',
-      type: 'CLOCK' as const,
-      position: { x: 400, y: 250 },
-      output: false,
-      inputs: [],
-      metadata: { frequency: 3 },
-    },
-    
     // 第1リング（3個のNOT、中心から120度）
     {
       id: 'ring1_not1',
