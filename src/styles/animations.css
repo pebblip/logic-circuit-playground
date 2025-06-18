@@ -71,6 +71,18 @@
   }
 }
 
+@keyframes clockPulse {
+  0%,
+  100% {
+    transform: scale(0.82);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* ========== アニメーションクラス ========== */
 
 .animate-fade-in {

@@ -7,7 +7,8 @@ import { FloatingLearningPanel } from '../../features/learning-mode/ui/FloatingL
 import { CircuitVisualizerPanel } from '../CircuitVisualizerPanel';
 import { HelpPanel } from '../HelpPanel';
 import { TimingChartPanel } from '../../features/timing-chart/components/TimingChartPanel';
-import { GalleryPanel } from '../../features/gallery/ui/GalleryPanel';
+import { GalleryModeLayout } from '../../features/gallery/components/GalleryModeLayout';
+import { PuzzlePanel } from '../../features/puzzle-mode/ui/PuzzlePanel';
 import { useCircuitStore } from '../../stores/circuitStore';
 import type { AppMode } from '../../types/appMode';
 import { TERMS } from '../../features/learning-mode/data/terms';
@@ -39,16 +40,24 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isPipLearningOpen, setIsPipLearningOpen] = useState(false);
   const [showQuickTutorial, setShowQuickTutorial] = useState(false);
+  const [isPuzzleOpen, setIsPuzzleOpen] = useState(false);
 
   const handleModeChange = (mode: AppMode) => {
     if (mode === '学習モード') {
       // Picture-in-Picture学習パネルを開く
       setIsPipLearningOpen(true);
+      setIsPuzzleOpen(false);
       // 学習モードをアクティブに設定（ボタンが光るように）
       setAppMode('学習モード');
-    } else {
-      // 他のモードの場合は学習パネルを閉じる
+    } else if (mode === 'パズルモード') {
+      // パズルパネルを開く
+      setIsPuzzleOpen(true);
       setIsPipLearningOpen(false);
+      setAppMode('パズルモード');
+    } else {
+      // 他のモードの場合は学習パネルとパズルパネルを閉じる
+      setIsPipLearningOpen(false);
+      setIsPuzzleOpen(false);
       setAppMode(mode as AppMode);
     }
   };
@@ -83,7 +92,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   // }, [gates, isVisualizerOpen]);
 
   return (
-    <div className="app-container">
+    <div className={`app-container ${appMode === TERMS.GALLERY_MODE ? 'gallery-mode' : ''}`}>
       {/* ヘッダー（グリッド全幅） */}
       <Header
         activeMode={appMode}
@@ -92,17 +101,17 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
       />
 
       {/* 左サイドバー - ツールパレット */}
-      {appMode !== TERMS.GALLERY_MODE && (
+      {appMode !== TERMS.GALLERY_MODE && appMode !== TERMS.PUZZLE_MODE && (
         <aside className="sidebar-left">
           <ToolPalette />
         </aside>
       )}
 
       {/* メインキャンバス */}
-      <main className="main-canvas">
-        {appMode === TERMS.GALLERY_MODE ? (
-          <GalleryPanel isVisible={true} />
-        ) : (
+      {appMode === TERMS.GALLERY_MODE ? (
+        <GalleryModeLayout />
+      ) : (
+        <main className="main-canvas">
           <>
             {/* キャンバス */}
             <div className="canvas-container">
@@ -178,23 +187,27 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
               </div>
             </div>
           </>
-        )}
-      </main>
+        </main>
+      )}
 
       {/* 右サイドバー */}
-      <aside className="sidebar-right">
-        {appMode === 'フリーモード' ? (
-          isVisualizerOpen ? (
-            <CircuitVisualizerPanel
-              isVisible={isVisualizerOpen}
-              onGateHighlight={handleGateHighlight}
-              onGateUnhighlight={handleGateUnhighlight}
-            />
-          ) : (
-            <PropertyPanel />
-          )
-        ) : null}
-      </aside>
+      {appMode !== TERMS.GALLERY_MODE && (
+        <aside className="sidebar-right">
+          {appMode === 'フリーモード' ? (
+            isVisualizerOpen ? (
+              <CircuitVisualizerPanel
+                isVisible={isVisualizerOpen}
+                onGateHighlight={handleGateHighlight}
+                onGateUnhighlight={handleGateUnhighlight}
+              />
+            ) : (
+              <PropertyPanel />
+            )
+          ) : appMode === TERMS.PUZZLE_MODE ? (
+            <PuzzlePanel isVisible={isPuzzleOpen} />
+          ) : null}
+        </aside>
+      )}
 
       {/* Picture-in-Picture学習パネル */}
       <FloatingLearningPanel
@@ -221,7 +234,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
       />
 
       {/* タイミングチャートパネル - 横長レイアウト（fixed position） */}
-      <TimingChartPanel />
+      {appMode !== TERMS.GALLERY_MODE && <TimingChartPanel />}
 
       {/* クイックチュートリアル */}
       {showQuickTutorial && (

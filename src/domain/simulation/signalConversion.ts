@@ -14,11 +14,11 @@ export function booleanToDisplayState(value: boolean): string {
 
 /**
  * UI表示用の文字列をboolean値に変換
- * @param state '1' または ''
+ * @param state '1', 'true' または '' (false)
  * @returns boolean値
  */
 export function displayStateToBoolean(state: string): boolean {
-  return state === '1';
+  return state === '1' || state === 'true';
 }
 
 /**

@@ -2,17 +2,68 @@ import type { StateCreator } from 'zustand';
 import type { CircuitStore } from '../types';
 import type { Wire } from '@/types/circuit';
 import { IdGenerator } from '@shared/id';
-import {
-  evaluateCircuit,
-  defaultConfig,
-  isSuccess,
-} from '@domain/simulation/core';
 import type { Circuit } from '@domain/simulation/core/types';
+import { getGlobalEvaluationService } from '@domain/simulation/unified';
+import { EnhancedHybridEvaluator } from '@domain/simulation/event-driven-minimal/EnhancedHybridEvaluator';
 import {
   getInputPinPosition,
   getOutputPinPosition,
 } from '@domain/analysis/pinPositionCalculator';
 import { WireConnectionService } from '@/services/WireConnectionService';
+
+// 統一評価サービスを取得
+const evaluationService = getGlobalEvaluationService();
+
+// Zustand内での同期使用のためのラッパー関数
+function evaluateCircuitSync(circuit: Circuit) {
+  // 同期版：EnhancedHybridEvaluatorを直接使用（統一設定適用）
+  try {
+    // 統一サービスと同じ設定を適用したエバリュエーターを使用
+    const complexity = evaluationService.analyzeComplexity(circuit);
+    const strategy = complexity.recommendedStrategy;
+    
+    // EnhancedHybridEvaluatorを直接使用（同期処理）
+    const evaluator = new EnhancedHybridEvaluator({
+      strategy,
+      enableDebugLogging: false,
+    });
+    
+    const evaluationResult = evaluator.evaluate(circuit);
+    
+    return {
+      success: true as const,
+      data: {
+        circuit: evaluationResult.circuit,
+        evaluationStats: {
+          gatesEvaluated: evaluationResult.circuit.gates.length,
+          evaluationCycles: 1, // EnhancedHybridEvaluatorではcycleCountは提供されない
+          totalEvaluationTime: 0, // 同期版では測定なし
+        },
+        dependencyGraph: [],
+      },
+      warnings: [], // 簡略版では警告なし
+    };
+  } catch (error) {
+    console.error('Sync circuit evaluation failed:', error);
+    return {
+      success: false as const,
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        type: 'EVALUATION_FAILED',
+      },
+      data: {
+        circuit,
+        evaluationStats: {
+          gatesEvaluated: 0,
+          evaluationCycles: 0,
+          totalEvaluationTime: 0,
+        },
+        dependencyGraph: [],
+      },
+      warnings: [],
+    };
+  }
+}
 
 export interface WireOperationsSlice {
   startWireDrawing: (gateId: string, pinIndex: number) => void;
@@ -139,9 +190,9 @@ export const createWireOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: state.gates, wires: updatedWires };
-      const result = evaluateCircuit(circuit, defaultConfig);
+      const result = evaluateCircuitSync(circuit);
 
-      if (isSuccess(result)) {
+      if (result.success) {
         return {
           gates: [...result.data.circuit.gates],
           wires: [...result.data.circuit.wires],
@@ -149,7 +200,7 @@ export const createWireOperationsSlice: StateCreator<
           wireStart: null,
         };
       } else {
-        console.warn('Circuit evaluation failed:', result.error.message);
+        console.warn('Circuit evaluation failed');
         return {
           gates: state.gates,
           wires: updatedWires,
@@ -176,15 +227,15 @@ export const createWireOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: state.gates, wires: newWires };
-      const result = evaluateCircuit(circuit, defaultConfig);
+      const result = evaluateCircuitSync(circuit);
 
-      if (isSuccess(result)) {
+      if (result.success) {
         return {
           gates: [...result.data.circuit.gates],
           wires: [...result.data.circuit.wires],
         };
       } else {
-        console.warn('Circuit evaluation failed:', result.error.message);
+        console.warn('Circuit evaluation failed');
         return {
           gates: state.gates,
           wires: newWires,

@@ -47,9 +47,9 @@ describe('TimingChartSlice', () => {
       const state = store.getState();
       
       expect(state.timingChart.isVisible).toBe(false);
-      expect(state.timingChart.panelHeight).toBe(500);
+      expect(state.timingChart.panelHeight).toBe(250);
       expect(state.timingChart.traces).toEqual([]);
-      expect(state.timingChart.timeWindow).toEqual({ start: 0, end: 250 });
+      expect(state.timingChart.timeWindow).toEqual({ start: 0, end: 3000 });
       expect(state.timingChart.timeScale).toBe('ms');
       expect(state.timingChart.maxTraces).toBe(10);
       expect(state.timingChart.isPaused).toBe(false);
@@ -304,7 +304,7 @@ describe('TimingChartSlice', () => {
     it('panTo: 指定時刻を中心に移動する', () => {
       const { timingChartActions } = store.getState();
       
-      const centerTime = 500;
+      const centerTime = 1500; // 初期ウィンドウ幅（3000）で中央に配置可能な値
       timingChartActions.panTo(centerTime);
       
       const window = store.getState().timingChart.timeWindow;
@@ -324,7 +324,7 @@ describe('TimingChartSlice', () => {
       timingChartActions.resetView();
       
       const state = store.getState().timingChart;
-      expect(state.timeWindow).toEqual({ start: 0, end: 250 });
+      expect(state.timeWindow).toEqual({ start: 0, end: 3000 });
       expect(state.timeScale).toBe('ms');
     });
   });

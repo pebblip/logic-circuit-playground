@@ -7,17 +7,111 @@ import type {
   CustomGateDefinition,
 } from '@/types/circuit';
 import { GateFactory } from '@/models/gates/GateFactory';
-import {
-  evaluateCircuit,
-  defaultConfig,
-  isSuccess,
-} from '@domain/simulation/core';
 import type { Circuit } from '@domain/simulation/core/types';
+import { getGlobalEvaluationService } from '@domain/simulation/unified';
+import { EnhancedHybridEvaluator } from '@domain/simulation/event-driven-minimal/EnhancedHybridEvaluator';
 import { booleanToDisplayState } from '@domain/simulation';
 import {
   getInputPinPosition,
   getOutputPinPosition,
 } from '@domain/analysis/pinPositionCalculator';
+
+// 統一評価サービスを取得
+const evaluationService = getGlobalEvaluationService();
+
+// 統一評価サービスを使用する関数（非同期版）
+async function evaluateCircuitUnified(circuit: Circuit) {
+  const result = await evaluationService.evaluate(circuit);
+  
+  if (result.success) {
+    const { data } = result;
+    return {
+      success: true as const,
+      data: {
+        circuit: data.circuit,
+        evaluationStats: {
+          gatesEvaluated: data.circuit.gates.length,
+          evaluationCycles: data.performanceInfo.cycleCount || 1,
+          totalEvaluationTime: data.performanceInfo.executionTimeMs,
+        },
+        dependencyGraph: [], // 後方互換性のため保持
+      },
+      warnings: data.warnings,
+    };
+  } else {
+    console.error('Circuit evaluation failed:', result.error.message);
+    // エラー時も一貫したフォーマットで返す
+    return {
+      success: false as const,
+      error: {
+        message: result.error.message,
+        type: 'EVALUATION_FAILED',
+        recovery: result.error.recovery,
+      },
+      data: {
+        circuit, // 元の回路をそのまま返す
+        evaluationStats: {
+          gatesEvaluated: 0,
+          evaluationCycles: 0,
+          totalEvaluationTime: 0,
+        },
+        dependencyGraph: [],
+      },
+      warnings: [],
+    };
+  }
+}
+
+// Zustand内での同期使用のための一時的なラッパー関数
+function evaluateCircuitSync(circuit: Circuit) {
+  // 同期版：EnhancedHybridEvaluatorを直接使用（統一設定適用）
+  try {
+    // 統一サービスと同じ設定を適用したエバリュエーターを使用
+    const complexity = evaluationService.analyzeComplexity(circuit);
+    const strategy = complexity.recommendedStrategy;
+    
+    // EnhancedHybridEvaluatorを直接使用（同期処理）
+    const evaluator = new EnhancedHybridEvaluator({
+      strategy,
+      enableDebugLogging: false,
+    });
+    
+    const evaluationResult = evaluator.evaluate(circuit);
+    
+    return {
+      success: true as const,
+      data: {
+        circuit: evaluationResult.circuit,
+        evaluationStats: {
+          gatesEvaluated: evaluationResult.circuit.gates.length,
+          evaluationCycles: 1, // EnhancedHybridEvaluatorではcycleCountは提供されない
+          totalEvaluationTime: 0, // 同期版では測定なし
+        },
+        dependencyGraph: [],
+      },
+      warnings: [], // 簡略版では警告なし
+    };
+  } catch (error) {
+    console.error('Sync circuit evaluation failed:', error);
+    return {
+      success: false as const,
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        type: 'EVALUATION_FAILED',
+      },
+      data: {
+        circuit,
+        evaluationStats: {
+          gatesEvaluated: 0,
+          evaluationCycles: 0,
+          totalEvaluationTime: 0,
+        },
+        dependencyGraph: [],
+      },
+      warnings: [],
+    };
+  }
+}
 
 export interface GateOperationsSlice {
   addGate: (type: GateType, position: Position) => Gate;
@@ -62,15 +156,15 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuit(circuit, defaultConfig);
+      const result = evaluateCircuitSync(circuit);
 
-      if (isSuccess(result)) {
+      if (result.success) {
         return {
           gates: [...result.data.circuit.gates],
           wires: [...result.data.circuit.wires],
         };
       } else {
-        console.warn('Circuit evaluation failed:', result.error.message);
+        console.warn('Circuit evaluation failed');
         return {
           gates: newGates,
           wires: state.wires,
@@ -101,15 +195,15 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuit(circuit, defaultConfig);
+      const result = evaluateCircuitSync(circuit);
 
-      if (isSuccess(result)) {
+      if (result.success) {
         return {
           gates: [...result.data.circuit.gates],
           wires: [...result.data.circuit.wires],
         };
       } else {
-        console.warn('Circuit evaluation failed:', result.error.message);
+        console.warn('Circuit evaluation failed');
         return {
           gates: newGates,
           wires: state.wires,
@@ -152,16 +246,16 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuit(circuit, defaultConfig);
+      const result = evaluateCircuitSync(circuit);
 
-      if (isSuccess(result)) {
+      if (result.success) {
         return {
           gates: [...result.data.circuit.gates],
           wires: [...result.data.circuit.wires],
           wireStart: newWireStart,
         };
       } else {
-        console.warn('Circuit evaluation failed:', result.error.message);
+        console.warn('Circuit evaluation failed');
         return {
           gates: newGates,
           wires: state.wires,
@@ -215,16 +309,16 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuit(circuit, defaultConfig);
+      const result = evaluateCircuitSync(circuit);
 
-      if (isSuccess(result)) {
+      if (result.success) {
         return {
           gates: [...result.data.circuit.gates],
           wires: [...result.data.circuit.wires],
           wireStart: newWireStart,
         };
       } else {
-        console.warn('Circuit evaluation failed:', result.error.message);
+        console.warn('Circuit evaluation failed');
         return {
           gates: newGates,
           wires: state.wires,
@@ -269,9 +363,9 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: newWires };
-      const result = evaluateCircuit(circuit, defaultConfig);
+      const result = evaluateCircuitSync(circuit);
 
-      if (isSuccess(result)) {
+      if (result.success) {
         return {
           gates: [...result.data.circuit.gates],
           wires: [...result.data.circuit.wires],
@@ -280,7 +374,7 @@ export const createGateOperationsSlice: StateCreator<
           selectedClockGateId: newSelectedClockGateId,
         };
       } else {
-        console.warn('Circuit evaluation failed:', result.error.message);
+        console.warn('Circuit evaluation failed');
         return {
           gates: newGates,
           wires: newWires,
@@ -303,15 +397,15 @@ export const createGateOperationsSlice: StateCreator<
 
       // 回路全体を評価
       const circuit: Circuit = { gates: newGates, wires: state.wires };
-      const result = evaluateCircuit(circuit, defaultConfig);
+      const result = evaluateCircuitSync(circuit);
 
-      if (isSuccess(result)) {
+      if (result.success) {
         return {
           gates: [...result.data.circuit.gates],
           wires: [...result.data.circuit.wires],
         };
       } else {
-        console.warn('Circuit evaluation failed:', result.error.message);
+        console.warn('Circuit evaluation failed');
         return {
           gates: newGates,
           wires: state.wires,

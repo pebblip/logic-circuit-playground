@@ -13,7 +13,8 @@ export type GateType =
   | 'SR-LATCH'
   | 'MUX'
   | 'BINARY_COUNTER'
-  | 'CUSTOM';
+  | 'CUSTOM'
+  | 'DELAY';
 
 export interface Position {
   x: number;
@@ -74,6 +75,9 @@ export interface GateMetadata {
   bitCount?: number;
   maxValue?: number;
 
+  // DELAYゲート用
+  history?: boolean[];
+
   // ストレージメタデータ用
   author?: string;
   createdAt?: number;
@@ -98,6 +102,14 @@ export interface Gate {
   outputs?: boolean[]; // 複数出力のサポート（カスタムゲート用）
   metadata?: GateMetadata; // 特殊ゲート用の追加データ
   customGateDefinition?: CustomGateDefinition; // カスタムゲート用定義
+  timing?: GateTiming; // 遅延モード用のタイミング設定（Phase 0で追加）
+}
+
+// 遅延モード用のタイミング設定
+export interface GateTiming {
+  propagationDelay?: number; // 伝播遅延（ns単位）
+  riseTime?: number; // 立ち上がり時間（将来の拡張用）
+  fallTime?: number; // 立ち下がり時間（将来の拡張用）
 }
 
 export interface Wire {

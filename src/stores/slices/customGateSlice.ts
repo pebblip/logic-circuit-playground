@@ -9,12 +9,9 @@ import {
   saveCustomGates,
   loadCustomGates,
 } from '@infrastructure/storage/customGateStorage';
-import {
-  evaluateCircuit,
-  defaultConfig,
-  isSuccess,
-} from '@domain/simulation/core';
 import type { Circuit } from '@domain/simulation/core/types';
+import { getGlobalEvaluationService } from '@domain/simulation/unified';
+import { EnhancedHybridEvaluator } from '@domain/simulation/event-driven-minimal/EnhancedHybridEvaluator';
 import { IdGenerator } from '@shared/id';
 
 export interface CustomGateSlice {
@@ -93,17 +90,28 @@ export const createCustomGateSlice: StateCreator<
         return gate;
       });
 
-      // 回路を評価
+      // 回路を評価（統一評価サービス使用）
       const circuit: Circuit = { gates: testGates, wires: state.wires };
-      const result = evaluateCircuit(circuit, defaultConfig);
-
+      const evaluationService = getGlobalEvaluationService();
+      
       let evaluatedGates: Gate[];
-      if (isSuccess(result)) {
-        evaluatedGates = [...result.data.circuit.gates];
-      } else {
+      try {
+        // 統一サービスと同じ設定を適用した評価
+        const complexity = evaluationService.analyzeComplexity(circuit);
+        const strategy = complexity.recommendedStrategy;
+        
+        // 同期評価（EnhancedHybridEvaluatorを直接使用）
+        const evaluator = new EnhancedHybridEvaluator({
+          strategy,
+          enableDebugLogging: false,
+        });
+        
+        const evaluationResult = evaluator.evaluate(circuit);
+        evaluatedGates = [...evaluationResult.circuit.gates];
+      } catch (error) {
         console.warn(
           'Custom gate creation: Circuit evaluation failed:',
-          result.error.message
+          error instanceof Error ? error.message : 'Unknown error'
         );
         evaluatedGates = testGates;
       }

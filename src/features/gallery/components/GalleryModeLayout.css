@@ -1,0 +1,77 @@
+/* ギャラリーモード全体レイアウト */
+.gallery-mode-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(400px, 1fr) 360px;
+  height: calc(100vh - 56px); /* ヘッダーの高さを引く */
+  width: 100vw;
+  background: #0a0a0a;
+  position: relative;
+}
+
+/* 左サイドバー: ギャラリーリスト */
+.gallery-sidebar-left {
+  background: #1a1a1a;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* 中央: 読み取り専用キャンバス */
+.gallery-main-canvas {
+  position: relative;
+  background: #0a0a0a;
+  overflow: hidden;
+}
+
+/* 右サイドバー: 回路詳細 */
+.gallery-sidebar-right {
+  width: 360px;
+  background: #1a1a1a;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 1200px) {
+  .gallery-mode-layout {
+    grid-template-columns: 280px 1fr;
+  }
+  
+  .gallery-sidebar-right {
+    position: fixed;
+    right: 0;
+    top: 56px;
+    height: calc(100vh - 56px);
+    z-index: 100;
+    box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+  }
+  
+  .gallery-sidebar-right.hidden {
+    transform: translateX(100%);
+  }
+}
+
+@media (max-width: 768px) {
+  .gallery-mode-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .gallery-sidebar-left {
+    position: fixed;
+    left: 0;
+    top: 56px;
+    width: 280px;
+    height: calc(100vh - 56px);
+    z-index: 101;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.2);
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+  }
+  
+  .gallery-sidebar-left.hidden {
+    transform: translateX(-100%);
+  }
+}

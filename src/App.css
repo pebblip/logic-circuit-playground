@@ -23,6 +23,13 @@ body {
   background: rgba(255, 255, 255, 0.05);
 }
 
+/* ギャラリーモード専用レイアウト */
+.app-container.gallery-mode {
+  grid-template-columns: 1fr;
+  grid-template-rows: 56px 1fr;
+  gap: 0;
+}
+
 .app-body {
   display: contents;
 }
@@ -343,6 +350,11 @@ body {
   background: #0a0a0a;
   position: relative;
   overflow: visible; /* 絶対配置要素（ツールバー）を正しく表示するため */
+}
+
+/* ギャラリーモード時のメインキャンバス */
+.gallery-mode .main-canvas {
+  overflow: visible; /* オーバーフロー制御を削除してボタンクリップを防ぐ */
 }
 
 .canvas-toolbar {

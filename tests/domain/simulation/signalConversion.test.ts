@@ -29,9 +29,9 @@ describe('signalConversion', () => {
       expect(displayStateToBoolean('')).toBe(false);
     });
 
-    it('converts any other string to false', () => {
+    it('converts "true" to true and other strings to false', () => {
       expect(displayStateToBoolean('0')).toBe(false);
-      expect(displayStateToBoolean('true')).toBe(false);
+      expect(displayStateToBoolean('true')).toBe(true); // 'true'文字列も認識
       expect(displayStateToBoolean('false')).toBe(false);
       expect(displayStateToBoolean('invalid')).toBe(false);
       expect(displayStateToBoolean(' ')).toBe(false);
@@ -109,11 +109,11 @@ describe('signalConversion', () => {
       expect(getGateInputValue(gate, 3)).toBe(false);
     });
 
-    it('handles invalid string inputs', () => {
+    it('handles string inputs correctly', () => {
       const gate = { inputs: ['0', 'invalid', 'true'] };
-      expect(getGateInputValue(gate, 0)).toBe(false);
-      expect(getGateInputValue(gate, 1)).toBe(false);
-      expect(getGateInputValue(gate, 2)).toBe(false);
+      expect(getGateInputValue(gate, 0)).toBe(false);  // '0' → false
+      expect(getGateInputValue(gate, 1)).toBe(false);  // 'invalid' → false
+      expect(getGateInputValue(gate, 2)).toBe(true);   // 'true' → true (修正)
     });
   });
 

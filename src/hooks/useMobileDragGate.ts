@@ -2,6 +2,7 @@ import type React from 'react';
 import { useState, useRef, useCallback } from 'react';
 import type { GateType } from '@/types/circuit';
 import { useCircuitStore } from '@/stores/circuitStore';
+import { clientToSVGCoordinates } from '@infrastructure/ui/svgCoordinates';
 
 interface DragPreview {
   type: GateType;
@@ -58,12 +59,12 @@ export const useMobileDragGate = () => {
       }
 
       // タッチ位置をSVG座標に変換
-      const svgPoint = canvas.createSVGPoint();
-      svgPoint.x = touch.clientX;
-      svgPoint.y = touch.clientY;
-      const transformed = svgPoint.matrixTransform(
-        canvas.getScreenCTM()!.inverse()
-      );
+      const transformed = clientToSVGCoordinates(touch.clientX, touch.clientY, canvas);
+      if (!transformed) {
+        setIsDragging(false);
+        setDragPreview(null);
+        return;
+      }
 
       // ゲートを追加
       addGate(dragPreview.type, { x: transformed.x, y: transformed.y });

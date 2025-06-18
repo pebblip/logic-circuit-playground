@@ -29,6 +29,7 @@ export class GateFactory {
       case 'CLOCK':
         return {
           ...baseGate,
+          output: true, // 初期状態でONにしてクロック信号を見やすく
           metadata: {
             frequency: 1, // 1Hz default
             isRunning: true, // デフォルトでON（楽しい！）
@@ -81,6 +82,15 @@ export class GateFactory {
           },
         };
 
+      case 'DELAY':
+        return {
+          ...baseGate,
+          inputs: [''],
+          metadata: {
+            history: [], // 空の履歴で開始
+          },
+        };
+
       case 'CUSTOM':
         // カスタムゲートは後で設定される
         return baseGate;
@@ -121,7 +131,7 @@ export class GateFactory {
       return []; // 入力ピンなし
     }
 
-    if (type === 'NOT' || type === 'OUTPUT') {
+    if (type === 'NOT' || type === 'OUTPUT' || type === 'DELAY') {
       return ['']; // 1入力
     }
 

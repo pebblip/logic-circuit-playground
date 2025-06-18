@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Gate } from '@/types/circuit';
 import { getGateInputValue } from '@/domain/simulation';
+import { PinComponent } from './PinComponent';
 
 interface SpecialGateRendererProps {
   gate: Gate;
@@ -89,6 +90,19 @@ export const SpecialGateRenderer: React.FC<SpecialGateRendererProps> = ({
           }}
         />
       );
+    case 'DELAY':
+      return (
+        <DelayGateRenderer
+          {...{
+            gate,
+            isSelected,
+            handleMouseDown,
+            handleTouchStart,
+            handlePinClick,
+            handleGateClick,
+          }}
+        />
+      );
     default:
       return null;
   }
@@ -119,30 +133,21 @@ const ClockGateRenderer: React.FC<SpecialGateRendererProps> = ({
         className="u-cursor-grab"
       >
         <circle
-          className={`gate ${isSelected ? 'selected' : ''}`}
+          className={`gate clock-gate ${isSelected ? 'selected' : ''}`}
           cx="0"
           cy="0"
           r="45"
           fill="#1a1a1a"
           stroke={isSelected ? '#00aaff' : '#444'}
           strokeWidth={isSelected ? '3' : '2'}
-        >
-          {/* パルスアニメーション */}
-          <animate
-            attributeName="r"
-            from="37"
-            to="45"
-            dur={`${1 / frequency}s`}
-            repeatCount="indefinite"
-          />
-          <animate
-            attributeName="opacity"
-            from="0.8"
-            to="1"
-            dur={`${1 / frequency}s`}
-            repeatCount="indefinite"
-          />
-        </circle>
+          style={{
+            // CSSアニメーションでパルス効果（SVGアニメーション代替）
+            animation: `clockPulse ${1 / frequency}s infinite`,
+            transformOrigin: 'center',
+            transformBox: 'fill-box',
+          }}
+        />
+        {/* SVGアニメーションを削除して副作用を防止 */}
         <text className="gate-text u-text-lg" x="0" y="-5">
           ⏰
         </text>
@@ -654,20 +659,20 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
           stroke={isSelected ? '#00aaff' : undefined}
           strokeWidth={isSelected ? '3' : undefined}
         />
-        <text className="gate-text" x="0" y="-10">
+        <text className="gate-text u-text-sm" x="0" y="-15">
           COUNTER
         </text>
-        <text className="gate-text u-text-md" x="0" y="5">
+        <text className="gate-text u-text-sm" x="0" y="0">
           {bitCount}bit
         </text>
         
         {/* 現在の値を表示 */}
-        <text className="gate-text u-text-md u-fill-muted" x="0" y="25">
-          {currentValue.toString().padStart(Math.ceil(Math.log10(1 << bitCount)), '0')}
+        <text className="gate-text u-text-lg u-font-mono" x="0" y="20">
+          {currentValue.toString().padStart(bitCount, '0')}
         </text>
         
         {/* CLK入力ラベル */}
-        <text className="gate-text u-text-md u-fill-muted" x="-45" y="5">
+        <text className="gate-text u-text-xs u-fill-muted" x="-45" y="5">
           CLK
         </text>
         
@@ -679,7 +684,7 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
           return (
             <text
               key={i}
-              className="gate-text u-text-md u-fill-muted"
+              className="gate-text u-text-xs u-fill-muted"
               x="45"
               y={y + 5}
             >
@@ -692,7 +697,7 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
       {/* 入力ピン - CLK */}
       <g>
         <circle
-          cx="-60"
+          cx="-70"
           cy="0"
           r="22"
           fill="transparent"
@@ -700,7 +705,7 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
           onClick={e => handlePinClick(e, 0, false)}
         />
         <circle
-          cx="-60"
+          cx="-70"
           cy="0"
           r="6"
           className={`pin ${getGateInputValue(gate, 0) ? 'active' : ''}`}
@@ -709,7 +714,7 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
         <line
           x1="-60"
           y1="0"
-          x2="-60"
+          x2="-70"
           y2="0"
           className={`pin-line ${getGateInputValue(gate, 0) ? 'active' : ''}`}
           pointerEvents="none"
@@ -732,7 +737,7 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
         return (
           <g key={i}>
             <circle
-              cx="60"
+              cx="70"
               cy={y}
               r="22"
               fill="transparent"
@@ -740,16 +745,16 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
               onClick={e => handlePinClick(e, i, true)}
             />
             <circle
-              cx="60"
+              cx="70"
               cy={y}
               r="6"
               className={`pin ${bitValue ? 'active' : ''}`}
               pointerEvents="none"
             />
             <line
-              x1="50"
+              x1="60"
               y1={y}
-              x2="60"
+              x2="70"
               y2={y}
               className={`pin-line ${bitValue ? 'active' : ''}`}
               pointerEvents="none"
@@ -757,6 +762,84 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
           </g>
         );
       })}
+    </>
+  );
+};
+
+// DELAY Gate Renderer
+const DelayGateRenderer: React.FC<SpecialGateRendererProps> = ({
+  gate,
+  isSelected,
+  handleMouseDown,
+  handleTouchStart,
+  handlePinClick,
+  handleGateClick,
+}) => {
+  // 履歴を取得（3サイクル分）
+  const history = (gate.metadata?.history || []) as boolean[];
+  const delaySteps = 3;
+  
+  return (
+    <>
+      <g
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        onClick={handleGateClick}
+        className="u-cursor-grab"
+      >
+        <rect
+          className={`gate ${isSelected ? 'selected' : ''}`}
+          x="-40"
+          y="-30"
+          width="80"
+          height="60"
+          rx="8"
+          stroke={isSelected ? '#00aaff' : undefined}
+          strokeWidth={isSelected ? '3' : undefined}
+        />
+        <text className="gate-text" x="0" y="-5">
+          DELAY
+        </text>
+        <text className="gate-text u-text-md" x="0" y="10">
+          {delaySteps}τ
+        </text>
+        
+        {/* 履歴インジケーター */}
+        <g transform="translate(-20, 20)">
+          {[0, 1, 2].map((i) => (
+            <circle
+              key={i}
+              cx={i * 15}
+              cy="0"
+              r="4"
+              fill={history[i] ? '#00ff88' : '#333'}
+              opacity={history[i] !== undefined ? 1 : 0.3}
+            />
+          ))}
+        </g>
+      </g>
+
+      {/* 入力ピン */}
+      <PinComponent
+        gate={gate}
+        x={-50}
+        y={0}
+        pinIndex={0}
+        isOutput={false}
+        isActive={getGateInputValue(gate, 0)}
+        onPinClick={handlePinClick}
+      />
+
+      {/* 出力ピン */}
+      <PinComponent
+        gate={gate}
+        x={50}
+        y={0}
+        pinIndex={0}
+        isOutput={true}
+        isActive={gate.output}
+        onPinClick={handlePinClick}
+      />
     </>
   );
 };

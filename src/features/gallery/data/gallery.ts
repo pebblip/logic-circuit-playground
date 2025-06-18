@@ -3,6 +3,13 @@ import { COMPARATOR_4BIT } from './comparator-circuit';
 import { PARITY_CHECKER } from './parity-checker';
 import { MAJORITY_VOTER } from './majority-voter';
 import { SEVEN_SEGMENT_DECODER } from './seven-segment';
+import { SR_LATCH_BASIC } from './sr-latch-circuit';
+import { RING_OSCILLATOR } from './ring-oscillator';
+import { CHAOS_GENERATOR } from './chaos-generator';
+import { FIBONACCI_COUNTER } from './fibonacci-counter';
+import { JOHNSON_COUNTER } from './johnson-counter';
+import { SELF_OSCILLATING_MEMORY } from './self-oscillating-memory';
+import { MANDALA_CIRCUIT } from './mandala-circuit';
 
 export interface CircuitMetadata {
   id: string;
@@ -180,140 +187,7 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
     ],
   },
 
-  {
-    id: 'traffic-light',
-    title: '信号機制御回路',
-    description: '2つのスイッチで信号機の3色を制御する回路。実世界の応用例です。',
-    gates: [
-      // 制御スイッチ
-      {
-        id: 'switch1',
-        type: 'INPUT',
-        position: { x: 100, y: 150 },
-        output: false,
-        inputs: [],
-      },
-      {
-        id: 'switch2',
-        type: 'INPUT',
-        position: { x: 100, y: 250 },
-        output: false,
-        inputs: [],
-      },
-      // 論理ゲート
-      {
-        id: 'not1',
-        type: 'NOT',
-        position: { x: 250, y: 150 },
-        output: false,
-        inputs: [],
-      },
-      {
-        id: 'not2',
-        type: 'NOT',
-        position: { x: 250, y: 250 },
-        output: false,
-        inputs: [],
-      },
-      {
-        id: 'and_red',
-        type: 'AND',
-        position: { x: 400, y: 100 },
-        output: false,
-        inputs: [],
-      },
-      {
-        id: 'and_yellow',
-        type: 'AND',
-        position: { x: 400, y: 200 },
-        output: false,
-        inputs: [],
-      },
-      // 信号機の3色
-      {
-        id: 'red',
-        type: 'OUTPUT',
-        position: { x: 550, y: 100 },
-        output: false,
-        inputs: [],
-      },
-      {
-        id: 'yellow',
-        type: 'OUTPUT',
-        position: { x: 550, y: 200 },
-        output: false,
-        inputs: [],
-      },
-      {
-        id: 'green',
-        type: 'OUTPUT',
-        position: { x: 550, y: 300 },
-        output: false,
-        inputs: [],
-      },
-    ],
-    wires: [
-      // スイッチをNOTに接続
-      {
-        id: 'w_switch1_not1',
-        from: { gateId: 'switch1', pinIndex: -1 },
-        to: { gateId: 'not1', pinIndex: 0 },
-        isActive: false,
-      },
-      {
-        id: 'w_switch2_not2',
-        from: { gateId: 'switch2', pinIndex: -1 },
-        to: { gateId: 'not2', pinIndex: 0 },
-        isActive: false,
-      },
-      // 赤信号: switch1=OFF, switch2=OFF
-      {
-        id: 'w_not1_red',
-        from: { gateId: 'not1', pinIndex: -1 },
-        to: { gateId: 'and_red', pinIndex: 0 },
-        isActive: false,
-      },
-      {
-        id: 'w_not2_red',
-        from: { gateId: 'not2', pinIndex: -1 },
-        to: { gateId: 'and_red', pinIndex: 1 },
-        isActive: false,
-      },
-      // 黄信号: switch1=ON, switch2=OFF
-      {
-        id: 'w_switch1_yellow',
-        from: { gateId: 'switch1', pinIndex: -1 },
-        to: { gateId: 'and_yellow', pinIndex: 0 },
-        isActive: false,
-      },
-      {
-        id: 'w_not2_yellow',
-        from: { gateId: 'not2', pinIndex: -1 },
-        to: { gateId: 'and_yellow', pinIndex: 1 },
-        isActive: false,
-      },
-      // 緑信号: switch2=ON（switch1は関係なし）
-      {
-        id: 'w_switch2_green',
-        from: { gateId: 'switch2', pinIndex: -1 },
-        to: { gateId: 'green', pinIndex: 0 },
-        isActive: false,
-      },
-      // 出力接続
-      {
-        id: 'w_and_red_output',
-        from: { gateId: 'and_red', pinIndex: -1 },
-        to: { gateId: 'red', pinIndex: 0 },
-        isActive: false,
-      },
-      {
-        id: 'w_and_yellow_output',
-        from: { gateId: 'and_yellow', pinIndex: -1 },
-        to: { gateId: 'yellow', pinIndex: 0 },
-        isActive: false,
-      },
-    ],
-  },
+  // 信号機制御回路は削除（教育的価値が低い）
 
   {
     id: 'decoder',
@@ -509,91 +383,23 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
     ],
   },
 
-  {
-    id: 'binary-counter',
-    title: '2ビットバイナリカウンタ',
-    description: 'クロック信号に同期してカウントアップする回路。デジタル回路の基本となるカウンタ動作を体験できます。',
-    gates: [
-      // クロック入力
-      {
-        id: 'clock',
-        type: 'CLOCK',
-        position: { x: 100, y: 200 },
-        output: false,
-        inputs: [],
-        metadata: {
-          frequency: 0.5, // 0.5Hz (2秒周期)
-          isRunning: true,
-          startTime: Date.now(),
-        },
-      },
-      // バイナリカウンタ
-      {
-        id: 'counter',
-        type: 'BINARY_COUNTER',
-        position: { x: 300, y: 200 },
-        output: false,
-        outputs: [false, false],
-        inputs: [''],
-        metadata: {
-          bitCount: 2,
-          currentValue: 0,
-          previousClockState: false,
-        },
-      },
-      // 出力（Q0: LSB）
-      {
-        id: 'output_q0',
-        type: 'OUTPUT',
-        position: { x: 500, y: 170 },
-        output: false,
-        inputs: [],
-      },
-      // 出力（Q1: MSB）
-      {
-        id: 'output_q1',
-        type: 'OUTPUT',
-        position: { x: 500, y: 230 },
-        output: false,
-        inputs: [],
-      },
-      // 7セグメント風表示用（オプション）
-      {
-        id: 'display',
-        type: 'OUTPUT',
-        position: { x: 600, y: 200 },
-        output: false,
-        inputs: [],
-      },
-    ],
-    wires: [
-      // クロック -> カウンタCLK
-      {
-        id: 'w_clk',
-        from: { gateId: 'clock', pinIndex: -1 },
-        to: { gateId: 'counter', pinIndex: 0 },
-        isActive: false,
-      },
-      // カウンタQ0 -> 出力Q0
-      {
-        id: 'w_q0',
-        from: { gateId: 'counter', pinIndex: -1 },
-        to: { gateId: 'output_q0', pinIndex: 0 },
-        isActive: false,
-      },
-      // カウンタQ1 -> 出力Q1
-      {
-        id: 'w_q1',
-        from: { gateId: 'counter', pinIndex: -2 },
-        to: { gateId: 'output_q1', pinIndex: 0 },
-        isActive: false,
-      },
-    ],
-  },
+  // 問題のあるバイナリカウンタ（専用ゲート使用）を削除
+  // 将来的に基本ゲート版を追加予定
   
   // 基本ゲートで作る高度な回路
   COMPARATOR_4BIT,
   PARITY_CHECKER,
   MAJORITY_VOTER,
   SEVEN_SEGMENT_DECODER,
+  
+  // 循環回路（イベント駆動シミュレーション対応）
+  SR_LATCH_BASIC,
+  RING_OSCILLATOR,
+  
+  // 循環回路（高度）
+  CHAOS_GENERATOR,
+  FIBONACCI_COUNTER,
+  JOHNSON_COUNTER,
+  SELF_OSCILLATING_MEMORY,
+  MANDALA_CIRCUIT,
 ];

@@ -78,10 +78,8 @@ export function useGateDragAndDrop(gate: Gate): UseDragAndDropResult {
       const svg = document.querySelector('.canvas') as SVGSVGElement;
       if (!svg) return;
 
-      const point = svg.createSVGPoint();
-      point.x = touch.clientX;
-      point.y = touch.clientY;
-      const svgPoint = point.matrixTransform(svg.getScreenCTM()!.inverse());
+      const svgPoint = clientToSVGCoordinates(touch.clientX, touch.clientY, svg);
+      if (!svgPoint) return;
 
       const deltaX = svgPoint.x - dragStart.current.x - gate.position.x;
       const deltaY = svgPoint.y - dragStart.current.y - gate.position.y;

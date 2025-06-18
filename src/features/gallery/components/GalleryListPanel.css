@@ -1,0 +1,154 @@
+/* ギャラリーリストパネル */
+.gallery-list-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #1a1a1a;
+}
+
+/* ヘッダー */
+.gallery-list-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: #2a2a2a;
+}
+
+.gallery-list-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: #ffffff;
+}
+
+.gallery-list-header p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+/* コンテンツ */
+.gallery-list-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* カテゴリ */
+.gallery-category {
+  margin-bottom: 24px;
+}
+
+.category-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 12px 8px;
+}
+
+/* 回路リスト */
+.circuit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 回路アイテム */
+.circuit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+  position: relative;
+}
+
+.circuit-item:hover {
+  background: #2a2a2a;
+  border-color: #00ff88;
+  transform: translateX(4px);
+}
+
+.circuit-item.selected {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: #00ff88;
+  color: #00ff88;
+}
+
+.circuit-item.selected .circuit-name {
+  font-weight: 600;
+}
+
+/* 回路名 */
+.circuit-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.circuit-item.selected .circuit-name {
+  color: #00ff88;
+}
+
+/* ゲート数 */
+.circuit-gate-count {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+
+/* バッジ */
+.circuit-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 10px;
+  padding: 2px 6px;
+  background: rgba(255, 183, 0, 0.1);
+  color: #ffb700;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* 循環回路のスタイル */
+.circuit-item.cyclical {
+  background: linear-gradient(135deg, rgba(255, 0, 110, 0.05) 0%, rgba(131, 56, 236, 0.05) 100%);
+}
+
+.circuit-item.cyclical:hover {
+  background: linear-gradient(135deg, rgba(255, 0, 110, 0.1) 0%, rgba(131, 56, 236, 0.1) 100%);
+  border-color: rgba(255, 0, 110, 0.5);
+}
+
+.circuit-item.cyclical.selected {
+  background: linear-gradient(135deg, rgba(255, 0, 110, 0.2) 0%, rgba(131, 56, 236, 0.2) 100%);
+  border-color: rgba(255, 0, 110, 0.8);
+}
+
+/* スクロールバーのカスタマイズ */
+.gallery-list-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.gallery-list-content::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+.gallery-list-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.gallery-list-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

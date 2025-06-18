@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useCircuitStore } from '../stores/circuitStore';
+import { clientToSVGCoordinates } from '@infrastructure/ui/svgCoordinates';
 
 // 保存ダイアログを開くためのグローバルイベント
 export const OPEN_SAVE_DIALOG_EVENT = 'openSaveDialog';
@@ -100,18 +101,16 @@ export const useKeyboardShortcuts = () => {
         event.preventDefault();
         if (canPaste()) {
           // キャンバスの表示中心にペースト
-          const canvas = document.querySelector('svg.circuit-canvas');
+          const canvas = document.querySelector('svg.circuit-canvas') as SVGSVGElement;
           if (canvas) {
             const rect = canvas.getBoundingClientRect();
             // viewBoxを考慮して実際のSVG座標に変換
-            const svg = canvas as SVGSVGElement;
-            const point = svg.createSVGPoint();
-            point.x = rect.width / 2;
-            point.y = rect.height / 2;
-            const svgPoint = point.matrixTransform(
-              svg.getScreenCTM()?.inverse() || svg.getCTM()?.inverse()
-            );
-            paste({ x: svgPoint.x, y: svgPoint.y });
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const svgPoint = clientToSVGCoordinates(centerX, centerY, canvas);
+            if (svgPoint) {
+              paste({ x: svgPoint.x, y: svgPoint.y });
+            }
           }
         }
       }

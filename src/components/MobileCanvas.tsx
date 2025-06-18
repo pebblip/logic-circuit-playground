@@ -11,6 +11,7 @@ import { useMobileTapWireConnection } from '../hooks/useMobileTapWireConnection'
 import { useCircuitStore } from '@/stores/circuitStore';
 import { getPinPosition } from '@/domain/analysis/pinPositionCalculator';
 import { useIsMobile } from '@/hooks/useResponsive';
+import { touchToSVGCoordinates } from '@infrastructure/ui/svgCoordinates';
 
 interface MobileCanvasProps {
   highlightedGateId?: string | null;
@@ -60,12 +61,7 @@ export const MobileCanvas: React.FC<MobileCanvasProps> = ({
   // タッチイベントをSVG座標に変換
   const touchToSVGPoint = (touch: Touch): { x: number; y: number } | null => {
     const svg = canvasRef.current?.querySelector('svg') as SVGSVGElement;
-    if (!svg) return null;
-
-    const svgPoint = svg.createSVGPoint();
-    svgPoint.x = touch.clientX;
-    svgPoint.y = touch.clientY;
-    return svgPoint.matrixTransform(svg.getScreenCTM()!.inverse());
+    return touchToSVGCoordinates(touch, svg);
   };
 
   // ピンのタッチハンドラー（タップベース接続）

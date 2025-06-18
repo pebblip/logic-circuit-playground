@@ -186,6 +186,14 @@ function evaluateGateLogic(
       case 'CUSTOM':
         return evaluateCustomGate(gate, inputs, config);
 
+      case 'DELAY': {
+        const result = evaluateDelayGate(gate, inputs);
+        if (!result.success) return result;
+        // DELAYゲートは特殊な戻り値を持つので、outputs部分だけを返す
+        // newHistoryはメタデータとして処理される必要がある
+        return success(result.data.outputs);
+      }
+
       default:
         return failure(
           createEvaluationError(
@@ -304,7 +312,42 @@ function evaluateSRLatchGate(
   // S=0, R=0 => 状態保持
   // S=1, R=1 => 不定状態（現在の状態を保持）
 
-  return success([qOutput]);
+  // 🔧 Q̄出力を追加（outputs[1] = !Q）
+  return success([qOutput, !qOutput]);
+}
+
+/**
+ * DELAYゲート評価
+ * 入力を3サイクル遅延させて出力する
+ */
+function evaluateDelayGate(
+  gate: Readonly<Gate>,
+  inputs: readonly boolean[]
+): Result<{ outputs: readonly boolean[]; newHistory: boolean[] }, EvaluationError> {
+  if (inputs.length < 1) {
+    return failure(
+      createEvaluationError(
+        'DELAY gate requires 1 input',
+        'INPUT_COLLECTION',
+        { gateId: gate.id }
+      )
+    );
+  }
+
+  // 履歴を取得（metadataからhistoryを取得）
+  const history = (gate.metadata?.history || []) as boolean[];
+  
+  // 3サイクル前の値を出力（なければfalse）
+  const output = history.length >= 3 ? history[0] : false;
+  
+  // 現在の入力を履歴に追加（履歴は最大3つまで）
+  const newHistory = [...history, inputs[0]];
+  if (newHistory.length > 3) {
+    newHistory.shift(); // 最古の値を削除
+  }
+
+  // 出力と新しい履歴を返す
+  return success({ outputs: [output], newHistory });
 }
 
 /**

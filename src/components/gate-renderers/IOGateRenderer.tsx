@@ -16,6 +16,7 @@ interface IOGateRendererProps {
   handleGateClick: (event: React.MouseEvent) => void;
   handleInputClick: (event: React.MouseEvent) => void;
   handleInputDoubleClick: (event: React.MouseEvent) => void;
+  onInputClick?: (gateId: string) => void;
 }
 
 export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
@@ -27,13 +28,17 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
   handleGateClick,
   handleInputClick,
   handleInputDoubleClick,
+  onInputClick,
 }) => {
   if (gate.type === 'INPUT') {
     return (
       <>
         <g
           onClick={handleInputClick}
-          onDoubleClick={handleInputDoubleClick}
+          onDoubleClick={onInputClick ? (e) => {
+            e.stopPropagation();
+            onInputClick(gate.id);
+          } : handleInputDoubleClick}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
           className="u-cursor-grab"
@@ -79,6 +84,8 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
           onTouchStart={handleTouchStart}
           onClick={handleGateClick}
           className="u-cursor-grab"
+          data-testid={`output-${gate.id}`}
+          data-active={getGateInputValue(gate, 0) ? 'true' : 'false'}
         >
           {/* 外側の円（枠） */}
           <circle

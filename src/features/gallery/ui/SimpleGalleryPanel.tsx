@@ -250,8 +250,8 @@ export const SimpleGalleryPanel: React.FC<{ isVisible: boolean }> = ({
   return (
     <div className="simple-gallery">
       <div className="gallery-intro">
-        <h1>✨ あっと驚く回路たち</h1>
-        <p>クリックして魔法を体験しよう</p>
+        <h1>📚 基本回路ギャラリー</h1>
+        <p>クリックして回路を体験しよう</p>
       </div>
 
       <div className="circuit-showcase">

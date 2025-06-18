@@ -13,11 +13,13 @@ import { handleError } from '@/infrastructure/errorHandler';
 interface GateComponentProps {
   gate: Gate;
   isHighlighted?: boolean;
+  onInputClick?: (gateId: string) => void;
 }
 
 const GateComponentImpl: React.FC<GateComponentProps> = ({
   gate,
   isHighlighted = false,
+  onInputClick,
 }) => {
   const isMobile = useIsMobile();
   const scaleFactor = isMobile ? 2 : 1;
@@ -94,12 +96,13 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
             handleGateClick={wrappedHandleGateClick}
             handleInputClick={wrappedHandleInputClick}
             handleInputDoubleClick={wrappedHandleInputDoubleClick}
+            onInputClick={onInputClick}
           />
         );
       }
 
       // 特殊ゲート
-      if (['CLOCK', 'D-FF', 'SR-LATCH', 'MUX'].includes(gate.type)) {
+      if (['CLOCK', 'D-FF', 'SR-LATCH', 'MUX', 'DELAY', 'BINARY_COUNTER'].includes(gate.type)) {
         return (
           <SpecialGateRenderer
             {...baseProps}
@@ -173,6 +176,7 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
       className={`gate-container ${isHighlighted ? 'highlighted' : ''}`}
       data-gate-id={gate.id}
       data-gate-type={gate.type}
+      data-testid={`gate-${gate.id}`}
       transform={`translate(${gate.position.x}, ${gate.position.y}) scale(${scaleFactor})`}
     >
       {renderGate()}

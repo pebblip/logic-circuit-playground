@@ -651,6 +651,7 @@ function collectGateInputs(
       inputCount = 3;
       break;
     case 'BINARY_COUNTER':
+    case 'DELAY':
       inputCount = 1;
       break;
     case 'CUSTOM':
@@ -767,6 +768,22 @@ function updateGateMetadata(gate: Gate, inputs: boolean[]): void {
           ...gate.metadata,
           currentValue,
           previousClockState: clk,
+        };
+      }
+      break;
+
+    case 'DELAY':
+      // DELAYゲートの履歴更新
+      if (inputs.length >= 1) {
+        const history = (gate.metadata?.history || []) as boolean[];
+        const newHistory = [...history, inputs[0]];
+        if (newHistory.length > 3) {
+          newHistory.shift(); // 最古の値を削除
+        }
+
+        gate.metadata = {
+          ...gate.metadata,
+          history: newHistory,
         };
       }
       break;

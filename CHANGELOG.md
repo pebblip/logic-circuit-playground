@@ -1,5 +1,31 @@
 # 変更履歴
 
+## [未リリース] - 2025-06-17
+
+### 追加
+- Canvas.tsxの包括的リファクタリング
+  - 5つのUIコンポーネントを分離（CanvasBackground, CanvasControls, CanvasPreviewHeader, SelectionRect, WirePreview）
+  - 3つのカスタムフックを作成（useCanvasSimulation, useCanvasInteraction, useCanvasGateManagement）
+  - 1,058行から495行へ削減（53%削減）
+  - 新しいフックのテスト作成（34個中32個成功）
+- イベント駆動シミュレーション機能の強化
+  - MinimalEventDrivenEngineに発振検出機能を追加
+  - EnhancedHybridEvaluatorを実装（AUTO_SELECT戦略）
+  - SR-LATCHの安定動作を実現
+- パズル・ギャラリーモードの統合
+  - PuzzlePanelをDesktopLayoutに統合
+  - モード切替によるパネル表示制御
+
+### 削除
+- 未使用の_future-implementationディレクトリ（6,764行）
+- バックアップファイル（.bak）7個（2,440行）
+- 合計9,204行の未使用コードを削除
+
+### リファクタリング
+- 座標変換関数の統一
+  - 6ファイルで重複していた実装をinfrastructure/ui/svgCoordinates.tsに統一
+  - clientToSVGCoordinates、touchToSVGCoordinates、reactEventToSVGCoordinatesを標準化
+
 ## [未リリース] - 2025-06-16
 
 ### 追加

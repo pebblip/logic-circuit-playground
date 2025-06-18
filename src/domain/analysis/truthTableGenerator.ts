@@ -1,6 +1,7 @@
 import type { Gate, Wire } from '../../types/circuit';
-import { evaluateCircuit, defaultConfig, isSuccess } from '../simulation/core';
 import type { Circuit } from '../simulation/core/types';
+import { getGlobalEvaluationService } from '../simulation/unified';
+import { EnhancedHybridEvaluator } from '../simulation/event-driven-minimal/EnhancedHybridEvaluator';
 
 export interface TruthTableRow {
   inputs: string;
@@ -50,22 +51,33 @@ export function generateTruthTable(
       }
     });
 
-    // 回路を評価（新API使用）
+    // 回路を評価（統一評価サービス使用）
     const circuit: Circuit = {
       gates: testGates,
       wires: [...wires],
     };
 
-    const evaluationResult = evaluateCircuit(circuit, defaultConfig);
-
+    const evaluationService = getGlobalEvaluationService();
     let evaluatedGates: Gate[];
-    if (isSuccess(evaluationResult)) {
-      evaluatedGates = [...evaluationResult.data.circuit.gates];
-    } else {
+    
+    try {
+      // 統一サービスと同じ設定を適用した評価
+      const complexity = evaluationService.analyzeComplexity(circuit);
+      const strategy = complexity.recommendedStrategy;
+      
+      // 同期評価（EnhancedHybridEvaluatorを直接使用）
+      const evaluator = new EnhancedHybridEvaluator({
+        strategy,
+        enableDebugLogging: false,
+      });
+      
+      const evaluationResult = evaluator.evaluate(circuit);
+      evaluatedGates = [...evaluationResult.circuit.gates];
+    } catch (error) {
       // エラー時は元のゲート状態を使用（フォールバック）
       console.warn(
         `Truth table generation: Circuit evaluation failed for pattern ${inputPattern}:`,
-        evaluationResult.error.message
+        error instanceof Error ? error.message : 'Unknown error'
       );
       evaluatedGates = testGates;
       hasSequentialBehavior = true; // エラーが発生した場合は複雑な回路とみなす
