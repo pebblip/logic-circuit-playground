@@ -391,6 +391,17 @@ export class EventDrivenEngine {
       currentOutputs: state.outputs.map((v, i) => `output[${i}]=${v}`),
     });
     
+    // D-FFのクロック状態を評価前に保存（重要！）
+    let savedPreviousClockState: boolean | undefined;
+    if (gate.type === 'D-FF' && inputs.length >= 2) {
+      savedPreviousClockState = (state.metadata?.previousClockState as boolean) ?? false;
+      // 現在のクロック状態をメタデータに保存（evaluateGateで使用される）
+      state.metadata = {
+        ...state.metadata,
+        previousClockState: savedPreviousClockState,
+      };
+    }
+    
     // ゲートを評価
     const newOutputs = evaluateGate(gate, inputs, state);
     
@@ -424,6 +435,57 @@ export class EventDrivenEngine {
     
     // 入力を記録（次回のエッジ検出用）
     state.previousInputs = [...inputs];
+    
+    // D-FFのメタデータを評価後に正しく更新
+    if (gate.type === 'D-FF' && inputs.length >= 2) {
+      const d = inputs[0];
+      const clk = inputs[1];
+      const prevClk = savedPreviousClockState ?? false;
+      
+      // 立ち上がりエッジでqOutputを更新
+      if (!prevClk && clk && newOutputs.length >= 2) {
+        state.metadata = {
+          ...state.metadata,
+          qOutput: newOutputs[0],     // Q出力
+          qBarOutput: newOutputs[1],  // Q̄出力
+          previousClockState: clk,    // 次回評価用に現在のクロック状態を保存
+        };
+        
+        this.addDebugTrace(time, 'D-FF_EDGE_DETECTED', {
+          gateId,
+          d,
+          prevClk,
+          clk,
+          qOutput: newOutputs[0],
+          qBarOutput: newOutputs[1],
+          updatedPreviousClockState: clk
+        });
+      } else {
+        // エッジが検出されなくても、クロック状態は更新する
+        state.metadata = {
+          ...state.metadata,
+          previousClockState: clk,
+        };
+        
+        this.addDebugTrace(time, 'D-FF_CLOCK_STATE_UPDATED', {
+          gateId,
+          prevClk,
+          clk,
+          newPreviousClockState: clk
+        });
+      }
+    } else if (gate.type === 'SR-LATCH' && inputs.length >= 2) {
+      const s = inputs[0];
+      const r = inputs[1];
+      
+      if (newOutputs.length >= 2) {
+        state.metadata = {
+          ...state.metadata,
+          qOutput: newOutputs[0],     // Q出力
+          qBarOutput: newOutputs[1],  // Q̄出力
+        };
+      }
+    }
     
     return hasChanges;
   }

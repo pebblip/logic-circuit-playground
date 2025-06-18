@@ -578,6 +578,11 @@ function evaluateCircuitStep(
 
         // 特殊ゲートのメタデータ更新
         updateGateMetadata(gate, inputs);
+        
+        // 🔥 根本修正: D-FFとSR-LATCHの真の出力をgate.outputに反映
+        if (gate.type === 'D-FF' || gate.type === 'SR-LATCH') {
+          gate.output = gate.metadata?.qOutput ?? false;
+        }
       }
 
       const gateEndTime = Date.now();

@@ -62,8 +62,14 @@ export function evaluateGate(
       // 立ち上がりエッジ検出
       if (!prevClk && clk) {
         qOutput = d;
+        // エッジ検出時にqOutputをstateに反映（次回評価で使用される）
+        state.metadata = {
+          ...state.metadata,
+          qOutput: qOutput,
+          qBarOutput: !qOutput,
+        };
       }
-      // 注意：previousClockStateの更新は評価前に行われているため、ここでは更新しない
+      // 注意：previousClockStateの更新は呼び出し側で行われる
       
       return [qOutput, !qOutput];
     }
