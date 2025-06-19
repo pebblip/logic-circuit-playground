@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { CircuitMetadata } from '../data/gallery';
 import { GalleryListPanel } from './GalleryListPanel';
-import { GalleryCanvas } from './GalleryCanvas';
+import { UnifiedCanvas } from '@/components/canvas/UnifiedCanvas';
+import { CANVAS_MODE_PRESETS } from '@/components/canvas/types/canvasTypes';
 import { GalleryDetailPanel } from './GalleryDetailPanel';
 import './GalleryModeLayout.css';
 
@@ -20,7 +21,10 @@ export const GalleryModeLayout: React.FC = () => {
 
       {/* 中央: 読み取り専用キャンバス */}
       <main className="gallery-main-canvas">
-        <GalleryCanvas circuit={selectedCircuit} />
+        <UnifiedCanvas 
+          config={CANVAS_MODE_PRESETS.gallery}
+          dataSource={{ galleryCircuit: selectedCircuit || undefined }}
+        />
       </main>
 
       {/* 右サイドバー: 回路詳細 */}

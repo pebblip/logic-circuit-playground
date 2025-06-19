@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Header } from '../Header';
 import { ToolPalette } from '../ToolPalette';
-import { Canvas } from '../Canvas';
+import { UnifiedCanvas } from '../canvas/UnifiedCanvas';
+import { CANVAS_MODE_PRESETS } from '../canvas/types/canvasTypes';
 import { PropertyPanel } from '../property-panel';
 import { FloatingLearningPanel } from '../../features/learning-mode/ui/FloatingLearningPanel';
 import { CircuitVisualizerPanel } from '../CircuitVisualizerPanel';
@@ -117,7 +118,11 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
           <>
             {/* キャンバス */}
             <div className="canvas-container">
-              <Canvas highlightedGateId={highlightedGateId} />
+              <UnifiedCanvas 
+                config={CANVAS_MODE_PRESETS.editor}
+                dataSource={{ store: true }}
+                highlightedGateId={highlightedGateId}
+              />
 
               {/* フローティングアクションボタン（FAB） - キャンバス内に配置 */}
               {viewMode !== 'custom-gate-preview' && (

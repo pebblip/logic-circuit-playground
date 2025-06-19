@@ -5,7 +5,7 @@
 
 import type { Gate } from '@/types/circuit';
 import type { ViewBox } from './canvasConstants';
-import { clientToSVGCoordinates as clientToSVGCoordinatesBase } from '@infrastructure/ui/svgCoordinates';
+// svgCoordinates.tsから直接使用してください
 
 /**
  * DOM要素がゲート要素かどうかを判定
@@ -94,18 +94,8 @@ export const isValidViewBox = (viewBox: ViewBox): boolean => {
   );
 };
 
-/**
- * マウス座標をSVG座標に変換
- * @deprecated 統一された関数を使用するため、互換性のためのラッパーとして残す
- */
-export const clientToSVGCoordinates = (
-  clientX: number,
-  clientY: number,
-  svgElement: SVGSVGElement
-): { x: number; y: number } => {
-  const result = clientToSVGCoordinatesBase(clientX, clientY, svgElement);
-  return result || { x: 0, y: 0 };
-};
+// deprecated関数を削除しました
+// 座標変換には @/infrastructure/ui/svgCoordinates の clientToSVGCoordinates を直接使用してください
 
 /**
  * ゲートが選択矩形内にあるかチェック

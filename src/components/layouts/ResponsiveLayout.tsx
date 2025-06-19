@@ -6,6 +6,7 @@ import { DesktopLayout } from './DesktopLayout';
 import { MobileLayout } from './MobileLayout';
 import { TabletLayout } from './TabletLayout';
 import { ErrorNotificationPanel } from '../ErrorNotificationPanel';
+import { CanvasTestPage } from '../../pages/CanvasTestPage';
 
 interface ResponsiveLayoutProps {
   children?: React.ReactNode;
@@ -17,6 +18,9 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   const { breakpoint } = useResponsive();
   const { loadFromShareUrl, loadPreferences } = useCircuitStore();
   const [shareLoadMessage, setShareLoadMessage] = useState<string | null>(null);
+
+  // 開発用テストページ表示チェック
+  const isTestMode = new URLSearchParams(window.location.search).get('test') === 'canvas';
 
   useKeyboardShortcuts();
 
@@ -64,18 +68,23 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
       {/* 統一エラーハンドリングシステム通知 */}
       <ErrorNotificationPanel />
 
-      {(() => {
-        switch (breakpoint) {
-          case 'mobile':
-            return <MobileLayout>{children}</MobileLayout>;
-          case 'tablet':
-            return <TabletLayout>{children}</TabletLayout>;
-          case 'desktop':
-            return <DesktopLayout>{children}</DesktopLayout>;
-          default:
-            return <DesktopLayout>{children}</DesktopLayout>;
-        }
-      })()}
+      {/* 開発用テストページ */}
+      {isTestMode ? (
+        <CanvasTestPage />
+      ) : (
+        (() => {
+          switch (breakpoint) {
+            case 'mobile':
+              return <MobileLayout>{children}</MobileLayout>;
+            case 'tablet':
+              return <TabletLayout>{children}</TabletLayout>;
+            case 'desktop':
+              return <DesktopLayout>{children}</DesktopLayout>;
+            default:
+              return <DesktopLayout>{children}</DesktopLayout>;
+          }
+        })()
+      )}
     </>
   );
 };

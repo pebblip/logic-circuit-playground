@@ -5,7 +5,8 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-import { Canvas } from './Canvas';
+import { UnifiedCanvas } from './canvas/UnifiedCanvas';
+import { CANVAS_MODE_PRESETS } from './canvas/types/canvasTypes';
 import { useMobileGateMovement } from '../hooks/useMobileGateMovement';
 import { useMobileTapWireConnection } from '../hooks/useMobileTapWireConnection';
 import { useCircuitStore } from '@/stores/circuitStore';
@@ -215,7 +216,11 @@ export const MobileCanvas: React.FC<MobileCanvasProps> = ({
 
   return (
     <div ref={canvasRef} className="mobile-canvas-wrapper">
-      <Canvas highlightedGateId={highlightedGateId} />
+      <UnifiedCanvas 
+        config={CANVAS_MODE_PRESETS.editor}
+        dataSource={{ store: true }}
+        highlightedGateId={highlightedGateId}
+      />
 
       {/* 選択中のピンの視覚的フィードバック */}
       {selectedPin && selectedPinPosition && (

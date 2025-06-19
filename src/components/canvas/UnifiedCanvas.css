@@ -1,0 +1,275 @@
+/**
+ * 統一キャンバスコンポーネントのスタイル
+ * 
+ * CLAUDE.md準拠: UIコンポーネントパターンの統一
+ * - Canvas.tsx と GalleryCanvas.tsx スタイルの統合
+ * - モード別外観の制御
+ * - レスポンシブ対応
+ */
+
+/* ベースコンテナ */
+.unified-canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--canvas-bg, #1a1a1a);
+  border-radius: var(--border-radius, 8px);
+  overflow: hidden;
+  box-shadow: var(--shadow-medium, 0 4px 12px rgba(0, 0, 0, 0.15));
+}
+
+/* メインSVGキャンバス */
+.unified-canvas__svg {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  cursor: var(--cursor-default, default);
+  transition: cursor 0.2s ease;
+  user-select: none;
+  background-color: transparent;
+}
+
+/* モード別スタイル */
+
+/* エディターモード */
+.unified-canvas--editor {
+  border: none;
+}
+
+.unified-canvas--editor .unified-canvas__svg {
+  cursor: crosshair;
+}
+
+/* ギャラリーモード */
+.unified-canvas--gallery {
+  border: 1px solid var(--border-secondary, #333);
+  background-color: var(--canvas-gallery-bg, #0f0f0f);
+}
+
+.unified-canvas--gallery .unified-canvas__svg {
+  cursor: pointer;
+}
+
+/* プレビューモード */
+.unified-canvas--preview {
+  border: 1px solid var(--border-tertiary, #555);
+  background-color: var(--canvas-preview-bg, #161616);
+}
+
+.unified-canvas--preview .unified-canvas__svg {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* インタラクション状態 */
+
+/* パン中 */
+.unified-canvas--panning .unified-canvas__svg {
+  cursor: grabbing !important;
+}
+
+/* ドラッグ中 */
+.unified-canvas--dragging .unified-canvas__svg {
+  cursor: move !important;
+}
+
+/* アニメーション中 */
+.unified-canvas--animating {
+  position: relative;
+}
+
+.unified-canvas--animating::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-green, #00ff88);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  z-index: 10;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* インタラクションレベル別制御 */
+
+/* 表示のみ */
+.unified-canvas--view_only .unified-canvas__svg {
+  pointer-events: auto;
+  cursor: default;
+}
+
+.unified-canvas--view_only .unified-canvas__svg * {
+  pointer-events: none;
+}
+
+/* 表示+インタラクティブ */
+.unified-canvas--view_interactive .unified-canvas__svg {
+  cursor: pointer;
+}
+
+/* フル機能 */
+.unified-canvas--full .unified-canvas__svg {
+  cursor: crosshair;
+}
+
+/* デバッグ情報 */
+.unified-canvas__debug {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: var(--text-primary, #ffffff);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: var(--font-mono, 'Monaco', 'Menlo', monospace);
+  font-size: 12px;
+  line-height: 1.4;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--border-debug, #333);
+}
+
+.unified-canvas__debug div {
+  margin: 2px 0;
+}
+
+/* レスポンシブ対応 */
+
+/* タブレット */
+@media (max-width: 1024px) {
+  .unified-canvas {
+    border-radius: 4px;
+  }
+  
+  .unified-canvas__debug {
+    font-size: 10px;
+    padding: 6px 8px;
+  }
+}
+
+/* モバイル */
+@media (max-width: 768px) {
+  .unified-canvas {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  
+  .unified-canvas__debug {
+    display: none; /* モバイルでは非表示 */
+  }
+  
+  /* タッチ操作対応 */
+  .unified-canvas--gallery .unified-canvas__svg,
+  .unified-canvas--view_interactive .unified-canvas__svg {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  
+  .unified-canvas--editor .unified-canvas__svg {
+    touch-action: none;
+  }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  .unified-canvas {
+    --canvas-bg: #1a1a1a;
+    --canvas-gallery-bg: #0f0f0f;
+    --canvas-preview-bg: #161616;
+    --border-primary: #00ff88;
+    --border-secondary: #333;
+    --border-tertiary: #555;
+    --border-debug: #333;
+    --text-primary: #ffffff;
+    --accent-green: #00ff88;
+  }
+}
+
+/* ライトモード対応 */
+@media (prefers-color-scheme: light) {
+  .unified-canvas {
+    --canvas-bg: #ffffff;
+    --canvas-gallery-bg: #f8f9fa;
+    --canvas-preview-bg: #f5f5f5;
+    --border-primary: #00cc6a;
+    --border-secondary: #dee2e6;
+    --border-tertiary: #ced4da;
+    --border-debug: #dee2e6;
+    --text-primary: #212529;
+    --accent-green: #00cc6a;
+  }
+}
+
+/* ハイコントラストモード */
+@media (prefers-contrast: high) {
+  .unified-canvas {
+    --border-primary: #00ff00;
+    --border-secondary: #ffffff;
+    --border-tertiary: #cccccc;
+    --accent-green: #00ff00;
+  }
+  
+  .unified-canvas--editor {
+    border-width: 3px;
+  }
+  
+  .unified-canvas__debug {
+    border-width: 2px;
+    background-color: rgba(0, 0, 0, 0.95);
+  }
+}
+
+/* 動きを減らす設定 */
+@media (prefers-reduced-motion: reduce) {
+  .unified-canvas__svg {
+    transition: none;
+  }
+  
+  .unified-canvas--animating::before {
+    animation: none;
+    opacity: 1;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* フォーカス状態 */
+.unified-canvas:focus-within {
+  outline: 2px solid var(--focus-color, #00ff88);
+  outline-offset: 2px;
+}
+
+/* 選択不可要素 */
+.unified-canvas,
+.unified-canvas * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Safari対応 */
+@supports (-webkit-backdrop-filter: blur(4px)) {
+  .unified-canvas__debug {
+    -webkit-backdrop-filter: blur(4px);
+  }
+}

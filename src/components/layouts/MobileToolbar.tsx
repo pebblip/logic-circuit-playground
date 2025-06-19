@@ -65,6 +65,13 @@ const DEMO_CUSTOM_GATES: CustomGateDefinition[] = [
   },
 ];
 
+interface ToolItem {
+  type: GateType;
+  label: string;
+  icon: string;
+  customDefinition?: CustomGateDefinition;
+}
+
 interface MobileToolbarProps {
   isOpen: boolean;
   onToggle: () => void;
@@ -102,7 +109,7 @@ const TOOL_CATEGORIES = {
   },
   custom: {
     label: 'カスタム',
-    gates: [] as any[], // 動的に取得
+    gates: [] as ToolItem[], // 動的に取得
   },
 };
 
@@ -230,7 +237,7 @@ export const MobileToolbar: React.FC<MobileToolbarProps> = ({
 
         {/* ツールグリッド */}
         <div className="tools-grid">
-          {categories[selectedCategory]?.gates.map((tool: any) => (
+          {categories[selectedCategory]?.gates.map((tool: ToolItem) => (
             <button
               key={tool.customDefinition?.id || tool.type}
               className="tool-item"

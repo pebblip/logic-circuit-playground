@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Header } from '../Header';
 import { ToolPalette } from '../ToolPalette';
-import { Canvas } from '../Canvas';
+import { UnifiedCanvas } from '../canvas/UnifiedCanvas';
+import { CANVAS_MODE_PRESETS } from '../canvas/types/canvasTypes';
 import { PropertyPanel } from '../property-panel';
 import { FloatingLearningPanel } from '../../features/learning-mode/ui/FloatingLearningPanel';
 import { HelpPanel } from '../HelpPanel';
@@ -60,7 +61,10 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
 
         {/* キャンバス */}
         <div className="tablet-canvas-container">
-          <Canvas />
+          <UnifiedCanvas 
+            config={CANVAS_MODE_PRESETS.editor}
+            dataSource={{ store: true }}
+          />
         </div>
 
         {/* プロパティパネル（折りたたみ可能） */}
