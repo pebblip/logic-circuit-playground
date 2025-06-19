@@ -157,6 +157,15 @@ export const useCanvasSimulation = ({
           previousCircuit || undefined
         );
 
+        // 🔍 強制デバッグログ
+        const clockGates = result.data.circuit.gates.filter(g => g.type === 'CLOCK');
+        if (clockGates.length > 0) {
+          console.log(`🔍 [useCanvasSimulation] Found ${clockGates.length} CLOCK gates:`, 
+            clockGates.map(g => ({ id: g.id, output: g.output, isRunning: g.metadata?.isRunning })));
+          console.log(`🔍 [useCanvasSimulation] Generated ${timingEvents.length} timing events:`,
+            timingEvents.map(e => ({ time: e.time, value: e.value, gateId: e.gateId })));
+        }
+
         // 次回のために現在の回路状態を保存
         previousCircuitRef.current = {
           gates: [...result.data.circuit.gates],

@@ -204,8 +204,23 @@ export class EnhancedHybridEvaluator {
    * 既存システムで実行
    */
   private executeLegacy(circuit: Circuit): { circuit: Circuit; warnings: string[] } {
+    // 🔧 CLOCKゲートのstartTime初期化（重要！）
+    const currentTime = Date.now();
+    const preprocessedGates = circuit.gates.map(gate => {
+      if (gate.type === 'CLOCK' && gate.metadata && gate.metadata.startTime === undefined) {
+        return {
+          ...gate,
+          metadata: {
+            ...gate.metadata,
+            startTime: currentTime,
+          }
+        };
+      }
+      return gate;
+    });
+
     const circuitData = {
-      gates: circuit.gates,
+      gates: preprocessedGates,
       wires: circuit.wires,
       metadata: {},
     };
