@@ -1,7 +1,8 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { Canvas } from '@/components/Canvas';
+import { UnifiedCanvas } from '@/components/canvas/UnifiedCanvas';
+import { CANVAS_MODE_PRESETS } from '@/components/canvas/types/canvasTypes';
 import { ToolPalette } from '@/components/ToolPalette';
 import { useCircuitStore } from '@/stores/circuitStore';
 import type { Gate, Wire } from '@/types/circuit';
@@ -81,12 +82,48 @@ describe('Custom Gate Preview Integration', () => {
     });
     
     // ツールパレットをレンダー
-    const { container } = render(
-      <div>
-        <ToolPalette />
-        <Canvas />
-      </div>
-    );
+    // 初期は通常のエディターモードでレンダリング
+    const Component = () => {
+      const viewMode = useCircuitStore(state => state.viewMode);
+      const previewingCustomGate = useCircuitStore(state => {
+        const gateId = state.previewingCustomGateId;
+        if (!gateId) return null;
+        return state.customGates.find(g => g.id === gateId);
+      });
+      
+      // viewModeに応じて適切な設定を使用
+      const config = viewMode === 'custom-gate-preview' 
+        ? {
+            ...CANVAS_MODE_PRESETS.preview,
+            previewOptions: {
+              customGateName: previewingCustomGate?.displayName || 'カスタムゲート',
+              readOnly: true,
+            },
+            uiControls: {
+              showControls: true,  // プレビューヘッダーを表示するために必要
+              showPreviewHeader: true,
+              showBackground: true,
+            },
+          }
+        : CANVAS_MODE_PRESETS.editor;
+      
+      return (
+        <div>
+          <ToolPalette />
+          <UnifiedCanvas 
+            config={config}
+            dataSource={{ store: true }}
+            handlers={{
+              onExitPreview: () => {
+                useCircuitStore.getState().exitCustomGatePreview();
+              }
+            }}
+          />
+        </div>
+      );
+    };
+    
+    const { container } = render(<Component />);
     
     // カスタムゲートセクションを開く（存在する場合）
     const customGateSection = screen.queryByText('カスタムゲート');
@@ -113,7 +150,7 @@ describe('Custom Gate Preview Integration', () => {
     });
     
     // Canvas内のゲートが表示されているか確認
-    const svgElement = container.querySelector('svg.canvas');
+    const svgElement = container.querySelector('svg.unified-canvas__svg');
     expect(svgElement).toBeTruthy();
     
     // プレビューモードヘッダーが表示されているか

@@ -6,7 +6,7 @@ export const MANDALA_CIRCUIT = {
   description: '複数の循環回路が創り出す神秘的な幾何学パターン。3つのリングオシレーターの協調と競合が生み出す美しいマンダラ模様！',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 200,
+    updateInterval: 1000,
     expectedBehavior: 'oscillator' as const,
     minimumCycles: 10
   },

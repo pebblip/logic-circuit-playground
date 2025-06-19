@@ -4,6 +4,7 @@
  */
 
 import type { Circuit } from '../core/types';
+import type { Gate, Wire } from '@/types/circuit';
 import type { Result } from '../core/types';
 import { EnhancedHybridEvaluator, type SimulationStrategy } from '../event-driven-minimal/EnhancedHybridEvaluator';
 import { CircuitAnalyzer } from '../event-driven-minimal/CircuitAnalyzer';
@@ -114,8 +115,8 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
     const wireCount = circuit.wires.length;
     const hasCircularDependency = CircuitAnalyzer.hasCircularDependency(circuit);
     const circularGates = hasCircularDependency ? CircuitAnalyzer.findCircularGates(circuit) : [];
-    const hasClock = circuit.gates.some((g: any) => g.type === 'CLOCK');
-    const hasSequentialElements = circuit.gates.some((g: any) => 
+    const hasClock = circuit.gates.some((g: Gate) => g.type === 'CLOCK');
+    const hasSequentialElements = circuit.gates.some((g: Gate) => 
       g.type === 'D-FF' || g.type === 'SR-LATCH' || g.type === 'CLOCK'
     );
 
@@ -221,15 +222,15 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
       
       visited.add(gateId);
       
-      const gate = circuit.gates.find((g: any) => g.id === gateId);
+      const gate = circuit.gates.find((g: Gate) => g.id === gateId);
       if (!gate || gate.type === 'INPUT') {
         memo.set(gateId, 0);
         visited.delete(gateId);
         return 0;
       }
       
-      const inputWires = circuit.wires.filter((w: any) => w.to.gateId === gateId);
-      const maxInputDepth = inputWires.reduce((max: number, wire: any) => {
+      const inputWires = circuit.wires.filter((w: Wire) => w.to.gateId === gateId);
+      const maxInputDepth = inputWires.reduce((max: number, wire: Wire) => {
         const depth = dfs(wire.from.gateId);
         return Math.max(max, depth);
       }, 0);
@@ -240,7 +241,7 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
       return result;
     };
 
-    return circuit.gates.reduce((max: number, gate: any) => {
+    return circuit.gates.reduce((max: number, gate: Gate) => {
       return Math.max(max, dfs(gate.id));
     }, 0);
   }

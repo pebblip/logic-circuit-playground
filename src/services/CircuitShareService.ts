@@ -1,4 +1,29 @@
-import type { Gate, Wire } from '../types/circuit';
+import type { Gate, Wire, GateMetadata, CustomGateDefinition } from '../types/circuit';
+
+// 共有データの型定義
+interface SharedGateData {
+  id: string;
+  t: string; // type
+  p: { x: number; y: number }; // position
+  i: string[]; // inputs
+  o: boolean; // output
+  m?: GateMetadata; // metadata（特殊ゲート用）
+  c?: CustomGateDefinition; // カスタムゲート定義
+}
+
+interface SharedWireData {
+  id: string;
+  f: { gateId: string; pinIndex: number }; // from
+  t: { gateId: string; pinIndex: number }; // to
+}
+
+interface ShareData {
+  v: number; // version
+  n?: string; // name
+  d?: string; // description
+  g: SharedGateData[]; // gates
+  w: SharedWireData[]; // wires
+}
 
 /**
  * 回路共有URL機能
@@ -174,7 +199,7 @@ export class CircuitShareService {
       }
 
       // データを復元
-      const gates: Gate[] = shareData.g.map((g: any) => ({
+      const gates: Gate[] = shareData.g.map((g: SharedGateData) => ({
         id: g.id,
         type: g.t,
         position: g.p,
@@ -184,7 +209,7 @@ export class CircuitShareService {
         customGateDefinition: g.c,
       }));
 
-      const wires: Wire[] = shareData.w.map((w: any) => ({
+      const wires: Wire[] = shareData.w.map((w: SharedWireData) => ({
         id: w.id,
         from: w.f,
         to: w.t,

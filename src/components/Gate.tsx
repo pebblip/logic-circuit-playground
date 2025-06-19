@@ -22,7 +22,8 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
   onInputClick,
 }) => {
   const isMobile = useIsMobile();
-  const scaleFactor = isMobile ? 2 : 1;
+  // モバイルでのスケール倍率を1.5に削減（以前は2倍で大きすぎた）
+  const scaleFactor = isMobile ? 1.5 : 1;
 
   // カスタムフックを使用
   const {
@@ -177,7 +178,7 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
       data-gate-id={gate.id}
       data-gate-type={gate.type}
       data-testid={`gate-${gate.id}`}
-      transform={`translate(${gate.position.x}, ${gate.position.y}) scale(${scaleFactor})`}
+      transform={`translate(${gate.position.x}, ${gate.position.y})`}
     >
       {renderGate()}
     </g>

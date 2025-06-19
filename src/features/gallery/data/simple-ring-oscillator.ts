@@ -15,7 +15,7 @@ export const SIMPLE_RING_OSCILLATOR = {
   description: 'DELAYゲート不要の3-NOTリングオシレータ。遅延モードONで各NOTゲートの自然な1ns遅延により3ns周期で発振します。',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 100,
+    updateInterval: 500,  // 500ms（0.5秒）に変更 - より視認しやすい速度
     expectedBehavior: 'oscillator' as const,
     minimumCycles: 10
   },

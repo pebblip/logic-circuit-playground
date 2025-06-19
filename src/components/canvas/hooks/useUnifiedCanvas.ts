@@ -11,6 +11,7 @@ import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
 import { handleError } from '@/infrastructure/errorHandler';
 import { EnhancedHybridEvaluator } from '@/domain/simulation/event-driven-minimal';
+import { GateFactory } from '@/models/gates/GateFactory';
 // import { formatCircuitWithAnimation } from '@/domain/circuit/layout';
 import type { Gate, Wire } from '@/types/circuit';
 import type { Circuit } from '@/domain/simulation/core/types';
@@ -87,6 +88,9 @@ export function useUnifiedCanvas(
   
   // Zustandストア（エディターモード用）
   const circuitStore = useCircuitStore();
+  const viewMode = useCircuitStore(state => state.viewMode);
+  const previewingCustomGateId = useCircuitStore(state => state.previewingCustomGateId);
+  const customGates = useCircuitStore(state => state.customGates);
   
   // ローカル状態（ギャラリーモード用）
   const [localGates, setLocalGates] = useState<Gate[]>([]);
@@ -118,6 +122,17 @@ export function useUnifiedCanvas(
   // データソースからゲート・ワイヤーを取得
   const { displayGates, displayWires } = useMemo(() => {
     try {
+      // カスタムゲートプレビューモードの場合
+      if (viewMode === 'custom-gate-preview' && previewingCustomGateId) {
+        const customGate = customGates.find(g => g.id === previewingCustomGateId);
+        if (customGate?.internalCircuit) {
+          return {
+            displayGates: customGate.internalCircuit.gates,
+            displayWires: customGate.internalCircuit.wires,
+          };
+        }
+      }
+      
       if (config.simulationMode === 'store' || dataSource.store) {
         return {
           displayGates: circuitStore.gates,
@@ -125,7 +140,7 @@ export function useUnifiedCanvas(
         };
       }
       
-      if (dataSource.galleryCircuit) {
+      if (dataSource.galleryCircuit && config.mode !== 'gallery') {
         return {
           displayGates: dataSource.galleryCircuit.gates,
           displayWires: dataSource.galleryCircuit.wires,
@@ -162,14 +177,37 @@ export function useUnifiedCanvas(
     circuitStore.wires,
     localGates,
     localWires,
+    viewMode,
+    previewingCustomGateId,
+    customGates,
   ]);
   
   // ギャラリーモードでの自動フォーマット
   useEffect(() => {
     if (config.mode === 'gallery' && dataSource.galleryCircuit) {
       try {
-        // 簡単なフォーマット（将来的にformatCircuitWithAnimationを実装）
-        setLocalGates(dataSource.galleryCircuit.gates);
+        // ギャラリーゲートにinputs配列を適切に設定
+        const formattedGates = dataSource.galleryCircuit.gates.map(gate => {
+          // ゲートタイプに応じたinputs配列を作成
+          let inputs = gate.inputs;
+          if (inputs.length === 0) {
+            if (gate.type === 'INPUT' || gate.type === 'CLOCK') {
+              inputs = [];
+            } else if (gate.type === 'NOT' || gate.type === 'OUTPUT') {
+              inputs = [''];
+            } else if (gate.type === 'MUX') {
+              inputs = ['', '', ''];
+            } else {
+              inputs = ['', ''];
+            }
+          }
+          
+          return {
+            ...gate,
+            inputs,
+          } as Gate;
+        });
+        setLocalGates(formattedGates);
         setLocalWires(dataSource.galleryCircuit.wires);
       } catch (error) {
         handleError(
@@ -245,8 +283,9 @@ export function useUnifiedCanvas(
       if (config.simulationMode === 'store') {
         const gate = circuitStore.gates.find(g => g.id === gateId);
         if (gate && gate.type === 'INPUT') {
-          // 入力ゲートの値を切り替え（一時的実装）
+          // 入力ゲートの値を切り替え
           const newValue = !gate.output;
+          circuitStore.updateGateOutput(gateId, newValue);
           handlers?.onInputToggle?.(gateId, newValue);
           return { success: true, data: undefined };
         }
@@ -290,13 +329,12 @@ export function useUnifiedCanvas(
     const animate = () => {
       try {
         if (evaluatorRef.current) {
-          const circuit: Circuit = { gates: displayGates, wires: displayWires };
-          // const result = evaluatorRef.current.evaluateCircuit(circuit); // 将来実装
+          const circuit: Circuit = { gates: localGates, wires: localWires };
+          const result = evaluatorRef.current.evaluate(circuit);
           
-          // 簡単なシミュレーション（将来的に実装）
-          setLocalGates(prevGates => 
-            prevGates.map(gate => gate) // 一時的に何もしない
-          );
+          // 評価結果をローカルゲートに反映
+          setLocalGates([...result.circuit.gates]);
+          setLocalWires([...result.circuit.wires]);
         }
         
         const interval = config.galleryOptions?.animationInterval ?? 1000;
@@ -320,7 +358,7 @@ export function useUnifiedCanvas(
     };
     
     animate();
-  }, [config.mode, config.galleryOptions?.animationInterval, isAnimating, displayGates, displayWires]);
+  }, [config.mode, config.galleryOptions?.animationInterval, isAnimating, localGates, localWires]);
   
   const stopAnimation = useCallback(() => {
     setIsAnimating(false);
@@ -332,14 +370,14 @@ export function useUnifiedCanvas(
   
   // 自動アニメーション開始
   useEffect(() => {
-    if (config.galleryOptions?.autoSimulation && displayGates.length > 0) {
+    if (config.galleryOptions?.autoSimulation && localGates.length > 0) {
       startAnimation();
     }
     
     return () => {
       stopAnimation();
     };
-  }, [config.galleryOptions?.autoSimulation, displayGates.length, startAnimation, stopAnimation]);
+  }, [config.galleryOptions?.autoSimulation, localGates.length, startAnimation, stopAnimation]);
   
   // 機能フラグの計算
   const features = useMemo(() => ({

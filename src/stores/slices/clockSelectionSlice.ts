@@ -39,11 +39,12 @@ export const createClockSelectionSlice: StateCreator<
         const traceId = state.timingChartActions.addTrace(gateId, 'output', 0);
         console.log(`[ClockSelection] Added trace ${traceId} for CLOCK ${gateId}`);
         
-        // タイミングチャートパネルを表示
-        if (!state.timingChart.isVisible) {
-          state.timingChartActions.showPanel();
-          console.log(`[ClockSelection] Timing chart panel shown`);
-        }
+        // タイミングチャートパネルを自動表示（一時的に無効化）
+        // ユーザーが明示的にタイミングチャートボタンを押したときのみ表示するように変更
+        // if (!state.timingChart.isVisible) {
+        //   state.timingChartActions.showPanel();
+        //   console.log(`[ClockSelection] Timing chart panel shown`);
+        // }
         
         // デバッグ: 現在のトレース状態を確認（非同期で）
         setTimeout(() => {

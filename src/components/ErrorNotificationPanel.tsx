@@ -131,7 +131,7 @@ const ErrorNotificationItem: React.FC<ErrorNotificationItemProps> = ({
 
       {notification.actions && notification.actions.length > 0 && (
         <div className="error-notification-actions">
-          {notification.actions.map((action: any, index: number) => (
+          {notification.actions.map((action: NonNullable<ErrorNotification['actions']>[number], index: number) => (
             <button
               key={index}
               className={`error-action-button ${action.isPrimary ? 'primary' : 'secondary'}`}

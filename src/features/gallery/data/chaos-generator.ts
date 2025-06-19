@@ -6,7 +6,7 @@ export const CHAOS_GENERATOR = {
   description: '線形フィードバックシフトレジスタによる疑似ランダム生成器。暗号学や乱数生成に使われる高度な循環回路です。',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 150,
+    updateInterval: 600,
     expectedBehavior: 'oscillator' as const,
     minimumCycles: 20
   },

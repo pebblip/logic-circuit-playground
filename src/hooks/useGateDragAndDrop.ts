@@ -27,7 +27,7 @@ export function useGateDragAndDrop(gate: Gate): UseDragAndDropResult {
       if (!isDragging) return;
 
       // SVG要素を取得
-      const svg = document.querySelector('.canvas') as SVGSVGElement;
+      const svg = (document.querySelector('.canvas') || document.querySelector('.unified-canvas__svg')) as SVGSVGElement;
       if (!svg) return;
 
       const svgPoint = clientToSVGCoordinates(
@@ -75,7 +75,7 @@ export function useGateDragAndDrop(gate: Gate): UseDragAndDropResult {
       if (!isDragging || event.touches.length !== 1) return;
 
       const touch = event.touches[0];
-      const svg = document.querySelector('.canvas') as SVGSVGElement;
+      const svg = (document.querySelector('.canvas') || document.querySelector('.unified-canvas__svg')) as SVGSVGElement;
       if (!svg) return;
 
       const svgPoint = clientToSVGCoordinates(touch.clientX, touch.clientY, svg);

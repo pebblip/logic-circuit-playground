@@ -6,7 +6,7 @@ export const JOHNSON_COUNTER = {
   description: '美しい回転パターンを生成する循環シフトレジスタ。反転フィードバックにより魔法のような連続パターンを作り出します！',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 200,
+    updateInterval: 800,
     expectedBehavior: 'sequence_generator' as const,
     minimumCycles: 12,
     clockFrequency: 1

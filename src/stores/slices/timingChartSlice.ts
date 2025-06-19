@@ -306,7 +306,7 @@ export const createTimingChartSlice: StateCreator<
       // 🌟 ゲート情報を使って適切な名前を生成するため、ゲートを取得
       const currentState = get();
       const gates = (currentState as any).gates || [];
-      const gate = gates.find((g: any) => g.id === gateId);
+      const gate = gates.find((g: Gate) => g.id === gateId);
 
       const traceName = gate
         ? generateTraceNameFromGate(gate, pinType, pinIndex)

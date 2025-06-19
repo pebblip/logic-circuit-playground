@@ -7,6 +7,7 @@ import { PinEditor } from './custom-gate-dialog/PinEditor';
 import { GatePreview } from './custom-gate-dialog/GatePreview';
 import { debug } from '@/shared/debug';
 import { TERMS } from '@/features/learning-mode/data/terms';
+import { handleError } from '@/infrastructure/errorHandler';
 
 interface CreateCustomGateDialogProps {
   isOpen: boolean;
@@ -44,15 +45,27 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
 
   const handleSave = () => {
     if (!formData.gateName) {
-      alert(
-        'カスタムゲートには名前を付けてください。\nこの名前は回路内でゲートを識別するために使用されます。'
+      handleError(
+        new Error('カスタムゲートには名前を付けてください。この名前は回路内でゲートを識別するために使用されます。'),
+        'CreateCustomGateDialog',
+        {
+          userAction: 'カスタムゲートの保存',
+          severity: 'low',
+          showToUser: true,
+        }
       );
       return;
     }
 
     if (!/^[a-zA-Z0-9_]+$/.test(formData.gateName)) {
-      alert(
-        'ゲート名には半角の英数字とアンダースコア（_）のみ使用できます。\n例：my_gate、Counter、LED_Display'
+      handleError(
+        new Error('ゲート名には半角の英数字とアンダースコア（_）のみ使用できます。例：my_gate、Counter、LED_Display'),
+        'CreateCustomGateDialog',
+        {
+          userAction: 'カスタムゲートの保存',
+          severity: 'low',
+          showToUser: true,
+        }
       );
       return;
     }

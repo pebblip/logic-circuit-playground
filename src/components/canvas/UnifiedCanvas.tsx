@@ -19,6 +19,10 @@ import { useUnifiedCanvas } from './hooks/useUnifiedCanvas';
 import { useCanvasPan } from '../../hooks/useCanvasPan';
 import { useCanvasZoom } from '../../hooks/useCanvasZoom';
 import { useCanvasSelection } from '../../hooks/useCanvasSelection';
+import { useCanvasGateManagement } from './hooks/useCanvasGateManagement';
+import { useCanvasSimulation } from './hooks/useCanvasSimulation';
+// import { useCanvasInteraction } from './hooks/useCanvasInteraction';
+import { useCircuitStore } from '@/stores/circuitStore';
 import { handleError } from '@/infrastructure/errorHandler';
 import { CANVAS_CONSTANTS } from './utils/canvasConstants';
 import type { UnifiedCanvasProps } from './types/canvasTypes';
@@ -44,27 +48,97 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
     features,
   } = useUnifiedCanvas(config, dataSource, handlers);
   
-  // ViewBox管理用のローカル状態
-  const [localViewBox, setLocalViewBox] = React.useState(state.viewBox);
+  // ViewBox管理用のローカル状態（幅と1200x800に統一）
+  const [localViewBox, setLocalViewBox] = React.useState({ x: 0, y: 0, width: 1200, height: 800 });
   
-  // エディターモード専用機能（実際のHookインターフェースに合わせて修正）
-  const panHandlers = features.canPan && config.mode === 'editor' 
-    ? useCanvasPan(svgRef, localViewBox, setLocalViewBox, state.scale)
-    : null;
+  // Zustandストアからワイヤー描画状態を取得
+  const { isDrawingWire, wireStart, cancelWireDrawing, exitCustomGatePreview, viewMode } = useCircuitStore();
   
-  const zoomHandlers = features.canZoom
-    ? useCanvasZoom(svgRef, localViewBox, setLocalViewBox)
-    : null;
+  // スペースキー押下状態
+  const [isSpacePressed, setIsSpacePressed] = React.useState(false);
   
-  const selectionHandlers = features.canSelect && config.mode === 'editor'
-    ? useCanvasSelection(state.displayGates, actions.setSelection, Array.from(state.selectedIds))
-    : null;
+  // マウス位置の追跡（ワイヤー描画用）
+  const [currentMousePosition, setCurrentMousePosition] = React.useState({ x: 0, y: 0 });
+  
+  // エディターモード専用機能（Hooksは常に呼び出す）
+  const panHandlers = useCanvasPan(svgRef, localViewBox, setLocalViewBox, state.scale);
+  const zoomHandlers = useCanvasZoom(svgRef, localViewBox, setLocalViewBox);
+  const selectionHandlers = useCanvasSelection(state.displayGates, actions.setSelection, Array.from(state.selectedIds));
+  
+  // 実際に使用するかどうかは機能フラグで判定
+  const canUsePan = features.canPan && config.mode === 'editor';
+  const canUseZoom = features.canZoom;
+  const canUseSelection = features.canSelect && config.mode === 'editor';
+  
+  // ゲート管理（ドラッグ&ドロップ）
+  const gateManagement = useCanvasGateManagement({
+    svgRef,
+    isReadOnly: config.interactionLevel === 'view_only' || config.previewOptions?.readOnly === true,
+  });
+  
+  // キャンバスインタラクション（一時的に無効化）
+  // TODO: useCanvasInteractionの引数を正しく修正する
+  // const canvasInteraction = useCanvasInteraction({
+  //   svgRef,
+  //   isReadOnly: config.interactionLevel === 'view_only' || config.previewOptions?.readOnly === true,
+  // });
   
   // ViewBox計算
   const viewBoxString = useMemo(() => {
-    const { x, y, width, height } = state.viewBox;
+    const { x, y, width, height } = localViewBox;
     return `${x} ${y} ${width} ${height}`;
-  }, [state.viewBox]);
+  }, [localViewBox]);
+  
+  // キーボードイベント処理
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (isDrawingWire) {
+          cancelWireDrawing();
+        }
+        if (viewMode === 'custom-gate-preview') {
+          exitCustomGatePreview();
+        }
+      }
+      // スペースキーでパンモード
+      if (event.key === ' ' && !event.repeat) {
+        event.preventDefault();
+        setIsSpacePressed(true);
+        if (svgRef.current) {
+          svgRef.current.style.cursor = 'grab';
+        }
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === ' ') {
+        setIsSpacePressed(false);
+        panHandlers.handlePanEnd();
+        if (svgRef.current) {
+          svgRef.current.style.cursor = '';
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [
+    isDrawingWire,
+    cancelWireDrawing,
+    panHandlers,
+    viewMode,
+    exitCustomGatePreview,
+  ]);
+  
+  // CLOCKゲートシミュレーション（エディターモードのみ）
+  useCanvasSimulation({
+    displayGates: state.displayGates,
+    isReadOnly: config.interactionLevel === 'view_only' || config.previewOptions?.readOnly === true,
+  });
   
   // イベントハンドラー統合
   const handleSvgClick = (event: React.MouseEvent<SVGSVGElement>) => {
@@ -93,14 +167,23 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
   
   const handleSvgMouseDown = (event: React.MouseEvent<SVGSVGElement>) => {
     try {
-      if (config.mode === 'editor' && panHandlers) {
+      // ドラッグ機能を一時的に無効化
+      // TODO: canvasInteraction.handleMouseDown(event);
+      
+      // スペース+左クリックでパン（優先的に処理）
+      if (event.button === 0 && isSpacePressed) {
+        panHandlers.handlePanStart(event.clientX, event.clientY);
+        return;
+      }
+      
+      if (canUsePan) {
         const rect = svgRef.current?.getBoundingClientRect();
         if (rect) {
           panHandlers.handlePanStart(event.clientX, event.clientY);
         }
       }
       
-      if (config.mode === 'editor' && selectionHandlers && !panHandlers?.isPanning) {
+      if (canUseSelection && !panHandlers?.isPanning) {
         const rect = svgRef.current?.getBoundingClientRect();
         if (rect) {
           const svgX = event.clientX - rect.left;
@@ -123,11 +206,31 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
   
   const handleSvgMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
     try {
-      if (config.mode === 'editor' && panHandlers?.isPanning) {
+      // ドラッグ機能を一時的に無効化
+      // TODO: canvasInteraction.handleMouseMove(event);
+      
+      // マウス位置を更新（ワイヤー描画用）
+      if (svgRef.current) {
+        const rect = svgRef.current.getBoundingClientRect();
+        const svgX = event.clientX - rect.left;
+        const svgY = event.clientY - rect.top;
+        
+        // viewBoxのスケールを考慮（localViewBoxを使用）
+        const viewBox = localViewBox;
+        const scaleX = viewBox.width / rect.width;
+        const scaleY = viewBox.height / rect.height;
+        
+        setCurrentMousePosition({
+          x: viewBox.x + svgX * scaleX,
+          y: viewBox.y + svgY * scaleY
+        });
+      }
+      
+      if (canUsePan && panHandlers?.isPanning) {
         panHandlers.handlePan(event.clientX, event.clientY);
       }
       
-      if (config.mode === 'editor' && selectionHandlers?.isSelecting) {
+      if (canUseSelection && selectionHandlers?.isSelecting) {
         const rect = svgRef.current?.getBoundingClientRect();
         if (rect) {
           const svgX = event.clientX - rect.left;
@@ -150,11 +253,14 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
   
   const handleSvgMouseUp = (event: React.MouseEvent<SVGSVGElement>) => {
     try {
-      if (config.mode === 'editor' && panHandlers?.isPanning) {
+      // ドラッグ機能を一時的に無効化
+      // TODO: canvasInteraction.handleMouseUp(event);
+      
+      if (canUsePan && panHandlers?.isPanning) {
         panHandlers.handlePanEnd();
       }
       
-      if (config.mode === 'editor' && selectionHandlers?.isSelecting) {
+      if (canUseSelection && selectionHandlers?.isSelecting) {
         selectionHandlers.endSelection();
       }
     } catch (error) {
@@ -172,7 +278,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
   
   const handleWheel = (event: React.WheelEvent<SVGSVGElement>) => {
     try {
-      if (features.canZoom && zoomHandlers) {
+      if (canUseZoom) {
         event.preventDefault();
         const rect = svgRef.current?.getBoundingClientRect();
         if (rect) {
@@ -196,10 +302,30 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
     }
   };
   
-  // ゲートクリックハンドラー
+  // ゲートクリックハンドラー（Zustandストア統合）
   const handleGateClick = (event: React.MouseEvent, gateId: string) => {
     try {
       event.stopPropagation();
+      
+      // Zustandストアで選択状態を管理
+      const { selectGate, setSelectedGates, selectedGateIds } = useCircuitStore.getState();
+      
+      // Ctrl/Cmdキーで複数選択
+      if (event.ctrlKey || event.metaKey) {
+        if (selectedGateIds.includes(gateId)) {
+          // 既に選択されている場合は選択解除
+          setSelectedGates(selectedGateIds.filter(id => id !== gateId));
+        } else {
+          // 選択に追加
+          setSelectedGates([...selectedGateIds, gateId]);
+        }
+      } else {
+        // 単一選択
+        setSelectedGates([gateId]);
+        selectGate(gateId);
+      }
+      
+      // ローカル状態も更新
       actions.handleGateClick(gateId);
     } catch (error) {
       handleError(
@@ -214,6 +340,61 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
     }
   };
   
+  // タッチイベントハンドラー
+  const handleTouchStart = (event: React.TouchEvent<SVGSVGElement>) => {
+    try {
+      if (event.touches.length === 1 && canUsePan) {
+        const touch = event.touches[0];
+        panHandlers.handlePanStart(touch.clientX, touch.clientY);
+      }
+    } catch (error) {
+      handleError(
+        error instanceof Error ? error : new Error('Touch start failed'),
+        'UnifiedCanvas',
+        {
+          userAction: 'タッチ開始',
+          severity: 'low',
+          showToUser: false,
+        }
+      );
+    }
+  };
+
+  const handleTouchMove = (event: React.TouchEvent<SVGSVGElement>) => {
+    try {
+      if (event.touches.length === 1 && panHandlers?.isPanning) {
+        const touch = event.touches[0];
+        panHandlers.handlePan(touch.clientX, touch.clientY);
+      }
+    } catch (error) {
+      handleError(
+        error instanceof Error ? error : new Error('Touch move failed'),
+        'UnifiedCanvas',
+        {
+          userAction: 'タッチ移動',
+          severity: 'low',
+          showToUser: false,
+        }
+      );
+    }
+  };
+
+  const handleTouchEnd = () => {
+    try {
+      panHandlers.handlePanEnd();
+    } catch (error) {
+      handleError(
+        error instanceof Error ? error : new Error('Touch end failed'),
+        'UnifiedCanvas',
+        {
+          userAction: 'タッチ終了',
+          severity: 'low',
+          showToUser: false,
+        }
+      );
+    }
+  };
+
   // ワイヤークリックハンドラー
   const handleWireClick = (event: React.MouseEvent, wireId: string) => {
     try {
@@ -267,6 +448,11 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         onMouseMove={handleSvgMouseMove}
         onMouseUp={handleSvgMouseUp}
         onWheel={handleWheel}
+        onDrop={gateManagement.handleDrop}
+        onDragOver={gateManagement.handleDragOver}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         {/* 背景グリッド */}
         {features.showBackground && (
@@ -288,7 +474,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
             key={gate.id}
             gate={gate}
             isHighlighted={highlightedGateId === gate.id}
-            onInputClick={features.canEdit ? (gateId) => actions.handleGateClick(gateId) : undefined}
+            onInputClick={(config.interactionLevel !== 'view_only') ? (gateId) => actions.toggleInput(gateId) : undefined}
           />
         ))}
         
@@ -305,6 +491,16 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
                 isSelecting={selectionHandlers.isSelecting}
               />
             )}
+            
+            {/* ワイヤー描画プレビュー */}
+            {isDrawingWire && wireStart && (
+              <WirePreview
+                startX={wireStart.position.x}
+                startY={wireStart.position.y}
+                endX={currentMousePosition.x}
+                endY={currentMousePosition.y}
+              />
+            )}
           </>
         )}
       </svg>
@@ -312,10 +508,10 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
       {/* コントロールパネル */}
       {features.showControls && (
         <CanvasControls
-          scale={state.scale}
-          onZoomIn={() => actions.setZoom(Math.min(state.scale * 1.2, 5))}
-          onZoomOut={() => actions.setZoom(Math.max(state.scale * 0.8, 0.1))}
-          onResetZoom={() => actions.setZoom(1)}
+          scale={zoomHandlers.scale}
+          onZoomIn={zoomHandlers.zoomIn}
+          onZoomOut={zoomHandlers.zoomOut}
+          onResetZoom={zoomHandlers.resetZoom}
         />
       )}
       
@@ -325,7 +521,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
           <div>Mode: {config.mode}</div>
           <div>Gates: {state.displayGates.length}</div>
           <div>Wires: {state.displayWires.length}</div>
-          <div>Scale: {state.scale.toFixed(2)}</div>
+          <div>Scale: {zoomHandlers.scale.toFixed(2)}</div>
           <div>Animating: {state.isAnimating ? 'Yes' : 'No'}</div>
         </div>
       )}

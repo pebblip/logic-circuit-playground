@@ -545,41 +545,6 @@ export class MinimalEventDrivenEngine {
     return inputs;
   }
 
-  /**
-   * 状態を回路に反映
-   */
-  private updateCircuitFromState(circuit: Circuit): void {
-    for (const gate of circuit.gates) {
-      const state = this.circuitState.gateStates.get(gate.id);
-      if (!state) continue;
-      
-      gate.output = state.outputs[0];
-      if (state.outputs.length > 1) {
-        gate.outputs = [...state.outputs];
-      }
-      
-      // メタデータ更新
-      if (state.metadata) {
-        gate.metadata = { ...gate.metadata, ...state.metadata };
-        
-      }
-      
-      // 入力値を更新（特にOUTPUTゲートで重要）
-      const inputs = this.collectGateInputs(gate);
-      gate.inputs = inputs.map(val => String(val));
-    }
-    
-    // ワイヤーの状態も更新
-    for (const wire of circuit.wires) {
-      const sourceState = this.circuitState.gateStates.get(wire.from.gateId);
-      if (sourceState) {
-        // pinIndex -1は出力index 0、pinIndex -2は出力index 1
-        const outputIndex = wire.from.pinIndex === -1 ? 0 : 
-                           wire.from.pinIndex === -2 ? 1 : 0;
-        wire.isActive = sourceState.outputs[outputIndex] || false;
-      }
-    }
-  }
 
   // ヘルパーメソッド
   private findGate(gateId: string): Gate | undefined {
@@ -651,6 +616,10 @@ export class MinimalEventDrivenEngine {
       if (state.metadata) {
         gate.metadata = { ...gate.metadata, ...state.metadata };
       }
+      
+      // 入力値を更新（特にOUTPUTゲートで重要）
+      const inputs = this.collectGateInputs(gate);
+      gate.inputs = inputs.map(val => String(val));
       
       // ワイヤーの状態も更新
       const outputWires = this.gateOutputWires.get(gate.id) || [];

@@ -254,6 +254,12 @@
 
 /* フォーカス状態 */
 .unified-canvas:focus-within {
+  /* ボタンクリック時の不要なフォーカス表示を抑制 */
+  outline: none;
+}
+
+/* キーボード操作時のみフォーカス表示 */
+.unified-canvas:focus-visible {
   outline: 2px solid var(--focus-color, #00ff88);
   outline-offset: 2px;
 }

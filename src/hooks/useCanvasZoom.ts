@@ -1,5 +1,6 @@
 import type { RefObject } from 'react';
 import { useState, useCallback } from 'react';
+import { clientToSVGCoordinates } from '@/infrastructure/ui/svgCoordinates';
 
 interface ViewBox {
   x: number;
@@ -30,22 +31,24 @@ export const useCanvasZoom = (
 
       if (newScale === scale) return;
 
-      // マウス位置を中心にズーム
-      const rect = svgRef.current.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
+      // マウス位置を中心にズーム（統一された座標変換を使用）
+      const svgCoords = clientToSVGCoordinates(clientX, clientY, svgRef.current);
+      if (!svgCoords) return;
 
-      // SVG座標系でのマウス位置
-      const svgX = viewBox.x + (x / rect.width) * viewBox.width;
-      const svgY = viewBox.y + (y / rect.height) * viewBox.height;
+      const svgX = svgCoords.x;
+      const svgY = svgCoords.y;
 
       // 新しいビューボックスサイズ
       const newWidth = 1200 / newScale;
       const newHeight = 800 / newScale;
 
       // マウス位置が同じ場所に留まるように調整
-      const newX = svgX - (x / rect.width) * newWidth;
-      const newY = svgY - (y / rect.height) * newHeight;
+      const rect = svgRef.current.getBoundingClientRect();
+      const relativeX = (clientX - rect.left) / rect.width;
+      const relativeY = (clientY - rect.top) / rect.height;
+      
+      const newX = svgX - relativeX * newWidth;
+      const newY = svgY - relativeY * newHeight;
 
       setViewBox({
         x: newX,
