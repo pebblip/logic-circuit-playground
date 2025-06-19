@@ -479,15 +479,16 @@ function evaluateCircuitStep(
     const updatedWires = circuit.wires.map(wire => ({ ...wire }));
 
     // CLOCKゲートのstartTime初期化
+    const initTime = config.timeProvider.getCurrentTime();
     updatedGates.forEach(gate => {
       if (
         gate.type === 'CLOCK' &&
         gate.metadata?.isRunning &&
         gate.metadata.startTime === undefined
       ) {
-        gate.metadata = {
+            gate.metadata = {
           ...gate.metadata,
-          startTime: config.timeProvider.getCurrentTime(),
+          startTime: initTime,
         };
       }
     });
@@ -547,6 +548,14 @@ function evaluateCircuitStep(
 
       // 入力値の収集
       const inputs = collectGateInputs(gate, gateInputWires, gateMap);
+      
+      // CLOCKゲートのstartTime初期化（評価前に必要）
+      if (gate.type === 'CLOCK' && gate.metadata && gate.metadata.startTime === undefined) {
+        gate.metadata = {
+          ...gate.metadata,
+          startTime: config.timeProvider.getCurrentTime(),
+        };
+      }
 
       // ゲート評価実行
       if (gate.type !== 'INPUT') {
@@ -656,7 +665,6 @@ function collectGateInputs(
       inputCount = 3;
       break;
     case 'BINARY_COUNTER':
-    case 'DELAY':
       inputCount = 1;
       break;
     case 'CUSTOM':
@@ -747,13 +755,7 @@ function updateGateMetadata(gate: Gate, inputs: boolean[]): void {
       break;
 
     case 'CLOCK':
-      // CLOCKゲートのstartTimeが未設定の場合は初期化
-      if (gate.metadata && gate.metadata.startTime === undefined) {
-        gate.metadata = {
-          ...gate.metadata,
-          startTime: Date.now(),
-        };
-      }
+      // CLOCKゲートのstartTimeは評価前に初期化されるため、ここでは何もしない
       break;
 
     case 'BINARY_COUNTER':
@@ -773,22 +775,6 @@ function updateGateMetadata(gate: Gate, inputs: boolean[]): void {
           ...gate.metadata,
           currentValue,
           previousClockState: clk,
-        };
-      }
-      break;
-
-    case 'DELAY':
-      // DELAYゲートの履歴更新
-      if (inputs.length >= 1) {
-        const history = (gate.metadata?.history || []) as boolean[];
-        const newHistory = [...history, inputs[0]];
-        if (newHistory.length > 3) {
-          newHistory.shift(); // 最古の値を削除
-        }
-
-        gate.metadata = {
-          ...gate.metadata,
-          history: newHistory,
         };
       }
       break;

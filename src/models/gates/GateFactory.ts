@@ -29,11 +29,11 @@ export class GateFactory {
       case 'CLOCK':
         return {
           ...baseGate,
-          output: true, // 初期状態でONにしてクロック信号を見やすく
+          output: false, // 初期状態でOFF
           metadata: {
             frequency: 1, // 1Hz default
             isRunning: true, // デフォルトでON（楽しい！）
-            startTime: Date.now(),
+            startTime: undefined, // 評価時に設定される
           },
         };
 
@@ -123,7 +123,7 @@ export class GateFactory {
       return []; // 入力ピンなし
     }
 
-    if (type === 'NOT' || type === 'OUTPUT' || type === 'DELAY') {
+    if (type === 'NOT' || type === 'OUTPUT') {
       return ['']; // 1入力
     }
 

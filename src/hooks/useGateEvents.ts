@@ -35,7 +35,14 @@ export function useGateEvents(gate: Gate): UseGateEventsResult {
       return;
     }
 
-    // CLOCKゲートも通常のゲートと同じ処理
+    // CLOCKゲートの特別な処理
+    if (gate.type === 'CLOCK') {
+      // CLOCKゲートを選択
+      selectGate(gate.id);
+      // タイミングチャート用にCLOCKゲートを選択
+      setSelectedClockGate(gate.id);
+      return;
+    }
 
     // Shift/Ctrl/Cmdキーが押されている場合の複数選択
     if (event.shiftKey || event.ctrlKey || event.metaKey) {

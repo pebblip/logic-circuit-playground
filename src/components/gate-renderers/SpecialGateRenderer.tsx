@@ -90,19 +90,6 @@ export const SpecialGateRenderer: React.FC<SpecialGateRendererProps> = ({
           }}
         />
       );
-    case 'DELAY':
-      return (
-        <DelayGateRenderer
-          {...{
-            gate,
-            isSelected,
-            handleMouseDown,
-            handleTouchStart,
-            handlePinClick,
-            handleGateClick,
-          }}
-        />
-      );
     default:
       return null;
   }
@@ -766,80 +753,3 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
   );
 };
 
-// DELAY Gate Renderer
-const DelayGateRenderer: React.FC<SpecialGateRendererProps> = ({
-  gate,
-  isSelected,
-  handleMouseDown,
-  handleTouchStart,
-  handlePinClick,
-  handleGateClick,
-}) => {
-  // 履歴を取得（3サイクル分）
-  const history = (gate.metadata?.history || []) as boolean[];
-  const delaySteps = 3;
-  
-  return (
-    <>
-      <g
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
-        onClick={handleGateClick}
-        className="u-cursor-grab"
-      >
-        <rect
-          className={`gate ${isSelected ? 'selected' : ''}`}
-          x="-40"
-          y="-30"
-          width="80"
-          height="60"
-          rx="8"
-          stroke={isSelected ? '#00aaff' : undefined}
-          strokeWidth={isSelected ? '3' : undefined}
-        />
-        <text className="gate-text" x="0" y="-5">
-          DELAY
-        </text>
-        <text className="gate-text u-text-md" x="0" y="10">
-          {delaySteps}τ
-        </text>
-        
-        {/* 履歴インジケーター */}
-        <g transform="translate(-20, 20)">
-          {[0, 1, 2].map((i) => (
-            <circle
-              key={i}
-              cx={i * 15}
-              cy="0"
-              r="4"
-              fill={history[i] ? '#00ff88' : '#333'}
-              opacity={history[i] !== undefined ? 1 : 0.3}
-            />
-          ))}
-        </g>
-      </g>
-
-      {/* 入力ピン */}
-      <PinComponent
-        gate={gate}
-        x={-50}
-        y={0}
-        pinIndex={0}
-        isOutput={false}
-        isActive={getGateInputValue(gate, 0)}
-        onPinClick={handlePinClick}
-      />
-
-      {/* 出力ピン */}
-      <PinComponent
-        gate={gate}
-        x={50}
-        y={0}
-        pinIndex={0}
-        isOutput={true}
-        isActive={gate.output}
-        onPinClick={handlePinClick}
-      />
-    </>
-  );
-};

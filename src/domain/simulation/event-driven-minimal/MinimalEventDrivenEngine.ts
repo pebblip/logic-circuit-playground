@@ -222,7 +222,7 @@ export class MinimalEventDrivenEngine {
     
     // まず、INPUTとCLOCKゲートの状態を直接更新
     for (const gate of circuit.gates) {
-      if (gate.type === 'INPUT' || gate.type === 'CLOCK') {
+      if (gate.type === 'INPUT') {
         const state = this.circuitState.gateStates.get(gate.id)!;
         const newOutput = gate.output;
         
@@ -241,6 +241,47 @@ export class MinimalEventDrivenEngine {
           gateId: gate.id,
           value: newOutput,
         });
+      } else if (gate.type === 'CLOCK') {
+        // CLOCKゲートのstartTime初期化
+        const state = this.circuitState.gateStates.get(gate.id)!;
+        if (gate.metadata && gate.metadata.startTime === undefined) {
+          state.metadata = {
+            ...state.metadata,
+            frequency: gate.metadata.frequency || 1,
+            isRunning: gate.metadata.isRunning ?? true,
+            startTime: Date.now(),
+          };
+        }
+        
+        // CLOCKの初期状態を評価
+        const inputs: boolean[] = [];
+        const outputs = evaluateGate(gate, inputs, state);
+        state.outputs[0] = outputs[0];
+        
+        // 初期イベントをスケジュール
+        this.eventQueue.schedule({
+          time: 0,
+          gateId: gate.id,
+          outputIndex: 0,
+          newValue: outputs[0],
+        });
+      }
+    }
+    
+    // CLOCKゲートの定期的な再評価をスケジュール
+    // これは本来の用途ではないが、CLOCKの動作を実現するための対策
+    for (const gate of circuit.gates) {
+      if (gate.type === 'CLOCK' && gate.metadata?.isRunning) {
+        const state = this.circuitState.gateStates.get(gate.id);
+        if (state && state.metadata?.frequency) {
+          const frequency = state.metadata.frequency as number;
+          const period = 1000 / frequency;
+          // 次の変化タイミングを計算
+          const startTime = state.metadata.startTime as number || Date.now();
+          const elapsed = Date.now() - startTime;
+          const nextChangeTime = Math.ceil(elapsed / period) * period;
+          
+        }
       }
     }
     
@@ -552,7 +593,6 @@ export class MinimalEventDrivenEngine {
         return 0;
       case 'OUTPUT':
       case 'NOT':
-      case 'DELAY':
         return 1;
       case 'AND':
       case 'OR':
@@ -580,8 +620,6 @@ export class MinimalEventDrivenEngine {
         return 2; // QとQ̄の2つの出力
       case 'D-FF':
         return 2; // QとQ̄の2つの出力
-      case 'DELAY':
-        return 1; // 単一出力
       default:
         return 1;
     }
@@ -590,6 +628,40 @@ export class MinimalEventDrivenEngine {
   private addDebugTrace(time: SimTime, event: string, details: Record<string, unknown>): void {
     if (this.config.enableDebug) {
       this.debugTrace.push({ time, event, details });
+    }
+  }
+  
+  /**
+   * 評価結果を回路に反映
+   */
+  private updateCircuitFromState(circuit: Circuit): void {
+    for (const gate of circuit.gates) {
+      const state = this.circuitState.gateStates.get(gate.id);
+      if (!state) continue;
+      
+      // 出力状態を更新
+      if (state.outputs.length === 1) {
+        gate.output = state.outputs[0];
+      } else if (state.outputs.length > 1) {
+        gate.output = state.outputs[0]; // プライマリ出力
+        gate.outputs = [...state.outputs]; // 複数出力
+      }
+      
+      // メタデータを更新（CLOCK、D-FF、SR-LATCHなど）
+      if (state.metadata) {
+        gate.metadata = { ...gate.metadata, ...state.metadata };
+      }
+      
+      // ワイヤーの状態も更新
+      const outputWires = this.gateOutputWires.get(gate.id) || [];
+      for (const wire of outputWires) {
+        // pinIndex -1は単一出力、-2以降は複数出力
+        const outputIndex = wire.from.pinIndex === -1 ? 0 : 
+                           wire.from.pinIndex < -1 ? -(wire.from.pinIndex + 1) : 0;
+        if (outputIndex < state.outputs.length) {
+          wire.isActive = state.outputs[outputIndex];
+        }
+      }
     }
   }
   
@@ -686,8 +758,29 @@ export class MinimalEventDrivenEngine {
    */
   private forceGateReevaluation(time: SimTime): void {
     for (const [gateId, gate] of this.gateMap) {
-      if (gate.type === 'INPUT' || gate.type === 'CLOCK') {
-        continue; // INPUTとCLOCKは除外
+      if (gate.type === 'INPUT') {
+        continue; // INPUTは除外（外部から制御）
+      }
+      
+      // CLOCKゲートは時間経過で変化するため再評価が必要
+      if (gate.type === 'CLOCK') {
+        const state = this.circuitState.gateStates.get(gateId);
+        if (!state) continue;
+        
+        // CLOCKゲートを再評価
+        const inputs: boolean[] = [];
+        const newOutputs = evaluateGate(gate, inputs, state);
+        
+        // 出力が変化した場合はイベントをスケジュール
+        if (state.outputs[0] !== newOutputs[0]) {
+          this.eventQueue.schedule({
+            time,
+            gateId,
+            outputIndex: 0,
+            newValue: newOutputs[0],
+          });
+        }
+        continue;
       }
       
       const state = this.circuitState.gateStates.get(gateId);

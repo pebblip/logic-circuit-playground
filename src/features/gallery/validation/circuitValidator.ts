@@ -96,7 +96,7 @@ export class CircuitValidator {
     warnings: ValidationError[]
   ) {
     const hasOscillatorGates = circuit.gates.some(g => 
-      g.type === 'D-FF' || g.type === 'SR-LATCH' || g.type === 'DELAY'
+      g.type === 'D-FF' || g.type === 'SR-LATCH'
     );
     
     const hasOscillatorKeywords = [

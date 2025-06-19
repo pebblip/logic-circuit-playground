@@ -33,7 +33,6 @@ const SPECIAL_GATES: { type: GateType; label: string }[] = [
   { type: 'SR-LATCH', label: 'SR-LATCH' },
   { type: 'MUX', label: 'MUX' },
   { type: 'BINARY_COUNTER', label: 'COUNTER' },
-  { type: 'DELAY', label: 'DELAY' },
 ];
 
 // デモ用カスタムゲート定義（教育的価値の高いもののみ）

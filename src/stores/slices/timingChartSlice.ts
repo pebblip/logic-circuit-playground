@@ -676,23 +676,39 @@ export const createTimingChartSlice: StateCreator<
       const state = get().timingChart;
 
       if (state.isPaused) {
+        console.log(`[TimingChart] Skipping ${events.length} events due to pause state`);
         return;
       }
+
+      console.log(`[TimingChart] Processing ${events.length} events:`, events);
+      console.log(`[TimingChart] Current traces:`, state.traces.map(t => ({
+        id: t.id,
+        gateId: t.gateId,
+        pinType: t.pinType,
+        pinIndex: t.pinIndex,
+        eventsCount: t.events.length
+      })));
 
       // イベントを処理
       set(currentState => {
         let hasChanges = false;
         const updatedTraces = currentState.timingChart.traces.map(trace => {
           const relevantEvents = events.filter(
-            e =>
-              e.gateId === trace.gateId &&
-              e.pinType === trace.pinType &&
-              e.pinIndex === trace.pinIndex
+            e => {
+              const gateMatch = e.gateId === trace.gateId;
+              const pinTypeMatch = e.pinType === trace.pinType;
+              const pinIndexMatch = e.pinIndex === trace.pinIndex;
+              console.log(`[TimingChart] Event ${e.id}: gateId=${e.gateId} (${gateMatch}), pinType=${e.pinType} (${pinTypeMatch}), pinIndex=${e.pinIndex} (${pinIndexMatch})`);
+              return gateMatch && pinTypeMatch && pinIndexMatch;
+            }
           );
+
+          console.log(`[TimingChart] Trace ${trace.id} (${trace.gateId}:${trace.pinType}[${trace.pinIndex}]) found ${relevantEvents.length} relevant events out of ${events.length} total`);
 
           if (relevantEvents.length === 0) return trace;
 
           hasChanges = true;
+          console.log(`[TimingChart] Adding ${relevantEvents.length} events to trace ${trace.id}:`, relevantEvents);
 
           // イベントを統合してソート
           const allEvents = [...trace.events, ...relevantEvents];
@@ -704,6 +720,8 @@ export const createTimingChartSlice: StateCreator<
             -currentState.timingChart.settings.captureDepth
           );
 
+          console.log(`[TimingChart] Trace ${trace.id} now has ${limited.length} events (was ${trace.events.length})`);
+
           return {
             ...trace,
             events: limited,
@@ -711,9 +729,11 @@ export const createTimingChartSlice: StateCreator<
         });
 
         if (!hasChanges) {
+          console.log(`[TimingChart] No relevant events found for any traces`);
           return currentState;
         }
 
+        console.log(`[TimingChart] Updated traces with new events`);
         return {
           timingChart: {
             ...currentState.timingChart,
@@ -726,6 +746,7 @@ export const createTimingChartSlice: StateCreator<
       if (events.length > 0) {
         const latestEventTime = Math.max(...events.map(e => e.time));
         get().timingChartActions.updateCurrentTime(latestEventTime);
+        console.log(`[TimingChart] Processed ${events.length} events, latest time: ${latestEventTime}`);
       }
     },
 

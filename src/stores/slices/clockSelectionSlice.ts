@@ -18,15 +18,40 @@ export const createClockSelectionSlice: StateCreator<
   [],
   ClockSelectionSlice
 > = (set, get) => ({
-  // CLOCK選択状態を設定（自動トレース作成は削除）
+  // CLOCK選択状態を設定（自動トレース作成を復活）
   setSelectedClockGate: (gateId: string | null) => {
-    console.log(`[ClockSelection] Setting selected CLOCK: ${gateId}`);
+    // console.log(`[ClockSelection] Setting selected CLOCK: ${gateId}`);
 
     set(state => ({
       selectedClockGateId: gateId,
     }));
 
-    // 自動トレース作成は削除 - ユーザーが明示的に追加する必要がある
+    // CLOCKが選択されたら自動的にトレースを作成
+    if (gateId) {
+      const state = get();
+      const clockGate = state.gates.find(g => g.id === gateId && g.type === 'CLOCK');
+      
+      if (clockGate && state.timingChartActions) {
+        // 既存のトレースをクリア（一時的に削除してテスト）
+        // state.timingChartActions.clearAllTraces();
+        
+        // CLOCKゲートのトレースを追加
+        const traceId = state.timingChartActions.addTrace(gateId, 'output', 0);
+        console.log(`[ClockSelection] Added trace ${traceId} for CLOCK ${gateId}`);
+        
+        // タイミングチャートパネルを表示
+        if (!state.timingChart.isVisible) {
+          state.timingChartActions.showPanel();
+          console.log(`[ClockSelection] Timing chart panel shown`);
+        }
+        
+        // デバッグ: 現在のトレース状態を確認（非同期で）
+        setTimeout(() => {
+          const updatedState = get();
+          console.log(`[ClockSelection] Current traces after update:`, updatedState.timingChart.traces);
+        }, 0);
+      }
+    }
   },
 
   // 自動選択は廃止

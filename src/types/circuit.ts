@@ -13,8 +13,7 @@ export type GateType =
   | 'SR-LATCH'
   | 'MUX'
   | 'BINARY_COUNTER'
-  | 'CUSTOM'
-  | 'DELAY';
+  | 'CUSTOM';
 
 export interface Position {
   x: number;
@@ -74,9 +73,7 @@ export interface GateMetadata {
   // カウンター/特殊ゲート用
   bitCount?: number;
   maxValue?: number;
-
-  // DELAYゲート用
-  history?: boolean[];
+  currentValue?: number; // BINARY_COUNTER用の現在値
 
   // ストレージメタデータ用
   author?: string;

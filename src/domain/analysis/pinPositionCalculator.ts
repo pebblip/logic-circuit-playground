@@ -88,14 +88,6 @@ export function getInputPinPosition(gate: Gate, pinIndex: number): Position {
         y: y,
       };
 
-    case 'DELAY':
-      // DELAY入力: ピンは cx="-50" cy="0"
-      // console.log('🔧 DELAY入力ピン計算:', { gateId: gate.id, x: x - 50, y: y });
-      return {
-        x: x - 50,
-        y: y,
-      };
-
     default: {
       // console.log('⚠️ デフォルトケースに落ちたゲート:', gate.type, gate.id);
       // AND、OR、XOR、NAND、NOR: Gate.tsxの実際のピン位置
@@ -196,13 +188,6 @@ export function getOutputPinPosition(
       };
     }
 
-    case 'DELAY':
-      // DELAY出力: ピンは cx="50" cy="0"
-      // console.log('🔧 DELAY出力ピン計算:', { gateId: gate.id, x: x + 50, y: y });
-      return {
-        x: x + 50,
-        y: y,
-      };
 
     default:
       // console.log('⚠️ 出力ピンデフォルトケースに落ちたゲート:', gate.type, gate.id);

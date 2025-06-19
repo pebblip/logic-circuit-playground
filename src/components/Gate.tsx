@@ -102,7 +102,7 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
       }
 
       // 特殊ゲート
-      if (['CLOCK', 'D-FF', 'SR-LATCH', 'MUX', 'DELAY', 'BINARY_COUNTER'].includes(gate.type)) {
+      if (['CLOCK', 'D-FF', 'SR-LATCH', 'MUX', 'BINARY_COUNTER'].includes(gate.type)) {
         return (
           <SpecialGateRenderer
             {...baseProps}

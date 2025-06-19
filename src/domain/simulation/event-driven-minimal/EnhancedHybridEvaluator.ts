@@ -146,9 +146,16 @@ export class EnhancedHybridEvaluator {
       g.type === 'D-FF' || g.type === 'SR-LATCH'
     );
     
-    // 循環依存、クロック、シーケンシャル要素がある場合はイベント駆動必須
-    if (hasCircular || hasClockGates || hasSequentialElements) {
+    // 循環依存、シーケンシャル要素がある場合はイベント駆動必須
+    // CLOCKゲートは時間依存のため、レガシーエンジンで処理
+    if (hasCircular || hasSequentialElements) {
       return 'EVENT_DRIVEN_ONLY';
+    }
+    
+    // CLOCKゲートがある場合はレガシーエンジンを使用
+    // （イベント駆動は静的な評価のため、時間経過による変化に対応できない）
+    if (hasClockGates) {
+      return 'LEGACY_ONLY';
     }
     
     // 小規模回路は既存システムが高速
@@ -203,7 +210,13 @@ export class EnhancedHybridEvaluator {
       metadata: {},
     };
     
-    const result = evaluateTopological(circuitData, defaultConfig);
+    // デバッグ設定を追加
+    const config = {
+      ...defaultConfig,
+      enableDebug: this.config.enableDebugLogging,
+    };
+    
+    const result = evaluateTopological(circuitData, config);
     
     if (result.success) {
       return {

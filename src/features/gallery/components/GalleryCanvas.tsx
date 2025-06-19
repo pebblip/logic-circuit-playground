@@ -114,7 +114,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({ circuit }) => {
     const needsAnimation = circuit?.simulationConfig?.needsAnimation ?? 
       // フォールバック: 既存のロジック（後方互換性）
       displayGatesRef.current.some(g => 
-        g.type === 'DELAY' || 
+ 
         g.type === 'D-FF' ||
         circuit?.title.includes('オシレータ') ||
         circuit?.title.includes('カオス') ||

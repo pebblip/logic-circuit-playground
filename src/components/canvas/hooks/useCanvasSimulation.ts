@@ -53,7 +53,7 @@ export const useCanvasSimulation = ({
       return; // 早期リターン
     }
 
-    // 🌟 新設計：CLOCKゲート検出時にオシロスコープモード開始
+    // 🌟 CLOCKゲート検出時の初期化（自動スクロールは削除）
     const clockGateCount = displayGates.filter(
       gate => gate.type === 'CLOCK'
     ).length;
@@ -65,18 +65,8 @@ export const useCanvasSimulation = ({
       globalTimingCapture.setSimulationStartTime();
       (globalTimingCapture as any)._lastClockCount = clockGateCount;
 
-      // 🎯 オシロスコープライクなスクロール開始
-      const currentState = useCircuitStore.getState();
-      if (currentState.timingChartActions) {
-        // 初期化：時間窓を0-500msにリセット
-        currentState.timingChartActions.resetView();
-        // 連続スクロール開始
-        currentState.timingChartActions.startContinuousScroll();
-        console.log('[Canvas] 🚀 Started continuous scroll mode');
-      }
-
       console.log(
-        `[Canvas] 🎯 Initialized timing chart for ${clockGateCount} CLOCK gates`
+        `[Canvas] 🎯 Detected ${clockGateCount} CLOCK gates`
       );
     }
 
@@ -107,7 +97,7 @@ export const useCanvasSimulation = ({
       // EnhancedHybridEvaluatorを使用して循環回路に対応
       const enhancedEvaluator = new EnhancedHybridEvaluator({
         strategy: 'AUTO_SELECT',
-        enableDebugLogging: false,
+        enableDebugLogging: false, // デバッグログを無効化（大量のログを防ぐ）
         delayMode: currentState.simulationConfig.delayMode,
       });
       let result;
@@ -162,43 +152,112 @@ export const useCanvasSimulation = ({
         const hasOutputChanges = result.data.circuit.gates.some(
           (newGate, index) => {
             const oldGate = currentState.gates[index];
-            return !oldGate || newGate.output !== oldGate.output;
+            // ゲートのIDが一致することも確認
+            if (!oldGate || oldGate.id !== newGate.id) {
+              console.warn(`[Canvas Simulation] Gate mismatch at index ${index}`);
+              return true;
+            }
+            // 出力の変更をチェック
+            return newGate.output !== oldGate.output;
           }
         );
 
-        if (hasOutputChanges) {
-          useCircuitStore.setState({
-            gates: [...result.data.circuit.gates],
-            wires: [...result.data.circuit.wires],
-          });
-        }
+        // 常に更新（CLOCKの問題を解決するため）
+        // console.log(`[Canvas Simulation] Updating store (hasOutputChanges: ${hasOutputChanges})`);
+        useCircuitStore.setState({
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+        });
 
         // 現在時刻更新（オシロスコープモード駆動）
         const currentSimTime = globalTimingCapture.getCurrentSimulationTime();
         if (currentState.timingChartActions && currentSimTime !== undefined) {
           currentState.timingChartActions.updateCurrentTime(currentSimTime);
+        } else if (currentState.timingChartActions) {
+          // globalTimingCaptureが動作していない場合は手動で時刻を設定
+          const manualTime = Date.now();
+          currentState.timingChartActions.updateCurrentTime(manualTime);
+          // if (Math.random() < 0.05) { // 5%の確率でログ
+          //   console.log(`[Canvas Simulation] Manual time update: ${manualTime}`);
+          // }
         }
 
         // タイミングイベント処理（条件付き）
         if (timingEvents.length > 0) {
+          console.log(`[Canvas Simulation] Processing ${timingEvents.length} timing events from globalTimingCapture`);
           currentState.timingChartActions?.processTimingEvents(timingEvents);
+        } else {
+          // 手動でCLOCKイベントを生成（globalTimingCaptureの代替）
+          // 出力変更時のみ生成
+          if (hasOutputChanges) {
+            const clockGates = result.data.circuit.gates.filter(g => g.type === 'CLOCK');
+            const manualEvents = [];
+            
+            console.log(`[Canvas Simulation] Found ${clockGates.length} CLOCK gates for manual event generation`);
+            console.log(`[Canvas Simulation] Current traces:`, currentState.timingChart.traces.map(t => ({
+              id: t.id,
+              gateId: t.gateId,
+              pinType: t.pinType,
+              pinIndex: t.pinIndex,
+              name: t.name
+            })));
+            
+            for (const clockGate of clockGates) {
+              const existingTrace = currentState.timingChart.traces.find(
+                t => t.gateId === clockGate.id && t.pinType === 'output' && t.pinIndex === 0
+              );
+              
+              console.log(`[Canvas Simulation] CLOCK gate ${clockGate.id} output=${clockGate.output}, trace exists: ${!!existingTrace}`);
+              
+              if (existingTrace) {
+                // 手動でタイミングイベントを作成
+                const event = {
+                  id: `event_${Date.now()}_${clockGate.id}_${Math.random().toString(36).substr(2, 9)}`,
+                  time: Date.now(),
+                  gateId: clockGate.id,
+                  pinType: 'output' as const,
+                  pinIndex: 0,
+                  value: clockGate.output,
+                  source: 'MANUAL_GENERATION',
+                  metadata: {
+                    source: 'MANUAL_GENERATION',
+                    gateType: 'CLOCK'
+                  }
+                };
+                manualEvents.push(event);
+                console.log(`[Canvas Simulation] Generated manual event for CLOCK ${clockGate.id}:`, event);
+              }
+            }
+            
+            if (manualEvents.length > 0) {
+              console.log(`[Canvas Simulation] Manually generated ${manualEvents.length} CLOCK events:`, manualEvents);
+              currentState.timingChartActions?.processTimingEvents(manualEvents);
+            } else {
+              console.log(`[Canvas Simulation] No manual events generated (no matching traces or no output changes)`);
+            }
+          }
         }
 
-        // CLOCKゲートの自動トレース作成（初回のみ、パフォーマンス最適化）
-        const clockGates = result.data.circuit.gates.filter(
-          gate => gate.type === 'CLOCK'
-        );
-        clockGates.forEach(gate => {
-          // CLOCKゲートのトレースが存在しない場合は作成
-          const existingTrace = currentState.timingChart.traces.find(
-            t => t.gateId === gate.id && t.pinType === 'output'
+        // CLOCKゲートの自動トレース作成を削除（ユーザーが選択した時のみ作成）
+        // 選択されたCLOCKゲートのみトレースを作成
+        if (currentState.selectedClockGateId) {
+          const selectedClockGate = result.data.circuit.gates.find(
+            gate => gate.id === currentState.selectedClockGateId && gate.type === 'CLOCK'
           );
+          
+          if (selectedClockGate) {
+            const existingTrace = currentState.timingChart.traces.find(
+              t => t.gateId === selectedClockGate.id && t.pinType === 'output'
+            );
 
-          if (!existingTrace && currentState.timingChartActions) {
-            currentState.timingChartActions.addTraceFromGate(gate, 'output', 0);
-            globalTimingCapture.watchGate(gate.id, 'output', 0);
+            if (!existingTrace && currentState.timingChartActions) {
+              const traceId = currentState.timingChartActions.addTraceFromGate(selectedClockGate, 'output', 0);
+              globalTimingCapture.watchGate(selectedClockGate.id, 'output', 0);
+              // console.log(`[Canvas Simulation] Added trace for CLOCK ${selectedClockGate.id}, traceId: ${traceId}`);
+            }
           }
-        });
+        }
+        
       } else {
         // 回路評価失敗時の統一エラーハンドリング
         handleError(result.error, 'Canvas - CLOCKゲートシミュレーション', {

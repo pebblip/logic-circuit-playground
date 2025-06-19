@@ -35,7 +35,6 @@ export const DEFAULT_GATE_DELAYS: Record<GateType, number> = {
   'MUX': 2.5,      // 中程度の複雑さ
   'BINARY_COUNTER': 10.0, // 内部に複数のFFを含む
   'CUSTOM': 5.0,   // デフォルト値（実際は内部回路から計算）
-  'DELAY': 3.0,    // 互換性のため残す（将来廃止予定）
 };
 
 /**

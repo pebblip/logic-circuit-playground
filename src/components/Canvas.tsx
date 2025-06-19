@@ -130,7 +130,8 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   );
 
   // CLOCKゲートのアニメーション処理（ギャラリーと同様）
-  const animationRef = useRef<number | null>(null);
+  // useCanvasSimulationに統合したため無効化
+  // const animationRef = useRef<number | null>(null);
   
   // 🛡️ 既存ゲートの座標チェック・修正（初回のみ）
   useEffect(() => {
@@ -160,88 +161,89 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     }
   }, []); // 初回のみ実行
   
-  useEffect(() => {
-    // プレビューモードでは更新しない
-    if (displayData.isReadOnly) return;
-    
-    const hasClockGate = displayData.displayGates.some(g => g.type === 'CLOCK');
-    
-    if (hasClockGate) {
-      let lastUpdateTime = 0;
-      const animate = () => {
-        const now = Date.now();
-        
-        // 100ms毎に更新（パフォーマンスのため）
-        if (now - lastUpdateTime > 100) {
-          lastUpdateTime = now;
-          
-          // 現在のstoreの状態を取得
-          const currentState = useCircuitStore.getState();
-          let needsUpdate = false;
-          
-          const newGates = currentState.gates.map(gate => {
-            if (gate.type === 'CLOCK' && gate.metadata?.frequency && gate.metadata?.isRunning) {
-              const frequency = gate.metadata.frequency as number;
-              const period = 1000 / frequency;
-              
-              // startTimeの取得（Core APIと一致させる）
-              const startTime = gate.metadata.startTime !== undefined ? 
-                (gate.metadata.startTime as number) : now;
-              const elapsed = now - startTime;
-              
-              const shouldBeOn = Math.floor(elapsed / period) % 2 === 1;
-              
-              
-              if (gate.output !== shouldBeOn) {
-                needsUpdate = true;
-                return { ...gate, output: shouldBeOn };
-              }
-            }
-            return gate;
-          });
-          
-          if (needsUpdate) {
-            // 回路評価を実行してワイヤーも更新（ギャラリーと同様）
-            const circuitData: Circuit = { gates: newGates, wires: currentState.wires };
-            
-            // EnhancedHybridEvaluatorで回路評価（同期処理）
-            const enhancedEvaluator = new EnhancedHybridEvaluator({
-              strategy: 'AUTO_SELECT',
-              enableDebugLogging: false,
-            });
-            
-            try {
-              // 🔧 同期的に評価実行
-              const evaluationResult = enhancedEvaluator.evaluate(circuitData);
-              const updatedCircuit = evaluationResult.circuit;
-              
-              // Zustand storeを更新（ゲートとワイヤー両方）
-              useCircuitStore.setState({
-                gates: [...updatedCircuit.gates],
-                wires: [...updatedCircuit.wires]
-              });
-            } catch (error) {
-              console.error('🚨 CLOCK animation circuit evaluation failed:', error);
-              // エラー時はCLOCK状態のみ更新
-              useCircuitStore.setState({
-                gates: [...newGates]
-              });
-            }
-          }
-        }
-        
-        animationRef.current = requestAnimationFrame(animate);
-      };
-      
-      animationRef.current = requestAnimationFrame(animate);
-    }
-    
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, []); // 初回のみ実行（依存配列の無限ループを防止）
+  // CLOCKアニメーション処理はuseCanvasSimulationに統合
+  // useEffect(() => {
+  //   // プレビューモードでは更新しない
+  //   if (displayData.isReadOnly) return;
+  //   
+  //   const hasClockGate = displayData.displayGates.some(g => g.type === 'CLOCK');
+  //   
+  //   if (hasClockGate) {
+  //     let lastUpdateTime = 0;
+  //     const animate = () => {
+  //       const now = Date.now();
+  //       
+  //       // 100ms毎に更新（パフォーマンスのため）
+  //       if (now - lastUpdateTime > 100) {
+  //         lastUpdateTime = now;
+  //         
+  //         // 現在のstoreの状態を取得
+  //         const currentState = useCircuitStore.getState();
+  //         let needsUpdate = false;
+  //         
+  //         const newGates = currentState.gates.map(gate => {
+  //           if (gate.type === 'CLOCK' && gate.metadata?.frequency && gate.metadata?.isRunning) {
+  //             const frequency = gate.metadata.frequency as number;
+  //             const period = 1000 / frequency;
+  //             
+  //             // startTimeの取得（Core APIと一致させる）
+  //             const startTime = gate.metadata.startTime !== undefined ? 
+  //               (gate.metadata.startTime as number) : now;
+  //             const elapsed = now - startTime;
+  //             
+  //             const shouldBeOn = Math.floor(elapsed / period) % 2 === 1;
+  //             
+  //             
+  //             if (gate.output !== shouldBeOn) {
+  //               needsUpdate = true;
+  //               return { ...gate, output: shouldBeOn };
+  //             }
+  //           }
+  //           return gate;
+  //         });
+  //         
+  //         if (needsUpdate) {
+  //           // 回路評価を実行してワイヤーも更新（ギャラリーと同様）
+  //           const circuitData: Circuit = { gates: newGates, wires: currentState.wires };
+  //           
+  //           // EnhancedHybridEvaluatorで回路評価（同期処理）
+  //           const enhancedEvaluator = new EnhancedHybridEvaluator({
+  //             strategy: 'AUTO_SELECT',
+  //             enableDebugLogging: false,
+  //           });
+  //           
+  //           try {
+  //             // 🔧 同期的に評価実行
+  //             const evaluationResult = enhancedEvaluator.evaluate(circuitData);
+  //             const updatedCircuit = evaluationResult.circuit;
+  //             
+  //             // Zustand storeを更新（ゲートとワイヤー両方）
+  //             useCircuitStore.setState({
+  //               gates: [...updatedCircuit.gates],
+  //               wires: [...updatedCircuit.wires]
+  //             });
+  //           } catch (error) {
+  //             console.error('🚨 CLOCK animation circuit evaluation failed:', error);
+  //             // エラー時はCLOCK状態のみ更新
+  //             useCircuitStore.setState({
+  //               gates: [...newGates]
+  //             });
+  //           }
+  //         }
+  //       }
+  //       
+  //       animationRef.current = requestAnimationFrame(animate);
+  //     };
+  //     
+  //     animationRef.current = requestAnimationFrame(animate);
+  //   }
+  //   
+  //   return () => {
+  //     if (animationRef.current) {
+  //       cancelAnimationFrame(animationRef.current);
+  //     }
+  //   };
+  // }, []); // 初回のみ実行（依存配列の無限ループを防止）
 
   // プレビューモード開始時にビューをリセット
   useEffect(() => {
@@ -470,11 +472,11 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   ]);
 
   // CLOCKゲートシミュレーションロジックをカスタムフックに委譲
-  // 注意：現在は上記の単純なCLOCKアニメーション処理を使用しているため無効化
-  // useCanvasSimulation({
-  //   displayGates: displayData.displayGates,
-  //   isReadOnly: displayData.isReadOnly,
-  // });
+  // タイミングチャートとの連携のため有効化
+  useCanvasSimulation({
+    displayGates: displayData.displayGates,
+    isReadOnly: displayData.isReadOnly,
+  });
 
   // インタラクション処理をカスタムフックに委譲
   const {

@@ -632,7 +632,6 @@ export class EventDrivenEngine {
         return 0;
       case 'OUTPUT':
       case 'NOT':
-      case 'DELAY':
         return 1;
       case 'AND':
       case 'OR':
