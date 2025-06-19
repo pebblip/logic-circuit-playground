@@ -436,13 +436,27 @@ export const createGateOperationsSlice: StateCreator<
             metadata: {
               ...gate.metadata,
               frequency,
+              // 周波数変更時にstartTimeをリセットして新しい周期で開始
+              startTime: undefined,
             },
           };
         }
         return gate;
       });
 
-      return { gates: newGates };
+      // 回路全体を再評価して周波数変更を即座に反映
+      const circuit: Circuit = { gates: newGates, wires: state.wires };
+      const result = evaluateCircuitSync(circuit, state.simulationConfig.delayMode);
+
+      if (result.success) {
+        return {
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+        };
+      } else {
+        console.warn('Circuit evaluation failed after clock frequency update');
+        return { gates: newGates };
+      }
     });
   },
 

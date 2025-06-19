@@ -25,6 +25,7 @@ import {
   getClockTraceColor,
   estimateMemoryUsage,
 } from '@/utils/timingChart';
+import { globalTimingCapture } from '@/domain/timing/timingCapture';
 
 // デフォルト設定
 const DEFAULT_SETTINGS: TimingChartSettings = {
@@ -137,6 +138,9 @@ export interface TimingChartSlice {
     // ユーティリティ
     updateStats: () => void;
     cleanup: () => void;
+    
+    // 🔧 グローバルイベントとの同期（新規追加）
+    syncEventsFromGlobalCapture: () => void;
   };
 }
 
@@ -171,6 +175,12 @@ export const createTimingChartSlice: StateCreator<
         timingChart: {
           ...state.timingChart,
           isVisible: true,
+          // パネル表示時にオシロスコープモードを有効化
+          autoScroll: true,
+          scrollState: {
+            ...state.timingChart.scrollState,
+            isScrolling: true,
+          },
         },
       })),
 
@@ -202,13 +212,13 @@ export const createTimingChartSlice: StateCreator<
         let newTimeWindow = timeWindow;
 
         // オシロスコープモード：現在時刻追従
-        if (autoScroll && scrollState.isScrolling) {
-          // 現在時刻が時間窓の右端80%を超えたら自動スクロール
-          const scrollThreshold = timeWindow.start + windowWidth * 0.8;
+        if (autoScroll) {
+          // 現在時刻が時間窓の右端70%を超えたら自動スクロール
+          const scrollThreshold = timeWindow.start + windowWidth * 0.7;
 
           if (simulationTime > scrollThreshold) {
-            // 現在時刻を窓の右端20%の位置に保つ
-            const newEnd = simulationTime + windowWidth * 0.2;
+            // 現在時刻を窓の右端30%の位置に保つ（スムーズなスクロール）
+            const newEnd = simulationTime + windowWidth * 0.3;
             const newStart = newEnd - windowWidth;
 
             newTimeWindow = {
@@ -479,6 +489,10 @@ export const createTimingChartSlice: StateCreator<
             ...state.timingChart,
             timeWindow: { start: newStart, end: newEnd },
             autoScroll: false, // 手動操作時は自動スクロール無効
+            scrollState: {
+              ...state.timingChart.scrollState,
+              isScrolling: false,
+            },
           },
         };
       }),
@@ -498,6 +512,10 @@ export const createTimingChartSlice: StateCreator<
             ...state.timingChart,
             timeWindow: { start: newStart, end: newEnd },
             autoScroll: false, // 手動操作時は自動スクロール無効
+            scrollState: {
+              ...state.timingChart.scrollState,
+              isScrolling: false,
+            },
           },
         };
       }),
@@ -514,6 +532,10 @@ export const createTimingChartSlice: StateCreator<
             ...state.timingChart,
             timeWindow: { start: newStart, end: newEnd },
             autoScroll: false, // 手動操作時は自動スクロール無効
+            scrollState: {
+              ...state.timingChart.scrollState,
+              isScrolling: false,
+            },
           },
         };
       }),
@@ -565,6 +587,10 @@ export const createTimingChartSlice: StateCreator<
             ...state.timingChart,
             timeWindow: { start: newStart, end: newEnd },
             autoScroll: false, // 手動操作時は自動スクロール無効
+            scrollState: {
+              ...state.timingChart.scrollState,
+              isScrolling: false,
+            },
           },
         };
       }),
@@ -902,5 +928,35 @@ export const createTimingChartSlice: StateCreator<
           },
         };
       }),
+      
+    // 🔧 グローバルイベントとの同期
+    syncEventsFromGlobalCapture: () => {
+      const state = get();
+      const globalEvents = globalTimingCapture.getEvents();
+      const { traces } = state.timingChart;
+      
+      console.log(`[TimingChart] Syncing ${globalEvents.length} events from globalTimingCapture`);
+      
+      // 各トレースに対応するイベントを収集
+      const eventsToProcess: TimingEvent[] = [];
+      
+      traces.forEach(trace => {
+        const traceEvents = globalEvents.filter(event => 
+          event.gateId === trace.gateId &&
+          event.pinType === trace.pinType &&
+          event.pinIndex === trace.pinIndex
+        );
+        
+        if (traceEvents.length > 0) {
+          console.log(`[TimingChart] Found ${traceEvents.length} events for trace ${trace.id} (${trace.gateId})`);
+          eventsToProcess.push(...traceEvents);
+        }
+      });
+      
+      // processTimingEventsを使って処理
+      if (eventsToProcess.length > 0) {
+        state.timingChartActions.processTimingEvents(eventsToProcess);
+      }
+    },
   },
 });

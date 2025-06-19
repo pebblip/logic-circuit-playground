@@ -165,6 +165,12 @@ export const useCanvasSimulation = ({
           console.log(`🔍 [useCanvasSimulation] Generated ${timingEvents.length} timing events:`,
             timingEvents.map(e => ({ time: e.time, value: e.value, gateId: e.gateId })));
         }
+        
+        // 🔧 タイミングイベントが生成された場合、タイミングチャートに同期
+        if (timingEvents.length > 0 && currentState.timingChartActions?.syncEventsFromGlobalCapture) {
+          console.log(`🔧 [useCanvasSimulation] Syncing ${timingEvents.length} events to timing chart`);
+          currentState.timingChartActions.syncEventsFromGlobalCapture();
+        }
 
         // 次回のために現在の回路状態を保存
         previousCircuitRef.current = {
