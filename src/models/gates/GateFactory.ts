@@ -31,7 +31,7 @@ export class GateFactory {
           ...baseGate,
           output: false, // 初期状態でOFF
           metadata: {
-            frequency: 1, // 1Hz default
+            frequency: 5, // 5Hz（200ms周期、100ms ON/OFF）でより早い変化
             isRunning: true, // デフォルトでON（楽しい！）
             startTime: undefined, // 評価時に設定される
           },

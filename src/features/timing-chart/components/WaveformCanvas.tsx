@@ -254,6 +254,11 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     width: number,
     timeWindow: TimeWindow
   ) => {
+    console.log(`[WaveformCanvas] Drawing trace ${trace.id} with ${trace.events.length} events`);
+    if (trace.events.length > 0) {
+      console.log(`[WaveformCanvas] First 5 events:`, trace.events.slice(0, 5).map(e => ({ time: e.time, value: e.value })));
+    }
+
     // 🌟 最適化：時間窓前後のイベントも考慮して連続性を保つ
     const windowDuration = timeWindow.end - timeWindow.start;
     const extendedStart = timeWindow.start - windowDuration * 0.1; // 10%余裕
@@ -263,6 +268,8 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     const relevantEvents = trace.events.filter(
       event => event.time >= extendedStart && event.time <= extendedEnd
     );
+    
+    console.log(`[WaveformCanvas] timeWindow: ${timeWindow.start}-${timeWindow.end}, relevantEvents: ${relevantEvents.length}`);
 
     // 描画スタイル設定
     ctx.strokeStyle = trace.color || '#00ff88';
@@ -283,16 +290,22 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
       const lastEventBeforeWindow =
         eventsBeforeWindow[eventsBeforeWindow.length - 1];
       currentValue = Boolean(lastEventBeforeWindow.value);
+      console.log(`[WaveformCanvas] Initial value from last event before window: ${currentValue} (event value: ${lastEventBeforeWindow.value})`);
+    } else {
+      console.log(`[WaveformCanvas] No events before window, using default: ${currentValue}`);
     }
 
     // 開始点の描画
     const initialY = currentValue ? centerY - amplitude : centerY + amplitude;
     ctx.moveTo(0, initialY);
+    console.log(`[WaveformCanvas] Initial drawing point: x=0, y=${initialY} (centerY=${centerY}, amplitude=${amplitude})`);
 
     // 🌟 時間窓内のイベントを処理
     const visibleEvents = relevantEvents.filter(
       event => event.time >= timeWindow.start && event.time <= timeWindow.end
     );
+
+    console.log(`[WaveformCanvas] visibleEvents: ${visibleEvents.length}`, visibleEvents.map(e => ({ time: e.time, value: e.value })));
 
     visibleEvents.forEach((event, index) => {
       const eventX =
@@ -303,6 +316,7 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
 
       // エッジ遷移の処理
       if (currentValue !== newValue) {
+        console.log(`[WaveformCanvas] Value change at x=${eventX}: ${currentValue} → ${newValue}`);
         // 現在値から新しい値への遷移
         const currentY = currentValue
           ? centerY - amplitude
@@ -321,6 +335,7 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
           ? centerY - amplitude
           : centerY + amplitude;
         ctx.lineTo(eventX, currentY);
+        console.log(`[WaveformCanvas] No value change at x=${eventX}, maintaining ${currentValue}`);
       }
     });
 

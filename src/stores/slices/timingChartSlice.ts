@@ -708,7 +708,11 @@ export const createTimingChartSlice: StateCreator<
           if (relevantEvents.length === 0) return trace;
 
           hasChanges = true;
-          console.log(`[TimingChart] Adding ${relevantEvents.length} events to trace ${trace.id}:`, relevantEvents);
+          console.log(`[TimingChart] Adding ${relevantEvents.length} events to trace ${trace.id}:`, relevantEvents.map(e => ({ id: e.id, time: e.time, value: e.value, gateId: e.gateId, source: e.source })));
+          // 最初の2つのイベントの詳細ログ
+          if (relevantEvents.length > 0) {
+            console.log(`[TimingChart] Event details:`, relevantEvents.slice(0, 2));
+          }
 
           // イベントを統合してソート
           const allEvents = [...trace.events, ...relevantEvents];

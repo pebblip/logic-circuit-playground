@@ -232,9 +232,15 @@ function evaluateClockGate(
     gate.metadata.startTime !== undefined ? gate.metadata.startTime : now;
   const elapsed = now - startTime;
 
-  // 周期的な切り替え
-  const isHigh = Math.floor(elapsed / period) % 2 === 1;
+  // 周期的な切り替え（半周期ごとに切り替える）
+  const halfPeriod = period / 2;
+  const cyclePosition = elapsed % period;
+  const isHigh = cyclePosition >= halfPeriod;
   
+  // より頻繁なデバッグログ（毎10回に1回）
+  if (Math.random() < 0.1) {
+    console.log(`[CLOCK ${gate.id}] frequency=${frequency}Hz, period=${period}ms, halfPeriod=${halfPeriod}ms, elapsed=${elapsed}ms, cyclePosition=${cyclePosition}ms, isHigh=${isHigh}, now=${now}, startTime=${startTime}`);
+  }
 
   return success([isHigh]);
 }

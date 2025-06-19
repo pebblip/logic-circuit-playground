@@ -227,17 +227,26 @@ export class CircuitTimingCapture implements TimingEventCapture {
           const gateDelay = this.calculateGateDelay(currentGate);
           const delayedTime = currentTime + gateDelay;
 
+          const currentValue = this.getGateOutputValue(currentGate);
+          const previousValue = this.getGateOutputValue(previousGate);
+          
           const event: TimingEvent = {
             id: timingChartUtils.generateEventId(),
             time: delayedTime, // 遅延を考慮した時刻
             gateId: currentGate.id,
             pinType: 'output',
             pinIndex: 0,
-            value: this.getGateOutputValue(currentGate),
-            previousValue: this.getGateOutputValue(previousGate),
+            value: currentValue,
+            previousValue: previousValue,
             source: `circuit-evaluation-delay:${gateDelay}ms`,
             propagationDelay: gateDelay, // 適用された遅延
           };
+          
+          // CLOCKゲートの値変化をデバッグ
+          if (currentGate.type === 'CLOCK') {
+            console.log(`[TimingCapture] CLOCK ${currentGate.id} event: ${previousValue} → ${currentValue} (gate.output=${currentGate.output})`);
+          }
+          
           events.push(event);
         }
 

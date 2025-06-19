@@ -3,7 +3,7 @@
  * CLOCKゲートの定期的な回路更新とタイミングチャート管理
  */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
 import { Circuit } from '@domain/simulation/core/types';
 import { isSuccess } from '@domain/simulation/core';
@@ -23,6 +23,9 @@ export const useCanvasSimulation = ({
   displayGates, 
   isReadOnly 
 }: UseCanvasSimulationProps) => {
+  // 前回の回路状態を追跡（タイミングチャート用）
+  const previousCircuitRef = useRef<Circuit | null>(null);
+
   // シミュレーション設定をglobalTimingCaptureに同期
   useEffect(() => {
     const currentState = useCircuitStore.getState();
@@ -89,7 +92,11 @@ export const useCanvasSimulation = ({
 
       if (!hasActiveClocks) return;
 
-      const previousCircuit: Circuit = {
+      // 前回の回路状態を取得（タイミングイベント検出用）
+      const previousCircuit = previousCircuitRef.current;
+      
+      // 現在の回路状態を構築
+      const currentCircuit: Circuit = {
         gates: currentState.gates,
         wires: currentState.wires,
       };
@@ -103,7 +110,7 @@ export const useCanvasSimulation = ({
       let result;
       
       try {
-        const evaluationResult = enhancedEvaluator.evaluate(previousCircuit);
+        const evaluationResult = enhancedEvaluator.evaluate(currentCircuit);
         const updatedCircuit = evaluationResult.circuit;
         
         // 既存のコードとの互換性のためResult形式にラップ
@@ -142,11 +149,17 @@ export const useCanvasSimulation = ({
       }
 
       if (isSuccess(result)) {
-        // タイミングイベントを捕捉
+        // タイミングイベントを捕捉（previousCircuitは実際の前回状態または undefined）
         const timingEvents = globalTimingCapture.captureFromEvaluation(
           result,
-          previousCircuit
+          previousCircuit || undefined
         );
+
+        // 次回のために現在の回路状態を保存
+        previousCircuitRef.current = {
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+        };
 
         // Zustand storeを更新（パフォーマンス最適化：出力変更チェック）
         const hasOutputChanges = result.data.circuit.gates.some(
@@ -158,7 +171,11 @@ export const useCanvasSimulation = ({
               return true;
             }
             // 出力の変更をチェック
-            return newGate.output !== oldGate.output;
+            const outputChanged = newGate.output !== oldGate.output;
+            if (outputChanged && newGate.type === 'CLOCK') {
+              console.log(`[Canvas Simulation] CLOCK ${newGate.id} output changed: ${oldGate.output} → ${newGate.output}`);
+            }
+            return outputChanged;
           }
         );
 
@@ -207,7 +224,7 @@ export const useCanvasSimulation = ({
                 t => t.gateId === clockGate.id && t.pinType === 'output' && t.pinIndex === 0
               );
               
-              console.log(`[Canvas Simulation] CLOCK gate ${clockGate.id} output=${clockGate.output}, trace exists: ${!!existingTrace}`);
+              console.log(`[Canvas Simulation] CLOCK gate ${clockGate.id} output=${clockGate.output}, isRunning=${clockGate.metadata?.isRunning}, trace exists: ${!!existingTrace}`);
               
               if (existingTrace) {
                 // 手動でタイミングイベントを作成
