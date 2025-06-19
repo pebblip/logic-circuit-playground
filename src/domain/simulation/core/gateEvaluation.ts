@@ -237,8 +237,14 @@ function evaluateClockGate(
   const cyclePosition = elapsed % period;
   const isHigh = cyclePosition >= halfPeriod;
   
-  // より頻繁なデバッグログ（毎10回に1回）
-  if (Math.random() < 0.1) {
+  // 🔍 CLOCKの出力変化を強制ログ
+  const previousOutput = gate.output;
+  if (previousOutput !== isHigh) {
+    console.log(`🔄 [CLOCK ${gate.id}] OUTPUT CHANGE: ${previousOutput} → ${isHigh} (elapsed=${elapsed}ms, cyclePosition=${cyclePosition}ms)`);
+  }
+  
+  // より頻繁なデバッグログ（毎100回に1回）
+  if (Math.random() < 0.01) {
     console.log(`[CLOCK ${gate.id}] frequency=${frequency}Hz, period=${period}ms, halfPeriod=${halfPeriod}ms, elapsed=${elapsed}ms, cyclePosition=${cyclePosition}ms, isHigh=${isHigh}, now=${now}, startTime=${startTime}`);
   }
 

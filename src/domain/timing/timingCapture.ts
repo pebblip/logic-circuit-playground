@@ -120,6 +120,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
   private isEnabled = true;
   private simulationStartTime: number | null = null; // シミュレーション開始時刻
   private simulationConfig: SimulationConfig | null = null; // 遅延モード設定
+  private timeProvider: (() => number) | null = null; // テスト用時間プロバイダー
 
   constructor(onEventBatch?: (events: TimingEvent[]) => void) {
     this.eventBuffer = new TimingEventBuffer(events => {
@@ -153,6 +154,13 @@ export class CircuitTimingCapture implements TimingEventCapture {
    */
   updateSimulationConfig(config: SimulationConfig): void {
     this.simulationConfig = config;
+  }
+
+  /**
+   * テスト用時間プロバイダーを設定
+   */
+  setTimeProvider(provider: (() => number) | null): void {
+    this.timeProvider = provider;
   }
 
   /**
@@ -190,10 +198,16 @@ export class CircuitTimingCapture implements TimingEventCapture {
    * 相対時間を取得（シミュレーション開始からの経過時間）
    */
   private getRelativeTime(): TimeMs {
-    if (this.simulationStartTime === null) {
-      this.setSimulationStartTime();
+    if (this.timeProvider) {
+      // テスト環境: 時間プロバイダーからの値をそのまま使用
+      return this.timeProvider();
+    } else {
+      // 本番環境: performance.nowから相対時間を計算
+      if (this.simulationStartTime === null) {
+        this.setSimulationStartTime();
+      }
+      return performance.now() - this.simulationStartTime!;
     }
-    return performance.now() - this.simulationStartTime!;
   }
 
   /**
@@ -219,35 +233,39 @@ export class CircuitTimingCapture implements TimingEventCapture {
           (g: Gate) => g.id === currentGate.id
         );
 
-        if (
-          previousGate &&
-          this.hasGateOutputChanged(currentGate, previousGate)
-        ) {
-          // 遅延を考慮したイベント時刻を計算
-          const gateDelay = this.calculateGateDelay(currentGate);
-          const delayedTime = currentTime + gateDelay;
-
-          const currentValue = this.getGateOutputValue(currentGate);
-          const previousValue = this.getGateOutputValue(previousGate);
-          
-          const event: TimingEvent = {
-            id: timingChartUtils.generateEventId(),
-            time: delayedTime, // 遅延を考慮した時刻
-            gateId: currentGate.id,
-            pinType: 'output',
-            pinIndex: 0,
-            value: currentValue,
-            previousValue: previousValue,
-            source: `circuit-evaluation-delay:${gateDelay}ms`,
-            propagationDelay: gateDelay, // 適用された遅延
-          };
-          
-          // CLOCKゲートの値変化をデバッグ
+        if (previousGate) {
+          const hasChanged = this.hasGateOutputChanged(currentGate, previousGate);
           if (currentGate.type === 'CLOCK') {
-            console.log(`[TimingCapture] CLOCK ${currentGate.id} event: ${previousValue} → ${currentValue} (gate.output=${currentGate.output})`);
+            console.log(`🔍 [TimingCapture] CLOCK ${currentGate.id} change check: current=${currentGate.output}, previous=${previousGate.output}, hasChanged=${hasChanged}`);
           }
           
-          events.push(event);
+          if (hasChanged) {
+            // 遅延を考慮したイベント時刻を計算
+            const gateDelay = this.calculateGateDelay(currentGate);
+            const delayedTime = currentTime + gateDelay;
+
+            const currentValue = this.getGateOutputValue(currentGate);
+            const previousValue = this.getGateOutputValue(previousGate);
+            
+            const event: TimingEvent = {
+              id: timingChartUtils.generateEventId(),
+              time: delayedTime, // 遅延を考慮した時刻
+              gateId: currentGate.id,
+              pinType: 'output',
+              pinIndex: 0,
+              value: currentValue,
+              previousValue: previousValue,
+              source: `circuit-evaluation-delay:${gateDelay}ms`,
+              propagationDelay: gateDelay, // 適用された遅延
+            };
+            
+            // CLOCKゲートの値変化をデバッグ
+            if (currentGate.type === 'CLOCK') {
+              console.log(`🔍 [TimingCapture] CLOCK ${currentGate.id} event: ${previousValue} → ${currentValue} (gate.output=${currentGate.output}, delayedTime=${delayedTime})`);
+            }
+            
+            events.push(event);
+          }
         }
 
         // 特定の監視対象ゲートの入力変化も検出

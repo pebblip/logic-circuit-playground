@@ -30,6 +30,8 @@ export const useCanvasSimulation = ({
   useEffect(() => {
     const currentState = useCircuitStore.getState();
     globalTimingCapture.updateSimulationConfig(currentState.simulationConfig);
+    // 本番環境では時間プロバイダーをリセット（performance.nowを使用）
+    globalTimingCapture.setTimeProvider(null);
   }, []);
 
   // シミュレーション設定の変更を監視して同期
