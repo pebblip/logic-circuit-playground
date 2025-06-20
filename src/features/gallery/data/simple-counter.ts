@@ -15,7 +15,7 @@ export const SIMPLE_COUNTER = {
       metadata: {
         frequency: 1.0, // 1Hz
         isRunning: true,
-        startTime: Date.now(),
+        // startTimeは評価時に自動設定
       },
     },
 

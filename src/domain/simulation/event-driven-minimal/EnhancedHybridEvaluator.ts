@@ -90,6 +90,18 @@ export class EnhancedHybridEvaluator {
     // 戦略決定
     const strategy = this.determineStrategy(circuit);
     
+    // デバッグログ
+    if (this.config.enableDebugLogging) {
+      console.log('[EnhancedHybridEvaluator] Selected strategy:', strategy);
+      console.log('[EnhancedHybridEvaluator] Circuit analysis:', {
+        hasClockGates: circuit.gates.some(g => g.type === 'CLOCK'),
+        hasSequentialElements: circuit.gates.some(g => g.type === 'D-FF' || g.type === 'SR-LATCH'),
+        hasCircular: CircuitAnalyzer.hasCircularDependency(circuit),
+        gateCount: circuit.gates.length,
+        delayMode: this.config.delayMode
+      });
+    }
+    
     // 実行
     const result = this.executeWithStrategy(circuit, strategy);
     
@@ -146,16 +158,16 @@ export class EnhancedHybridEvaluator {
       g.type === 'D-FF' || g.type === 'SR-LATCH'
     );
     
-    // 循環依存、シーケンシャル要素がある場合はイベント駆動必須
-    // CLOCKゲートは時間依存のため、レガシーエンジンで処理
-    if (hasCircular || hasSequentialElements) {
-      return 'EVENT_DRIVEN_ONLY';
-    }
-    
     // CLOCKゲートがある場合はレガシーエンジンを使用
     // （イベント駆動は静的な評価のため、時間経過による変化に対応できない）
+    // シーケンシャル要素があってもCLOCKがある場合はレガシーを優先
     if (hasClockGates) {
       return 'LEGACY_ONLY';
+    }
+    
+    // 循環依存、シーケンシャル要素がある場合はイベント駆動必須
+    if (hasCircular || hasSequentialElements) {
+      return 'EVENT_DRIVEN_ONLY';
     }
     
     // 小規模回路は既存システムが高速
@@ -185,17 +197,30 @@ export class EnhancedHybridEvaluator {
     circuit: Circuit,
     strategy: SimulationStrategy
   ): { circuit: Circuit; warnings: string[] } {
+    if (this.config.enableDebugLogging) {
+      console.log(`[EnhancedHybridEvaluator] Executing with strategy: ${strategy}`);
+    }
+    
     switch (strategy) {
       case 'LEGACY_ONLY':
+        if (this.config.enableDebugLogging) {
+          console.log('[EnhancedHybridEvaluator] Using LEGACY engine');
+        }
         return this.executeLegacy(circuit);
         
       case 'EVENT_DRIVEN_ONLY':
+        if (this.config.enableDebugLogging) {
+          console.log('[EnhancedHybridEvaluator] Using EVENT_DRIVEN engine');
+        }
         return this.executeEventDriven(circuit);
         
       case 'COMPARISON_MODE':
         return this.executeComparison(circuit);
         
       default:
+        if (this.config.enableDebugLogging) {
+          console.log('[EnhancedHybridEvaluator] Using default LEGACY engine');
+        }
         return this.executeLegacy(circuit);
     }
   }
@@ -208,6 +233,9 @@ export class EnhancedHybridEvaluator {
     const currentTime = Date.now();
     const preprocessedGates = circuit.gates.map(gate => {
       if (gate.type === 'CLOCK' && gate.metadata && gate.metadata.startTime === undefined) {
+        if (this.config.enableDebugLogging) {
+          console.log(`🔧 [Legacy] ${gate.id}: Initializing startTime to ${currentTime}ms (frequency=${gate.metadata.frequency}Hz)`);
+        }
         return {
           ...gate,
           metadata: {
@@ -215,6 +243,10 @@ export class EnhancedHybridEvaluator {
             startTime: currentTime,
           }
         };
+      } else if (gate.type === 'CLOCK' && gate.metadata?.startTime) {
+        if (this.config.enableDebugLogging) {
+          console.log(`ℹ️ [Legacy] ${gate.id}: Already has startTime=${gate.metadata.startTime}ms (frequency=${gate.metadata.frequency}Hz)`);
+        }
       }
       return gate;
     });
@@ -229,6 +261,8 @@ export class EnhancedHybridEvaluator {
     const config = {
       ...defaultConfig,
       enableDebug: this.config.enableDebugLogging,
+      allowCircularDependencies: true,  // ギャラリーモードのオシレータ用
+      strictValidation: false,  // 循環依存を持つ回路の検証を緩和
     };
     
     const result = evaluateTopological(circuitData, config);

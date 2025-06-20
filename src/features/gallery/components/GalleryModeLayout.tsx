@@ -9,10 +9,18 @@ import './GalleryModeLayout.css';
 export const GalleryModeLayout: React.FC = () => {
   const [selectedCircuit, setSelectedCircuit] = useState<CircuitMetadata | null>(null);
   
-  // 初期選択: 最初の回路を自動選択
+  // 初朝選択: 最初の回路を自動選択
   useEffect(() => {
     if (!selectedCircuit && FEATURED_CIRCUITS.length > 0) {
       setSelectedCircuit(FEATURED_CIRCUITS[0]);
+    }
+  }, [selectedCircuit]);
+  
+  // デバッグ: 選択された回路の設定をログ出力
+  useEffect(() => {
+    if (import.meta.env.DEV && selectedCircuit) {
+      console.log('[GalleryMode] Selected circuit:', selectedCircuit.id);
+      console.log('[GalleryMode] Update interval:', selectedCircuit.simulationConfig?.updateInterval || 'default');
     }
   }, [selectedCircuit]);
 

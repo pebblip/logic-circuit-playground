@@ -512,6 +512,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
           onZoomIn={zoomHandlers.zoomIn}
           onZoomOut={zoomHandlers.zoomOut}
           onResetZoom={zoomHandlers.resetZoom}
+          hideWireStyleButton={config.mode === 'gallery'}  // ギャラリーモードでは非表示
         />
       )}
       

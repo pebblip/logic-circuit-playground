@@ -169,6 +169,7 @@ export interface EvaluationConfig {
   readonly strictValidation: boolean;
   readonly maxRecursionDepth: number;
   readonly customGateEvaluator?: CustomGateEvaluator;
+  readonly allowCircularDependencies?: boolean;  // 循環依存を許可（オシレータ用）
 }
 
 /**

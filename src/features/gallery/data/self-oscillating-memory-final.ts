@@ -14,7 +14,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
   description: '2つのNORゲートによる非安定マルチバイブレータ！確実に振動し、XORで検出します。',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 700,
+    updateInterval: 1300,  // 1.3秒 - メモリ振動を観察しやすい
     expectedBehavior: 'oscillator' as const,
     minimumCycles: 15
   },

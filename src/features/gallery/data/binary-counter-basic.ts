@@ -15,7 +15,7 @@ export const BINARY_COUNTER_BASIC = {
       metadata: {
         frequency: 0.5, // 0.5Hz (2秒周期)
         isRunning: true,
-        startTime: Date.now(),
+        // startTimeは評価時に自動設定
       },
     },
 

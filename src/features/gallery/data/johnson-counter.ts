@@ -6,7 +6,7 @@ export const JOHNSON_COUNTER = {
   description: '美しい回転パターンを生成する循環シフトレジスタ。反転フィードバックにより魔法のような連続パターンを作り出します！',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 800,
+    updateInterval: 1400,  // 1.4秒 - ジョンソンカウンタの回転を追いやすい
     expectedBehavior: 'sequence_generator' as const,
     minimumCycles: 12,
     clockFrequency: 1
@@ -19,7 +19,7 @@ export const JOHNSON_COUNTER = {
       position: { x: 100, y: 200 },
       output: true,
       inputs: [],
-      metadata: { frequency: 1, isRunning: true, startTime: Date.now() },
+      metadata: { frequency: 1, isRunning: true },  // startTimeは評価時に自動設定
     },
     
     // 4ビットシフトレジスタ

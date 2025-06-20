@@ -85,6 +85,8 @@ export function useUnifiedCanvas(
   const svgRef = useRef<SVGSVGElement>(null);
   const animationRef = useRef<number | null>(null);
   const evaluatorRef = useRef<EnhancedHybridEvaluator | null>(null);
+  const localGatesRef = useRef<Gate[]>([]);
+  const localWiresRef = useRef<Wire[]>([]);
   
   // Zustandストア（エディターモード用）
   const circuitStore = useCircuitStore();
@@ -106,15 +108,23 @@ export function useUnifiedCanvas(
   // シミュレーターの初期化
   useEffect(() => {
     if (config.mode === 'gallery' || config.simulationMode === 'local') {
+      // ギャラリーモードでは常に遅延モードを有効にする（オシレータ対応）
       evaluatorRef.current = new EnhancedHybridEvaluator({
         strategy: 'AUTO_SELECT',
         enableDebugLogging: config.galleryOptions?.showDebugInfo ?? false,
+        delayMode: true,  // オシレータ回路のために遅延モードを有効化
+        autoSelectionThresholds: {
+          maxGatesForLegacy: 20,
+          minGatesForEventDriven: 5,
+        },
+        enablePerformanceTracking: false,
       });
     }
     
     return () => {
       if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
+        clearTimeout(animationRef.current);
+        animationRef.current = null;
       }
     };
   }, [config.mode, config.simulationMode, config.galleryOptions?.showDebugInfo]);
@@ -183,8 +193,17 @@ export function useUnifiedCanvas(
   ]);
   
   // ギャラリーモードでの自動フォーマット
+  const [currentGalleryCircuitId, setCurrentGalleryCircuitId] = useState<string | null>(null);
+  
   useEffect(() => {
     if (config.mode === 'gallery' && dataSource.galleryCircuit) {
+      // 同じ回路が既に読み込まれている場合はスキップ
+      if (currentGalleryCircuitId === dataSource.galleryCircuit.id) {
+        return;
+      }
+      
+      setCurrentGalleryCircuitId(dataSource.galleryCircuit.id);
+      
       try {
         // ギャラリーゲートにinputs配列を適切に設定
         const formattedGates = dataSource.galleryCircuit.gates.map(gate => {
@@ -202,6 +221,18 @@ export function useUnifiedCanvas(
             }
           }
           
+          // CLOCKゲートのstartTimeを現在時刻で初期化
+          if (gate.type === 'CLOCK' && gate.metadata) {
+            return {
+              ...gate,
+              inputs,
+              metadata: {
+                ...gate.metadata,
+                startTime: Date.now(),
+              },
+            } as Gate;
+          }
+          
           return {
             ...gate,
             inputs,
@@ -209,6 +240,8 @@ export function useUnifiedCanvas(
         });
         setLocalGates(formattedGates);
         setLocalWires(dataSource.galleryCircuit.wires);
+        localGatesRef.current = formattedGates;
+        localWiresRef.current = dataSource.galleryCircuit.wires;
       } catch (error) {
         handleError(
           error instanceof Error ? error : new Error('Circuit formatting failed'),
@@ -221,7 +254,13 @@ export function useUnifiedCanvas(
         );
       }
     }
-  }, [config.mode, dataSource.galleryCircuit]);
+  }, [config.mode, dataSource.galleryCircuit, currentGalleryCircuitId]);
+  
+  // localGates/localWiresが更新されたらRefも更新
+  useEffect(() => {
+    localGatesRef.current = localGates;
+    localWiresRef.current = localWires;
+  }, [localGates, localWires]);
   
   // 座標変換ユーティリティ
   const transform: CoordinateTransform = useMemo(() => {
@@ -322,26 +361,75 @@ export function useUnifiedCanvas(
   
   // アニメーション制御
   const startAnimation = useCallback(() => {
-    if (config.mode !== 'gallery' || isAnimating) return;
+    if (config.mode !== 'gallery') return;
+    
+    if (import.meta.env.DEV) {
+      console.log('[Gallery Animation] Starting animation...');
+      console.log('[Gallery Animation] Config:', config.galleryOptions);
+    }
+    
+    // 既存のアニメーションをクリア
+    if (animationRef.current) {
+      clearTimeout(animationRef.current);
+      animationRef.current = null;
+    }
     
     setIsAnimating(true);
     
     const animate = () => {
       try {
-        if (evaluatorRef.current) {
-          const circuit: Circuit = { gates: localGates, wires: localWires };
+        if (evaluatorRef.current && localGatesRef.current.length > 0) {
+          const circuit: Circuit = { gates: localGatesRef.current, wires: localWiresRef.current };
+          
+          if (import.meta.env.DEV) {
+            console.log('[Gallery Animation] Before evaluation:');
+            localGatesRef.current.forEach(g => {
+              if (g.type === 'CLOCK' || g.type === 'D-FF' || g.type === 'OUTPUT') {
+                console.log(`  ${g.type} ${g.id}: output=${g.output}`);
+              }
+            });
+          }
+          
           const result = evaluatorRef.current.evaluate(circuit);
           
           // 評価結果をローカルゲートに反映
-          setLocalGates([...result.circuit.gates]);
-          setLocalWires([...result.circuit.wires]);
+          const newGates = result.circuit.gates.map(newGate => {
+            // メタデータを保持（特にD-FFのpreviousClockState）
+            const oldGate = localGatesRef.current.find(g => g.id === newGate.id);
+            if (oldGate && newGate.type === 'D-FF' && newGate.metadata) {
+              // 新しいメタデータがある場合はそれを使用
+              return newGate;
+            }
+            return newGate;
+          });
+          const newWires = [...result.circuit.wires];
+          
+          if (import.meta.env.DEV) {
+            console.log('[Gallery Animation] After evaluation:');
+            newGates.forEach(g => {
+              if (g.type === 'CLOCK' || g.type === 'D-FF' || g.type === 'OUTPUT') {
+                console.log(`  ${g.type} ${g.id}: output=${g.output}`);
+              }
+            });
+          }
+          
+          setLocalGates(newGates);
+          setLocalWires(newWires);
+          localGatesRef.current = newGates;
+          localWiresRef.current = newWires;
         }
         
         const interval = config.galleryOptions?.animationInterval ?? 1000;
+        if (import.meta.env.DEV) {
+          console.log('[Gallery Animation] interval:', interval, 'ms');
+          console.log('[Gallery Animation] Gates:', localGatesRef.current.map(g => ({ id: g.id, type: g.type, output: g.output })));
+        }
+        
         animationRef.current = window.setTimeout(() => {
-          if (isAnimating) {
-            animate();
+          if (import.meta.env.DEV) {
+            console.log('[Gallery Animation] Next cycle starting...');
           }
+          animate();
         }, interval);
       } catch (error) {
         handleError(
@@ -358,7 +446,7 @@ export function useUnifiedCanvas(
     };
     
     animate();
-  }, [config.mode, config.galleryOptions?.animationInterval, isAnimating, localGates, localWires]);
+  }, [config.mode, config.galleryOptions?.animationInterval]);
   
   const stopAnimation = useCallback(() => {
     setIsAnimating(false);
@@ -370,14 +458,25 @@ export function useUnifiedCanvas(
   
   // 自動アニメーション開始
   useEffect(() => {
-    if (config.galleryOptions?.autoSimulation && localGates.length > 0) {
-      startAnimation();
+    if (config.galleryOptions?.autoSimulation && config.mode === 'gallery' && dataSource.galleryCircuit) {
+      // 新しい回路が選択されたときはアニメーションをリセット
+      stopAnimation();
+      
+      // 少し遅延させてからアニメーションを開始
+      const timer = setTimeout(() => {
+        startAnimation();
+      }, 200);
+      
+      return () => {
+        clearTimeout(timer);
+        stopAnimation();
+      };
     }
     
     return () => {
       stopAnimation();
     };
-  }, [config.galleryOptions?.autoSimulation, localGates.length, startAnimation, stopAnimation]);
+  }, [config.galleryOptions?.autoSimulation, config.mode, dataSource.galleryCircuit?.id, startAnimation, stopAnimation]);
   
   // 機能フラグの計算
   const features = useMemo(() => ({

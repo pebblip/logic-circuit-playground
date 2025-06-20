@@ -6,10 +6,10 @@ export const FIBONACCI_COUNTER = {
   description: '数学の黄金比を生み出すフィボナッチ数列を生成する美しい循環回路。自然界のパターンをデジタル回路で再現！',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 500,
+    updateInterval: 600,  // 0.6秒 - フィボナッチ数列の変化をテンポよく観察
     expectedBehavior: 'sequence_generator' as const,
     minimumCycles: 8,
-    clockFrequency: 1.5
+    clockFrequency: 1.667  // 1.667Hz = 600ms周期
   },
   gates: [
     // CLOCK (1.5Hz for better observation) - 左側中央に独立配置
@@ -19,7 +19,7 @@ export const FIBONACCI_COUNTER = {
       position: { x: 50, y: 250 },
       output: true,
       inputs: [],
-      metadata: { frequency: 1.5, isRunning: true, startTime: Date.now() },
+      metadata: { frequency: 1.667, isRunning: true },  // startTimeは評価時に自動設定
     },
     
     // フィボナッチ数列レジスタ A (前の値) - 2ビット版

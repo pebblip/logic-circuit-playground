@@ -6,7 +6,7 @@ export const CHAOS_GENERATOR = {
   description: '線形フィードバックシフトレジスタによる疑似ランダム生成器。暗号学や乱数生成に使われる高度な循環回路です。',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 600,
+    updateInterval: 500,  // 0.5秒 - LFSRの変化を素早く観察
     expectedBehavior: 'oscillator' as const,
     minimumCycles: 20
   },
@@ -18,17 +18,18 @@ export const CHAOS_GENERATOR = {
       position: { x: 100, y: 150 },
       output: true, // 初期状態でONにしてクロック信号を見やすく
       inputs: [],
-      metadata: { frequency: 1, isRunning: true, startTime: Date.now() },
+      metadata: { frequency: 2, isRunning: true },  // 2Hz - startTimeは評価時に自動設定
     },
     
     // 4ビットシフトレジスタ（D-FFで構成）
+    // 初期値を [1, 0, 1, 0] に設定 - LFSRの標準的な初期値
     {
       id: 'dff1',
       type: 'D-FF' as const,
       position: { x: 200, y: 200 },
       output: true, // 初期値
       inputs: ['', ''],
-      metadata: { qOutput: true, previousClockState: false },
+      metadata: { qOutput: true, previousClockState: true, isFirstEvaluation: true },  // 初回エッジ検出を防ぐ
     },
     {
       id: 'dff2',
@@ -36,15 +37,15 @@ export const CHAOS_GENERATOR = {
       position: { x: 300, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { qOutput: false, previousClockState: false },
+      metadata: { qOutput: false, previousClockState: true, isFirstEvaluation: true },  // 初回エッジ検出を防ぐ
     },
     {
       id: 'dff3',
       type: 'D-FF' as const,
       position: { x: 400, y: 200 },
-      output: true,
+      output: true,  // 1に変更
       inputs: ['', ''],
-      metadata: { qOutput: true, previousClockState: false },
+      metadata: { qOutput: true, previousClockState: true, isFirstEvaluation: true },  // 初回エッジ検出を防ぐ
     },
     {
       id: 'dff4',
@@ -52,7 +53,7 @@ export const CHAOS_GENERATOR = {
       position: { x: 500, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { qOutput: false, previousClockState: false },
+      metadata: { qOutput: false, previousClockState: true, isFirstEvaluation: true },  // 初回エッジ検出を防ぐ
     },
     
     // XORフィードバック（多項式: x^4 + x^3 + 1）

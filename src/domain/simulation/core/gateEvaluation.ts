@@ -220,6 +220,9 @@ function evaluateClockGate(
   config: Readonly<EvaluationConfig>
 ): Result<readonly boolean[], EvaluationError> {
   if (!gate.metadata?.isRunning) {
+    if (config.enableDebug) {
+      console.log(`⏹️ [CLOCK ${gate.id}] Not running (isRunning=false), output=false`);
+    }
     return success([false]);
   }
 
@@ -235,17 +238,17 @@ function evaluateClockGate(
   // 周期的な切り替え（半周期ごとに切り替える）
   const halfPeriod = period / 2;
   const cyclePosition = elapsed % period;
-  const isHigh = cyclePosition >= halfPeriod;
+  const isHigh = cyclePosition < halfPeriod;  // 修正: 0-249msがHIGH、250-499msがLOW
   
-  // 🔍 CLOCKの出力変化を強制ログ
-  const previousOutput = gate.output;
-  if (previousOutput !== isHigh) {
-    console.log(`🔄 [CLOCK ${gate.id}] OUTPUT CHANGE: ${previousOutput} → ${isHigh} (elapsed=${elapsed}ms, cyclePosition=${cyclePosition}ms)`);
-  }
-  
-  // より頻繁なデバッグログ（毎100回に1回）
-  if (Math.random() < 0.01) {
-    console.log(`[CLOCK ${gate.id}] frequency=${frequency}Hz, period=${period}ms, halfPeriod=${halfPeriod}ms, elapsed=${elapsed}ms, cyclePosition=${cyclePosition}ms, isHigh=${isHigh}, now=${now}, startTime=${startTime}`);
+  if (config.enableDebug) {
+    // CLOCKの出力変化ログ
+    const previousOutput = gate.output;
+    if (previousOutput !== isHigh) {
+      console.log(`🔄 [CLOCK ${gate.id}] OUTPUT CHANGE: ${previousOutput} → ${isHigh} (elapsed=${elapsed}ms, cyclePosition=${cyclePosition}ms)`);
+    }
+    
+    // 詳細なデバッグログ
+    console.log(`🕒 [CLOCK ${gate.id}] frequency=${frequency}Hz, period=${period}ms, halfPeriod=${halfPeriod}ms, elapsed=${elapsed}ms, cyclePosition=${cyclePosition}ms, isHigh=${isHigh}, now=${now}, startTime=${startTime}`);
   }
 
   return success([isHigh]);
@@ -274,15 +277,20 @@ function evaluateDFlipFlopGate(
   // メタデータから現在の状態を取得（immutableアプローチのため、新しい状態は戻り値で表現）
   const prevClk = gate.metadata?.previousClockState || false;
   let qOutput = gate.metadata?.qOutput || false;
+  
+  // 初回評価フラグのチェック（LFSRなどで初期状態を保持するため）
+  const isFirstEvaluation = gate.metadata?.isFirstEvaluation !== false;
 
   // 立ち上がりエッジ検出
-  if (!prevClk && clk) {
+  if (!prevClk && clk && !isFirstEvaluation) {
+    // 初回評価時はエッジ検出をスキップして初期値を保持
     qOutput = d;
   }
 
   // 注意: 実際の実装では、メタデータの更新は呼び出し側で行う
   // ここでは純粋関数として出力のみを返す
-  return success([qOutput]);
+  // D-FFはQとQバー（反転）の2つの出力を持つ
+  return success([qOutput, !qOutput]);
 }
 
 /**
