@@ -31,7 +31,7 @@ export function snapshotDFFInputs(
       const d = inputs[0];
       const clk = inputs[1];
       const prevClk = gate.metadata?.previousClockState || false;
-      const isFirstEvaluation = gate.metadata?.isFirstEvaluation !== false;
+      const isFirstEvaluation = gate.metadata?.isFirstEvaluation === true;
       
       // 立ち上がりエッジ検出
       const isRisingEdge = !prevClk && clk && !isFirstEvaluation;

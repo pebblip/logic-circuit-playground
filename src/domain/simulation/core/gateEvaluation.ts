@@ -300,7 +300,7 @@ function evaluateDFlipFlopGate(
   let qOutput = gate.metadata?.qOutput || false;
   
   // 初回評価フラグのチェック（LFSRなどで初期状態を保持するため）
-  const isFirstEvaluation = gate.metadata?.isFirstEvaluation !== false;
+  const isFirstEvaluation = gate.metadata?.isFirstEvaluation === true;
 
   // 立ち上がりエッジ検出
   if (!prevClk && clk && !isFirstEvaluation) {

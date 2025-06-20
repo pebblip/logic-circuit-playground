@@ -875,7 +875,7 @@ function updateGateMetadata(gate: Gate, inputs: boolean[]): void {
         // デバッグログは削除（configへのアクセスなし）
 
         // 初回評価フラグのチェック
-        const isFirstEvaluation = gate.metadata?.isFirstEvaluation !== false;
+        const isFirstEvaluation = gate.metadata?.isFirstEvaluation === true;
         
         // 立ち上がりエッジ検出
         if (!prevClk && clk && !isFirstEvaluation) {
