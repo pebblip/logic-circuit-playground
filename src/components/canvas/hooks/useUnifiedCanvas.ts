@@ -221,14 +221,20 @@ export function useUnifiedCanvas(
             }
           }
           
-          // CLOCKゲートのstartTimeを現在時刻で初期化
+          // CLOCKゲートのstartTimeを安定化（一度設定したら変更しない）+ isRunning強制有効化
           if (gate.type === 'CLOCK' && gate.metadata) {
+            const needsStartTime = gate.metadata.startTime === undefined;
+            if (needsStartTime) {
+              console.log('🔧 [Clock Fix] CLOCKゲート初期化:', gate.id, 'startTime設定');
+            }
             return {
               ...gate,
               inputs,
               metadata: {
                 ...gate.metadata,
-                startTime: Date.now(),
+                startTime: needsStartTime ? Date.now() : gate.metadata.startTime, // 🔧 既存のstartTimeを保持
+                isRunning: true, // 🔧 強制的にisRunning=trueに設定
+                frequency: gate.metadata.frequency || 2, // デフォルト2Hz
               },
             } as Gate;
           }
@@ -376,62 +382,121 @@ export function useUnifiedCanvas(
     
     setIsAnimating(true);
     
+    // 🔧 CLOCK周波数に基づく動的間隔計算
+    const calculateOptimalInterval = (): number => {
+      const clockGates = localGatesRef.current.filter(g => g.type === 'CLOCK');
+      if (clockGates.length === 0) {
+        return config.galleryOptions?.animationInterval ?? 1000;
+      }
+      
+      // 最高周波数のCLOCKを見つける
+      const maxFrequency = Math.max(...clockGates.map(g => g.metadata?.frequency || 1));
+      
+      // 最高周波数のCLOCKの半周期の1/4を間隔とする（スムーズな更新のため）
+      const optimalInterval = Math.max(50, (1000 / maxFrequency) / 8);
+      
+      console.log('🎯 [Clock Timing] 動的間隔計算:', {
+        clockCount: clockGates.length,
+        maxFrequency: maxFrequency + 'Hz',
+        optimalInterval: optimalInterval + 'ms',
+        clockFrequencies: clockGates.map(g => `${g.id}:${g.metadata?.frequency || 1}Hz`)
+      });
+      
+      return optimalInterval;
+    };
+    
     const animate = () => {
       try {
+        console.log('🎬 [Gallery Animation] アニメーション開始');
+        console.log('🔧 [Gallery Animation] localGatesRef.current.length:', localGatesRef.current.length);
+        console.log('🔧 [Gallery Animation] evaluatorRef.current exists:', !!evaluatorRef.current);
+        
+        // DebugLogDisplayにも送信
+        if ((window as any).debugLog) {
+          (window as any).debugLog('info', '🎬 アニメーション開始', {
+            gateCount: localGatesRef.current.length,
+            evaluatorExists: !!evaluatorRef.current
+          });
+        }
+        
         if (evaluatorRef.current && localGatesRef.current.length > 0) {
           const circuit: Circuit = { gates: localGatesRef.current, wires: localWiresRef.current };
           
-          if (import.meta.env.DEV) {
-            console.log('[Gallery Animation] Before evaluation:');
-            localGatesRef.current.forEach(g => {
-              if (g.type === 'CLOCK' || g.type === 'D-FF' || g.type === 'OUTPUT') {
-                console.log(`  ${g.type} ${g.id}: output=${g.output}`);
-              }
-            });
-          }
+          console.log('📋 [Gallery Animation] 評価前の回路状態:');
+          console.log('  ゲート数:', circuit.gates.length);
+          console.log('  ワイヤー数:', circuit.wires.length);
           
+          // 全ゲートの詳細状態
+          circuit.gates.forEach(g => {
+            console.log(`  ${g.type} ${g.id}: output=${g.output}, metadata=`, g.metadata);
+          });
+          
+          console.log('🔄 [Gallery Animation] 評価実行中...');
           const result = evaluatorRef.current.evaluate(circuit);
+          console.log('✅ [Gallery Animation] 評価完了');
           
           // 評価結果をローカルゲートに反映
           const newGates = result.circuit.gates.map(newGate => {
-            // メタデータを保持（特にD-FFのpreviousClockState）
             const oldGate = localGatesRef.current.find(g => g.id === newGate.id);
+            
+            // CLOCKゲートのisRunning状態を強制維持
+            if (newGate.type === 'CLOCK') {
+              console.log('🔧 [Clock Maintain] CLOCKゲート状態維持:', newGate.id);
+              return {
+                ...newGate,
+                metadata: {
+                  ...newGate.metadata,
+                  isRunning: true, // 🔧 常にtrue
+                  frequency: newGate.metadata?.frequency || 2,
+                },
+              };
+            }
+            
+            // D-FFメタデータを保持（特にpreviousClockState）
             if (oldGate && newGate.type === 'D-FF' && newGate.metadata) {
-              // 新しいメタデータがある場合はそれを使用
               return newGate;
             }
+            
             return newGate;
           });
           const newWires = [...result.circuit.wires];
           
-          if (import.meta.env.DEV) {
-            console.log('[Gallery Animation] After evaluation:');
-            newGates.forEach(g => {
-              if (g.type === 'CLOCK' || g.type === 'D-FF' || g.type === 'OUTPUT') {
-                console.log(`  ${g.type} ${g.id}: output=${g.output}`);
-              }
-            });
-          }
+          console.log('📋 [Gallery Animation] 評価後の回路状態:');
+          newGates.forEach(g => {
+            if (g.type === 'CLOCK' || g.type === 'D-FF' || g.type === 'OUTPUT') {
+              console.log(`  ${g.type} ${g.id}: output=${g.output}, metadata=`, g.metadata);
+            }
+          });
+          
+          // 状態変化を検出
+          const hasChanges = newGates.some((newGate, index) => {
+            const oldGate = localGatesRef.current[index];
+            return oldGate && oldGate.output !== newGate.output;
+          });
+          
+          console.log('🎯 [Gallery Animation] 状態変化検出:', hasChanges ? 'あり' : 'なし');
           
           setLocalGates(newGates);
           setLocalWires(newWires);
           localGatesRef.current = newGates;
           localWiresRef.current = newWires;
+        } else {
+          console.log('❌ [Gallery Animation] 評価条件不満足:', {
+            'evaluatorRef存在': !!evaluatorRef.current,
+            'ゲート数': localGatesRef.current.length
+          });
         }
         
-        const interval = config.galleryOptions?.animationInterval ?? 1000;
-        if (import.meta.env.DEV) {
-          console.log('[Gallery Animation] interval:', interval, 'ms');
-          console.log('[Gallery Animation] Gates:', localGatesRef.current.map(g => ({ id: g.id, type: g.type, output: g.output })));
-        }
+        // 🔧 動的間隔計算
+        const interval = calculateOptimalInterval();
+        console.log('⏰ [Gallery Animation] 次の実行まで:', interval, 'ms');
         
         animationRef.current = window.setTimeout(() => {
-          if (import.meta.env.DEV) {
-            console.log('[Gallery Animation] Next cycle starting...');
-          }
+          console.log('🔄 [Gallery Animation] 次のサイクル開始');
           animate();
         }, interval);
       } catch (error) {
+        console.error('💥 [Gallery Animation] エラー発生:', error);
         handleError(
           error instanceof Error ? error : new Error('Animation failed'),
           'useUnifiedCanvas',
@@ -458,12 +523,25 @@ export function useUnifiedCanvas(
   
   // 自動アニメーション開始
   useEffect(() => {
+    // 🔍 詳細デバッグログを追加
+    console.log('🔍 [Gallery Animation] 自動アニメーション開始条件チェック:', {
+      'autoSimulation': config.galleryOptions?.autoSimulation,
+      'mode': config.mode,
+      'galleryCircuit exists': !!dataSource.galleryCircuit,
+      'galleryCircuit.id': dataSource.galleryCircuit?.id,
+      'galleryOptions': config.galleryOptions,
+      'dataSource': dataSource
+    });
+    
     if (config.galleryOptions?.autoSimulation && config.mode === 'gallery' && dataSource.galleryCircuit) {
+      console.log('✅ [Gallery Animation] 全条件満足 - アニメーション開始');
+      
       // 新しい回路が選択されたときはアニメーションをリセット
       stopAnimation();
       
       // 少し遅延させてからアニメーションを開始
       const timer = setTimeout(() => {
+        console.log('🎬 [Gallery Animation] startAnimation() 実行');
         startAnimation();
       }, 200);
       
@@ -471,6 +549,12 @@ export function useUnifiedCanvas(
         clearTimeout(timer);
         stopAnimation();
       };
+    } else {
+      console.log('❌ [Gallery Animation] 条件不満足 - アニメーション開始せず:', {
+        'autoSimulation失敗': !config.galleryOptions?.autoSimulation,
+        'mode失敗': config.mode !== 'gallery',
+        'galleryCircuit失敗': !dataSource.galleryCircuit
+      });
     }
     
     return () => {

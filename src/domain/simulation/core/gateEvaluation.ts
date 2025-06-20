@@ -247,8 +247,29 @@ function evaluateClockGate(
       console.log(`🔄 [CLOCK ${gate.id}] OUTPUT CHANGE: ${previousOutput} → ${isHigh} (elapsed=${elapsed}ms, cyclePosition=${cyclePosition}ms)`);
     }
     
-    // 詳細なデバッグログ
-    console.log(`🕒 [CLOCK ${gate.id}] frequency=${frequency}Hz, period=${period}ms, halfPeriod=${halfPeriod}ms, elapsed=${elapsed}ms, cyclePosition=${cyclePosition}ms, isHigh=${isHigh}, now=${now}, startTime=${startTime}`);
+    // 詳細なデバッグログ（毎回表示）
+    console.log(`🕒 [CLOCK ${gate.id}] DETAILED:`, {
+      frequency: frequency + 'Hz',
+      period: period + 'ms',
+      halfPeriod: halfPeriod + 'ms',
+      elapsed: elapsed + 'ms',
+      cyclePosition: cyclePosition + 'ms',
+      isHigh,
+      now,
+      startTime,
+      calculation: {
+        'elapsed % period': `${elapsed} % ${period} = ${cyclePosition}`,
+        'isHigh condition': `${cyclePosition} < ${halfPeriod} = ${isHigh}`
+      }
+    });
+    
+    // 🔧 時間軸の可視化（ギャラリーモード向け）
+    const timelineVisualization = Array.from({ length: 20 }, (_, i) => {
+      const timePoint = (i * period) / 20;
+      const timeIsHigh = (timePoint % period) < halfPeriod;
+      return timeIsHigh ? '█' : '░';
+    }).join('');
+    console.log(`📊 [CLOCK ${gate.id}] Timeline: ${timelineVisualization} (current: ${isHigh ? '█' : '░'})`);
   }
 
   return success([isHigh]);

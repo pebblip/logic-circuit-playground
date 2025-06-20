@@ -6,6 +6,9 @@ import { SEVEN_SEGMENT_DECODER } from './seven-segment';
 import { SR_LATCH_BASIC } from './sr-latch-circuit';
 import { SIMPLE_RING_OSCILLATOR } from './simple-ring-oscillator';
 import { CHAOS_GENERATOR } from './chaos-generator';
+import { SIMPLE_LFSR } from './simple-lfsr';
+// import { SIMPLE_CHAOS_GENERATOR } from './simple-chaos-generator';
+// import { WORKING_CHAOS_GENERATOR } from './working-chaos-generator';
 import { FIBONACCI_COUNTER } from './fibonacci-counter';
 import { JOHNSON_COUNTER } from './johnson-counter';
 import { SELF_OSCILLATING_MEMORY_FINAL } from './self-oscillating-memory-final';
@@ -406,6 +409,7 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
   SIMPLE_RING_OSCILLATOR,
   
   // 循環回路（高度）
+  SIMPLE_LFSR,  // 🔧 テスト用シンプルLFSR
   CHAOS_GENERATOR,
   FIBONACCI_COUNTER,
   JOHNSON_COUNTER,

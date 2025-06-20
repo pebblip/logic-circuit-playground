@@ -611,7 +611,7 @@ function evaluateCircuitStep(
     const gateEvaluationTimes = new Map<string, number>();
     
     // 2フェーズ評価が必要かどうかを判定
-    const useTwoPhaseEval = needsTwoPhaseEvaluation(tempCircuit);
+    const useTwoPhaseEval = config.forceTwoPhaseEvaluation || needsTwoPhaseEvaluation(tempCircuit);
 
     // デバッグ: 評価順序を確認
     if (config.enableDebug) {

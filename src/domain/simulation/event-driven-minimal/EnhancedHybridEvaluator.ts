@@ -263,6 +263,13 @@ export class EnhancedHybridEvaluator {
       enableDebug: this.config.enableDebugLogging,
       allowCircularDependencies: true,  // ギャラリーモードのオシレータ用
       strictValidation: false,  // 循環依存を持つ回路の検証を緩和
+      // 🔧 timeProviderを明示的に設定（CLOCKゲート用）
+      timeProvider: {
+        getCurrentTime: () => Date.now(),
+        getElapsedTime: () => Date.now(),
+      },
+      // 🔧 D-FF二段階評価を強制有効化（ギャラリーモード用）
+      forceTwoPhaseEvaluation: true,
     };
     
     const result = evaluateTopological(circuitData, config);
