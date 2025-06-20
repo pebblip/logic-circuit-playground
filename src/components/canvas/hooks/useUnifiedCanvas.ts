@@ -150,7 +150,7 @@ export function useUnifiedCanvas(
         };
       }
       
-      if (dataSource.galleryCircuit && config.mode !== 'gallery') {
+      if (dataSource.galleryCircuit && config.mode === 'gallery') {
         return {
           displayGates: dataSource.galleryCircuit.gates,
           displayWires: dataSource.galleryCircuit.wires,
