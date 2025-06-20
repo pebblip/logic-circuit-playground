@@ -111,15 +111,19 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
             animate={{ height: `${panelHeight}px`, opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="timing-chart-horizontal-panel"
+            className="timing-chart-horizontal-panel timing-chart-main-panel"
+            data-testid="timing-chart-main-panel"
           >
             {/* ヘッダー - 横長対応 */}
             <div className="timing-chart-horizontal-header">
               <div className="header-left">
                 <ChartBarIcon className="icon" />
                 <h3>タイミングチャート</h3>
-                <span className="status-text">
-                  {visibleTraces.length} traces
+                <span className="status-text" data-testid="trace-count-display">
+                  トレース数: {visibleTraces.length}
+                </span>
+                <span className="status-text" data-testid="time-window-display">
+                  時間窓: {Math.round(timeWindow.start)}ms - {Math.round(timeWindow.end)}ms
                 </span>
               </div>
 

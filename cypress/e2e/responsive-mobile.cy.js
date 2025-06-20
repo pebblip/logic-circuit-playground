@@ -41,10 +41,10 @@ describe('レスポンシブ対応 - モバイル', () => {
     
     // メニュー項目が表示される
     cy.get('.mobile-menu').within(() => {
-      cy.contains('フリーモード').should('be.visible');
-      cy.contains('学習モード').should('be.visible');
-      cy.contains('ギャラリーモード').should('be.visible');
-      cy.contains('パズルモード').should('be.visible');
+      cy.get('[data-testid="mobile-mode-free"]').should('be.visible');
+      cy.get('[data-testid="mobile-mode-learning"]').should('be.visible');
+      cy.get('[data-testid="mobile-mode-gallery"]').should('be.visible');
+      cy.get('[data-testid="mobile-mode-puzzle"]').should('be.visible');
     });
     
     // メニュー外をクリックして閉じる

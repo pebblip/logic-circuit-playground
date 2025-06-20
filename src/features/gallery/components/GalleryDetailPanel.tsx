@@ -129,9 +129,9 @@ export const GalleryDetailPanel: React.FC<GalleryDetailPanelProps> = ({ circuit 
       {(circuit.id.includes('oscillator') || circuit.id.includes('latch') || 
         circuit.id.includes('counter') || circuit.id.includes('chaos') || 
         circuit.id.includes('memory') || circuit.id.includes('mandala')) && (
-        <div className="detail-notice">
-          <h4>⚠️ 注意事項</h4>
-          <p>
+        <div className="detail-notice" data-testid="cyclical-warning">
+          <h4 data-testid="notice-title">⚠️ 注意事項</h4>
+          <p data-testid="cyclical-warning-text">
             この回路は循環構造を持つため、現在のシミュレーションエンジンでは
             完全な動作を再現できない場合があります。
             将来のアップデートで改善予定です。

@@ -25,14 +25,43 @@ export const useCanvasSimulation = ({
 }: UseCanvasSimulationProps) => {
   // 前回の回路状態を追跡（タイミングチャート用）
   const previousCircuitRef = useRef<Circuit | null>(null);
+  
+  // Zustandストアから必要な状態を取得
+  const simulationConfig = useCircuitStore(state => state.simulationConfig);
+  const gates = useCircuitStore(state => state.gates);
+  const wires = useCircuitStore(state => state.wires);
+  const timingChartActions = useCircuitStore(state => state.timingChartActions);
+  const timingChart = useCircuitStore(state => state.timingChart);
+  const selectedClockGateId = useCircuitStore(state => state.selectedClockGateId);
+  
+  // 現在の状態をrefで保持（間隔実行で使用）
+  const currentStateRef = useRef({
+    gates,
+    wires,
+    simulationConfig,
+    timingChartActions,
+    timingChart,
+    selectedClockGateId,
+  });
+  
+  // 状態が変更されたらrefを更新
+  useEffect(() => {
+    currentStateRef.current = {
+      gates,
+      wires,
+      simulationConfig,
+      timingChartActions,
+      timingChart,
+      selectedClockGateId,
+    };
+  }, [gates, wires, simulationConfig, timingChartActions, timingChart, selectedClockGateId]);
 
   // シミュレーション設定をglobalTimingCaptureに同期
   useEffect(() => {
-    const currentState = useCircuitStore.getState();
-    globalTimingCapture.updateSimulationConfig(currentState.simulationConfig);
+    globalTimingCapture.updateSimulationConfig(simulationConfig);
     // 本番環境では時間プロバイダーをリセット（performance.nowを使用）
     globalTimingCapture.setTimeProvider(null);
-  }, []);
+  }, [simulationConfig]);
 
   // シミュレーション設定の変更を監視して同期
   useEffect(() => {
@@ -87,7 +116,7 @@ export const useCanvasSimulation = ({
 
     const interval = setInterval(() => {
       // パフォーマンス最適化：実行中のCLOCKゲートがない場合は早期リターン
-      const currentState = useCircuitStore.getState();
+      const currentState = currentStateRef.current;
       const hasActiveClocks = currentState.gates.some(
         gate => gate.type === 'CLOCK' && gate.metadata?.isRunning
       );
@@ -202,6 +231,13 @@ export const useCanvasSimulation = ({
           gates: [...result.data.circuit.gates],
           wires: [...result.data.circuit.wires],
         });
+        
+        // refも更新
+        currentStateRef.current = {
+          ...currentStateRef.current,
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+        };
 
         // 現在時刻更新（オシロスコープモード駆動）
         const currentSimTime = globalTimingCapture.getCurrentSimulationTime();
@@ -306,5 +342,5 @@ export const useCanvasSimulation = ({
     return () => {
       clearInterval(interval);
     };
-  }, [displayGates, isReadOnly]); // CLOCKゲートの周波数変更を検出
+  }, [displayGates, isReadOnly, gates, wires, simulationConfig, timingChartActions, timingChart, selectedClockGateId]); // CLOCKゲートの周波数変更を検出
 };

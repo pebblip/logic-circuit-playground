@@ -68,7 +68,7 @@ describe('canvasTypes', () => {
       expect(editorPreset.editorOptions?.enableGridSnap).toBe(true);
       expect(editorPreset.editorOptions?.enableGateAddition).toBe(true);
       expect(editorPreset.uiControls?.showControls).toBe(true);
-      expect(editorPreset.uiControls?.showPreviewHeader).toBe(true);
+      expect(editorPreset.uiControls?.showPreviewHeader).toBe(false);
       expect(editorPreset.uiControls?.showBackground).toBe(true);
     });
 

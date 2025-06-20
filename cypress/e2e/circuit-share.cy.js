@@ -6,11 +6,11 @@ describe('回路共有機能', () => {
 
   it('回路を共有URLで共有できる', () => {
     // ゲートを配置
-    cy.get('.tools-grid').contains('AND').click({ force: true });
+    cy.get('[data-testid="AND-button"]').click({ force: true });
     cy.get('.main-canvas').click(200, 200);
     cy.wait(200);
     
-    cy.get('.tools-grid').contains('OR').click({ force: true });
+    cy.get('[data-testid="OR-button"]').click({ force: true });
     cy.get('.main-canvas').click(400, 200);
     cy.wait(200);
 
@@ -52,7 +52,7 @@ describe('回路共有機能', () => {
       cy.get('.gate-container[data-gate-type="OR"]').should('exist');
       
       // 成功メッセージが表示される
-      cy.contains('回路を読み込みました！').should('be.visible');
+      cy.get('[data-testid="share-load-message"]').should('be.visible');
     });
   });
 
@@ -62,7 +62,7 @@ describe('回路共有機能', () => {
 
     // エラーメッセージが表示される
     cy.get('.empty-circuit-message').should('be.visible');
-    cy.contains('共有する回路がありません').should('be.visible');
+    cy.get('[data-testid="empty-circuit-message"]').should('be.visible');
   });
 
   it('無効な共有URLはエラーになる', () => {

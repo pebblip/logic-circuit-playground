@@ -97,24 +97,28 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="mode-tabs">
           <button
             className={`mode-tab ${activeMode === TERMS.LEARNING_MODE ? 'active' : ''}`}
+            data-testid="mode-selector-learning"
             onClick={() => onModeChange(TERMS.LEARNING_MODE)}
           >
             {TERMS.LEARNING_MODE}
           </button>
           <button
             className={`mode-tab ${activeMode === TERMS.FREE_MODE ? 'active' : ''}`}
+            data-testid="mode-selector-free"
             onClick={() => onModeChange(TERMS.FREE_MODE)}
           >
             {TERMS.FREE_MODE}
           </button>
           <button
             className={`mode-tab ${activeMode === TERMS.PUZZLE_MODE ? 'active' : ''}`}
+            data-testid="mode-selector-puzzle"
             onClick={() => onModeChange(TERMS.PUZZLE_MODE)}
           >
             {TERMS.PUZZLE_MODE}
           </button>
           <button
             className={`mode-tab ${activeMode === TERMS.GALLERY_MODE ? 'active' : ''}`}
+            data-testid="mode-selector-gallery"
             onClick={() => onModeChange(TERMS.GALLERY_MODE)}
           >
             {TERMS.GALLERY_MODE}
@@ -127,6 +131,7 @@ export const Header: React.FC<HeaderProps> = ({
             <>
               <button
                 className="button"
+                data-testid="load-button"
                 onClick={() => dialogs.load.open()}
                 title={`${TERMS.CIRCUIT}を${TERMS.LOAD}`}
               >
@@ -135,6 +140,7 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
               <button
                 className="button"
+                data-testid="save-button"
                 onClick={() => dialogs.save.open()}
                 title={`${TERMS.CIRCUIT}を${TERMS.SAVE}`}
               >
@@ -143,6 +149,7 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
               <button
                 className="button"
+                data-testid="circuit-to-ic-button"
                 onClick={handleCreateCustomGateFromCircuit}
                 title={`現在の${TERMS.CIRCUIT}から${TERMS.CUSTOM_GATE}を${TERMS.CREATE}`}
               >
@@ -151,6 +158,7 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
               <button
                 className="button"
+                data-testid="share-button"
                 onClick={() => dialogs.share.open()}
                 title="回路を共有"
               >

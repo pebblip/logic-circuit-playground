@@ -46,6 +46,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
     <>
       {shareLoadMessage && (
         <div
+          data-testid="share-load-message"
           style={{
             position: 'fixed',
             top: '20px',

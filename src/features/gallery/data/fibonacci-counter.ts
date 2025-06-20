@@ -6,7 +6,7 @@ export const FIBONACCI_COUNTER = {
   description: '数学の黄金比を生み出すフィボナッチ数列を生成する美しい循環回路。自然界のパターンをデジタル回路で再現！',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 600,  // 0.6秒 - フィボナッチ数列の変化をテンポよく観察
+    updateInterval: 150,  // 0.15秒 - 1.667HzCLOCK(600ms)の1/4間隔で正確な変化を捉える
     expectedBehavior: 'sequence_generator' as const,
     minimumCycles: 8,
     clockFrequency: 1.667  // 1.667Hz = 600ms周期

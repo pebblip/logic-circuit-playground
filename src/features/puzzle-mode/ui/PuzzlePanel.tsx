@@ -80,8 +80,8 @@ export const PuzzlePanel: React.FC<PuzzlePanelProps> = ({ isVisible }) => {
 
     return (
       <div className="puzzle-list">
-        <h3>🧩 パズル・チャレンジ</h3>
-        <p className="puzzle-intro">制約条件の中で目標回路を作成してください</p>
+        <h3 data-testid="puzzle-panel-title">🧩 パズル・チャレンジ</h3>
+        <p className="puzzle-intro" data-testid="puzzle-panel-description">制約条件の中で目標回路を作成してください</p>
 
         {difficulties.map(difficulty => {
           const puzzles = getPuzzlesByDifficulty(difficulty);
@@ -89,12 +89,13 @@ export const PuzzlePanel: React.FC<PuzzlePanelProps> = ({ isVisible }) => {
 
           return (
             <div key={difficulty} className="difficulty-section">
-              <h4>{difficultyLabels[difficulty]}</h4>
+              <h4 data-testid={`difficulty-label-${difficulty}`}>{difficultyLabels[difficulty]}</h4>
               <div className="puzzle-grid">
                 {puzzles.map(puzzle => (
                   <button
                     key={puzzle.id}
                     className="puzzle-card"
+                    data-testid={`puzzle-card-${puzzle.id}`}
                     onClick={() => handlePuzzleSelect(puzzle)}
                   >
                     <div className="puzzle-title">{puzzle.title}</div>
@@ -117,6 +118,7 @@ export const PuzzlePanel: React.FC<PuzzlePanelProps> = ({ isVisible }) => {
         <div className="puzzle-header">
           <button
             className="back-button"
+            data-testid="puzzle-back-button"
             onClick={() => setSelectedPuzzle(null)}
           >
             ← 戻る
@@ -130,7 +132,7 @@ export const PuzzlePanel: React.FC<PuzzlePanelProps> = ({ isVisible }) => {
 
         {/* 制約条件 */}
         <div className="constraints">
-          <h4>📋 制約条件</h4>
+          <h4 data-testid="constraints-title">📋 制約条件</h4>
           <ul>
             {selectedPuzzle.constraints.maxGates && (
               <li>最大ゲート数: {selectedPuzzle.constraints.maxGates}個</li>
@@ -147,7 +149,7 @@ export const PuzzlePanel: React.FC<PuzzlePanelProps> = ({ isVisible }) => {
 
         {/* テストケース */}
         <div className="test-cases">
-          <h4>🧪 テストケース</h4>
+          <h4 data-testid="test-cases-title">🧪 テストケース</h4>
           <div className="test-grid">
             {selectedPuzzle.testCases.map((testCase, index) => (
               <button
@@ -214,7 +216,7 @@ export const PuzzlePanel: React.FC<PuzzlePanelProps> = ({ isVisible }) => {
 
         {/* 学習目標 */}
         <div className="learning-objectives">
-          <h4>🎯 学習目標</h4>
+          <h4 data-testid="learning-objectives-title">🎯 学習目標</h4>
           <ul>
             {selectedPuzzle.learningObjectives.map((objective, index) => (
               <li key={index}>{objective}</li>

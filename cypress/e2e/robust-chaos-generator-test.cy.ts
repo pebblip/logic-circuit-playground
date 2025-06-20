@@ -10,13 +10,11 @@ describe('カオス発生器の堅牢なテスト', () => {
     cy.visit('http://localhost:5176/')
     
     // ギャラリーモードボタンをdata-testidで特定
-    // 注意: 現在はテキストベースだが、後でdata-testidを追加予定
-    cy.contains('ギャラリーモード').click()
+    cy.get('[data-testid="mode-selector-gallery"]').click()
     cy.wait(500)
     
     // カオス発生器を選択（data-testidベース）
-    // 注意: 現在はテキストベースだが、後でdata-testidを追加予定
-    cy.contains('カオス発生器').click()
+    cy.get('[data-testid="gallery-circuit-chaos-generator"]').click()
     cy.wait(1000)
   })
 

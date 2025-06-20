@@ -81,9 +81,8 @@ describe('GalleryModeLayout - ギャラリーモード統合テスト', () => {
     
     // 最初の回路（半加算器）が選択されているか確認
     await waitFor(() => {
-      const circuitButtons = screen.getAllByText('半加算器');
-      const circuitButton = circuitButtons.find(el => el.closest('button'));
-      expect(circuitButton?.closest('button')).toHaveClass('selected');
+      const halfAdderButton = screen.getByTestId('gallery-circuit-half-adder');
+      expect(halfAdderButton).toHaveClass('selected');
     });
   });
 
@@ -133,7 +132,7 @@ describe('GalleryModeLayout - ギャラリーモード統合テスト', () => {
     render(<GalleryModeLayout />);
     
     // 循環回路のボタンを探す
-    const chaosButton = screen.getByText('カオス発生器（LFSR）').closest('button');
+    const chaosButton = screen.getByTestId('gallery-circuit-chaos-generator');
     expect(chaosButton).toBeInTheDocument();
     
     // 実験的バッジの確認
@@ -147,8 +146,8 @@ describe('GalleryModeLayout - ギャラリーモード統合テスト', () => {
     
     // 各回路のゲート数表示を確認
     const firstCircuit = FEATURED_CIRCUITS[0];
-    const gateCountElement = screen.getByText(`${firstCircuit.gates.length}ゲート`);
-    expect(gateCountElement).toBeInTheDocument();
+    const gateCountElements = screen.getAllByText(`${firstCircuit.gates.length}ゲート`);
+    expect(gateCountElements.length).toBeGreaterThan(0);
   });
 
   it('✅ 必須: UnifiedCanvasがギャラリーモードで正しく設定される', async () => {
@@ -179,7 +178,7 @@ describe('GalleryModeLayout - ギャラリーモード統合テスト', () => {
     render(<GalleryModeLayout />);
     
     // カオス生成器を選択
-    const chaosButton = screen.getByText('カオス発生器（LFSR）').closest('button');
+    const chaosButton = screen.getByTestId('gallery-circuit-chaos-generator');
     fireEvent.click(chaosButton!);
     
     // 注意事項の表示確認
@@ -194,7 +193,8 @@ describe('GalleryModeLayout - ギャラリーモード統合テスト', () => {
     
     // 全ての回路が表示されているか確認
     FEATURED_CIRCUITS.forEach(circuit => {
-      expect(screen.getByText(circuit.title)).toBeInTheDocument();
+      const elements = screen.getAllByText(circuit.title);
+      expect(elements.length).toBeGreaterThan(0);
     });
   });
 });
@@ -204,11 +204,15 @@ describe('GalleryModeLayout - インタラクションテスト', () => {
     render(<GalleryModeLayout />);
     
     // 半加算器 → SR ラッチ → デコーダーと選択
-    const circuits = ['半加算器', 'SR ラッチ', 'デコーダー回路'];
+    const circuits = [
+      { id: 'half-adder', name: '半加算器' },
+      { id: 'sr-latch', name: 'SR ラッチ' },
+      { id: 'decoder', name: 'デコーダー回路' }
+    ];
     
-    for (const circuitName of circuits) {
-      const button = screen.getByText(circuitName).closest('button');
-      fireEvent.click(button!);
+    for (const circuit of circuits) {
+      const button = screen.getByTestId(`gallery-circuit-${circuit.id}`);
+      fireEvent.click(button);
       
       await waitFor(() => {
         expect(button).toHaveClass('selected');
@@ -220,7 +224,7 @@ describe('GalleryModeLayout - インタラクションテスト', () => {
     render(<GalleryModeLayout />);
     
     // 半加算器（シンプルな回路）を選択
-    const halfAdderButton = screen.getByText('半加算器').closest('button');
+    const halfAdderButton = screen.getByTestId('gallery-circuit-half-adder');
     fireEvent.click(halfAdderButton!);
     
     await waitFor(() => {
@@ -228,7 +232,7 @@ describe('GalleryModeLayout - インタラクションテスト', () => {
     });
     
     // カオス生成器（複雑な回路）を選択
-    const chaosButton = screen.getByText('カオス生成器').closest('button');
+    const chaosButton = screen.getByTestId('gallery-circuit-chaos-generator');
     fireEvent.click(chaosButton!);
     
     await waitFor(() => {

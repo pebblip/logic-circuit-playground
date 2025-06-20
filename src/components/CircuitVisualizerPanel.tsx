@@ -146,6 +146,7 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
             fontSize: '16px',
             fontWeight: '600',
           }}
+          data-testid="circuit-monitor-title"
         >
           回路モニター
         </h3>
@@ -154,9 +155,9 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
       {/* メインコンテンツ */}
       <div style={{ flex: 1, padding: '20px', textAlign: 'center' }}>
         {gateCount === 0 ? (
-          <div style={{ color: '#7d8590', padding: '40px 0' }}>
+          <div style={{ color: '#7d8590', padding: '40px 0' }} data-testid="circuit-monitor-empty-state">
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚡</div>
-            <div style={{ fontSize: '14px' }}>
+            <div style={{ fontSize: '14px' }} data-testid="circuit-monitor-empty-message">
               回路を作成すると
               <br />
               動作状況が表示されます

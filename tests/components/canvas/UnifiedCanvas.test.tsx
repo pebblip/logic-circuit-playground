@@ -91,15 +91,42 @@ vi.mock('@/domain/simulation/event-driven-minimal', () => ({
   })),
 }));
 
-// Zustand ストアのモック
+// Zustand ストアのモック - getState()メソッドも含む完全なモック
+const mockStoreState = {
+  gates: mockGates,
+  wires: mockWires,
+  customGates: [],
+  viewMode: 'normal' as const,
+  previewingCustomGateId: null,
+  selectedClockGateId: null,
+  simulationConfig: {
+    delayMode: 'none' as const,
+    enableDebugLogging: false,
+  },
+  timingChart: {
+    traces: [],
+  },
+  timingChartActions: null,
+  updateGate: vi.fn(),
+  addGate: vi.fn(),
+  removeGate: vi.fn(),
+  setState: vi.fn(),
+  getState: vi.fn(() => mockStoreState),
+  subscribe: vi.fn(() => vi.fn()), // unsubscribe関数を返すモック
+  exitCustomGatePreview: vi.fn(),
+};
+
 vi.mock('@/stores/circuitStore', () => ({
-  useCircuitStore: () => ({
-    gates: mockGates,
-    wires: mockWires,
-    updateGate: vi.fn(),
-    addGate: vi.fn(),
-    removeGate: vi.fn(),
-  }),
+  useCircuitStore: Object.assign(
+    // フックとして使用される場合の戻り値
+    () => mockStoreState,
+    // 直接呼び出しメソッド
+    {
+      getState: vi.fn(() => mockStoreState),
+      setState: vi.fn(),
+      subscribe: vi.fn(() => vi.fn()),
+    }
+  ),
 }));
 
 // Domain関数のモック
@@ -110,28 +137,105 @@ vi.mock('@/domain/circuit/layout', () => ({
   })),
 }));
 
+// globalTimingCaptureのモック
+vi.mock('@/domain/timing/timingCapture', () => ({
+  globalTimingCapture: {
+    updateSimulationConfig: vi.fn(),
+    setTimeProvider: vi.fn(),
+    resetSimulationTime: vi.fn(),
+    setSimulationStartTime: vi.fn(),
+    getCurrentSimulationTime: vi.fn(() => Date.now()),
+    captureFromEvaluation: vi.fn(() => []),
+    watchGate: vi.fn(),
+  },
+}));
+
+// errorHandlerのモック
+vi.mock('@/infrastructure/errorHandler', () => ({
+  handleError: vi.fn(),
+}));
+
+// Canvas helpersとconstantsのモック
+vi.mock('@/components/canvas/utils/canvasHelpers', () => ({
+  getMaxClockFrequency: vi.fn(() => 1),
+  calculateUpdateInterval: vi.fn(() => 1000),
+}));
+
+vi.mock('@/components/canvas/utils/canvasConstants', () => ({
+  CANVAS_CONSTANTS: {
+    CLOCK_UPDATE_MULTIPLIER: 4,
+    MAX_UPDATE_INTERVAL: 1000,
+  },
+}));
+
 // Hooksのモック
 vi.mock('@/hooks/useCanvasPan', () => ({
-  useCanvasPan: () => ({
+  useCanvasPan: vi.fn(() => ({
     onMouseDown: vi.fn(),
     onMouseMove: vi.fn(),
     onMouseUp: vi.fn(),
     wirePreview: null,
-  }),
+  })),
 }));
 
 vi.mock('@/hooks/useCanvasZoom', () => ({
-  useCanvasZoom: () => ({
+  useCanvasZoom: vi.fn(() => ({
     onWheel: vi.fn(),
-  }),
+  })),
 }));
 
 vi.mock('@/hooks/useCanvasSelection', () => ({
-  useCanvasSelection: () => ({
+  useCanvasSelection: vi.fn(() => ({
     onSvgClick: vi.fn(),
     onMouseDown: vi.fn(),
     onMouseMove: vi.fn(),
     onMouseUp: vi.fn(),
+    selectionRect: null,
+  })),
+}));
+
+vi.mock('@/components/canvas/hooks/useCanvasSimulation', () => ({
+  useCanvasSimulation: vi.fn(),
+}));
+
+vi.mock('@/components/canvas/hooks/useUnifiedCanvas', () => ({
+  useUnifiedCanvas: () => ({
+    state: {
+      displayGates: mockGates,
+      displayWires: mockWires,
+      scale: 1,
+      selectedIds: new Set(),
+    },
+    actions: {
+      setSelection: vi.fn(),
+      clearSelection: vi.fn(),
+      toggleSelection: vi.fn(),
+    },
+    features: {
+      canPan: true,
+      canZoom: true,
+      canSelect: true,
+      showBackground: true,
+      showPreviewHeader: true,
+      showWirePreview: true,
+      showSelectionRect: true,
+    },
+    svgRef: { current: null },
+    viewboxData: {
+      x: 0,
+      y: 0,
+      width: 1000,
+      height: 600,
+      zoom: 1,
+    },
+    canvasHandlers: {
+      onSvgClick: vi.fn(),
+      onWheel: vi.fn(),
+      onMouseDown: vi.fn(),
+      onMouseMove: vi.fn(),
+      onMouseUp: vi.fn(),
+    },
+    wirePreview: null,
     selectionRect: null,
   }),
 }));
@@ -151,6 +255,38 @@ vi.mock('@/components/Wire', () => ({
   ),
 }));
 
+// Canvas内部コンポーネントのモック
+vi.mock('@/components/canvas/components/CanvasPreviewHeader', () => ({
+  CanvasPreviewHeader: ({ customGateName }: any) => (
+    <div data-testid="canvas-preview-header">
+      {customGateName} - 内部回路
+    </div>
+  ),
+}));
+
+vi.mock('@/components/canvas/components/CanvasBackground', () => ({
+  CanvasBackground: ({ viewBox }: any) => (
+    <rect 
+      data-testid="canvas-background" 
+      x={viewBox?.x || 0}
+      y={viewBox?.y || 0}
+      width={viewBox?.width || 1000} 
+      height={viewBox?.height || 600} 
+      fill="#f0f0f0" 
+    />
+  ),
+}));
+
+vi.mock('@/components/canvas/components/CanvasWirePreview', () => ({
+  CanvasWirePreview: ({ wirePreview }: any) => 
+    wirePreview ? <line data-testid="wire-preview" /> : null,
+}));
+
+vi.mock('@/components/canvas/components/CanvasSelectionRect', () => ({
+  CanvasSelectionRect: ({ selectionRect }: any) => 
+    selectionRect ? <rect data-testid="selection-rect" /> : null,
+}));
+
 describe('UnifiedCanvas', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -168,7 +304,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvas = screen.getByRole('img', { hidden: true }); // SVG要素
+      const canvas = screen.getByTestId('canvas'); // SVG要素
       expect(canvas).toBeInTheDocument();
       expect(canvas.closest('.unified-canvas')).toHaveClass('unified-canvas--editor');
     });
@@ -181,7 +317,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvasContainer = screen.getByRole('img', { hidden: true }).closest('.unified-canvas');
+      const canvasContainer = screen.getByTestId('canvas').closest('.unified-canvas');
       expect(canvasContainer).toHaveClass('unified-canvas--full');
     });
 
@@ -195,7 +331,7 @@ describe('UnifiedCanvas', () => {
 
       // CanvasPreviewHeaderコンポーネントの存在確認
       // 実際の実装ではCanvasPreviewHeaderの特定要素をテストする
-      const canvas = screen.getByRole('img', { hidden: true });
+      const canvas = screen.getByTestId('canvas');
       expect(canvas).toBeInTheDocument();
     });
 
@@ -210,7 +346,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const svg = screen.getByRole('img', { hidden: true });
+      const svg = screen.getByTestId('canvas');
       fireEvent.click(svg);
       
       // SVGクリックは正常に処理される
@@ -230,7 +366,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvas = screen.getByRole('img', { hidden: true });
+      const canvas = screen.getByTestId('canvas');
       expect(canvas).toBeInTheDocument();
       expect(canvas.closest('.unified-canvas')).toHaveClass('unified-canvas--gallery');
     });
@@ -243,7 +379,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvasContainer = screen.getByRole('img', { hidden: true }).closest('.unified-canvas');
+      const canvasContainer = screen.getByTestId('canvas').closest('.unified-canvas');
       expect(canvasContainer).toHaveClass('unified-canvas--view_interactive');
     });
 
@@ -256,7 +392,7 @@ describe('UnifiedCanvas', () => {
       );
 
       // SVGが正しくレンダリングされ、ゲートが描画される
-      const svg = screen.getByRole('img', { hidden: true });
+      const svg = screen.getByTestId('canvas');
       expect(svg).toBeInTheDocument();
     });
 
@@ -271,7 +407,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const svg = screen.getByRole('img', { hidden: true });
+      const svg = screen.getByTestId('canvas');
       fireEvent.click(svg);
       
       // SVGクリックイベントが処理される
@@ -293,7 +429,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvas = screen.getByRole('img', { hidden: true });
+      const canvas = screen.getByTestId('canvas');
       expect(canvas).toBeInTheDocument();
       expect(canvas.closest('.unified-canvas')).toHaveClass('unified-canvas--preview');
     });
@@ -306,7 +442,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvasContainer = screen.getByRole('img', { hidden: true }).closest('.unified-canvas');
+      const canvasContainer = screen.getByTestId('canvas').closest('.unified-canvas');
       expect(canvasContainer).toHaveClass('unified-canvas--view_only');
     });
 
@@ -319,7 +455,7 @@ describe('UnifiedCanvas', () => {
       );
 
       // プレビューモードではコントロールが表示されない設定
-      const canvas = screen.getByRole('img', { hidden: true });
+      const canvas = screen.getByTestId('canvas');
       expect(canvas).toBeInTheDocument();
     });
   });
@@ -337,7 +473,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvasContainer = screen.getByRole('img', { hidden: true }).closest('.unified-canvas');
+      const canvasContainer = screen.getByTestId('canvas').closest('.unified-canvas');
       expect(canvasContainer).toHaveClass('custom-canvas');
     });
 
@@ -354,8 +490,8 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvasContainer = screen.getByRole('img', { hidden: true }).closest('.unified-canvas');
-      expect(canvasContainer).toHaveStyle('background-color: red');
+      const canvasContainer = screen.getByTestId('canvas').closest('.unified-canvas');
+      expect(canvasContainer).toHaveStyle('background-color: rgb(255, 0, 0)');
     });
   });
 
@@ -374,7 +510,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const svg = screen.getByRole('img', { hidden: true });
+      const svg = screen.getByTestId('canvas');
       fireEvent.click(svg);
       
       // SVGクリックイベントが処理される（座標変換を含む）
@@ -392,7 +528,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const svg = screen.getByRole('img', { hidden: true });
+      const svg = screen.getByTestId('canvas');
       fireEvent.wheel(svg, { deltaY: -100 });
       
       // ホイールイベントが処理される
@@ -411,7 +547,7 @@ describe('UnifiedCanvas', () => {
       );
 
       // エラーハンドラーのテストはより具体的な実装が必要
-      const canvas = screen.getByRole('img', { hidden: true });
+      const canvas = screen.getByTestId('canvas');
       expect(canvas).toBeInTheDocument();
     });
   });
@@ -428,7 +564,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvas = screen.getByRole('img', { hidden: true });
+      const canvas = screen.getByTestId('canvas');
       expect(canvas).toBeInTheDocument();
     });
 
@@ -443,7 +579,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvas = screen.getByRole('img', { hidden: true });
+      const canvas = screen.getByTestId('canvas');
       expect(canvas).toBeInTheDocument();
     });
 
@@ -460,7 +596,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvas = screen.getByRole('img', { hidden: true });
+      const canvas = screen.getByTestId('canvas');
       expect(canvas).toBeInTheDocument();
     });
   });
@@ -477,7 +613,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const svg = screen.getByRole('img', { hidden: true });
+      const svg = screen.getByTestId('canvas');
       expect(svg).toBeInTheDocument();
       expect(svg).toHaveAttribute('preserveAspectRatio', 'xMidYMid meet');
     });
@@ -493,7 +629,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvasContainer = screen.getByRole('img', { hidden: true }).closest('.unified-canvas');
+      const canvasContainer = screen.getByTestId('canvas').closest('.unified-canvas');
       
       // フォーカス可能な要素として動作する
       expect(canvasContainer).toBeInTheDocument();
@@ -519,7 +655,7 @@ describe('UnifiedCanvas', () => {
         />
       );
 
-      const canvas = screen.getByRole('img', { hidden: true });
+      const canvas = screen.getByTestId('canvas');
       expect(canvas).toBeInTheDocument();
     });
   });

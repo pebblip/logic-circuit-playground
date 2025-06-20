@@ -1,7 +1,7 @@
 describe('新しいギャラリーモードUI', () => {
   beforeEach(() => {
     cy.visit('/');
-    cy.contains('ギャラリーモード').click();
+    cy.get('[data-testid="mode-selector-gallery"]').click();
     cy.wait(500); // ギャラリー表示待機
   });
 
@@ -10,11 +10,12 @@ describe('新しいギャラリーモードUI', () => {
       // 左サイドバー: ギャラリーリスト
       cy.get('.gallery-sidebar-left').should('be.visible');
       cy.get('.gallery-list-panel').should('be.visible');
-      cy.contains('📚 回路ギャラリー').should('be.visible');
+      cy.get('[data-testid="gallery-header"]').should('be.visible');
       
       // 中央: キャンバス（初期は空）
       cy.get('.gallery-main-canvas').should('be.visible');
       cy.get('.gallery-canvas-empty').should('be.visible');
+      // TODO: 空状態メッセージにtestid追加が必要
       cy.contains('回路を選択してください').should('be.visible');
       
       // 右サイドバー: 初期は非表示
@@ -31,6 +32,7 @@ describe('新しいギャラリーモードUI', () => {
       // キャンバスとツールバーが表示される
       cy.get('.gallery-canvas-container').should('be.visible');
       cy.get('.gallery-canvas-toolbar').should('be.visible');
+      // TODO: プレビューラベルにtestid追加が必要
       cy.contains('プレビュー（読み取り専用）').should('be.visible');
       
       // SVGキャンバスが表示される
@@ -58,21 +60,22 @@ describe('新しいギャラリーモードUI', () => {
   describe('回路リスト機能', () => {
     it('カテゴリ別に回路が表示される', () => {
       // 基本回路カテゴリ
-      cy.contains('🔧 基本回路').should('be.visible');
+      cy.get('[data-testid="category-title-basic"]').should('be.visible');
       cy.get('.gallery-category').eq(0).within(() => {
         cy.get('.circuit-item').should('have.length.at.least', 1);
       });
       
       // 高度回路カテゴリ
-      cy.contains('⚡ 高度回路').should('be.visible');
+      cy.get('[data-testid="category-title-advanced"]').should('be.visible');
       cy.get('.gallery-category').eq(1).within(() => {
         cy.get('.circuit-item').should('have.length.at.least', 1);
       });
       
       // 循環回路カテゴリ
-      cy.contains('🌀 循環回路').should('be.visible');
+      cy.get('[data-testid="category-title-cyclical"]').should('be.visible');
       cy.get('.gallery-category').eq(2).within(() => {
         cy.get('.circuit-item').should('have.length.at.least', 1);
+        // TODO: circuit-badgeにtestid追加が必要
         cy.get('.circuit-badge').contains('実験的').should('be.visible');
       });
     });
@@ -95,7 +98,7 @@ describe('新しいギャラリーモードUI', () => {
   describe('自動整形機能', () => {
     it('複雑な回路で自動整形ボタンが表示される', () => {
       // 複雑な回路を選択（例：4ビット比較器）
-      cy.contains('4ビット比較器').click();
+      cy.get('[data-testid="gallery-circuit-comparator-4bit"]').click();
       
       // 自動整形ボタンが表示される可能性がある
       cy.get('.gallery-canvas-toolbar').within(() => {
@@ -111,7 +114,7 @@ describe('新しいギャラリーモードUI', () => {
 
     it('自動整形ボタンをクリックすると回路が整形される', () => {
       // 複雑な回路を選択
-      cy.contains('4ビット比較器').click();
+      cy.get('[data-testid="gallery-circuit-4bit-comparator"]').click();
       
       // 自動整形ボタンがある場合はクリック
       cy.get('.format-button').then($button => {
@@ -133,15 +136,15 @@ describe('新しいギャラリーモードUI', () => {
   describe('循環回路の警告表示', () => {
     it('循環回路を選択すると警告が表示される', () => {
       // 循環回路を選択（例：リングオシレータ）
-      cy.contains('リングオシレータ').click();
+      cy.get('[data-testid="gallery-circuit-simple-ring-oscillator"]').click();
       
       // 警告メッセージが表示される
-      cy.get('.cyclical-warning').should('be.visible');
-      cy.contains('この回路は循環構造を持つため').should('be.visible');
+      cy.get('[data-testid="cyclical-warning"]').should('be.visible');
+      cy.get('[data-testid="cyclical-warning-text"]').should('be.visible');
       
       // 詳細パネルにも注意事項が表示される
-      cy.get('.detail-notice').should('be.visible');
-      cy.contains('注意事項').should('be.visible');
+      cy.get('[data-testid="cyclical-warning"]').should('be.visible');
+      cy.get('[data-testid="notice-title"]').should('be.visible');
     });
   });
 

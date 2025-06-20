@@ -262,8 +262,8 @@ describe('Pure API Gate Evaluation', () => {
         const result2 = evaluateGateUnified(gate, [], config2);
         expect(result2.success).toBe(true);
         if (result2.success) {
-          // 750ms後、周期500msなので、High期間
-          expect(result2.data.primaryOutput).toBe(true);
+          // 750ms後、周期500msなので、cyclePosition=250ms（Low期間の開始）
+          expect(result2.data.primaryOutput).toBe(false);
         }
       });
 

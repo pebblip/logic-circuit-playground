@@ -646,16 +646,16 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
           stroke={isSelected ? '#00aaff' : undefined}
           strokeWidth={isSelected ? '3' : undefined}
         />
-        <text className="gate-text u-text-sm" x="0" y="-15">
+        <text className="gate-text u-text-sm" x="0" y="-15" data-testid="counter-label">
           COUNTER
         </text>
-        <text className="gate-text u-text-sm" x="0" y="0">
+        <text className="gate-text u-text-sm" x="0" y="0" data-testid="counter-bit-label">
           {bitCount}bit
         </text>
         
         {/* 現在の値を表示 */}
-        <text className="gate-text u-text-lg u-font-mono" x="0" y="20">
-          {currentValue.toString().padStart(bitCount, '0')}
+        <text className="gate-text u-text-lg u-font-mono" x="0" y="20" data-testid="counter-value">
+          {currentValue.toString(2).padStart(bitCount, '0')}
         </text>
         
         {/* CLK入力ラベル */}

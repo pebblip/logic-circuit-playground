@@ -126,7 +126,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
 
               {/* フローティングアクションボタン（FAB） - キャンバス内に配置 */}
               {viewMode !== 'custom-gate-preview' && (
-                <div className="canvas-toolbar">
+                <div className="canvas-toolbar timing-chart-toggle" data-testid="canvas-toolbar">
                   <button
                     className="tool-button"
                     title="元に戻す (Ctrl+Z)"
@@ -175,6 +175,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
                   />
                   <button
                     className={`tool-button ${timingChart.isVisible ? 'active' : ''}`}
+                    data-testid="timing-chart-toggle-button"
                     title="タイミングチャート"
                     onClick={() => timingChartActions.togglePanel()}
                   >

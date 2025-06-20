@@ -442,6 +442,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         ref={svgRef}
         viewBox={viewBoxString}
         className="unified-canvas__svg"
+        data-testid="canvas"
         preserveAspectRatio="xMidYMid meet"
         onClick={handleSvgClick}
         onMouseDown={handleSvgMouseDown}

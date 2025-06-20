@@ -5,43 +5,43 @@ describe('パズルモード統合テスト', () => {
 
   it('パズルモードに切り替えできる', () => {
     // パズルモードボタンをクリック
-    cy.contains('button', 'パズルモード').click();
+    cy.get('[data-testid="mode-selector-puzzle"]').click();
     
     // パズルモードがアクティブになっていることを確認
-    cy.contains('button', 'パズルモード').should('have.class', 'active');
+    cy.get('[data-testid="mode-selector-puzzle"]').should('have.class', 'active');
     
     // パズルパネルが表示されていることを確認
     cy.get('.puzzle-panel').should('be.visible');
     
     // パズル一覧が表示されていることを確認
-    cy.contains('🧩 パズル・チャレンジ').should('be.visible');
-    cy.contains('制約条件の中で目標回路を作成してください').should('be.visible');
+    cy.get('[data-testid="puzzle-panel-title"]').should('be.visible');
+    cy.get('[data-testid="puzzle-panel-description"]').should('be.visible');
   });
 
   it('パズルを選択して詳細を表示できる', () => {
     // パズルモードに切り替え
-    cy.contains('button', 'パズルモード').click();
+    cy.get('[data-testid="mode-selector-puzzle"]').click();
     
     // 初級パズルが表示されていることを確認
-    cy.contains('🟢 初級').should('be.visible');
+    cy.get('[data-testid="difficulty-label-beginner"]').should('be.visible');
     
     // 最初のパズルをクリック
     cy.get('.puzzle-card').first().click();
     
     // パズル詳細が表示されていることを確認
     cy.get('.puzzle-detail').should('be.visible');
-    cy.contains('📋 制約条件').should('be.visible');
-    cy.contains('🧪 テストケース').should('be.visible');
-    cy.contains('🎯 学習目標').should('be.visible');
+    cy.get('[data-testid="constraints-title"]').should('be.visible');
+    cy.get('[data-testid="test-cases-title"]').should('be.visible');
+    cy.get('[data-testid="learning-objectives-title"]').should('be.visible');
     
     // 戻るボタンが機能することを確認
-    cy.contains('button', '← 戻る').click();
+    cy.get('[data-testid="puzzle-back-button"]').click();
     cy.get('.puzzle-list').should('be.visible');
   });
 
   it('ツールパレットが非表示になっている', () => {
     // パズルモードに切り替え
-    cy.contains('button', 'パズルモード').click();
+    cy.get('[data-testid="mode-selector-puzzle"]').click();
     
     // ツールパレット（左サイドバー）が非表示であることを確認
     cy.get('.sidebar-left').should('not.exist');
@@ -49,16 +49,16 @@ describe('パズルモード統合テスト', () => {
 
   it('フリーモードに戻れる', () => {
     // パズルモードに切り替え
-    cy.contains('button', 'パズルモード').click();
+    cy.get('[data-testid="mode-selector-puzzle"]').click();
     
     // パズルパネルが表示されている
     cy.get('.puzzle-panel').should('be.visible');
     
     // フリーモードに戻る
-    cy.contains('button', 'フリーモード').click();
+    cy.get('[data-testid="mode-selector-free"]').click();
     
     // フリーモードがアクティブになっている
-    cy.contains('button', 'フリーモード').should('have.class', 'active');
+    cy.get('[data-testid="mode-selector-free"]').should('have.class', 'active');
     
     // パズルパネルが非表示になっている
     cy.get('.puzzle-panel').should('not.exist');

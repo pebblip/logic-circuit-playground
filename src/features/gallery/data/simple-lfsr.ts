@@ -10,7 +10,7 @@ export const SIMPLE_LFSR = {
   description: '最小限の2ビットLFSRで動作を確認。複雑になる前に基本動作をテスト。',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 1000,  // 1秒 - ゆっくり観察
+    updateInterval: 250,  // 0.25秒 - 1HzCLOCK(1000ms)の1/4間隔で正確な変化を捉える
     expectedBehavior: 'oscillator' as const,
     minimumCycles: 4
   },

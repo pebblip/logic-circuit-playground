@@ -66,7 +66,7 @@ export const ShareCircuitDialog: React.FC<ShareCircuitDialogProps> = ({
         <div className="share-dialog-content">
           {gates.length === 0 ? (
             <div className="empty-circuit-message">
-              <p>共有する回路がありません。</p>
+              <p data-testid="empty-circuit-message">共有する回路がありません。</p>
               <p>ゲートを配置してから共有してください。</p>
             </div>
           ) : (

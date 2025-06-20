@@ -387,7 +387,7 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
     ctx.font = 'bold 11px -apple-system, system-ui, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(
-      '🕐 CLOCKゲートを配置すると波形が表示されます',
+      'CLOCKゲートをドラッグして配置すると自動的に波形が表示されます',
       15,
       centerY - amplitude - 15
     );
@@ -453,7 +453,7 @@ export const WaveformCanvas: React.FC<WaveformCanvasProps> = ({
         <div className="waveform-empty-overlay">
           <div className="empty-message">
             <ChartBarIcon className="empty-icon" />
-            <p>CLOCKゲートを配置すると波形が表示されます</p>
+            <p data-testid="clock-gate-help-text">CLOCKゲートをドラッグして配置すると自動的に波形が表示されます</p>
           </div>
         </div>
       )}

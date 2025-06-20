@@ -1,13 +1,13 @@
 describe('LFSR動作の正確な検証', () => {
   beforeEach(() => {
     cy.visit('/')
-    cy.contains('ギャラリーモード').click()
+    cy.get('[data-testid="mode-selector-gallery"]').click()
     cy.wait(1000)
   })
 
   it('カオス発生器の実際の動作状態を検証', () => {
     // カオス発生器を選択
-    cy.contains('カオス発生器').click()
+    cy.get('[data-testid="gallery-circuit-chaos-generator"]').click()
     cy.wait(2000)
 
     // 複数の方法で出力状態を記録
@@ -56,8 +56,8 @@ describe('LFSR動作の正確な検証', () => {
       }
     })
     
-    cy.contains('ギャラリーモード').click()
-    cy.contains('カオス発生器').click()
+    cy.get('[data-testid="mode-selector-gallery"]').click()
+    cy.get('[data-testid="gallery-circuit-chaos-generator"]').click()
     cy.wait(5000)
     
     // コンソールログを確認
@@ -71,7 +71,7 @@ describe('LFSR動作の正確な検証', () => {
   })
 
   it('実際のデータフローを追跡', () => {
-    cy.contains('カオス発生器').click()
+    cy.get('[data-testid="gallery-circuit-chaos-generator"]').click()
     
     // ブラウザの開発者ツールを使用してメモリ上の状態を確認
     cy.window().then((win) => {

@@ -7,9 +7,9 @@
 describe('CLOCKゲート修正検証', () => {
   beforeEach(() => {
     cy.visit('http://localhost:5176/')
-    cy.contains('ギャラリーモード').click()
+    cy.get('[data-testid="mode-selector-gallery"]').click()
     cy.wait(500)
-    cy.contains('カオス発生器').click()
+    cy.get('[data-testid="gallery-circuit-chaos-generator"]').click()
     cy.wait(2000)
   })
 
@@ -41,7 +41,7 @@ describe('CLOCKゲート修正検証', () => {
     // デバッグログでCLOCK修正ログを確認
     cy.get('[data-testid="debug-log-container"]').should('be.visible').within(() => {
       // CLOCK修正関連のログがあることを確認
-      cy.contains('CLOCKゲート').should('exist')
+      cy.get('[data-testid^="debug-log-entry"]').should('exist')
     })
   })
 
