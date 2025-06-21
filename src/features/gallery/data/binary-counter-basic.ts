@@ -1,9 +1,8 @@
-import type { Gate, Wire } from '../../../types';
-
 export const BINARY_COUNTER_BASIC = {
   id: 'binary-counter-basic',
   title: '2ビットバイナリカウンタ（基本ゲート版）',
-  description: 'D-FFとクロック制御を基本ゲートで実現したカウンタ。0→1→2→3→0の順でカウントします。',
+  description:
+    'D-FFとクロック制御を基本ゲートで実現したカウンタ。0→1→2→3→0の順でカウントします。',
   gates: [
     // クロック入力
     {
@@ -212,7 +211,7 @@ export const BINARY_COUNTER_BASIC = {
       to: { gateId: 'DFF0_NAND1', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // クロック配線
     {
       id: 'w_dff0_clk1',

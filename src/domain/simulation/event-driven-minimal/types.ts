@@ -2,8 +2,6 @@
  * 最小限のイベント駆動シミュレーション型定義
  */
 
-import type { Gate, Wire } from '../../../types/circuit';
-
 /**
  * シミュレーション時刻
  * - 整数部: 実時間

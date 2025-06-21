@@ -1,9 +1,8 @@
-import type { Gate, Wire } from '../../../types';
-
 export const SIMPLE_COUNTER = {
   id: 'simple-counter',
   title: '2ビット同期カウンタ',
-  description: 'T-フリップフロップを使った同期カウンタ。クロックエッジでカウントアップします。',
+  description:
+    'T-フリップフロップを使った同期カウンタ。クロックエッジでカウントアップします。',
   gates: [
     // クロック入力
     {
@@ -35,7 +34,7 @@ export const SIMPLE_COUNTER = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // T-FF 0のクロック制御
     {
       id: 'TFF0_AND1',
@@ -82,7 +81,7 @@ export const SIMPLE_COUNTER = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // T-FF 1のクロック制御 (Q0 AND CLK)
     {
       id: 'TFF1_AND_EN',

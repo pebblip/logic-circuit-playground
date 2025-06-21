@@ -216,7 +216,7 @@ export const MobileCanvas: React.FC<MobileCanvasProps> = ({
 
   return (
     <div ref={canvasRef} className="mobile-canvas-wrapper">
-      <UnifiedCanvas 
+      <UnifiedCanvas
         config={CANVAS_MODE_PRESETS.editor}
         dataSource={{ store: true }}
         highlightedGateId={highlightedGateId}

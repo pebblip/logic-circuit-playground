@@ -1,10 +1,10 @@
 /**
  * CircuitPersistence Port - 回路永続化の理想的なインターフェース
- * 
+ *
  * このインターフェースは「回路を保存・共有・復元したい」というユーザーの
  * 根本的なニーズを表現します。技術実装（IndexedDB、LocalStorage、API）は
  * 完全に隠蔽されます。
- * 
+ *
  * 設計原則：
  * - ユーザーの意図を直接表現
  * - 保存技術に依存しない
@@ -45,7 +45,17 @@ export interface CircuitContent {
 
 export interface CircuitComponent {
   id: string;
-  type: 'INPUT' | 'OUTPUT' | 'AND' | 'OR' | 'NOT' | 'XOR' | 'NAND' | 'NOR' | 'CLOCK' | 'CUSTOM';
+  type:
+    | 'INPUT'
+    | 'OUTPUT'
+    | 'AND'
+    | 'OR'
+    | 'NOT'
+    | 'XOR'
+    | 'NAND'
+    | 'NOR'
+    | 'CLOCK'
+    | 'CUSTOM';
   position: { x: number; y: number };
   label?: string;
   customGateId?: string; // カスタムゲートの場合
@@ -179,7 +189,11 @@ export interface ValidationResult {
 }
 
 export interface ValidationError {
-  type: 'MISSING_COMPONENT' | 'INVALID_CONNECTION' | 'CIRCULAR_REFERENCE' | 'DATA_CORRUPTION';
+  type:
+    | 'MISSING_COMPONENT'
+    | 'INVALID_CONNECTION'
+    | 'CIRCULAR_REFERENCE'
+    | 'DATA_CORRUPTION';
   message: string;
   componentId?: string;
   connectionId?: string;
@@ -194,12 +208,11 @@ export interface ValidationWarning {
 /**
  * 統合インターフェース - 回路の永続化に関する全ての操作
  */
-export interface CircuitStorage 
-  extends CircuitPersistence, 
-          CircuitSharing, 
-          CircuitExport, 
-          DataIntegrity {
-  
+export interface CircuitStorage
+  extends CircuitPersistence,
+    CircuitSharing,
+    CircuitExport,
+    DataIntegrity {
   /**
    * ストレージシステムが利用可能かチェック
    */

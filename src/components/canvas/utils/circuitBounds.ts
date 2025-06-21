@@ -112,10 +112,10 @@ export function calculateOptimalScale(
   // パディングを考慮したスケール計算
   const scaleX = (containerSize.width - padding * 2) / bounds.width;
   const scaleY = (containerSize.height - padding * 2) / bounds.height;
-  
+
   // 最小のスケールを選択（全体が収まるように）
   const scale = Math.min(scaleX, scaleY);
-  
+
   // スケールの範囲を制限（0.2～1.5倍）
   return Math.max(0.2, Math.min(1.5, scale));
 }
@@ -135,10 +135,10 @@ export function calculateCenteringPan(
   // スケール適用後の回路のサイズ
   const scaledWidth = bounds.width * scale;
   const scaledHeight = bounds.height * scale;
-  
+
   // 中央配置のための移動量を計算
   const x = (containerSize.width - scaledWidth) / 2 - bounds.minX * scale;
   const y = (containerSize.height - scaledHeight) / 2 - bounds.minY * scale;
-  
+
   return { x, y };
 }

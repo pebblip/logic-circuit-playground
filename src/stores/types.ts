@@ -126,7 +126,10 @@ export interface CircuitStoreActions {
   // ゲートの状態更新
   updateGateOutput: (gateId: string, output: boolean) => void;
   updateClockFrequency: (gateId: string, frequency: number) => void;
-  updateGateTiming: (gateId: string, timing: Partial<{ propagationDelay: number | undefined }>) => void;
+  updateGateTiming: (
+    gateId: string,
+    timing: Partial<{ propagationDelay: number | undefined }>
+  ) => void;
 
   // Undo/Redo/Clear
   undo: () => void;

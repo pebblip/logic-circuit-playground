@@ -1,9 +1,9 @@
 /**
  * ZustandCircuitAdapter - 理想インターフェースと既存Zustandストアの架け橋
- * 
+ *
  * このアダプターにより、理想的な仕様ベーステストが
  * 実際のZustandストア実装で動作するようになります。
- * 
+ *
  * 設計原則：
  * - 理想インターフェースの完全実装
  * - 既存実装への最小限の影響
@@ -40,10 +40,10 @@ export class ZustandCircuitAdapter implements Circuit {
   private canConnect(fromId: ComponentId, toId: ComponentId): boolean {
     const fromGate = this.findGate(fromId);
     const toGate = this.findGate(toId);
-    
+
     if (!fromGate || !toGate) return false;
     if (fromId === toId) return false;
-    
+
     // 基本的な接続可能性チェック
     // 詳細なルールは既存のWireConnectionServiceに委譲
     return true;
@@ -63,7 +63,9 @@ export class ZustandCircuitAdapter implements Circuit {
       await this.waitForStoreUpdate();
       return gate.id;
     } catch (error) {
-      throw new Error(`ゲートの配置に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `ゲートの配置に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -78,7 +80,9 @@ export class ZustandCircuitAdapter implements Circuit {
       store.deleteGate(componentId);
       await this.waitForStoreUpdate();
     } catch (error) {
-      throw new Error(`ゲートの削除に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `ゲートの削除に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -89,22 +93,26 @@ export class ZustandCircuitAdapter implements Circuit {
 
     try {
       const store = this.getStore();
-      
+
       // 入力ゲートの次の利用可能な入力ピンを探す
       const toGate = this.findGate(to);
       if (!toGate) {
         throw new Error(`接続先ゲートが見つかりません: ${to}`);
       }
-      
+
       // 既存の接続を確認して、次の利用可能な入力ピンインデックスを見つける
-      const existingConnections = store.wires.filter(wire => wire.to.gateId === to);
+      const existingConnections = store.wires.filter(
+        wire => wire.to.gateId === to
+      );
       let nextInputPin = 0;
-      
+
       // 入力ピンが既に使われている場合、次のピンを使用
-      while (existingConnections.some(wire => wire.to.pinIndex === nextInputPin)) {
+      while (
+        existingConnections.some(wire => wire.to.pinIndex === nextInputPin)
+      ) {
         nextInputPin++;
       }
-      
+
       // 既存の低レベルAPIを使用して接続
       store.startWireDrawing(from, -1); // 出力ピン（-1は慣例）
       store.endWireDrawing(to, nextInputPin); // 次の利用可能な入力ピン
@@ -113,15 +121,17 @@ export class ZustandCircuitAdapter implements Circuit {
       // 接続失敗時は描画状態をクリア
       const store = this.getStore();
       store.cancelWireDrawing();
-      throw new Error(`ゲートの接続に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `ゲートの接続に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
   async disconnect(from: ComponentId, to: ComponentId): Promise<void> {
     const store = this.getStore();
     // 対象のワイヤーを探す
-    const wire = store.wires.find(w => 
-      w.from.gateId === from && w.to.gateId === to
+    const wire = store.wires.find(
+      w => w.from.gateId === from && w.to.gateId === to
     );
 
     if (!wire) {
@@ -132,7 +142,9 @@ export class ZustandCircuitAdapter implements Circuit {
       store.deleteWire(wire.id);
       await this.waitForStoreUpdate();
     } catch (error) {
-      throw new Error(`接続の削除に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `接続の削除に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -150,7 +162,9 @@ export class ZustandCircuitAdapter implements Circuit {
     // 存在しないゲートをチェック
     const invalidIds = componentIds.filter(id => !this.findGate(id));
     if (invalidIds.length > 0) {
-      throw new Error(`存在しないゲートが含まれています: ${invalidIds.join(', ')}`);
+      throw new Error(
+        `存在しないゲートが含まれています: ${invalidIds.join(', ')}`
+      );
     }
 
     const store = this.getStore();
@@ -173,7 +187,9 @@ export class ZustandCircuitAdapter implements Circuit {
       store.moveMultipleGates(selectedIds, delta.x, delta.y, true);
       await this.waitForStoreUpdate();
     } catch (error) {
-      throw new Error(`選択ゲートの移動に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `選択ゲートの移動に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -196,7 +212,9 @@ export class ZustandCircuitAdapter implements Circuit {
       store.paste(position);
       await this.waitForStoreUpdate();
     } catch (error) {
-      throw new Error(`ペーストに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `ペーストに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -214,8 +232,8 @@ export class ZustandCircuitAdapter implements Circuit {
 
   areConnected(from: ComponentId, to: ComponentId): boolean {
     const store = this.getStore();
-    return store.wires.some(wire => 
-      wire.from.gateId === from && wire.to.gateId === to
+    return store.wires.some(
+      wire => wire.from.gateId === from && wire.to.gateId === to
     );
   }
 
@@ -235,13 +253,13 @@ export class ZustandCircuitAdapter implements Circuit {
       const store = this.getStore();
       // すべてのワイヤーが有効なゲートに接続されているかチェック
       const gateIds = new Set(store.gates.map(g => g.id));
-      
+
       for (const wire of store.wires) {
         if (!gateIds.has(wire.from.gateId) || !gateIds.has(wire.to.gateId)) {
           return false;
         }
       }
-      
+
       return true;
     } catch {
       return false;
@@ -260,7 +278,9 @@ export class ZustandCircuitAdapter implements Circuit {
       store.undo();
       await this.waitForStoreUpdate();
     } catch (error) {
-      throw new Error(`操作の取り消しに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `操作の取り消しに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -274,7 +294,9 @@ export class ZustandCircuitAdapter implements Circuit {
       store.redo();
       await this.waitForStoreUpdate();
     } catch (error) {
-      throw new Error(`操作のやり直しに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `操作のやり直しに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -296,7 +318,9 @@ export class ZustandCircuitAdapter implements Circuit {
       store.clearAll();
       await this.waitForStoreUpdate();
     } catch (error) {
-      throw new Error(`回路のクリアに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `回路のクリアに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -313,11 +337,11 @@ export class ZustandCircuitAdapter implements Circuit {
         maxX: Math.max(bounds.maxX, gate.position.x),
         maxY: Math.max(bounds.maxY, gate.position.y),
       }),
-      { 
-        minX: Infinity, 
-        minY: Infinity, 
-        maxX: -Infinity, 
-        maxY: -Infinity 
+      {
+        minX: Infinity,
+        minY: Infinity,
+        maxX: -Infinity,
+        maxY: -Infinity,
       }
     );
   }
@@ -348,9 +372,7 @@ export class ZustandCircuitAdapter implements Circuit {
    */
   getComponentsByType(type: ComponentType): ComponentId[] {
     const store = this.getStore();
-    return store.gates
-      .filter(gate => gate.type === type)
-      .map(gate => gate.id);
+    return store.gates.filter(gate => gate.type === type).map(gate => gate.id);
   }
 
   /**

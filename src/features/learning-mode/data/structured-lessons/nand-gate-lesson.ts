@@ -3,8 +3,10 @@ import type { Lesson } from '../lessons';
 export const nandGateStructuredLesson: Lesson = {
   id: 'nand-gate',
   title: 'NANDゲート - 万能の論理ゲート',
-  description: 'NANDゲートの動作原理と、なぜこれが「万能ゲート」と呼ばれるのかを学びます。',
-  objective: 'NANDゲートの動作を理解し、他の論理ゲートをNANDゲートだけで構築できることを体験する',
+  description:
+    'NANDゲートの動作原理と、なぜこれが「万能ゲート」と呼ばれるのかを学びます。',
+  objective:
+    'NANDゲートの動作を理解し、他の論理ゲートをNANDゲートだけで構築できることを体験する',
   difficulty: 'intermediate',
   estimatedMinutes: 20,
   prerequisites: ['and-gate', 'not-gate'],
@@ -13,7 +15,8 @@ export const nandGateStructuredLesson: Lesson = {
   steps: [
     {
       id: 'introduction',
-      instruction: 'NANDゲートは「NOT AND」の略で、ANDゲートの出力を反転したものです。実は、このゲートだけで全ての論理回路を構築できる「万能ゲート」なのです！',
+      instruction:
+        'NANDゲートは「NOT AND」の略で、ANDゲートの出力を反転したものです。実は、このゲートだけで全ての論理回路を構築できる「万能ゲート」なのです！',
       action: {
         type: 'explanation',
         content: `
@@ -82,7 +85,8 @@ NANDゲートは、コンピュータの基礎となる最も重要なゲート�
     },
     {
       id: 'test-nand',
-      instruction: '入力を切り替えて、NANDゲートの動作を確認しましょう。両方の入力が1の時だけ、出力が0になることを確認してください。',
+      instruction:
+        '入力を切り替えて、NANDゲートの動作を確認しましょう。両方の入力が1の時だけ、出力が0になることを確認してください。',
       action: {
         type: 'observe',
         highlight: ['input-1', 'input-2', 'output-1'],
@@ -104,7 +108,8 @@ NANDゲートは、コンピュータの基礎となる最も重要なゲート�
     },
     {
       id: 'nand-as-not',
-      instruction: 'NANDゲートを使ってNOTゲートを作ってみましょう！両方の入力を同じ信号に接続すると...',
+      instruction:
+        'NANDゲートを使ってNOTゲートを作ってみましょう！両方の入力を同じ信号に接続すると...',
       action: {
         type: 'explanation',
         content: `
@@ -122,7 +127,8 @@ NANDゲートの両方の入力に同じ信号を入れると、NOTゲートと�
     },
     {
       id: 'build-not-with-nand',
-      instruction: '新しいNANDゲートを配置して、両方の入力を同じINPUTゲートに接続してみましょう。',
+      instruction:
+        '新しいNANDゲートを配置して、両方の入力を同じINPUTゲートに接続してみましょう。',
       action: {
         type: 'place-gate',
         gateType: 'NAND',
@@ -131,7 +137,8 @@ NANDゲートの両方の入力に同じ信号を入れると、NOTゲートと�
     },
     {
       id: 'verify-not-behavior',
-      instruction: '作成したNOTゲート（NANDで実装）の動作を確認しましょう。入力を切り替えて、正しく反転していることを確認してください。',
+      instruction:
+        '作成したNOTゲート（NANDで実装）の動作を確認しましょう。入力を切り替えて、正しく反転していることを確認してください。',
       action: {
         type: 'observe',
         highlight: ['nand-2'],
@@ -139,7 +146,8 @@ NANDゲートの両方の入力に同じ信号を入れると、NOTゲートと�
     },
     {
       id: 'nand-as-and',
-      instruction: 'NANDゲートを2つ使ってANDゲートを作ることもできます。NANDの出力をもう一度反転（NANDでNOT）すればANDになります。',
+      instruction:
+        'NANDゲートを2つ使ってANDゲートを作ることもできます。NANDの出力をもう一度反転（NANDでNOT）すればANDになります。',
       action: {
         type: 'explanation',
         content: `
@@ -159,7 +167,8 @@ NAND → NOT = AND
     },
     {
       id: 'advanced-challenge',
-      instruction: 'チャレンジ：NANDゲートだけを使って、ORゲートを作ることができますか？ヒント：ド・モルガンの法則を思い出してください。',
+      instruction:
+        'チャレンジ：NANDゲートだけを使って、ORゲートを作ることができますか？ヒント：ド・モルガンの法則を思い出してください。',
       action: {
         type: 'explanation',
         content: `
@@ -179,7 +188,8 @@ NANDゲートで実装すると：
     },
     {
       id: 'conclusion',
-      instruction: 'おめでとうございます！NANDゲートの万能性を理解できました。実際のコンピュータチップでは、このNANDゲートが基本構成要素として使われています。',
+      instruction:
+        'おめでとうございます！NANDゲートの万能性を理解できました。実際のコンピュータチップでは、このNANDゲートが基本構成要素として使われています。',
       action: {
         type: 'explanation',
         content: `

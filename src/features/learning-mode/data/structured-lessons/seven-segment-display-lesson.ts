@@ -3,7 +3,8 @@ import type { Lesson } from '../lessons';
 export const sevenSegmentDisplayStructuredLesson: Lesson = {
   id: 'seven-segment-display',
   title: '7セグメントディスプレイ - 数字表示の仕組み',
-  description: '7セグメントディスプレイの仕組みを理解し、論理ゲートを使って数字を表示する回路を設計します。',
+  description:
+    '7セグメントディスプレイの仕組みを理解し、論理ゲートを使って数字を表示する回路を設計します。',
   objective: '7セグメントディスプレイの原理を理解し、簡単な表示回路を構築する',
   difficulty: 'intermediate',
   estimatedMinutes: 25,
@@ -13,7 +14,8 @@ export const sevenSegmentDisplayStructuredLesson: Lesson = {
   steps: [
     {
       id: 'introduction',
-      instruction: '7セグメントディスプレイは、電卓や時計などで数字を表示するために広く使われています。',
+      instruction:
+        '7セグメントディスプレイは、電卓や時計などで数字を表示するために広く使われています。',
       action: {
         type: 'explanation',
         content: `
@@ -45,7 +47,8 @@ e   c
     },
     {
       id: 'place-outputs',
-      instruction: '7セグメントディスプレイの代わりに、7つのOUTPUTゲート（a〜g）を配置して、各セグメントを表現しましょう。',
+      instruction:
+        '7セグメントディスプレイの代わりに、7つのOUTPUTゲート（a〜g）を配置して、各セグメントを表現しましょう。',
       action: {
         type: 'explanation',
         content: `
@@ -68,7 +71,8 @@ e   c
     },
     {
       id: 'understand-inputs',
-      instruction: 'まず、簡単な例として「1」を表示する回路を作ってみましょう。',
+      instruction:
+        'まず、簡単な例として「1」を表示する回路を作ってみましょう。',
       action: {
         type: 'explanation',
         content: `
@@ -118,7 +122,8 @@ e   c
     },
     {
       id: 'connect-for-one',
-      instruction: 'INPUTゲートを両方のOUTPUTゲートに接続して、セグメントb,cを点灯させましょう。',
+      instruction:
+        'INPUTゲートを両方のOUTPUTゲートに接続して、セグメントb,cを点灯させましょう。',
       action: {
         type: 'observe',
         highlight: ['input-1', 'output-b', 'output-c'],
@@ -126,7 +131,8 @@ e   c
     },
     {
       id: 'bcd-introduction',
-      instruction: 'より実用的な回路として、BCD（2進化10進数）から7セグメントへのデコーダを作ってみましょう。',
+      instruction:
+        'より実用的な回路として、BCD（2進化10進数）から7セグメントへのデコーダを作ってみましょう。',
       action: {
         type: 'explanation',
         content: `
@@ -150,7 +156,8 @@ BCD（Binary Coded Decimal）は、10進数の各桁を4ビットの2進数で�
     },
     {
       id: 'segment-a-logic',
-      instruction: 'セグメントaの論理式を考えてみましょう。数字0,2,3,5,6,7,8,9でaがONになります。',
+      instruction:
+        'セグメントaの論理式を考えてみましょう。数字0,2,3,5,6,7,8,9でaがONになります。',
       action: {
         type: 'explanation',
         content: `
@@ -181,7 +188,8 @@ a = D + B + (C⊕A) + (¬C·¬A)
     },
     {
       id: 'quiz-segment-pattern',
-      instruction: 'クイズ：数字「8」を表示するには、どのセグメントをONにする必要がありますか？',
+      instruction:
+        'クイズ：数字「8」を表示するには、どのセグメントをONにする必要がありますか？',
       action: {
         type: 'quiz',
         question: '数字「8」を表示するために必要なセグメントは？',
@@ -199,7 +207,8 @@ a = D + B + (C⊕A) + (¬C·¬A)
     },
     {
       id: 'decoder-complexity',
-      instruction: '完全なBCD-7セグメントデコーダは複雑ですが、実際のICチップとして販売されています（例：74LS47）。',
+      instruction:
+        '完全なBCD-7セグメントデコーダは複雑ですが、実際のICチップとして販売されています（例：74LS47）。',
       action: {
         type: 'explanation',
         content: `
@@ -223,7 +232,8 @@ a = D + B + (C⊕A) + (¬C·¬A)
     },
     {
       id: 'multiplexing-intro',
-      instruction: '複数桁の表示では、ダイナミック点灯（多重化）という技術を使って、配線数を削減します。',
+      instruction:
+        '複数桁の表示では、ダイナミック点灯（多重化）という技術を使って、配線数を削減します。',
       action: {
         type: 'explanation',
         content: `
@@ -250,7 +260,8 @@ a = D + B + (C⊕A) + (¬C·¬A)
     },
     {
       id: 'conclusion',
-      instruction: 'おめでとうございます！7セグメントディスプレイの原理と、実用的な応用について学びました。',
+      instruction:
+        'おめでとうございます！7セグメントディスプレイの原理と、実用的な応用について学びました。',
       action: {
         type: 'explanation',
         content: `

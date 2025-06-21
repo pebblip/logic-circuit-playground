@@ -1,14 +1,13 @@
-import type { Gate, Wire } from '../../../types';
-
 export const MANDALA_CIRCUIT = {
   id: 'mandala-circuit',
   title: '🌸 マンダラ回路',
-  description: '複数の循環回路が創り出す神秘的な幾何学パターン。3つのリングオシレーターの協調と競合が生み出す美しいマンダラ模様！',
+  description:
+    '複数の循環回路が創り出す神秘的な幾何学パターン。3つのリングオシレーターの協調と競合が生み出す美しいマンダラ模様！',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 800,  // 0.8秒 - マンダラパターンのダイナミックな変化を楽しむ
+    updateInterval: 800, // 0.8秒 - マンダラパターンのダイナミックな変化を楽しむ
     expectedBehavior: 'oscillator' as const,
-    minimumCycles: 10
+    minimumCycles: 10,
   },
   gates: [
     // 第1リング（3個のNOT、中心から120度）
@@ -33,7 +32,7 @@ export const MANDALA_CIRCUIT = {
       output: false,
       inputs: [''],
     },
-    
+
     // 第2リング（5個のNOT、中心から72度）
     {
       id: 'ring2_not1',
@@ -70,7 +69,7 @@ export const MANDALA_CIRCUIT = {
       output: false,
       inputs: [''],
     },
-    
+
     // 第3リング（7個のNOT、外周）
     {
       id: 'ring3_not1',
@@ -121,7 +120,7 @@ export const MANDALA_CIRCUIT = {
       output: false,
       inputs: [''],
     },
-    
+
     // リング間相互作用ゲート
     {
       id: 'interact_12_xor',
@@ -151,7 +150,7 @@ export const MANDALA_CIRCUIT = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // パターン生成用のゲート
     {
       id: 'pattern_gen1',
@@ -181,7 +180,7 @@ export const MANDALA_CIRCUIT = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // マンダラ出力（8方向）
     {
       id: 'mandala_n',
@@ -239,7 +238,7 @@ export const MANDALA_CIRCUIT = {
       output: false,
       inputs: [''],
     },
-    
+
     // リング状態観測
     {
       id: 'ring1_sum',
@@ -262,7 +261,7 @@ export const MANDALA_CIRCUIT = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     {
       id: 'out_ring1',
       type: 'OUTPUT' as const,
@@ -284,7 +283,7 @@ export const MANDALA_CIRCUIT = {
       output: false,
       inputs: [''],
     },
-    
+
     // 中央パターン
     {
       id: 'mandala_center',
@@ -314,7 +313,7 @@ export const MANDALA_CIRCUIT = {
       to: { gateId: 'ring1_not1', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 第2リング（5個のNOTチェーン）
     {
       id: 'ring2_1_2',
@@ -346,7 +345,7 @@ export const MANDALA_CIRCUIT = {
       to: { gateId: 'ring2_not1', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 第3リング（7個のNOTチェーン）
     {
       id: 'ring3_1_2',
@@ -390,7 +389,7 @@ export const MANDALA_CIRCUIT = {
       to: { gateId: 'ring3_not1', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // リング間相互作用
     {
       id: 'ring1_to_interact12',
@@ -428,7 +427,7 @@ export const MANDALA_CIRCUIT = {
       to: { gateId: 'interact_13_or', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // 全リング相互作用
     {
       id: 'interact12_to_all',
@@ -442,7 +441,7 @@ export const MANDALA_CIRCUIT = {
       to: { gateId: 'interact_all_nand', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // パターン生成
     {
       id: 'ring1_to_pattern1',
@@ -492,7 +491,7 @@ export const MANDALA_CIRCUIT = {
       to: { gateId: 'pattern_gen4', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // マンダラ出力（8方向）
     {
       id: 'pattern1_to_n',
@@ -542,7 +541,7 @@ export const MANDALA_CIRCUIT = {
       to: { gateId: 'mandala_nw', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // リング状態観測
     {
       id: 'ring1_n1_to_sum',
@@ -580,7 +579,7 @@ export const MANDALA_CIRCUIT = {
       to: { gateId: 'ring3_sum', pinIndex: 1 },
       isActive: false,
     },
-    
+
     {
       id: 'ring1_sum_out',
       from: { gateId: 'ring1_sum', pinIndex: -1 },
@@ -599,7 +598,7 @@ export const MANDALA_CIRCUIT = {
       to: { gateId: 'out_ring3', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 中央パターン
     {
       id: 'interact_all_to_center',

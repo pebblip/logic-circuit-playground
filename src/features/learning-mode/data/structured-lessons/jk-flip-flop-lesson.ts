@@ -3,8 +3,10 @@ import type { Lesson } from '../lessons';
 export const jkFlipFlopStructuredLesson: Lesson = {
   id: 'jk-flip-flop',
   title: 'JKフリップフロップ - 高機能な記憶素子',
-  description: 'JKフリップフロップの動作原理と、その優れた機能性について学びます。',
-  objective: 'JKフリップフロップの4つの動作モード（保持、セット、リセット、トグル）を理解し、実用的な応用例を学ぶ',
+  description:
+    'JKフリップフロップの動作原理と、その優れた機能性について学びます。',
+  objective:
+    'JKフリップフロップの4つの動作モード（保持、セット、リセット、トグル）を理解し、実用的な応用例を学ぶ',
   difficulty: 'advanced',
   estimatedMinutes: 25,
   prerequisites: ['d-flip-flop', 'sr-latch'],
@@ -13,7 +15,8 @@ export const jkFlipFlopStructuredLesson: Lesson = {
   steps: [
     {
       id: 'introduction',
-      instruction: 'JKフリップフロップは、SRラッチの欠点を解消し、より多機能な記憶素子として開発されました。',
+      instruction:
+        'JKフリップフロップは、SRラッチの欠点を解消し、より多機能な記憶素子として開発されました。',
       action: {
         type: 'explanation',
         content: `
@@ -81,7 +84,8 @@ JKフリップフロップは、デジタル回路で最も多用される記憶
     },
     {
       id: 'place-outputs',
-      instruction: 'Q出力とQ̄（Qバー）出力を確認するためのOUTPUTゲートを2つ配置します。',
+      instruction:
+        'Q出力とQ̄（Qバー）出力を確認するためのOUTPUTゲートを2つ配置します。',
       action: {
         type: 'place-gate',
         gateType: 'OUTPUT',
@@ -99,7 +103,8 @@ JKフリップフロップは、デジタル回路で最も多用される記憶
     },
     {
       id: 'test-hold-mode',
-      instruction: 'まず、保持モード（J=0, K=0）を確認します。CLOCKを動作させても出力が変化しないことを確認してください。',
+      instruction:
+        'まず、保持モード（J=0, K=0）を確認します。CLOCKを動作させても出力が変化しないことを確認してください。',
       action: {
         type: 'observe',
         highlight: ['jk-ff-1', 'clock-1'],
@@ -107,7 +112,8 @@ JKフリップフロップは、デジタル回路で最も多用される記憶
     },
     {
       id: 'test-set-mode',
-      instruction: 'セットモード（J=1, K=0）を試してみましょう。J入力をONにして、クロックパルスで出力Qが1になることを確認します。',
+      instruction:
+        'セットモード（J=1, K=0）を試してみましょう。J入力をONにして、クロックパルスで出力Qが1になることを確認します。',
       action: {
         type: 'toggle-input',
         gateId: 'input-j',
@@ -116,7 +122,8 @@ JKフリップフロップは、デジタル回路で最も多用される記憶
     },
     {
       id: 'test-reset-mode',
-      instruction: 'リセットモード（J=0, K=1）を試します。J入力をOFF、K入力をONにして、クロックパルスで出力Qが0になることを確認します。',
+      instruction:
+        'リセットモード（J=0, K=1）を試します。J入力をOFF、K入力をONにして、クロックパルスで出力Qが0になることを確認します。',
       action: {
         type: 'toggle-input',
         gateId: 'input-j',
@@ -125,7 +132,8 @@ JKフリップフロップは、デジタル回路で最も多用される記憶
     },
     {
       id: 'test-toggle-mode',
-      instruction: 'トグルモード（J=1, K=1）を試しましょう！両方の入力をONにすると、クロックパルスごとに出力が反転します。',
+      instruction:
+        'トグルモード（J=1, K=1）を試しましょう！両方の入力をONにすると、クロックパルスごとに出力が反転します。',
       action: {
         type: 'toggle-input',
         gateId: 'input-j',
@@ -134,7 +142,8 @@ JKフリップフロップは、デジタル回路で最も多用される記憶
     },
     {
       id: 'quiz-toggle-output',
-      instruction: 'クイズ：現在Q=0の状態で、J=1, K=1でクロックパルスを2回入力したら、Qの値は？',
+      instruction:
+        'クイズ：現在Q=0の状態で、J=1, K=1でクロックパルスを2回入力したら、Qの値は？',
       action: {
         type: 'quiz',
         question: 'Q=0から始めて、J=K=1で2回クロックパルスを入力した後のQは？',
@@ -148,7 +157,8 @@ JKフリップフロップは、デジタル回路で最も多用される記憶
     },
     {
       id: 'toggle-counter-intro',
-      instruction: 'JKフリップフロップのトグル機能を使って、簡単な2進カウンタを作ることができます。',
+      instruction:
+        'JKフリップフロップのトグル機能を使って、簡単な2進カウンタを作ることができます。',
       action: {
         type: 'explanation',
         content: `
@@ -167,7 +177,8 @@ JKフリップフロップのJ=K=1のトグルモードを使うと、簡単に�
     },
     {
       id: 'build-toggle-counter',
-      instruction: '2つ目のJKフリップフロップを配置して、2ビットカウンタを作ってみましょう。',
+      instruction:
+        '2つ目のJKフリップフロップを配置して、2ビットカウンタを作ってみましょう。',
       action: {
         type: 'place-gate',
         gateType: 'JK-FF',
@@ -176,7 +187,8 @@ JKフリップフロップのJ=K=1のトグルモードを使うと、簡単に�
     },
     {
       id: 'connect-cascade',
-      instruction: '1段目のJK-FFのQ出力を2段目のCLOCK入力に接続します。両方のJK-FFのJ,K入力は1（HIGH）に固定します。',
+      instruction:
+        '1段目のJK-FFのQ出力を2段目のCLOCK入力に接続します。両方のJK-FFのJ,K入力は1（HIGH）に固定します。',
       action: {
         type: 'observe',
         highlight: ['jk-ff-1', 'jk-ff-2'],
@@ -184,7 +196,8 @@ JKフリップフロップのJ=K=1のトグルモードを使うと、簡単に�
     },
     {
       id: 'practical-applications',
-      instruction: 'JKフリップフロップは、カウンタ、シフトレジスタ、ステートマシンなど、様々な応用回路で使用されています。',
+      instruction:
+        'JKフリップフロップは、カウンタ、シフトレジスタ、ステートマシンなど、様々な応用回路で使用されています。',
       action: {
         type: 'explanation',
         content: `
@@ -208,7 +221,8 @@ JKフリップフロップは、その汎用性から「万能フリップフロ
     },
     {
       id: 'conclusion',
-      instruction: 'おめでとうございます！JKフリップフロップの動作を理解し、実用的な応用例も学びました。',
+      instruction:
+        'おめでとうございます！JKフリップフロップの動作を理解し、実用的な応用例も学びました。',
       action: {
         type: 'explanation',
         content: `
@@ -228,16 +242,16 @@ JKフリップフロップを使って、より複雑なカウンタやステー
   ],
   verification: {
     inputs: [
-      { 'input-j': false, 'input-k': false, 'clock': true },
-      { 'input-j': true, 'input-k': false, 'clock': true },
-      { 'input-j': false, 'input-k': true, 'clock': true },
-      { 'input-j': true, 'input-k': true, 'clock': true },
+      { 'input-j': false, 'input-k': false, clock: true },
+      { 'input-j': true, 'input-k': false, clock: true },
+      { 'input-j': false, 'input-k': true, clock: true },
+      { 'input-j': true, 'input-k': true, clock: true },
     ],
     expectedOutputs: [
       { 'output-q': false }, // 保持（前の状態に依存）
-      { 'output-q': true },  // セット
+      { 'output-q': true }, // セット
       { 'output-q': false }, // リセット
-      { 'output-q': true },  // トグル（前の状態の反転）
+      { 'output-q': true }, // トグル（前の状態の反転）
     ],
   },
 };

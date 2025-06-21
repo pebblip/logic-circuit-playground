@@ -1,6 +1,6 @@
 /**
  * 🔍 デバッグログ表示コンポーネント
- * 
+ *
  * ギャラリーモードでリアルタイムデバッグ情報を視覚的に表示
  * Cypressのスクリーンショットで確実に確認できる
  */
@@ -24,7 +24,7 @@ interface DebugLogDisplayProps {
 export const DebugLogDisplay: React.FC<DebugLogDisplayProps> = ({
   isEnabled = false,
   maxLogs = 20,
-  position = 'top-right'
+  position = 'top-right',
 }) => {
   const [logs, setLogs] = useState<DebugLogEntry[]>([]);
   const [isVisible, setIsVisible] = useState(isEnabled);
@@ -40,7 +40,7 @@ export const DebugLogDisplay: React.FC<DebugLogDisplayProps> = ({
         timestamp: Date.now(),
         level: level as DebugLogEntry['level'],
         message,
-        data
+        data,
       };
 
       setLogs(prevLogs => {
@@ -56,7 +56,11 @@ export const DebugLogDisplay: React.FC<DebugLogDisplayProps> = ({
 
     console.log = (...args) => {
       originalLog(...args);
-      if (args.some(arg => typeof arg === 'string' && arg.includes('Gallery Animation'))) {
+      if (
+        args.some(
+          arg => typeof arg === 'string' && arg.includes('Gallery Animation')
+        )
+      ) {
         (window as any).debugLog('info', args.join(' '));
       }
     };
@@ -102,21 +106,21 @@ export const DebugLogDisplay: React.FC<DebugLogDisplayProps> = ({
   };
 
   return (
-    <div 
+    <div
       className={`debug-log-display debug-log-display--${position}`}
       data-testid="debug-log-display"
     >
       <div className="debug-log-header">
         <span className="debug-log-title">🔍 Debug Log</span>
         <div className="debug-log-controls">
-          <button 
+          <button
             onClick={() => setLogs([])}
             className="debug-log-clear"
             data-testid="debug-log-clear"
           >
             Clear
           </button>
-          <button 
+          <button
             onClick={() => setIsVisible(false)}
             className="debug-log-hide"
             data-testid="debug-log-hide"
@@ -125,8 +129,8 @@ export const DebugLogDisplay: React.FC<DebugLogDisplayProps> = ({
           </button>
         </div>
       </div>
-      
-      <div 
+
+      <div
         ref={logContainerRef}
         className="debug-log-container"
         data-testid="debug-log-container"
@@ -135,20 +139,14 @@ export const DebugLogDisplay: React.FC<DebugLogDisplayProps> = ({
           <div className="debug-log-empty">デバッグログはありません</div>
         ) : (
           logs.map((log, index) => (
-            <div 
+            <div
               key={`${log.timestamp}-${index}`}
               className={`debug-log-entry debug-log-entry--${log.level}`}
               data-testid={`debug-log-entry-${index}`}
             >
-              <div className="debug-log-time">
-                {formatTime(log.timestamp)}
-              </div>
-              <div className="debug-log-level">
-                {log.level.toUpperCase()}
-              </div>
-              <div className="debug-log-message">
-                {log.message}
-              </div>
+              <div className="debug-log-time">{formatTime(log.timestamp)}</div>
+              <div className="debug-log-level">{log.level.toUpperCase()}</div>
+              <div className="debug-log-message">{log.message}</div>
               {log.data && (
                 <div className="debug-log-data">
                   <pre>{formatData(log.data)}</pre>
@@ -158,9 +156,11 @@ export const DebugLogDisplay: React.FC<DebugLogDisplayProps> = ({
           ))
         )}
       </div>
-      
+
       <div className="debug-log-footer">
-        <span>Total: {logs.length} / {maxLogs}</span>
+        <span>
+          Total: {logs.length} / {maxLogs}
+        </span>
       </div>
     </div>
   );

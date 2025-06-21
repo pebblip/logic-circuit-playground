@@ -8,7 +8,8 @@ import type { CircuitMetadata } from './gallery';
 export const MAJORITY_VOTER: CircuitMetadata = {
   id: 'majority-voter',
   title: '多数決回路',
-  description: '3つの入力から多数決を取る回路。2票以上の賛成で可決！民主主義の原理を論理回路で実現。',
+  description:
+    '3つの入力から多数決を取る回路。2票以上の賛成で可決！民主主義の原理を論理回路で実現。',
   gates: [
     // 3つの入力（投票者A, B, C）
     {

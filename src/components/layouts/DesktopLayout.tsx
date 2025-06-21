@@ -95,7 +95,9 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   // }, [gates, isVisualizerOpen]);
 
   return (
-    <div className={`app-container ${appMode === TERMS.GALLERY_MODE ? 'gallery-mode' : ''}`}>
+    <div
+      className={`app-container ${appMode === TERMS.GALLERY_MODE ? 'gallery-mode' : ''}`}
+    >
       {/* ヘッダー（グリッド全幅） */}
       <Header
         activeMode={appMode}
@@ -118,7 +120,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
           <>
             {/* キャンバス */}
             <div className="canvas-container">
-              <UnifiedCanvas 
+              <UnifiedCanvas
                 config={CANVAS_MODE_PRESETS.editor}
                 dataSource={{ store: true }}
                 highlightedGateId={highlightedGateId}
@@ -126,7 +128,10 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
 
               {/* フローティングアクションボタン（FAB） - キャンバス内に配置 */}
               {viewMode !== 'custom-gate-preview' && (
-                <div className="canvas-toolbar timing-chart-toggle" data-testid="canvas-toolbar">
+                <div
+                  className="canvas-toolbar timing-chart-toggle"
+                  data-testid="canvas-toolbar"
+                >
                   <button
                     className="tool-button"
                     title="元に戻す (Ctrl+Z)"
@@ -196,7 +201,9 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
                     title={`遅延モード: ${simulationConfig.delayMode ? 'ON' : 'OFF'}`}
                     onClick={() => setDelayMode(!simulationConfig.delayMode)}
                     style={{
-                      backgroundColor: simulationConfig.delayMode ? 'var(--color-accent)' : undefined,
+                      backgroundColor: simulationConfig.delayMode
+                        ? 'var(--color-accent)'
+                        : undefined,
                       color: simulationConfig.delayMode ? 'white' : undefined,
                     }}
                   >
@@ -216,7 +223,10 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
               </div>
               {simulationConfig.delayMode && (
                 <>
-                  <div className="status-item" style={{ color: 'var(--color-accent)' }}>
+                  <div
+                    className="status-item"
+                    style={{ color: 'var(--color-accent)' }}
+                  >
                     <span>⏱️ 遅延モード: ON</span>
                   </div>
                   <div className="status-item">

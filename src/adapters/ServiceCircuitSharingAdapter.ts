@@ -1,21 +1,20 @@
 /**
  * ServiceCircuitSharingAdapter - 実サービス統合アダプター
- * 
+ *
  * 理想的なCircuitSharingインターフェースを
  * 既存のCircuitShareServiceで実装します。
  */
 
 import { CircuitShareService } from '@/services/CircuitShareService';
 import type { Gate, Wire } from '@/types/circuit';
-import type { 
-  CircuitSharing, 
-  CircuitContent, 
-  ShareUrl, 
-  ShareResult 
+import type {
+  CircuitSharing,
+  CircuitContent,
+  ShareUrl,
+  ShareResult,
 } from '@/domain/ports/CircuitSharing';
 
 export class ServiceCircuitSharingAdapter implements CircuitSharing {
-  
   /**
    * 回路を共有用URLに変換
    */
@@ -44,7 +43,6 @@ export class ServiceCircuitSharingAdapter implements CircuitSharing {
       const result = await CircuitShareService.createShareUrl(gates, wires, {
         name: circuit.name,
         description: circuit.metadata?.description || '',
-        author: circuit.metadata?.author,
       });
 
       if (result.success && result.url) {
@@ -73,19 +71,18 @@ export class ServiceCircuitSharingAdapter implements CircuitSharing {
   async load(shareUrl: ShareUrl): Promise<CircuitContent | null> {
     try {
       const result = await CircuitShareService.parseShareUrl(shareUrl);
-      
-      if (!result.success || !result.gates || !result.wires) {
+
+      if (!result.success || !result.data?.gates || !result.data?.wires) {
         return null;
       }
 
       // Gate[], Wire[] を CircuitContent に変換
       return {
-        name: result.metadata?.name || 'Shared Circuit',
-        components: this.convertGatesToComponents(result.gates),
-        connections: this.convertWiresToConnections(result.wires),
+        name: result.data?.name || 'Shared Circuit',
+        components: this.convertGatesToComponents(result.data.gates),
+        connections: this.convertWiresToConnections(result.data.wires),
         metadata: {
-          description: result.metadata?.description || '',
-          author: result.metadata?.author || '',
+          description: result.data?.description || '',
         },
       };
     } catch (error) {
@@ -146,6 +143,7 @@ export class ServiceCircuitSharingAdapter implements CircuitSharing {
         gateId: connection.to.componentId,
         pinIndex: connection.to.inputIndex,
       },
+      isActive: false, // 必須プロパティを追加
     }));
   }
 

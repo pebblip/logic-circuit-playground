@@ -3,7 +3,6 @@
  * 循環依存の検出とシミュレーション方式の選択
  */
 
-import type { Gate, Wire } from '../../../types/circuit';
 import type { Circuit } from '../core/types';
 
 export class CircuitAnalyzer {
@@ -14,13 +13,13 @@ export class CircuitAnalyzer {
     const graph = this.buildDependencyGraph(circuit);
     const visited = new Set<string>();
     const recursionStack = new Set<string>();
-    
+
     for (const gateId of graph.keys()) {
       if (this.hasCycleFrom(gateId, graph, visited, recursionStack)) {
         return true;
       }
     }
-    
+
     return false;
   }
 
@@ -30,18 +29,18 @@ export class CircuitAnalyzer {
   static findCircularGates(circuit: Circuit): string[] {
     const graph = this.buildDependencyGraph(circuit);
     const circularGates: Set<string> = new Set();
-    
+
     for (const gateId of graph.keys()) {
       const visited = new Set<string>();
       const recursionStack = new Set<string>();
       const path: string[] = [];
-      
+
       if (this.findCyclePath(gateId, graph, visited, recursionStack, path)) {
         // パス内の全てのゲートを循環ゲートとして記録
         path.forEach(id => circularGates.add(id));
       }
     }
-    
+
     return Array.from(circularGates);
   }
 
@@ -50,19 +49,19 @@ export class CircuitAnalyzer {
    */
   private static buildDependencyGraph(circuit: Circuit): Map<string, string[]> {
     const graph = new Map<string, string[]>();
-    
+
     // 初期化
     for (const gate of circuit.gates) {
       graph.set(gate.id, []);
     }
-    
+
     // ワイヤーから依存関係を構築
     for (const wire of circuit.wires) {
       const dependencies = graph.get(wire.to.gateId) || [];
       dependencies.push(wire.from.gateId);
       graph.set(wire.to.gateId, dependencies);
     }
-    
+
     return graph;
   }
 
@@ -77,7 +76,7 @@ export class CircuitAnalyzer {
   ): boolean {
     visited.add(nodeId);
     recursionStack.add(nodeId);
-    
+
     const neighbors = graph.get(nodeId) || [];
     for (const neighbor of neighbors) {
       if (!visited.has(neighbor)) {
@@ -88,7 +87,7 @@ export class CircuitAnalyzer {
         return true; // 循環検出
       }
     }
-    
+
     recursionStack.delete(nodeId);
     return false;
   }
@@ -106,11 +105,13 @@ export class CircuitAnalyzer {
     visited.add(nodeId);
     recursionStack.add(nodeId);
     path.push(nodeId);
-    
+
     const neighbors = graph.get(nodeId) || [];
     for (const neighbor of neighbors) {
       if (!visited.has(neighbor)) {
-        if (this.findCyclePath(neighbor, graph, visited, recursionStack, path)) {
+        if (
+          this.findCyclePath(neighbor, graph, visited, recursionStack, path)
+        ) {
           return true;
         }
       } else if (recursionStack.has(neighbor)) {
@@ -122,7 +123,7 @@ export class CircuitAnalyzer {
         return true;
       }
     }
-    
+
     recursionStack.delete(nodeId);
     path.pop();
     return false;
@@ -138,15 +139,15 @@ export class CircuitAnalyzer {
     maxFanOut: number;
   } {
     const fanOut = new Map<string, number>();
-    
+
     for (const wire of circuit.wires) {
       const count = fanOut.get(wire.from.gateId) || 0;
       fanOut.set(wire.from.gateId, count + 1);
     }
-    
+
     const maxFanOut = Math.max(...Array.from(fanOut.values()), 0);
     const circularGates = this.findCircularGates(circuit);
-    
+
     return {
       gateCount: circuit.gates.length,
       wireCount: circuit.wires.length,

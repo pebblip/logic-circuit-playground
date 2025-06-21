@@ -82,7 +82,6 @@ export class GateFactory {
           },
         };
 
-
       case 'CUSTOM':
         // カスタムゲートは後で設定される
         return baseGate;
@@ -140,7 +139,9 @@ export class GateFactory {
    */
   static getGateSize(gate: Gate | GateType): { width: number; height: number } {
     if (typeof gate === 'string') {
-      return GATE_SIZES[gate as keyof typeof GATE_SIZES] || { width: 70, height: 50 };
+      return (
+        GATE_SIZES[gate as keyof typeof GATE_SIZES] || { width: 70, height: 50 }
+      );
     }
 
     if (isCustomGate(gate) && gate.customGateDefinition) {
@@ -150,7 +151,12 @@ export class GateFactory {
       };
     }
 
-    return GATE_SIZES[gate.type as keyof typeof GATE_SIZES] || { width: 70, height: 50 };
+    return (
+      GATE_SIZES[gate.type as keyof typeof GATE_SIZES] || {
+        width: 70,
+        height: 50,
+      }
+    );
   }
 
   /**
@@ -161,7 +167,12 @@ export class GateFactory {
     outputs: number;
   } {
     if (typeof gate === 'string') {
-      return PIN_CONFIGS[gate as keyof typeof PIN_CONFIGS] || { inputs: 2, outputs: 1 };
+      return (
+        PIN_CONFIGS[gate as keyof typeof PIN_CONFIGS] || {
+          inputs: 2,
+          outputs: 1,
+        }
+      );
     }
 
     if (isCustomGate(gate) && gate.customGateDefinition) {
@@ -171,6 +182,11 @@ export class GateFactory {
       };
     }
 
-    return PIN_CONFIGS[gate.type as keyof typeof PIN_CONFIGS] || { inputs: 2, outputs: 1 };
+    return (
+      PIN_CONFIGS[gate.type as keyof typeof PIN_CONFIGS] || {
+        inputs: 2,
+        outputs: 1,
+      }
+    );
   }
 }

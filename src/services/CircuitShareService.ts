@@ -1,4 +1,9 @@
-import type { Gate, Wire, GateMetadata, CustomGateDefinition } from '../types/circuit';
+import type {
+  Gate,
+  Wire,
+  GateMetadata,
+  CustomGateDefinition,
+} from '../types/circuit';
 
 // 共有データの型定義
 interface SharedGateData {

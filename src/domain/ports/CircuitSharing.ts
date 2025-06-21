@@ -1,11 +1,12 @@
 /**
  * 回路共有機能のポートインターフェース
- * 
+ *
  * 実装技術（URL生成、圧縮、暗号化等）に依存しない、
  * 純粋な回路共有の仕様を定義します。
  */
 
 import type { CircuitContent } from './CircuitPersistence';
+export type { CircuitContent } from './CircuitPersistence';
 
 /**
  * 共有URL型（type-safe）

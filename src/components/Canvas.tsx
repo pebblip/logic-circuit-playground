@@ -20,8 +20,6 @@ import { WirePreview } from './canvas/components/WirePreview';
 import { useCanvasSimulation } from './canvas/hooks/useCanvasSimulation';
 import { useCanvasInteraction } from './canvas/hooks/useCanvasInteraction';
 import { useCanvasGateManagement } from './canvas/hooks/useCanvasGateManagement';
-import { EnhancedHybridEvaluator } from '@/domain/simulation/event-driven-minimal';
-import type { Circuit } from '@/domain/simulation/core/types';
 
 interface CanvasProps {
   highlightedGateId?: string | null;
@@ -30,7 +28,9 @@ interface CanvasProps {
 export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 400, y: 300 });
-  const [viewBox, setViewBox] = useState<ViewBox>(CANVAS_CONSTANTS.DEFAULT_VIEWBOX);
+  const [viewBox, setViewBox] = useState<ViewBox>(
+    CANVAS_CONSTANTS.DEFAULT_VIEWBOX
+  );
   const [_savedViewBox, _setSavedViewBox] = useState<ViewBox | null>(null);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
   const [isDraggingSelection, setIsDraggingSelection] = useState(false);
@@ -132,68 +132,70 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   // CLOCKゲートのアニメーション処理（ギャラリーと同様）
   // useCanvasSimulationに統合したため無効化
   // const animationRef = useRef<number | null>(null);
-  
+
   // 🛡️ 既存ゲートの座標チェック・修正（初回のみ）
   useEffect(() => {
     if (displayData.isReadOnly) return;
-    
+
     const currentState = useCircuitStore.getState();
     let needsCoordinatefix = false;
-    
+
     const fixedGates = currentState.gates.map(gate => {
       // 左上角近辺（座標100未満）のゲートを修正
       if (gate.position.x < 100 || gate.position.y < 100) {
         needsCoordinatefix = true;
         const fixedX = Math.max(gate.position.x, 150);
         const fixedY = Math.max(gate.position.y, 150);
-        
+
         if (import.meta.env.DEV) {
-          console.warn(`🔧 既存ゲート座標を修正: ${gate.type}(${gate.id}) (${gate.position.x}, ${gate.position.y}) -> (${fixedX}, ${fixedY})`);
+          console.warn(
+            `🔧 既存ゲート座標を修正: ${gate.type}(${gate.id}) (${gate.position.x}, ${gate.position.y}) -> (${fixedX}, ${fixedY})`
+          );
         }
-        
+
         return { ...gate, position: { x: fixedX, y: fixedY } };
       }
       return gate;
     });
-    
+
     if (needsCoordinatefix) {
       useCircuitStore.setState({ gates: fixedGates });
     }
   }, []); // 初回のみ実行
-  
+
   // CLOCKアニメーション処理はuseCanvasSimulationに統合
   // useEffect(() => {
   //   // プレビューモードでは更新しない
   //   if (displayData.isReadOnly) return;
-  //   
+  //
   //   const hasClockGate = displayData.displayGates.some(g => g.type === 'CLOCK');
-  //   
+  //
   //   if (hasClockGate) {
   //     let lastUpdateTime = 0;
   //     const animate = () => {
   //       const now = Date.now();
-  //       
+  //
   //       // 100ms毎に更新（パフォーマンスのため）
   //       if (now - lastUpdateTime > 100) {
   //         lastUpdateTime = now;
-  //         
+  //
   //         // 現在のstoreの状態を取得
   //         const currentState = useCircuitStore.getState();
   //         let needsUpdate = false;
-  //         
+  //
   //         const newGates = currentState.gates.map(gate => {
   //           if (gate.type === 'CLOCK' && gate.metadata?.frequency && gate.metadata?.isRunning) {
   //             const frequency = gate.metadata.frequency as number;
   //             const period = 1000 / frequency;
-  //             
+  //
   //             // startTimeの取得（Core APIと一致させる）
-  //             const startTime = gate.metadata.startTime !== undefined ? 
+  //             const startTime = gate.metadata.startTime !== undefined ?
   //               (gate.metadata.startTime as number) : now;
   //             const elapsed = now - startTime;
-  //             
+  //
   //             const shouldBeOn = Math.floor(elapsed / period) % 2 === 1;
-  //             
-  //             
+  //
+  //
   //             if (gate.output !== shouldBeOn) {
   //               needsUpdate = true;
   //               return { ...gate, output: shouldBeOn };
@@ -201,22 +203,22 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   //           }
   //           return gate;
   //         });
-  //         
+  //
   //         if (needsUpdate) {
   //           // 回路評価を実行してワイヤーも更新（ギャラリーと同様）
   //           const circuitData: Circuit = { gates: newGates, wires: currentState.wires };
-  //           
+  //
   //           // EnhancedHybridEvaluatorで回路評価（同期処理）
   //           const enhancedEvaluator = new EnhancedHybridEvaluator({
   //             strategy: 'AUTO_SELECT',
   //             enableDebugLogging: false,
   //           });
-  //           
+  //
   //           try {
   //             // 🔧 同期的に評価実行
   //             const evaluationResult = enhancedEvaluator.evaluate(circuitData);
   //             const updatedCircuit = evaluationResult.circuit;
-  //             
+  //
   //             // Zustand storeを更新（ゲートとワイヤー両方）
   //             useCircuitStore.setState({
   //               gates: [...updatedCircuit.gates],
@@ -231,13 +233,13 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   //           }
   //         }
   //       }
-  //       
+  //
   //       animationRef.current = requestAnimationFrame(animate);
   //     };
-  //     
+  //
   //     animationRef.current = requestAnimationFrame(animate);
   //   }
-  //   
+  //
   //   return () => {
   //     if (animationRef.current) {
   //       cancelAnimationFrame(animationRef.current);
@@ -558,7 +560,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
       >
         {/* 背景とグリッド */}
         <CanvasBackground viewBox={viewBox} scale={scale} />
-
 
         {/* ワイヤー */}
         {displayData.displayWires.map(wire => (

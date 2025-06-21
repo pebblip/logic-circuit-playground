@@ -33,7 +33,11 @@ import {
 import { validateCircuit, validateCircuitLight } from './validation';
 import { evaluateGateUnified } from './gateEvaluation';
 import { handleFeedbackLoops, protectInitialState } from './feedbackHandler';
-import { needsTwoPhaseEvaluation, snapshotDFFInputs, updateDFFsFromSnapshots } from './dffTwoPhaseEvaluation';
+import {
+  needsTwoPhaseEvaluation,
+  snapshotDFFInputs,
+  updateDFFsFromSnapshots,
+} from './dffTwoPhaseEvaluation';
 
 // ===============================
 // メイン回路評価関数
@@ -57,19 +61,29 @@ export function evaluateCircuit(
   const debugTrace: DebugTraceEntry[] = [];
 
   if (config.enableDebug) {
-    console.log('[CircuitEval] evaluateCircuit called with', circuit.gates.length, 'gates');
+    console.log(
+      '[CircuitEval] evaluateCircuit called with',
+      circuit.gates.length,
+      'gates'
+    );
   }
 
   try {
     // 1. 入力検証
     if (config.enableDebug) {
-      console.log('[CircuitEval] Step 1: Input validation, strictValidation=', config.strictValidation);
+      console.log(
+        '[CircuitEval] Step 1: Input validation, strictValidation=',
+        config.strictValidation
+      );
     }
     if (config.strictValidation) {
       const validation = validateCircuit(circuit);
       if (!validation.success) {
         if (config.enableDebug) {
-          console.error('[CircuitEval] Circuit validation failed:', validation.error.message);
+          console.error(
+            '[CircuitEval] Circuit validation failed:',
+            validation.error.message
+          );
         }
         return failure(
           createValidationError(
@@ -84,7 +98,10 @@ export function evaluateCircuit(
           v => v.severity === 'ERROR'
         );
         if (config.enableDebug) {
-          console.error('[CircuitEval] Circuit contains validation errors:', errors);
+          console.error(
+            '[CircuitEval] Circuit contains validation errors:',
+            errors
+          );
         }
         return failure(
           createValidationError(
@@ -98,7 +115,10 @@ export function evaluateCircuit(
       const lightValidation = validateCircuitLight(circuit);
       if (!lightValidation.success) {
         if (config.enableDebug) {
-          console.error('[CircuitEval] Basic circuit validation failed:', lightValidation.error.message);
+          console.error(
+            '[CircuitEval] Basic circuit validation failed:',
+            lightValidation.error.message
+          );
         }
         return failure(
           createValidationError(
@@ -133,7 +153,10 @@ export function evaluateCircuit(
     const dependencyResult = buildDependencyGraph(circuit);
     if (!dependencyResult.success) {
       if (config.enableDebug) {
-        console.error('[CircuitEval] Dependency graph build failed:', dependencyResult.error);
+        console.error(
+          '[CircuitEval] Dependency graph build failed:',
+          dependencyResult.error
+        );
       }
       return dependencyResult;
     }
@@ -146,10 +169,12 @@ export function evaluateCircuit(
     // 3. 循環依存チェック
     if (dependencyGraph.hasCycles) {
       if (config.enableDebug) {
-        console.log('[CircuitEval] WARNING: Circuit has circular dependencies!');
+        console.log(
+          '[CircuitEval] WARNING: Circuit has circular dependencies!'
+        );
         console.log('[CircuitEval] Cycles:', dependencyGraph.cycles);
       }
-      
+
       // 循環依存があってもギャラリーモードでは継続する（オシレータのため）
       if (!config.allowCircularDependencies) {
         return failure(
@@ -171,24 +196,29 @@ export function evaluateCircuit(
     let modifiedGraph = dependencyGraph;
     if (dependencyGraph.hasCycles) {
       // フィードバックループを適切に処理する評価順序を生成
-      const newEvaluationOrder = handleFeedbackLoops(circuit, [...dependencyGraph.evaluationOrder]);
+      const newEvaluationOrder = handleFeedbackLoops(circuit, [
+        ...dependencyGraph.evaluationOrder,
+      ]);
       modifiedGraph = {
         ...dependencyGraph,
-        evaluationOrder: newEvaluationOrder
+        evaluationOrder: newEvaluationOrder,
       };
-      
+
       if (config.enableDebug) {
-        console.log('[CircuitEval] Modified evaluation order for feedback loops:', newEvaluationOrder);
+        console.log(
+          '[CircuitEval] Modified evaluation order for feedback loops:',
+          newEvaluationOrder
+        );
       }
     }
-    
+
     const evaluationResult = evaluateCircuitStep(
       circuit,
       modifiedGraph,
       config,
       debugTrace
     );
-    
+
     if (!evaluationResult.success) {
       return evaluationResult;
     }
@@ -442,7 +472,7 @@ function topologicalSort(
         cycles.push(cycle);
       }
       // 循環依存があっても処理を続ける（オシレータのため）
-      return true;  // falseではなくtrueを返す
+      return true; // falseではなくtrueを返す
     }
 
     if (visited.has(gateId)) {
@@ -455,7 +485,7 @@ function topologicalSort(
     // 依存関係を先に訪問
     const deps = dependencies.get(gateId) || [];
     for (const depId of deps) {
-      visit(depId, newPath);  // 戻り値をチェックしない
+      visit(depId, newPath); // 戻り値をチェックしない
     }
 
     visiting.delete(gateId);
@@ -531,7 +561,7 @@ function evaluateCircuitStep(
     // 更新されたゲートとワイヤーのコピーを作成
     const updatedGates = circuit.gates.map(gate => ({ ...gate }));
     const updatedWires = circuit.wires.map(wire => ({ ...wire }));
-    
+
     // 初期状態を保護（LFSRなどのフィードバック回路用）
     const tempCircuit: Circuit = {
       gates: updatedGates,
@@ -548,12 +578,12 @@ function evaluateCircuitStep(
         gate.metadata?.isRunning &&
         gate.metadata.startTime === undefined
       ) {
-            gate.metadata = {
+        gate.metadata = {
           ...gate.metadata,
           startTime: initTime,
         };
       }
-      
+
       // D-FFの初期状態確認と調整
       if (gate.type === 'D-FF') {
         // metadataがない場合は作成
@@ -561,14 +591,16 @@ function evaluateCircuitStep(
           gate.metadata = {
             qOutput: gate.output,
             qBarOutput: !gate.output,
-            previousClockState: false
+            previousClockState: false,
           };
         } else {
           // gate.outputとqOutputが一致しているか確認
           const expectedOutput = gate.metadata.qOutput ?? gate.output;
           if (gate.output !== expectedOutput) {
             if (config.enableDebug) {
-              console.log(`[InitCheck] ${gate.id}: gate.output=${gate.output} != qOutput=${expectedOutput}, fixing...`);
+              console.log(
+                `[InitCheck] ${gate.id}: gate.output=${gate.output} != qOutput=${expectedOutput}, fixing...`
+              );
             }
             gate.output = expectedOutput;
           }
@@ -609,14 +641,21 @@ function evaluateCircuitStep(
     });
 
     const gateEvaluationTimes = new Map<string, number>();
-    
+
     // 2フェーズ評価が必要かどうかを判定
-    const useTwoPhaseEval = config.forceTwoPhaseEvaluation || needsTwoPhaseEvaluation(tempCircuit);
+    const useTwoPhaseEval =
+      config.forceTwoPhaseEvaluation || needsTwoPhaseEvaluation(tempCircuit);
 
     // デバッグ: 評価順序を確認
     if (config.enableDebug) {
-      console.log('[CircuitEval] Evaluation order:', dependencyGraph.evaluationOrder);
-      console.log('[CircuitEval] Total gates to evaluate:', dependencyGraph.evaluationOrder.length);
+      console.log(
+        '[CircuitEval] Evaluation order:',
+        dependencyGraph.evaluationOrder
+      );
+      console.log(
+        '[CircuitEval] Total gates to evaluate:',
+        dependencyGraph.evaluationOrder.length
+      );
       console.log('[CircuitEval] Two-phase evaluation:', useTwoPhaseEval);
     }
 
@@ -659,9 +698,13 @@ function evaluateCircuitStep(
 
       // 入力値の収集
       const inputs = collectGateInputs(gate, gateInputWires, gateMap);
-      
+
       // CLOCKゲートのstartTime初期化（評価前に必要）
-      if (gate.type === 'CLOCK' && gate.metadata && gate.metadata.startTime === undefined) {
+      if (
+        gate.type === 'CLOCK' &&
+        gate.metadata &&
+        gate.metadata.startTime === undefined
+      ) {
         gate.metadata = {
           ...gate.metadata,
           startTime: config.timeProvider.getCurrentTime(),
@@ -670,7 +713,9 @@ function evaluateCircuitStep(
 
       // デバッグ: 全ゲートの評価前状態
       if (config.enableDebug) {
-        console.log(`[CircuitEval] Evaluating ${gate.id} (${gate.type}), current output=${gate.output}`);
+        console.log(
+          `[CircuitEval] Evaluating ${gate.id} (${gate.type}), current output=${gate.output}`
+        );
       }
 
       // ゲート評価実行
@@ -682,16 +727,22 @@ function evaluateCircuitStep(
           continue;
         }
         // デバッグ: 入力の確認
-        if (config.enableDebug && ((gate.type === 'D-FF' && gate.id.includes('dff')) || gate.type === 'CLOCK')) {
-          console.log(`[CircuitEval] About to evaluate ${gate.id} (${gate.type}) with inputs=[${inputs.join(',')}]`);
+        if (
+          config.enableDebug &&
+          ((gate.type === 'D-FF' && gate.id.includes('dff')) ||
+            gate.type === 'CLOCK')
+        ) {
+          console.log(
+            `[CircuitEval] About to evaluate ${gate.id} (${gate.type}) with inputs=[${inputs.join(',')}]`
+          );
         }
-        
+
         // D-FFの場合、評価前にメタデータを更新する必要がある
         // （evaluateGateUnifiedがメタデータを参照するため）
         if (gate.type === 'D-FF') {
           updateGateMetadata(gate, inputs);
         }
-        
+
         const evaluationResult = evaluateGateUnified(gate, inputs, config);
 
         if (!evaluationResult.success) {
@@ -714,18 +765,32 @@ function evaluateCircuitStep(
           gate.outputs = [...result.outputs];
           gate.output = result.primaryOutput;
         }
-        
+
         // デバッグ: 評価結果の確認
-        if (config.enableDebug && ((gate.type === 'D-FF' && gate.id.includes('dff')) || gate.type === 'CLOCK' || gate.type === 'OUTPUT')) {
-          console.log(`[CircuitEval] ${gate.id} (${gate.type}): evaluated output=${gate.output}, outputs=[${result.outputs.join(',')}], inputs=[${inputs.join(',')}]`);
+        if (
+          config.enableDebug &&
+          ((gate.type === 'D-FF' && gate.id.includes('dff')) ||
+            gate.type === 'CLOCK' ||
+            gate.type === 'OUTPUT')
+        ) {
+          console.log(
+            `[CircuitEval] ${gate.id} (${gate.type}): evaluated output=${gate.output}, outputs=[${result.outputs.join(',')}], inputs=[${inputs.join(',')}]`
+          );
         }
 
         // 入力状態の保存（表示用）
         gate.inputs = inputs.map(input => (input ? '1' : ''));
-        
+
         // デバッグ: LFSRの状態遷移を追跡
-        if (config.enableDebug && (gate.id === 'xor_feedback' || gate.id.startsWith('dff') || gate.id.startsWith('out_bit'))) {
-          console.log(`[LFSR] ${gate.id}: output=${gate.output}, inputs=[${inputs.join(',')}]`);
+        if (
+          config.enableDebug &&
+          (gate.id === 'xor_feedback' ||
+            gate.id.startsWith('dff') ||
+            gate.id.startsWith('out_bit'))
+        ) {
+          console.log(
+            `[LFSR] ${gate.id}: output=${gate.output}, inputs=[${inputs.join(',')}]`
+          );
         }
 
         // 特殊ゲートのメタデータ更新（D-FF以外）
@@ -733,15 +798,23 @@ function evaluateCircuitStep(
         if (gate.type !== 'D-FF') {
           updateGateMetadata(gate, inputs);
         }
-        
+
         // デバッグ: メタデータ更新後の確認
-        if (config.enableDebug && gate.type === 'D-FF' && gate.id.includes('dff')) {
-          console.log(`[CircuitEval] ${gate.id}: after metadata update, qOutput=${gate.metadata?.qOutput}, gate.output=${gate.output}`);
+        if (
+          config.enableDebug &&
+          gate.type === 'D-FF' &&
+          gate.id.includes('dff')
+        ) {
+          console.log(
+            `[CircuitEval] ${gate.id}: after metadata update, qOutput=${gate.metadata?.qOutput}, gate.output=${gate.output}`
+          );
         }
       } else {
         // INPUTゲートの場合
         if (config.enableDebug) {
-          console.log(`[CircuitEval] Skipping evaluation for ${gate.id} (${gate.type}), keeping output=${gate.output}`);
+          console.log(
+            `[CircuitEval] Skipping evaluation for ${gate.id} (${gate.type}), keeping output=${gate.output}`
+          );
         }
       }
 
@@ -750,7 +823,7 @@ function evaluateCircuitStep(
 
       // ワイヤー状態の更新
       updateWireStates(gate, gateInputWires, wireMap);
-      
+
       if (config.enableDebug) {
         debugTrace.push({
           timestamp: Date.now(),
@@ -764,15 +837,17 @@ function evaluateCircuitStep(
         });
       }
     }
-    
+
     // 2フェーズ評価の場合、D-FFを一括更新
     if (useTwoPhaseEval) {
       updateDFFsFromSnapshots(updatedGates, dffSnapshots);
-      
+
       // D-FFの出力を反映したワイヤー状態を更新
-      updatedGates.filter(g => g.type === 'D-FF').forEach(dffGate => {
-        updateWireStates(dffGate, gateInputWires, wireMap);
-      });
+      updatedGates
+        .filter(g => g.type === 'D-FF')
+        .forEach(dffGate => {
+          updateWireStates(dffGate, gateInputWires, wireMap);
+        });
     }
 
     const updatedCircuit: Circuit = {
@@ -871,12 +946,12 @@ function updateGateMetadata(gate: Gate, inputs: boolean[]): void {
         const d = inputs[0];
         const clk = inputs[1];
         const prevClk = gate.metadata?.previousClockState || false;
-        
+
         // デバッグログは削除（configへのアクセスなし）
 
         // 初回評価フラグのチェック
         const isFirstEvaluation = gate.metadata?.isFirstEvaluation === true;
-        
+
         // 立ち上がりエッジ検出
         if (!prevClk && clk && !isFirstEvaluation) {
           gate.metadata = {
@@ -886,13 +961,13 @@ function updateGateMetadata(gate: Gate, inputs: boolean[]): void {
             previousClockState: clk,
             isFirstEvaluation: false,
           };
-          
+
           // Rising edge detected - qOutput set to d
         } else {
           gate.metadata = {
             ...gate.metadata,
             previousClockState: clk,
-            isFirstEvaluation: false,  // 初回評価完了
+            isFirstEvaluation: false, // 初回評価完了
           };
         }
       }

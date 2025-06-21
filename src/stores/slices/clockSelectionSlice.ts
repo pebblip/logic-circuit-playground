@@ -29,27 +29,34 @@ export const createClockSelectionSlice: StateCreator<
     // CLOCKが選択されたら自動的にトレースを作成
     if (gateId) {
       const state = get();
-      const clockGate = state.gates.find(g => g.id === gateId && g.type === 'CLOCK');
-      
+      const clockGate = state.gates.find(
+        g => g.id === gateId && g.type === 'CLOCK'
+      );
+
       if (clockGate && state.timingChartActions) {
         // 既存のトレースをクリア（一時的に削除してテスト）
         // state.timingChartActions.clearAllTraces();
-        
+
         // CLOCKゲートのトレースを追加
         const traceId = state.timingChartActions.addTrace(gateId, 'output', 0);
-        console.log(`[ClockSelection] Added trace ${traceId} for CLOCK ${gateId}`);
-        
+        console.log(
+          `[ClockSelection] Added trace ${traceId} for CLOCK ${gateId}`
+        );
+
         // タイミングチャートパネルを自動表示（一時的に無効化）
         // ユーザーが明示的にタイミングチャートボタンを押したときのみ表示するように変更
         // if (!state.timingChart.isVisible) {
         //   state.timingChartActions.showPanel();
         //   console.log(`[ClockSelection] Timing chart panel shown`);
         // }
-        
+
         // デバッグ: 現在のトレース状態を確認（非同期で）
         setTimeout(() => {
           const updatedState = get();
-          console.log(`[ClockSelection] Current traces after update:`, updatedState.timingChart.traces);
+          console.log(
+            `[ClockSelection] Current traces after update:`,
+            updatedState.timingChart.traces
+          );
         }, 0);
       }
     }

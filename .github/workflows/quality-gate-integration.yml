@@ -1,0 +1,193 @@
+name: "🔧 Integration Quality Gate"
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  integration-quality-gate:
+    name: "Integration Quality Checks"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+
+      - name: "📦 Setup pnpm" 
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: "⚡ Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: "📚 Install Dependencies"
+        run: pnpm install --frozen-lockfile
+
+      - name: "🛡️ Prerequisites: Basic Quality Gate"
+        run: |
+          echo "🔍 Running prerequisite checks..."
+          pnpm run typecheck
+          pnpm run lint
+          echo "✅ Prerequisites passed"
+
+      - name: "🧪 Full Test Suite"
+        id: full-tests
+        run: |
+          echo "🧪 Running complete test suite..."
+          pnpm run test -- --run
+          echo "✅ Full test suite passed"
+
+      - name: "🔗 Integration Tests"
+        id: integration-tests
+        run: |
+          echo "🔗 Running integration tests..."
+          pnpm run test tests/integration/ --run
+          echo "✅ Integration tests passed"
+
+      - name: "🎭 Critical Path E2E Tests"
+        id: e2e-critical
+        run: |
+          echo "🎭 Running critical E2E tests..."
+          # Start development server in background
+          pnpm run dev &
+          DEV_PID=$!
+          
+          # Wait for server to be ready
+          sleep 10
+          
+          # Run critical E2E tests
+          pnpm run cypress:run --spec "cypress/e2e/gallery-auto-fit-test.cy.ts,cypress/e2e/gallery-animation-verification.cy.ts"
+          
+          # Cleanup
+          kill $DEV_PID || true
+          echo "✅ Critical E2E tests passed"
+
+      - name: "🔍 Circuit Validation"
+        id: circuit-validation
+        run: |
+          echo "🔍 Validating gallery circuits..."
+          pnpm run validate:gallery
+          echo "✅ Circuit validation passed"
+
+      - name: "📊 Integration Quality Metrics"
+        if: always()
+        run: |
+          echo "=== INTEGRATION QUALITY GATE REPORT ==="
+          echo "Full Tests Status: ${{ steps.full-tests.outcome }}"
+          echo "Integration Tests Status: ${{ steps.integration-tests.outcome }}"
+          echo "E2E Critical Status: ${{ steps.e2e-critical.outcome }}"
+          echo "Circuit Validation Status: ${{ steps.circuit-validation.outcome }}"
+          echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "======================================"
+
+      - name: "✅ Integration Gate Result"
+        if: failure()
+        run: |
+          echo "❌ INTEGRATION QUALITY GATE FAILED"
+          echo "Integration quality standards not met."
+          exit 1
+
+  performance-quality-gate:
+    name: "⚡ Performance Quality Checks"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: integration-quality-gate
+
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+
+      - name: "📦 Setup pnpm"
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: "⚡ Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: "📚 Install Dependencies"
+        run: pnpm install --frozen-lockfile
+
+      - name: "🏗️ Production Build Test"
+        id: build-test
+        run: |
+          echo "🏗️ Testing production build..."
+          pnpm run build
+          echo "✅ Production build successful"
+
+      - name: "📏 Build Size Check"
+        id: size-check
+        run: |
+          echo "📏 Checking build size..."
+          BUILD_SIZE=$(du -sh dist/ | cut -f1)
+          echo "Build size: $BUILD_SIZE"
+          
+          # Check if build size is reasonable (under 10MB)
+          SIZE_BYTES=$(du -sb dist/ | cut -f1)
+          MAX_SIZE_BYTES=$((10 * 1024 * 1024)) # 10MB
+          
+          if [ $SIZE_BYTES -gt $MAX_SIZE_BYTES ]; then
+            echo "❌ Build size ($BUILD_SIZE) exceeds 10MB limit"
+            exit 1
+          fi
+          echo "✅ Build size within limits"
+
+      - name: "⚡ Performance Tests"
+        id: performance-tests
+        run: |
+          echo "⚡ Running performance tests..."
+          # Run any performance tests if they exist
+          if [ -f "tests/performance/" ]; then
+            pnpm run test tests/performance/ --run
+          else
+            echo "ℹ️ No performance tests found, skipping"
+          fi
+          echo "✅ Performance tests completed"
+
+      - name: "📊 Performance Metrics"
+        if: always()
+        run: |
+          echo "=== PERFORMANCE QUALITY GATE REPORT ==="
+          echo "Build Test Status: ${{ steps.build-test.outcome }}"
+          echo "Size Check Status: ${{ steps.size-check.outcome }}" 
+          echo "Performance Tests Status: ${{ steps.performance-tests.outcome }}"
+          echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "======================================="
+
+  integration-gate-summary:
+    name: "📋 Integration Gate Summary"
+    runs-on: ubuntu-latest
+    needs: [integration-quality-gate, performance-quality-gate]
+    if: always()
+
+    steps:
+      - name: "📊 Generate Summary"
+        run: |
+          INTEGRATION_RESULT="${{ needs.integration-quality-gate.result }}"
+          PERFORMANCE_RESULT="${{ needs.performance-quality-gate.result }}"
+          
+          echo "=== INTEGRATION QUALITY GATE SUMMARY ==="
+          
+          if [ "$INTEGRATION_RESULT" == "success" ] && [ "$PERFORMANCE_RESULT" == "success" ]; then
+            echo "🎉 INTEGRATION QUALITY GATE: PASSED"
+            echo "✅ All integration tests successful"
+            echo "✅ Critical E2E paths verified"
+            echo "✅ Circuit validation completed"
+            echo "✅ Performance standards met"
+            echo "✅ Ready for production deployment"
+          else
+            echo "❌ INTEGRATION QUALITY GATE: FAILED"
+            echo "Integration Result: $INTEGRATION_RESULT"
+            echo "Performance Result: $PERFORMANCE_RESULT"
+            echo "Please review and fix the integration issues."
+          fi
+          echo "======================================="

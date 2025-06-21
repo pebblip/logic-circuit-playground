@@ -1,14 +1,13 @@
-import type { Gate, Wire } from '../../../types';
-
 export const CHAOS_GENERATOR = {
   id: 'chaos-generator',
   title: '🌀 カオス発生器（LFSR）',
-  description: '線形フィードバックシフトレジスタによる疑似ランダム生成器。暗号学や乱数生成に使われる高度な循環回路です。',
+  description:
+    '線形フィードバックシフトレジスタによる疑似ランダム生成器。暗号学や乱数生成に使われる高度な循環回路です。',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 125,  // 0.125秒 - 2HzCLOCK(500ms)の1/4間隔で正確な変化を捉える
+    updateInterval: 125, // 0.125秒 - 2HzCLOCK(500ms)の1/4間隔で正確な変化を捉える
     expectedBehavior: 'oscillator' as const,
-    minimumCycles: 20
+    minimumCycles: 20,
   },
   gates: [
     // CLOCK (1Hz)
@@ -18,9 +17,9 @@ export const CHAOS_GENERATOR = {
       position: { x: 100, y: 150 },
       output: true, // 初期状態でONにしてクロック信号を見やすく
       inputs: [],
-      metadata: { frequency: 2, isRunning: true },  // 2Hz - startTimeは評価時に自動設定
+      metadata: { frequency: 2, isRunning: true }, // 2Hz - startTimeは評価時に自動設定
     },
-    
+
     // 4ビットシフトレジスタ（D-FFで構成）
     // 初期値を [1, 0, 1, 0] に設定 - LFSRの標準的な初期値
     {
@@ -29,7 +28,11 @@ export const CHAOS_GENERATOR = {
       position: { x: 200, y: 200 },
       output: true, // 初期値
       inputs: ['', ''],
-      metadata: { qOutput: true, previousClockState: false, isFirstEvaluation: true },  // 初回エッジ検出を防ぐ
+      metadata: {
+        qOutput: true,
+        previousClockState: false,
+        isFirstEvaluation: true,
+      }, // 初回エッジ検出を防ぐ
     },
     {
       id: 'dff2',
@@ -37,15 +40,23 @@ export const CHAOS_GENERATOR = {
       position: { x: 300, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { qOutput: false, previousClockState: false, isFirstEvaluation: true },  // 初回エッジ検出を防ぐ
+      metadata: {
+        qOutput: false,
+        previousClockState: false,
+        isFirstEvaluation: true,
+      }, // 初回エッジ検出を防ぐ
     },
     {
       id: 'dff3',
       type: 'D-FF' as const,
       position: { x: 400, y: 200 },
-      output: true,  // 1に変更
+      output: true, // 1に変更
       inputs: ['', ''],
-      metadata: { qOutput: true, previousClockState: false, isFirstEvaluation: true },  // 初回エッジ検出を防ぐ
+      metadata: {
+        qOutput: true,
+        previousClockState: false,
+        isFirstEvaluation: true,
+      }, // 初回エッジ検出を防ぐ
     },
     {
       id: 'dff4',
@@ -53,9 +64,13 @@ export const CHAOS_GENERATOR = {
       position: { x: 500, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { qOutput: false, previousClockState: false, isFirstEvaluation: true },  // 初回エッジ検出を防ぐ
+      metadata: {
+        qOutput: false,
+        previousClockState: false,
+        isFirstEvaluation: true,
+      }, // 初回エッジ検出を防ぐ
     },
-    
+
     // XORフィードバック（多項式: x^4 + x^3 + 1）
     {
       id: 'xor_feedback',
@@ -64,7 +79,7 @@ export const CHAOS_GENERATOR = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // 出力観測用
     {
       id: 'out_bit3',
@@ -94,7 +109,7 @@ export const CHAOS_GENERATOR = {
       output: false,
       inputs: [''],
     },
-    
+
     // ランダム出力
     {
       id: 'random_output',
@@ -130,7 +145,7 @@ export const CHAOS_GENERATOR = {
       to: { gateId: 'dff4', pinIndex: 1 },
       isActive: true, // クロック信号を視覚的に表示
     },
-    
+
     // シフトレジスタ接続
     {
       id: 'shift_1_2',
@@ -150,7 +165,7 @@ export const CHAOS_GENERATOR = {
       to: { gateId: 'dff4', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // XORフィードバック
     {
       id: 'feedback_tap3',
@@ -170,7 +185,7 @@ export const CHAOS_GENERATOR = {
       to: { gateId: 'dff1', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 出力観測
     {
       id: 'observe_bit3',
@@ -196,7 +211,7 @@ export const CHAOS_GENERATOR = {
       to: { gateId: 'out_bit0', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // ランダム出力
     {
       id: 'random_tap',

@@ -1,15 +1,14 @@
-import type { Gate, Wire } from '../../../types';
-
 export const JOHNSON_COUNTER = {
   id: 'johnson-counter',
   title: '💫 ジョンソンカウンター',
-  description: '美しい回転パターンを生成する循環シフトレジスタ。反転フィードバックにより魔法のような連続パターンを作り出します！',
+  description:
+    '美しい回転パターンを生成する循環シフトレジスタ。反転フィードバックにより魔法のような連続パターンを作り出します！',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 250,  // 0.25秒 - 1HzCLOCK(1000ms)の1/4間隔で正確な変化を捉える
+    updateInterval: 250, // 0.25秒 - 1HzCLOCK(1000ms)の1/4間隔で正確な変化を捉える
     expectedBehavior: 'sequence_generator' as const,
     minimumCycles: 12,
-    clockFrequency: 1
+    clockFrequency: 1,
   },
   gates: [
     // CLOCK (1Hz)
@@ -19,9 +18,9 @@ export const JOHNSON_COUNTER = {
       position: { x: 100, y: 200 },
       output: true,
       inputs: [],
-      metadata: { frequency: 1, isRunning: true },  // startTimeは評価時に自動設定
+      metadata: { frequency: 1, isRunning: true }, // startTimeは評価時に自動設定
     },
-    
+
     // 4ビットシフトレジスタ
     {
       id: 'dff0',
@@ -55,7 +54,7 @@ export const JOHNSON_COUNTER = {
       inputs: ['', ''],
       metadata: { qOutput: false, previousClockState: false },
     },
-    
+
     // 反転フィードバック用NOTゲート
     {
       id: 'not_feedback',
@@ -64,7 +63,7 @@ export const JOHNSON_COUNTER = {
       output: false,
       inputs: [''],
     },
-    
+
     // 各ビットの出力表示（LEDライクな配置）
     {
       id: 'led0',
@@ -94,7 +93,7 @@ export const JOHNSON_COUNTER = {
       output: false,
       inputs: [''],
     },
-    
+
     // パターン解析用の追加出力
     {
       id: 'pattern_a',
@@ -117,7 +116,7 @@ export const JOHNSON_COUNTER = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     {
       id: 'out_pattern_a',
       type: 'OUTPUT' as const,
@@ -139,7 +138,7 @@ export const JOHNSON_COUNTER = {
       output: false,
       inputs: [''],
     },
-    
+
     // 状態デコーダ（8つの状態を識別）
     {
       id: 'state_000',
@@ -183,7 +182,7 @@ export const JOHNSON_COUNTER = {
       output: false,
       inputs: [''],
     },
-    
+
     // 状態判定用のロジックゲート
     {
       id: 'not0',
@@ -213,7 +212,7 @@ export const JOHNSON_COUNTER = {
       output: false,
       inputs: [''],
     },
-    
+
     {
       id: 'and_state_000',
       type: 'AND' as const,
@@ -242,7 +241,7 @@ export const JOHNSON_COUNTER = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // 状態110デコーダー用の中間ロジック (dff2 & dff1)
     {
       id: 'and_state_110_mid',
@@ -251,7 +250,7 @@ export const JOHNSON_COUNTER = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // 状態110デコーダー用の最終ロジック ((dff2 & dff1) & ~dff0)
     {
       id: 'and_state_110',
@@ -260,7 +259,7 @@ export const JOHNSON_COUNTER = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // 状態100デコーダー用の中間ロジック (~dff1 & ~dff0)
     {
       id: 'and_state_100_mid',
@@ -269,7 +268,7 @@ export const JOHNSON_COUNTER = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // 状態100デコーダー用の最終ロジック (dff2 & (~dff1 & ~dff0))
     {
       id: 'and_state_100',
@@ -305,7 +304,7 @@ export const JOHNSON_COUNTER = {
       to: { gateId: 'dff3', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // シフトレジスタ接続
     {
       id: 'shift_0_1',
@@ -325,7 +324,7 @@ export const JOHNSON_COUNTER = {
       to: { gateId: 'dff3', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 反転フィードバック（ジョンソンカウンターの核心）
     {
       id: 'feedback_to_not',
@@ -339,7 +338,7 @@ export const JOHNSON_COUNTER = {
       to: { gateId: 'dff0', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // LED出力
     {
       id: 'dff0_to_led0',
@@ -365,7 +364,7 @@ export const JOHNSON_COUNTER = {
       to: { gateId: 'led3', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // パターン分析
     {
       id: 'pattern_a_in0',
@@ -403,7 +402,7 @@ export const JOHNSON_COUNTER = {
       to: { gateId: 'pattern_c', pinIndex: 1 },
       isActive: false,
     },
-    
+
     {
       id: 'pattern_a_out',
       from: { gateId: 'pattern_a', pinIndex: -1 },
@@ -422,7 +421,7 @@ export const JOHNSON_COUNTER = {
       to: { gateId: 'out_pattern_c', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 状態デコーダ用のNOT接続
     {
       id: 'dff0_to_not0',
@@ -448,7 +447,7 @@ export const JOHNSON_COUNTER = {
       to: { gateId: 'not3', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 状態000の検出
     {
       id: 'not0_to_state000',
@@ -468,7 +467,7 @@ export const JOHNSON_COUNTER = {
       to: { gateId: 'state_000', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 状態001の検出
     {
       id: 'dff0_to_state001',
@@ -488,7 +487,7 @@ export const JOHNSON_COUNTER = {
       to: { gateId: 'state_001', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 状態011の検出
     {
       id: 'dff0_to_state011',
@@ -508,7 +507,7 @@ export const JOHNSON_COUNTER = {
       to: { gateId: 'state_011', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 状態111の検出
     {
       id: 'dff0_to_state111',
@@ -528,7 +527,7 @@ export const JOHNSON_COUNTER = {
       to: { gateId: 'state_111', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 状態110の検出 (dff2 & dff1 & ~dff0)
     // 中間ロジック: dff2 & dff1
     {
@@ -562,7 +561,7 @@ export const JOHNSON_COUNTER = {
       to: { gateId: 'state_110', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 状態100の検出 (dff2 & ~dff1 & ~dff0)
     // 中間ロジック: ~dff1 & ~dff0
     {

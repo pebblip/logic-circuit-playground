@@ -32,7 +32,11 @@ export const useCanvasZoom = (
       if (newScale === scale) return;
 
       // マウス位置を中心にズーム（統一された座標変換を使用）
-      const svgCoords = clientToSVGCoordinates(clientX, clientY, svgRef.current);
+      const svgCoords = clientToSVGCoordinates(
+        clientX,
+        clientY,
+        svgRef.current
+      );
       if (!svgCoords) return;
 
       const svgX = svgCoords.x;
@@ -46,7 +50,7 @@ export const useCanvasZoom = (
       const rect = svgRef.current.getBoundingClientRect();
       const relativeX = (clientX - rect.left) / rect.width;
       const relativeY = (clientY - rect.top) / rect.height;
-      
+
       const newX = svgX - relativeX * newWidth;
       const newY = svgY - relativeY * newHeight;
 

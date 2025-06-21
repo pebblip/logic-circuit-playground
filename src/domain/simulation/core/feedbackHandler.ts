@@ -3,7 +3,7 @@
  * LFSRなどの循環回路を正しく評価するための機能
  */
 
-import type { Gate, Wire } from '../../../types/circuit';
+import type { Gate } from '../../../types/circuit';
 import type { Circuit } from './types';
 import { isLFSRCircuit, generateLFSREvaluationOrder } from './lfsrHandler';
 
@@ -28,7 +28,7 @@ export function handleFeedbackLoops(
   // ワイヤー接続を解析
   const connections = new Map<string, Set<string>>();
   circuit.gates.forEach(g => connections.set(g.id, new Set()));
-  
+
   circuit.wires.forEach(wire => {
     const from = wire.from.gateId;
     const to = wire.to.gateId;
@@ -36,36 +36,38 @@ export function handleFeedbackLoops(
   });
 
   // D-FFから始まるフィードバックループを検出
-  circuit.gates.filter(g => g.type === 'D-FF').forEach(dff => {
-    const visited = new Set<string>();
-    const path: string[] = [];
-    
-    function findLoop(current: string): boolean {
-      if (path.includes(current)) {
-        // ループを検出
-        const loopStart = path.indexOf(current);
-        for (let i = loopStart; i < path.length; i++) {
-          feedbackGates.add(path[i]);
-        }
-        return true;
-      }
-      
-      visited.add(current);
-      path.push(current);
-      
-      const nextGates = connections.get(current) || new Set();
-      for (const next of nextGates) {
-        if (findLoop(next)) {
+  circuit.gates
+    .filter(g => g.type === 'D-FF')
+    .forEach(dff => {
+      const visited = new Set<string>();
+      const path: string[] = [];
+
+      function findLoop(current: string): boolean {
+        if (path.includes(current)) {
+          // ループを検出
+          const loopStart = path.indexOf(current);
+          for (let i = loopStart; i < path.length; i++) {
+            feedbackGates.add(path[i]);
+          }
           return true;
         }
+
+        visited.add(current);
+        path.push(current);
+
+        const nextGates = connections.get(current) || new Set();
+        for (const next of nextGates) {
+          if (findLoop(next)) {
+            return true;
+          }
+        }
+
+        path.pop();
+        return false;
       }
-      
-      path.pop();
-      return false;
-    }
-    
-    findLoop(dff.id);
-  });
+
+      findLoop(dff.id);
+    });
 
   // フィードバックループ内のゲートは2回評価が必要
   if (feedbackGates.size === 0) {
@@ -76,10 +78,10 @@ export function handleFeedbackLoops(
   if (isLFSRCircuit(circuit)) {
     return generateLFSREvaluationOrder(circuit, evaluationOrder);
   }
-  
+
   // 通常のフィードバックループの場合
   const newOrder = [...evaluationOrder];
-  
+
   // フィードバックループ内のゲートを元の順序で追加
   evaluationOrder.forEach(gateId => {
     if (feedbackGates.has(gateId)) {
@@ -102,21 +104,21 @@ export function protectInitialState(circuit: Circuit): void {
       if (!gate.metadata) {
         gate.metadata = {};
       }
-      
+
       // qOutputが設定されていない場合は、gate.outputから設定
       if (gate.metadata.qOutput === undefined) {
         gate.metadata.qOutput = gate.output;
         gate.metadata.qBarOutput = !gate.output;
       }
-      
+
       // gate.outputをqOutputに合わせる（重要：初期値を保持）
       gate.output = gate.metadata.qOutput;
-      
+
       // 初回評価フラグを確実に設定
       if (gate.metadata.isFirstEvaluation === undefined) {
         gate.metadata.isFirstEvaluation = true;
       }
-      
+
       // CLOCKの初期状態に合わせてpreviousClockStateを設定
       // これにより初回の誤ったエッジ検出を防ぐ
       if (gate.metadata.previousClockState === undefined) {

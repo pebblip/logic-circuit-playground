@@ -59,18 +59,18 @@ export function generateTruthTable(
 
     const evaluationService = getGlobalEvaluationService();
     let evaluatedGates: Gate[];
-    
+
     try {
       // 統一サービスと同じ設定を適用した評価
       const complexity = evaluationService.analyzeComplexity(circuit);
       const strategy = complexity.recommendedStrategy;
-      
+
       // 同期評価（EnhancedHybridEvaluatorを直接使用）
       const evaluator = new EnhancedHybridEvaluator({
         strategy,
         enableDebugLogging: false,
       });
-      
+
       const evaluationResult = evaluator.evaluate(circuit);
       evaluatedGates = [...evaluationResult.circuit.gates];
     } catch (error) {

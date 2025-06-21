@@ -101,7 +101,9 @@ export const useKeyboardShortcuts = () => {
         event.preventDefault();
         if (canPaste()) {
           // キャンバスの表示中心にペースト
-          const canvas = document.querySelector('svg.circuit-canvas') as SVGSVGElement;
+          const canvas = document.querySelector(
+            'svg.circuit-canvas'
+          ) as SVGSVGElement;
           if (canvas) {
             const rect = canvas.getBoundingClientRect();
             // viewBoxを考慮して実際のSVG座標に変換
@@ -122,7 +124,8 @@ export const useKeyboardShortcuts = () => {
         !event.shiftKey
       ) {
         event.preventDefault();
-        const allGateIds = gates && Array.isArray(gates) ? gates.map(gate => gate.id) : [];
+        const allGateIds =
+          gates && Array.isArray(gates) ? gates.map(gate => gate.id) : [];
         setSelectedGates(allGateIds);
       }
 

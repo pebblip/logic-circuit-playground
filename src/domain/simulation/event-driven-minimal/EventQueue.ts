@@ -16,7 +16,7 @@ export class EventQueue {
     // 二分探索で挿入位置を見つける
     let left = 0;
     let right = this.events.length;
-    
+
     while (left < right) {
       const mid = Math.floor((left + right) / 2);
       if (this.events[mid].time <= event.time) {
@@ -25,7 +25,7 @@ export class EventQueue {
         right = mid;
       }
     }
-    
+
     this.events.splice(left, 0, event);
   }
 
@@ -34,13 +34,13 @@ export class EventQueue {
    */
   popEventsAt(time: SimTime): GateEvent[] {
     const events: GateEvent[] = [];
-    
+
     while (this.events.length > 0 && this.events[0].time === time) {
       const event = this.events.shift()!;
       events.push(event);
       this.processedCount++;
     }
-    
+
     return events;
   }
 

@@ -7,10 +7,10 @@ interface CircuitDiagnosticsProps {
   show?: boolean;
 }
 
-export const CircuitDiagnostics: React.FC<CircuitDiagnosticsProps> = ({ 
-  gates, 
+export const CircuitDiagnostics: React.FC<CircuitDiagnosticsProps> = ({
+  gates,
   wires,
-  show = false 
+  show = false,
 }) => {
   if (!show || import.meta.env.PROD) return null;
 
@@ -19,21 +19,23 @@ export const CircuitDiagnostics: React.FC<CircuitDiagnosticsProps> = ({
   const outputGates = gates.filter(g => g.type === 'OUTPUT');
 
   return (
-    <div style={{
-      position: 'absolute',
-      top: 10,
-      right: 10,
-      background: 'rgba(0, 0, 0, 0.8)',
-      color: '#00ff88',
-      padding: '10px',
-      borderRadius: '5px',
-      fontSize: '12px',
-      fontFamily: 'monospace',
-      maxWidth: '300px',
-      zIndex: 1000
-    }}>
+    <div
+      style={{
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        background: 'rgba(0, 0, 0, 0.8)',
+        color: '#00ff88',
+        padding: '10px',
+        borderRadius: '5px',
+        fontSize: '12px',
+        fontFamily: 'monospace',
+        maxWidth: '300px',
+        zIndex: 1000,
+      }}
+    >
       <h4 style={{ margin: '0 0 10px 0' }}>回路診断</h4>
-      
+
       <div style={{ marginBottom: '5px' }}>
         <strong>ゲート状態:</strong>
         {gates.map(g => (

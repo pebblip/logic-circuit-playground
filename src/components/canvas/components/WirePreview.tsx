@@ -12,26 +12,23 @@ interface WirePreviewProps {
   endY: number;
 }
 
-export const WirePreview: React.FC<WirePreviewProps> = React.memo(({
-  startX,
-  startY,
-  endX,
-  endY,
-}) => {
-  return (
-    <line
-      x1={startX}
-      y1={startY}
-      x2={endX}
-      y2={endY}
-      stroke="#00ff88"
-      strokeWidth="2"
-      strokeDasharray="5,5"
-      opacity="0.6"
-      pointerEvents="none"
-      className="wire-preview"
-    />
-  );
-});
+export const WirePreview: React.FC<WirePreviewProps> = React.memo(
+  ({ startX, startY, endX, endY }) => {
+    return (
+      <line
+        x1={startX}
+        y1={startY}
+        x2={endX}
+        y2={endY}
+        stroke="#00ff88"
+        strokeWidth="2"
+        strokeDasharray="5,5"
+        opacity="0.6"
+        pointerEvents="none"
+        className="wire-preview"
+      />
+    );
+  }
+);
 
 WirePreview.displayName = 'WirePreview';

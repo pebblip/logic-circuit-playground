@@ -101,7 +101,7 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
       const path = generateWirePath({
         from,
         to,
-        style: wireStyle
+        style: wireStyle,
       });
 
       return { path, from, to };

@@ -15,11 +15,15 @@ import { SELF_OSCILLATING_MEMORY_FINAL } from './self-oscillating-memory-final';
 import { MANDALA_CIRCUIT } from './mandala-circuit';
 
 export interface SimulationConfig {
-  needsAnimation?: boolean;      // オシレーション回路かどうか
-  updateInterval?: number;       // 更新間隔（ms）
-  expectedBehavior?: 'oscillator' | 'sequence_generator' | 'memory_circuit' | 'logic_gate';
-  minimumCycles?: number;        // テスト用最小サイクル数
-  clockFrequency?: number;       // CLOCKゲートの周波数（Hz）
+  needsAnimation?: boolean; // オシレーション回路かどうか
+  updateInterval?: number; // 更新間隔（ms）
+  expectedBehavior?:
+    | 'oscillator'
+    | 'sequence_generator'
+    | 'memory_circuit'
+    | 'logic_gate';
+  minimumCycles?: number; // テスト用最小サイクル数
+  clockFrequency?: number; // CLOCKゲートの周波数（Hz）
 }
 
 export interface CircuitMetadata {
@@ -28,14 +32,15 @@ export interface CircuitMetadata {
   description: string;
   gates: Gate[];
   wires: Wire[];
-  simulationConfig?: SimulationConfig;  // 🆕 シミュレーション設定を統合
+  simulationConfig?: SimulationConfig; // 🆕 シミュレーション設定を統合
 }
 
 export const FEATURED_CIRCUITS: CircuitMetadata[] = [
   {
     id: 'half-adder',
     title: '半加算器',
-    description: '2つの1ビット数を加算する基本回路。コンピュータの計算の原点です。',
+    description:
+      '2つの1ビット数を加算する基本回路。コンピュータの計算の原点です。',
     gates: [
       {
         id: 'input-a',
@@ -123,7 +128,8 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
   {
     id: 'sr-latch',
     title: 'SR ラッチ',
-    description: 'Set/Resetで状態を記憶する基本的なメモリ素子。デジタル回路におけるメモリの基礎概念を学べます。',
+    description:
+      'Set/Resetで状態を記憶する基本的なメモリ素子。デジタル回路におけるメモリの基礎概念を学べます。',
     gates: [
       // Set入力
       {
@@ -204,7 +210,8 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
   {
     id: 'decoder',
     title: 'デコーダー回路',
-    description: '2ビット入力を4つの出力に変換する回路。バイナリコードを具体的な選択信号に変換する重要な回路を学べます。',
+    description:
+      '2ビット入力を4つの出力に変換する回路。バイナリコードを具体的な選択信号に変換する重要な回路を学べます。',
     gates: [
       // 入力A（下位ビット）
       {
@@ -397,19 +404,19 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
 
   // 問題のあるバイナリカウンタ（専用ゲート使用）を削除
   // 将来的に基本ゲート版を追加予定
-  
+
   // 基本ゲートで作る高度な回路
   COMPARATOR_4BIT,
   PARITY_CHECKER,
   MAJORITY_VOTER,
   SEVEN_SEGMENT_DECODER,
-  
+
   // 循環回路（イベント駆動シミュレーション対応）
   SR_LATCH_BASIC,
   SIMPLE_RING_OSCILLATOR,
-  
+
   // 循環回路（高度）
-  SIMPLE_LFSR,  // 🔧 テスト用シンプルLFSR
+  SIMPLE_LFSR, // 🔧 テスト用シンプルLFSR
   CHAOS_GENERATOR,
   FIBONACCI_COUNTER,
   JOHNSON_COUNTER,

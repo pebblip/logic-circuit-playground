@@ -1,15 +1,14 @@
-import type { Gate, Wire } from '../../../types';
-
 export const FIBONACCI_COUNTER = {
   id: 'fibonacci-counter',
   title: '🌸 フィボナッチカウンター',
-  description: '数学の黄金比を生み出すフィボナッチ数列を生成する美しい循環回路。自然界のパターンをデジタル回路で再現！',
+  description:
+    '数学の黄金比を生み出すフィボナッチ数列を生成する美しい循環回路。自然界のパターンをデジタル回路で再現！',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 150,  // 0.15秒 - 1.667HzCLOCK(600ms)の1/4間隔で正確な変化を捉える
+    updateInterval: 150, // 0.15秒 - 1.667HzCLOCK(600ms)の1/4間隔で正確な変化を捉える
     expectedBehavior: 'sequence_generator' as const,
     minimumCycles: 8,
-    clockFrequency: 1.667  // 1.667Hz = 600ms周期
+    clockFrequency: 1.667, // 1.667Hz = 600ms周期
   },
   gates: [
     // CLOCK (1.5Hz for better observation) - 左側中央に独立配置
@@ -19,9 +18,9 @@ export const FIBONACCI_COUNTER = {
       position: { x: 50, y: 250 },
       output: true,
       inputs: [],
-      metadata: { frequency: 1.667, isRunning: true },  // startTimeは評価時に自動設定
+      metadata: { frequency: 1.667, isRunning: true }, // startTimeは評価時に自動設定
     },
-    
+
     // フィボナッチ数列レジスタ A (前の値) - 2ビット版
     {
       id: 'reg_a_0',
@@ -39,7 +38,7 @@ export const FIBONACCI_COUNTER = {
       inputs: ['', ''],
       metadata: { qOutput: false, previousClockState: false },
     },
-    
+
     // フィボナッチ数列レジスタ B (現在の値) - 2ビット版
     {
       id: 'reg_b_0',
@@ -57,7 +56,7 @@ export const FIBONACCI_COUNTER = {
       inputs: ['', ''],
       metadata: { qOutput: false, previousClockState: false },
     },
-    
+
     // 2ビット加算器 (A + B) - 中央に配置
     // ビット0の半加算器
     {
@@ -74,7 +73,7 @@ export const FIBONACCI_COUNTER = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // ビット1の全加算器
     {
       id: 'xor_1a',
@@ -111,7 +110,7 @@ export const FIBONACCI_COUNTER = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // ダミーのbit2レジスタ（オーバーフロー表示用）
     {
       id: 'reg_a_2',
@@ -129,7 +128,7 @@ export const FIBONACCI_COUNTER = {
       inputs: ['', ''],
       metadata: { qOutput: false, previousClockState: false },
     },
-    
+
     // 出力表示 - 右側に整列
     {
       id: 'out_fib_0',
@@ -152,7 +151,7 @@ export const FIBONACCI_COUNTER = {
       output: false,
       inputs: [''],
     },
-    
+
     // 現在のA値表示 - 上部に整列
     {
       id: 'out_a_0',
@@ -175,7 +174,7 @@ export const FIBONACCI_COUNTER = {
       output: false,
       inputs: [''],
     },
-    
+
     // 現在のB値表示 - 下部に整列
     {
       id: 'out_b_0',
@@ -237,7 +236,7 @@ export const FIBONACCI_COUNTER = {
       to: { gateId: 'reg_b_2', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // フィボナッチロジック: A = B, B = A + B
     // レジスタAにBの値を転送
     {
@@ -259,7 +258,7 @@ export const FIBONACCI_COUNTER = {
       to: { gateId: 'reg_a_2', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 加算器の入力接続
     // ビット0
     {
@@ -286,7 +285,7 @@ export const FIBONACCI_COUNTER = {
       to: { gateId: 'and_0', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // ビット1
     {
       id: 'a1_to_xor1a',
@@ -348,8 +347,7 @@ export const FIBONACCI_COUNTER = {
       to: { gateId: 'or_1', pinIndex: 1 },
       isActive: false,
     },
-    
-    
+
     // 加算結果をレジスタBに戻す
     {
       id: 'sum0_to_b0',
@@ -370,7 +368,7 @@ export const FIBONACCI_COUNTER = {
       to: { gateId: 'reg_b_2', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 出力接続
     {
       id: 'sum0_to_out',
@@ -391,7 +389,7 @@ export const FIBONACCI_COUNTER = {
       to: { gateId: 'out_fib_2', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // A値観測
     {
       id: 'a0_to_out_a0',
@@ -411,7 +409,7 @@ export const FIBONACCI_COUNTER = {
       to: { gateId: 'out_a_2', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // B値観測
     {
       id: 'b0_to_out_b0',

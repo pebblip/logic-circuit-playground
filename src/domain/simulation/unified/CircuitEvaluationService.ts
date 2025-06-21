@@ -6,7 +6,10 @@
 import type { Circuit } from '../core/types';
 import type { Gate, Wire } from '@/types/circuit';
 import type { Result } from '../core/types';
-import { EnhancedHybridEvaluator, type SimulationStrategy } from '../event-driven-minimal/EnhancedHybridEvaluator';
+import {
+  EnhancedHybridEvaluator,
+  type SimulationStrategy,
+} from '../event-driven-minimal/EnhancedHybridEvaluator';
 import { CircuitAnalyzer } from '../event-driven-minimal/CircuitAnalyzer';
 import type {
   ICircuitEvaluationService,
@@ -23,7 +26,7 @@ import { DEFAULT_UNIFIED_CONFIG } from './types';
 export class CircuitEvaluationService implements ICircuitEvaluationService {
   private evaluator: EnhancedHybridEvaluator;
   private config: UnifiedEvaluationConfig;
-  
+
   // パフォーマンス統計
   private stats = {
     totalEvaluations: 0,
@@ -44,18 +47,20 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
   /**
    * 回路を評価
    */
-  async evaluate(circuit: Circuit): Promise<Result<UnifiedEvaluationResult, UnifiedEvaluationError>> {
+  async evaluate(
+    circuit: Circuit
+  ): Promise<Result<UnifiedEvaluationResult, UnifiedEvaluationError>> {
     const startTime = performance.now();
-    
+
     try {
       // 1. 複雑度分析
       const complexity = this.analyzeComplexity(circuit);
-      
+
       // 2. 戦略決定（必要に応じて動的調整）
       let strategy = this.config.strategy;
       if (strategy === 'AUTO_SELECT') {
         strategy = complexity.recommendedStrategy;
-        
+
         // 動的に戦略を調整
         this.evaluator.updateConfig({
           strategy,
@@ -65,13 +70,13 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
 
       // 3. 回路評価実行
       const evaluationResult = this.evaluator.evaluate(circuit);
-      
+
       // 4. 実行時間計測
       const executionTime = performance.now() - startTime;
-      
+
       // 5. 統計更新
       this.updateStats(strategy, executionTime);
-      
+
       // 6. 結果構築
       const result: UnifiedEvaluationResult = {
         circuit: evaluationResult.circuit,
@@ -82,23 +87,25 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
           cacheHit: false,
         },
         oscillationInfo: undefined,
-        debugInfo: this.config.enableDebugLogging ? {
-          strategyReason: complexity.reasoning,
-          evaluationLogs: [],
-          circularGates: complexity.circularGates,
-        } : undefined,
+        debugInfo: this.config.enableDebugLogging
+          ? {
+              strategyReason: complexity.reasoning,
+              evaluationLogs: [],
+              circularGates: complexity.circularGates,
+            }
+          : undefined,
         warnings: evaluationResult.warnings,
       };
 
       return { success: true, data: result, warnings: [] };
-
     } catch (error) {
       const executionTime = performance.now() - startTime;
       this.updateStats('AUTO_SELECT', executionTime);
 
       const evaluationError: UnifiedEvaluationError = {
         type: this.categorizeError(error),
-        message: error instanceof Error ? error.message : 'Unknown evaluation error',
+        message:
+          error instanceof Error ? error.message : 'Unknown evaluation error',
         originalError: error instanceof Error ? error : undefined,
         recovery: this.generateRecoveryAdvice(error),
       };
@@ -113,11 +120,15 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
   analyzeComplexity(circuit: Circuit): CircuitComplexityAnalysis {
     const gateCount = circuit.gates.length;
     const wireCount = circuit.wires.length;
-    const hasCircularDependency = CircuitAnalyzer.hasCircularDependency(circuit);
-    const circularGates = hasCircularDependency ? CircuitAnalyzer.findCircularGates(circuit) : [];
+    const hasCircularDependency =
+      CircuitAnalyzer.hasCircularDependency(circuit);
+    const circularGates = hasCircularDependency
+      ? CircuitAnalyzer.findCircularGates(circuit)
+      : [];
     const hasClock = circuit.gates.some((g: Gate) => g.type === 'CLOCK');
-    const hasSequentialElements = circuit.gates.some((g: Gate) => 
-      g.type === 'D-FF' || g.type === 'SR-LATCH' || g.type === 'CLOCK'
+    const hasSequentialElements = circuit.gates.some(
+      (g: Gate) =>
+        g.type === 'D-FF' || g.type === 'SR-LATCH' || g.type === 'CLOCK'
     );
 
     // 最大深度計算（簡易版）
@@ -130,10 +141,14 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
     if (hasCircularDependency || hasSequentialElements) {
       recommendedStrategy = 'EVENT_DRIVEN_ONLY';
       reasoning = `循環依存または順序回路を検出: ${hasCircularDependency ? '循環依存あり' : ''}${hasSequentialElements ? '順序素子あり' : ''}`;
-    } else if (gateCount <= this.config.autoSelectionThresholds.maxGatesForLegacy) {
+    } else if (
+      gateCount <= this.config.autoSelectionThresholds.maxGatesForLegacy
+    ) {
       recommendedStrategy = 'LEGACY_ONLY';
       reasoning = `小規模組み合わせ回路(${gateCount}ゲート) - 従来方式が効率的`;
-    } else if (gateCount >= this.config.autoSelectionThresholds.minGatesForEventDriven) {
+    } else if (
+      gateCount >= this.config.autoSelectionThresholds.minGatesForEventDriven
+    ) {
       recommendedStrategy = 'EVENT_DRIVEN_ONLY';
       reasoning = `大規模回路(${gateCount}ゲート) - イベント駆動が効率的`;
     } else {
@@ -159,7 +174,7 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
    */
   updateConfig(config: Partial<UnifiedEvaluationConfig>): void {
     this.config = { ...this.config, ...config };
-    
+
     // EnhancedHybridEvaluatorの設定も更新
     this.evaluator.updateConfig({
       strategy: this.config.strategy,
@@ -180,10 +195,10 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
    */
   getPerformanceStats() {
     const strategyUsageStats: Record<SimulationStrategy, number> = {
-      'AUTO_SELECT': 0,
-      'LEGACY_ONLY': 0,
-      'EVENT_DRIVEN_ONLY': 0,
-      'COMPARISON_MODE': 0,
+      AUTO_SELECT: 0,
+      LEGACY_ONLY: 0,
+      EVENT_DRIVEN_ONLY: 0,
+      COMPARISON_MODE: 0,
     };
 
     this.stats.strategyUsage.forEach((count, strategy) => {
@@ -192,9 +207,10 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
 
     return {
       totalEvaluations: this.stats.totalEvaluations,
-      avgExecutionTime: this.stats.totalEvaluations > 0 
-        ? this.stats.totalExecutionTime / this.stats.totalEvaluations 
-        : 0,
+      avgExecutionTime:
+        this.stats.totalEvaluations > 0
+          ? this.stats.totalExecutionTime / this.stats.totalEvaluations
+          : 0,
       strategyUsageStats,
     };
   }
@@ -215,26 +231,28 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
     // 簡易実装：入力からの最大パス長
     const visited = new Set<string>();
     const memo = new Map<string, number>();
-    
+
     const dfs = (gateId: string): number => {
       if (visited.has(gateId)) return 0; // 循環検出
       if (memo.has(gateId)) return memo.get(gateId)!;
-      
+
       visited.add(gateId);
-      
+
       const gate = circuit.gates.find((g: Gate) => g.id === gateId);
       if (!gate || gate.type === 'INPUT') {
         memo.set(gateId, 0);
         visited.delete(gateId);
         return 0;
       }
-      
-      const inputWires = circuit.wires.filter((w: Wire) => w.to.gateId === gateId);
+
+      const inputWires = circuit.wires.filter(
+        (w: Wire) => w.to.gateId === gateId
+      );
       const maxInputDepth = inputWires.reduce((max: number, wire: Wire) => {
         const depth = dfs(wire.from.gateId);
         return Math.max(max, depth);
       }, 0);
-      
+
       const result = maxInputDepth + 1;
       memo.set(gateId, result);
       visited.delete(gateId);
@@ -249,10 +267,13 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
   /**
    * 統計を更新
    */
-  private updateStats(strategy: SimulationStrategy, executionTime: number): void {
+  private updateStats(
+    strategy: SimulationStrategy,
+    executionTime: number
+  ): void {
     this.stats.totalEvaluations++;
     this.stats.totalExecutionTime += executionTime;
-    
+
     const currentCount = this.stats.strategyUsage.get(strategy) || 0;
     this.stats.strategyUsage.set(strategy, currentCount + 1);
   }
@@ -263,23 +284,25 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
   private categorizeError(error: unknown): UnifiedEvaluationError['type'] {
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
-      
+
       if (message.includes('oscillation')) return 'OSCILLATION_DETECTED';
       if (message.includes('timeout')) return 'SIMULATION_TIMEOUT';
       if (message.includes('memory')) return 'MEMORY_LIMIT_EXCEEDED';
       if (message.includes('invalid')) return 'CIRCUIT_INVALID';
       if (message.includes('strategy')) return 'STRATEGY_FAILED';
     }
-    
+
     return 'UNKNOWN_ERROR';
   }
 
   /**
    * 復旧アドバイスを生成
    */
-  private generateRecoveryAdvice(error: unknown): UnifiedEvaluationError['recovery'] {
+  private generateRecoveryAdvice(
+    error: unknown
+  ): UnifiedEvaluationError['recovery'] {
     const errorType = this.categorizeError(error);
-    
+
     switch (errorType) {
       case 'OSCILLATION_DETECTED':
         return {
@@ -290,7 +313,7 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
             '回路設計を見直す（フィードバックループの確認）',
           ],
         };
-        
+
       case 'SIMULATION_TIMEOUT':
         return {
           suggestedStrategy: 'LEGACY_ONLY',
@@ -300,7 +323,7 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
             'タイムアウト値を増やす',
           ],
         };
-        
+
       case 'CIRCUIT_INVALID':
         return {
           suggestedActions: [
@@ -309,7 +332,7 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
             'ワイヤーの接続が正しいか確認する',
           ],
         };
-        
+
       default:
         return {
           suggestedStrategy: 'AUTO_SELECT',
@@ -340,6 +363,8 @@ export function getGlobalEvaluationService(): CircuitEvaluationService {
 /**
  * グローバル評価サービスを設定
  */
-export function setGlobalEvaluationService(service: CircuitEvaluationService): void {
+export function setGlobalEvaluationService(
+  service: CircuitEvaluationService
+): void {
   globalEvaluationService = service;
 }

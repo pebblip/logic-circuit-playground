@@ -20,7 +20,8 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   const [shareLoadMessage, setShareLoadMessage] = useState<string | null>(null);
 
   // 開発用テストページ表示チェック
-  const isTestMode = new URLSearchParams(window.location.search).get('test') === 'canvas';
+  const isTestMode =
+    new URLSearchParams(window.location.search).get('test') === 'canvas';
 
   useKeyboardShortcuts();
 

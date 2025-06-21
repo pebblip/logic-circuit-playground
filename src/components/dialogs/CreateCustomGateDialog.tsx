@@ -46,7 +46,9 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
   const handleSave = () => {
     if (!formData.gateName) {
       handleError(
-        new Error('カスタムゲートには名前を付けてください。この名前は回路内でゲートを識別するために使用されます。'),
+        new Error(
+          'カスタムゲートには名前を付けてください。この名前は回路内でゲートを識別するために使用されます。'
+        ),
         'CreateCustomGateDialog',
         {
           userAction: 'カスタムゲートの保存',
@@ -59,7 +61,9 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
 
     if (!/^[a-zA-Z0-9_]+$/.test(formData.gateName)) {
       handleError(
-        new Error('ゲート名には半角の英数字とアンダースコア（_）のみ使用できます。例：my_gate、Counter、LED_Display'),
+        new Error(
+          'ゲート名には半角の英数字とアンダースコア（_）のみ使用できます。例：my_gate、Counter、LED_Display'
+        ),
         'CreateCustomGateDialog',
         {
           userAction: 'カスタムゲートの保存',

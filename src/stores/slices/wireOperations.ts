@@ -21,15 +21,15 @@ function evaluateCircuitSync(circuit: Circuit) {
     // 統一サービスと同じ設定を適用したエバリュエーターを使用
     const complexity = evaluationService.analyzeComplexity(circuit);
     const strategy = complexity.recommendedStrategy;
-    
+
     // EnhancedHybridEvaluatorを直接使用（同期処理）
     const evaluator = new EnhancedHybridEvaluator({
       strategy,
       enableDebugLogging: false,
     });
-    
+
     const evaluationResult = evaluator.evaluate(circuit);
-    
+
     return {
       success: true as const,
       data: {

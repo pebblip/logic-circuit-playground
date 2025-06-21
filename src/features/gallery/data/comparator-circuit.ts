@@ -8,7 +8,8 @@ import type { CircuitMetadata } from './gallery';
 export const COMPARATOR_4BIT: CircuitMetadata = {
   id: '4bit-comparator',
   title: '4ビット比較器',
-  description: '2つの4ビット数値を比較。A>B、A=B、A<Bを判定する実用的な回路。基本ゲートの組み合わせで高度な機能を実現！',
+  description:
+    '2つの4ビット数値を比較。A>B、A=B、A<Bを判定する実用的な回路。基本ゲートの組み合わせで高度な機能を実現！',
   gates: [
     // A入力（4ビット）- A=8 (1000)
     {

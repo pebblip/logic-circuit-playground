@@ -15,7 +15,7 @@ export const isGateElement = (
   svgRef: React.RefObject<SVGSVGElement>
 ): boolean => {
   if (!element) return false;
-  
+
   let current = element;
   while (current && current !== svgRef.current) {
     // ゲートコンテナクラスのチェック
@@ -23,8 +23,9 @@ export const isGateElement = (
     // data-gate-id属性のチェック
     if (current.hasAttribute?.('data-gate-id')) return true;
     // クラス名にgate-containerが含まれるかチェック（古いブラウザ対応）
-    if (current.getAttribute?.('class')?.includes('gate-container')) return true;
-    
+    if (current.getAttribute?.('class')?.includes('gate-container'))
+      return true;
+
     current = current.parentElement as Element;
   }
   return false;
@@ -37,7 +38,7 @@ export const getGateIdFromElement = (
   element: Element | null
 ): string | null => {
   if (!element) return null;
-  
+
   let current = element;
   while (current) {
     const gateId = current.getAttribute('data-gate-id');
@@ -56,17 +57,23 @@ export const calculateGatesBounds = (
   if (gates.length === 0) {
     return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
   }
-  
+
   return gates.reduce(
     (acc, gate) => {
       // ゲートのサイズ（GATE_SIZESから取得すべきだが、ここでは簡易的に）
       const gateWidth = 70;
       const gateHeight = 50;
       const pinExtension = 10;
-      
+
       return {
-        minX: Math.min(acc.minX, gate.position.x - gateWidth / 2 - pinExtension),
-        maxX: Math.max(acc.maxX, gate.position.x + gateWidth / 2 + pinExtension),
+        minX: Math.min(
+          acc.minX,
+          gate.position.x - gateWidth / 2 - pinExtension
+        ),
+        maxX: Math.max(
+          acc.maxX,
+          gate.position.x + gateWidth / 2 + pinExtension
+        ),
         minY: Math.min(acc.minY, gate.position.y - gateHeight / 2),
         maxY: Math.max(acc.maxY, gate.position.y + gateHeight / 2),
       };
@@ -108,7 +115,7 @@ export const isGateInSelectionRect = (
   const maxX = Math.max(rect.startX, rect.endX);
   const minY = Math.min(rect.startY, rect.endY);
   const maxY = Math.max(rect.startY, rect.endY);
-  
+
   return (
     gate.position.x >= minX &&
     gate.position.x <= maxX &&
@@ -124,9 +131,9 @@ export const getMaxClockFrequency = (gates: Gate[]): number => {
   const runningClockGates = gates.filter(
     gate => gate.type === 'CLOCK' && gate.metadata?.isRunning
   );
-  
+
   if (runningClockGates.length === 0) return 1;
-  
+
   return Math.max(
     ...runningClockGates.map(gate => gate.metadata?.frequency || 1)
   );

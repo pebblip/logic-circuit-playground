@@ -25,7 +25,10 @@ export const GateSection: React.FC<GateSectionProps> = ({
 }) => {
   return (
     <>
-      <div className="section-title" data-testid={`section-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+      <div
+        className="section-title"
+        data-testid={`section-${title.toLowerCase().replace(/\s+/g, '-')}`}
+      >
         <span>{icon}</span>
         <span>{title}</span>
       </div>

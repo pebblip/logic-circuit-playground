@@ -6,7 +6,12 @@ export type { GateType, CustomGateDefinition } from './circuit';
 // ゲートタイプの詳細定義
 export type BasicGateType = 'AND' | 'OR' | 'NOT' | 'XOR' | 'NAND' | 'NOR';
 export type IOGateType = 'INPUT' | 'OUTPUT';
-export type SpecialGateType = 'CLOCK' | 'D-FF' | 'SR-LATCH' | 'MUX' | 'BINARY_COUNTER';
+export type SpecialGateType =
+  | 'CLOCK'
+  | 'D-FF'
+  | 'SR-LATCH'
+  | 'MUX'
+  | 'BINARY_COUNTER';
 export type CustomGateType = 'CUSTOM';
 export type AllGateType =
   | BasicGateType

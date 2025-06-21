@@ -4,9 +4,8 @@
  */
 
 import type { Circuit } from '../core/types';
-import type { Gate, Wire } from '../../../types/circuit';
+import type { Gate } from '../../../types/circuit';
 import { CircuitAnalyzer } from './CircuitAnalyzer';
-import { MinimalEventDrivenEngine } from './MinimalEventDrivenEngine';
 import { EventDrivenEngine } from '../event-driven';
 import { evaluateCircuit as evaluateTopological } from '../core/circuitEvaluation';
 import { defaultConfig } from '../core/types';
@@ -14,11 +13,11 @@ import { defaultConfig } from '../core/types';
 /**
  * シミュレーション戦略
  */
-export type SimulationStrategy = 
-  | 'LEGACY_ONLY'           // 既存システムのみ（トポロジカルソート）
-  | 'EVENT_DRIVEN_ONLY'     // イベント駆動のみ
-  | 'AUTO_SELECT'           // 自動選択
-  | 'COMPARISON_MODE';      // 比較モード（デバッグ用）
+export type SimulationStrategy =
+  | 'LEGACY_ONLY' // 既存システムのみ（トポロジカルソート）
+  | 'EVENT_DRIVEN_ONLY' // イベント駆動のみ
+  | 'AUTO_SELECT' // 自動選択
+  | 'COMPARISON_MODE'; // 比較モード（デバッグ用）
 
 /**
  * 評価設定
@@ -26,12 +25,12 @@ export type SimulationStrategy =
 export interface EnhancedEvaluatorConfig {
   strategy: SimulationStrategy;
   autoSelectionThresholds: {
-    maxGatesForLegacy: number;    // この数以下なら既存システム
+    maxGatesForLegacy: number; // この数以下なら既存システム
     minGatesForEventDriven: number; // この数以上ならイベント駆動
   };
   enablePerformanceTracking: boolean;
   enableDebugLogging: boolean;
-  delayMode?: boolean;  // 遅延モードの有効/無効
+  delayMode?: boolean; // 遅延モードの有効/無効
 }
 
 /**
@@ -72,7 +71,7 @@ export class EnhancedHybridEvaluator {
   private config: EnhancedEvaluatorConfig;
   private eventDrivenEngine: EventDrivenEngine;
   private performanceHistory: Map<string, number[]> = new Map();
-  
+
   constructor(config: Partial<EnhancedEvaluatorConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.eventDrivenEngine = new EventDrivenEngine({
@@ -86,32 +85,34 @@ export class EnhancedHybridEvaluator {
    */
   evaluate(circuit: Circuit): EnhancedEvaluationResult {
     const startTime = performance.now();
-    
+
     // 戦略決定
     const strategy = this.determineStrategy(circuit);
-    
+
     // デバッグログ
     if (this.config.enableDebugLogging) {
       console.log('[EnhancedHybridEvaluator] Selected strategy:', strategy);
       console.log('[EnhancedHybridEvaluator] Circuit analysis:', {
         hasClockGates: circuit.gates.some(g => g.type === 'CLOCK'),
-        hasSequentialElements: circuit.gates.some(g => g.type === 'D-FF' || g.type === 'SR-LATCH'),
+        hasSequentialElements: circuit.gates.some(
+          g => g.type === 'D-FF' || g.type === 'SR-LATCH'
+        ),
         hasCircular: CircuitAnalyzer.hasCircularDependency(circuit),
         gateCount: circuit.gates.length,
-        delayMode: this.config.delayMode
+        delayMode: this.config.delayMode,
       });
     }
-    
+
     // 実行
     const result = this.executeWithStrategy(circuit, strategy);
-    
+
     const executionTime = performance.now() - startTime;
-    
+
     // パフォーマンス履歴を記録
     if (this.config.enablePerformanceTracking) {
       this.recordPerformance(circuit, executionTime);
     }
-    
+
     // 評価情報を追加
     const evaluationInfo: EvaluationInfo = {
       strategyUsed: strategy,
@@ -121,7 +122,7 @@ export class EnhancedHybridEvaluator {
       wireCount: circuit.wires.length,
       recommendation: this.getRecommendation(circuit, strategy),
     };
-    
+
     return {
       circuit: result.circuit,
       evaluationInfo,
@@ -138,10 +139,10 @@ export class EnhancedHybridEvaluator {
       case 'EVENT_DRIVEN_ONLY':
       case 'COMPARISON_MODE':
         return this.config.strategy;
-        
+
       case 'AUTO_SELECT':
         return this.autoSelectStrategy(circuit);
-        
+
       default:
         return 'AUTO_SELECT';
     }
@@ -154,39 +155,41 @@ export class EnhancedHybridEvaluator {
     const gateCount = circuit.gates.length;
     const hasCircular = CircuitAnalyzer.hasCircularDependency(circuit);
     const hasClockGates = circuit.gates.some(g => g.type === 'CLOCK');
-    const hasSequentialElements = circuit.gates.some(g => 
-      g.type === 'D-FF' || g.type === 'SR-LATCH'
+    const hasSequentialElements = circuit.gates.some(
+      g => g.type === 'D-FF' || g.type === 'SR-LATCH'
     );
-    
+
     // CLOCKゲートがある場合はレガシーエンジンを使用
     // （イベント駆動は静的な評価のため、時間経過による変化に対応できない）
     // シーケンシャル要素があってもCLOCKがある場合はレガシーを優先
     if (hasClockGates) {
       return 'LEGACY_ONLY';
     }
-    
+
     // 循環依存、シーケンシャル要素がある場合はイベント駆動必須
     if (hasCircular || hasSequentialElements) {
       return 'EVENT_DRIVEN_ONLY';
     }
-    
+
     // 小規模回路は既存システムが高速
     if (gateCount <= this.config.autoSelectionThresholds.maxGatesForLegacy) {
       return 'LEGACY_ONLY';
     }
-    
+
     // 大規模回路はイベント駆動が効率的
-    if (gateCount >= this.config.autoSelectionThresholds.minGatesForEventDriven) {
+    if (
+      gateCount >= this.config.autoSelectionThresholds.minGatesForEventDriven
+    ) {
       return 'EVENT_DRIVEN_ONLY';
     }
-    
+
     // 中規模回路はパフォーマンス履歴を参考に
     const avgPerformance = this.getAveragePerformance(circuit);
     if (avgPerformance !== null && avgPerformance > 10) {
       // 過去に時間がかかった場合はイベント駆動
       return 'EVENT_DRIVEN_ONLY';
     }
-    
+
     return 'LEGACY_ONLY';
   }
 
@@ -198,25 +201,27 @@ export class EnhancedHybridEvaluator {
     strategy: SimulationStrategy
   ): { circuit: Circuit; warnings: string[] } {
     if (this.config.enableDebugLogging) {
-      console.log(`[EnhancedHybridEvaluator] Executing with strategy: ${strategy}`);
+      console.log(
+        `[EnhancedHybridEvaluator] Executing with strategy: ${strategy}`
+      );
     }
-    
+
     switch (strategy) {
       case 'LEGACY_ONLY':
         if (this.config.enableDebugLogging) {
           console.log('[EnhancedHybridEvaluator] Using LEGACY engine');
         }
         return this.executeLegacy(circuit);
-        
+
       case 'EVENT_DRIVEN_ONLY':
         if (this.config.enableDebugLogging) {
           console.log('[EnhancedHybridEvaluator] Using EVENT_DRIVEN engine');
         }
         return this.executeEventDriven(circuit);
-        
+
       case 'COMPARISON_MODE':
         return this.executeComparison(circuit);
-        
+
       default:
         if (this.config.enableDebugLogging) {
           console.log('[EnhancedHybridEvaluator] Using default LEGACY engine');
@@ -228,24 +233,35 @@ export class EnhancedHybridEvaluator {
   /**
    * 既存システムで実行
    */
-  private executeLegacy(circuit: Circuit): { circuit: Circuit; warnings: string[] } {
+  private executeLegacy(circuit: Circuit): {
+    circuit: Circuit;
+    warnings: string[];
+  } {
     // 🔧 CLOCKゲートのstartTime初期化（重要！）
     const currentTime = Date.now();
     const preprocessedGates = circuit.gates.map(gate => {
-      if (gate.type === 'CLOCK' && gate.metadata && gate.metadata.startTime === undefined) {
+      if (
+        gate.type === 'CLOCK' &&
+        gate.metadata &&
+        gate.metadata.startTime === undefined
+      ) {
         if (this.config.enableDebugLogging) {
-          console.log(`🔧 [Legacy] ${gate.id}: Initializing startTime to ${currentTime}ms (frequency=${gate.metadata.frequency}Hz)`);
+          console.log(
+            `🔧 [Legacy] ${gate.id}: Initializing startTime to ${currentTime}ms (frequency=${gate.metadata.frequency}Hz)`
+          );
         }
         return {
           ...gate,
           metadata: {
             ...gate.metadata,
             startTime: currentTime,
-          }
+          },
         };
       } else if (gate.type === 'CLOCK' && gate.metadata?.startTime) {
         if (this.config.enableDebugLogging) {
-          console.log(`ℹ️ [Legacy] ${gate.id}: Already has startTime=${gate.metadata.startTime}ms (frequency=${gate.metadata.frequency}Hz)`);
+          console.log(
+            `ℹ️ [Legacy] ${gate.id}: Already has startTime=${gate.metadata.startTime}ms (frequency=${gate.metadata.frequency}Hz)`
+          );
         }
       }
       return gate;
@@ -256,13 +272,13 @@ export class EnhancedHybridEvaluator {
       wires: circuit.wires,
       metadata: {},
     };
-    
+
     // デバッグ設定を追加
     const config = {
       ...defaultConfig,
       enableDebug: this.config.enableDebugLogging,
-      allowCircularDependencies: true,  // ギャラリーモードのオシレータ用
-      strictValidation: false,  // 循環依存を持つ回路の検証を緩和
+      allowCircularDependencies: true, // ギャラリーモードのオシレータ用
+      strictValidation: false, // 循環依存を持つ回路の検証を緩和
       // 🔧 timeProviderを明示的に設定（CLOCKゲート用）
       timeProvider: {
         getCurrentTime: () => Date.now(),
@@ -271,9 +287,9 @@ export class EnhancedHybridEvaluator {
       // 🔧 D-FF二段階評価を強制有効化（ギャラリーモード用）
       forceTwoPhaseEvaluation: true,
     };
-    
+
     const result = evaluateTopological(circuitData, config);
-    
+
     if (result.success) {
       return {
         circuit: result.data.circuit,
@@ -281,7 +297,10 @@ export class EnhancedHybridEvaluator {
       };
     } else {
       if (this.config.enableDebugLogging) {
-        console.error('[EnhancedHybridEvaluator] トポロジカル評価失敗:', result.error);
+        console.error(
+          '[EnhancedHybridEvaluator] トポロジカル評価失敗:',
+          result.error
+        );
       }
       return {
         circuit,
@@ -293,95 +312,106 @@ export class EnhancedHybridEvaluator {
   /**
    * イベント駆動で実行
    */
-  private executeEventDriven(circuit: Circuit): { circuit: Circuit; warnings: string[] } {
+  private executeEventDriven(circuit: Circuit): {
+    circuit: Circuit;
+    warnings: string[];
+  } {
     const warnings: string[] = [];
-    
+
     const result = this.eventDrivenEngine.evaluate(circuit);
-    
+
     if (!result.success) {
       warnings.push('イベント駆動シミュレーションで収束しませんでした');
       if (result.hasOscillation) {
         warnings.push('発振が検出されました');
       }
     }
-    
+
     if (this.config.enableDebugLogging && result.debugTrace) {
-      console.debug('[EnhancedHybridEvaluator] デバッグトレース:', result.debugTrace);
+      console.debug(
+        '[EnhancedHybridEvaluator] デバッグトレース:',
+        result.debugTrace
+      );
     }
-    
-    
+
     // ワイヤー情報から入力値を動的に計算
     const gateInputsMap = new Map<string, boolean[]>();
-    
+
     // 各ゲートの入力値をワイヤーから計算
     for (const gate of circuit.gates) {
       const inputs: boolean[] = [];
       const inputCount = this.getGateInputCount(gate);
-      
+
       // 初期化
       for (let i = 0; i < inputCount; i++) {
         inputs[i] = false;
       }
-      
+
       // ワイヤーから入力値を収集
       for (const wire of circuit.wires) {
         if (wire.to.gateId === gate.id) {
-          const sourceGateState = result.finalState?.gateStates.get(wire.from.gateId);
+          const sourceGateState = result.finalState?.gateStates.get(
+            wire.from.gateId
+          );
           if (sourceGateState) {
-            const outputIndex = wire.from.pinIndex === -1 ? 0 : 
-                               wire.from.pinIndex === -2 ? 1 : 0;
+            const outputIndex =
+              wire.from.pinIndex === -1 ? 0 : wire.from.pinIndex === -2 ? 1 : 0;
             const value = sourceGateState.outputs[outputIndex] || false;
-            
+
             if (wire.to.pinIndex >= 0 && wire.to.pinIndex < inputs.length) {
               inputs[wire.to.pinIndex] = value;
             }
           }
         }
       }
-      
+
       gateInputsMap.set(gate.id, inputs);
     }
-    
+
     // EventDrivenEngineの結果から正しいゲート状態を反映
     const updatedGates = circuit.gates.map(gate => {
       const gateState = result.finalState?.gateStates.get(gate.id);
       const dynamicInputs = gateInputsMap.get(gate.id) || [];
-      
-      
+
       if (gateState) {
         // GateStateからゲートオブジェクトに正しい状態を反映
         const updatedGate = { ...gate };
-        
+
         // 出力値を反映
         if (gateState.outputs.length > 0) {
           updatedGate.output = gateState.outputs[0];
         }
-        
+
         // OUTPUTゲートは入力をそのまま出力に反映
         if (gate.type === 'OUTPUT' && dynamicInputs.length > 0) {
           updatedGate.output = dynamicInputs[0];
         }
-        
+
         // 動的に計算した入力値を反映（文字列形式で保存）
-        updatedGate.inputs = dynamicInputs.map(input => input ? '1' : '');
-        
+        updatedGate.inputs = dynamicInputs.map(input => (input ? '1' : ''));
+
         // メタデータを更新（D-FF、SR-LATCH等の状態保持ゲート用）
         if (gateState.metadata) {
-          updatedGate.metadata = { ...updatedGate.metadata, ...gateState.metadata };
+          updatedGate.metadata = {
+            ...updatedGate.metadata,
+            ...gateState.metadata,
+          };
         }
-        
+
         return updatedGate;
       }
       return { ...gate };
     });
-    
+
     // ワイヤーの状態も更新
     const updatedWires = circuit.wires.map(wire => {
-      const sourceGateState = result.finalState?.gateStates.get(wire.from.gateId);
+      const sourceGateState = result.finalState?.gateStates.get(
+        wire.from.gateId
+      );
       if (sourceGateState) {
         // pinIndex -1は出力index 0、pinIndex -2は出力index 1
-        const outputIndex = wire.from.pinIndex === -1 ? 0 : 
-                           wire.from.pinIndex === -2 ? 1 : 0;
+        const outputIndex =
+          wire.from.pinIndex === -1 ? 0 : wire.from.pinIndex === -2 ? 1 : 0;
         const isActive = sourceGateState.outputs[outputIndex] || false;
         return { ...wire, isActive };
       }
@@ -391,7 +421,7 @@ export class EnhancedHybridEvaluator {
     return {
       circuit: {
         gates: updatedGates,
-        wires: updatedWires
+        wires: updatedWires,
       },
       warnings,
     };
@@ -431,30 +461,36 @@ export class EnhancedHybridEvaluator {
   /**
    * 比較モードで実行
    */
-  private executeComparison(circuit: Circuit): { circuit: Circuit; warnings: string[] } {
+  private executeComparison(circuit: Circuit): {
+    circuit: Circuit;
+    warnings: string[];
+  } {
     const warnings: string[] = [];
-    
+
     // 両方の方式で実行
     const legacyStart = performance.now();
     const legacyResult = this.executeLegacy(circuit);
     const legacyTime = performance.now() - legacyStart;
-    
+
     const eventDrivenStart = performance.now();
     const eventDrivenResult = this.executeEventDriven(circuit);
     const eventDrivenTime = performance.now() - eventDrivenStart;
-    
+
     // 性能比較
     const speedup = legacyTime / eventDrivenTime;
     warnings.push(
       `性能比較: Legacy=${legacyTime.toFixed(2)}ms, EventDriven=${eventDrivenTime.toFixed(2)}ms, 速度向上=${speedup.toFixed(2)}倍`
     );
-    
+
     // 結果の差異をチェック
-    const differences = this.compareResults(legacyResult.circuit, eventDrivenResult.circuit);
+    const differences = this.compareResults(
+      legacyResult.circuit,
+      eventDrivenResult.circuit
+    );
     if (differences.length > 0) {
       warnings.push(`結果に差異があります: ${differences.join(', ')}`);
     }
-    
+
     // イベント駆動の結果を返す（より正確なため）
     return {
       circuit: eventDrivenResult.circuit,
@@ -467,49 +503,52 @@ export class EnhancedHybridEvaluator {
    */
   private compareResults(circuit1: Circuit, circuit2: Circuit): string[] {
     const differences: string[] = [];
-    
+
     // ゲート出力の比較
     for (let i = 0; i < circuit1.gates.length; i++) {
       const gate1 = circuit1.gates[i];
       const gate2 = circuit2.gates.find(g => g.id === gate1.id);
-      
+
       if (gate2 && gate1.output !== gate2.output) {
         differences.push(`ゲート${gate1.id}の出力が異なります`);
       }
     }
-    
+
     // ワイヤー状態の比較
     for (let i = 0; i < circuit1.wires.length; i++) {
       const wire1 = circuit1.wires[i];
       const wire2 = circuit2.wires.find(w => w.id === wire1.id);
-      
+
       if (wire2 && wire1.isActive !== wire2.isActive) {
         differences.push(`ワイヤー${wire1.id}の状態が異なります`);
       }
     }
-    
+
     return differences;
   }
 
   /**
    * 推奨事項の生成
    */
-  private getRecommendation(circuit: Circuit, strategyUsed: SimulationStrategy): string {
+  private getRecommendation(
+    circuit: Circuit,
+    strategyUsed: SimulationStrategy
+  ): string {
     const gateCount = circuit.gates.length;
     const hasCircular = CircuitAnalyzer.hasCircularDependency(circuit);
-    
+
     if (hasCircular) {
       return 'この回路には循環依存があるため、イベント駆動シミュレーションが必要です';
     }
-    
+
     if (strategyUsed === 'LEGACY_ONLY' && gateCount > 100) {
       return '大規模回路のため、イベント駆動シミュレーションの使用を検討してください';
     }
-    
+
     if (strategyUsed === 'EVENT_DRIVEN_ONLY' && gateCount < 20) {
       return '小規模回路のため、既存システムの方が高速な可能性があります';
     }
-    
+
     return '現在の設定が適切です';
   }
 
@@ -519,14 +558,14 @@ export class EnhancedHybridEvaluator {
   private recordPerformance(circuit: Circuit, executionTime: number): void {
     const hash = this.calculateCircuitHash(circuit);
     const history = this.performanceHistory.get(hash) || [];
-    
+
     history.push(executionTime);
-    
+
     // 最新10件のみ保持
     if (history.length > 10) {
       history.shift();
     }
-    
+
     this.performanceHistory.set(hash, history);
   }
 
@@ -536,11 +575,11 @@ export class EnhancedHybridEvaluator {
   private getAveragePerformance(circuit: Circuit): number | null {
     const hash = this.calculateCircuitHash(circuit);
     const history = this.performanceHistory.get(hash);
-    
+
     if (!history || history.length === 0) {
       return null;
     }
-    
+
     return history.reduce((sum, time) => sum + time, 0) / history.length;
   }
 
@@ -548,10 +587,13 @@ export class EnhancedHybridEvaluator {
    * 回路のハッシュ計算（簡易版）
    */
   private calculateCircuitHash(circuit: Circuit): string {
-    const gateTypes = circuit.gates.map(g => g.type).sort().join(',');
+    const gateTypes = circuit.gates
+      .map(g => g.type)
+      .sort()
+      .join(',');
     const gateCount = circuit.gates.length;
     const wireCount = circuit.wires.length;
-    
+
     return `${gateTypes}_${gateCount}_${wireCount}`;
   }
 
@@ -580,13 +622,16 @@ export class EnhancedHybridEvaluator {
     const hasCircular = CircuitAnalyzer.hasCircularDependency(circuit);
     const circularGates = CircuitAnalyzer.findCircularGates(circuit);
     const complexity = CircuitAnalyzer.getCircuitComplexity(circuit);
-    
+
     return {
       hasCircularDependency: hasCircular,
       circularGates,
       complexity,
       recommendedMode: hasCircular ? 'event-driven' : 'topological',
-      evaluationInfo: this.getRecommendation(circuit, this.determineStrategy(circuit)),
+      evaluationInfo: this.getRecommendation(
+        circuit,
+        this.determineStrategy(circuit)
+      ),
     };
   }
 }

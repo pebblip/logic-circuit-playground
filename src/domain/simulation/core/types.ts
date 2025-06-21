@@ -169,8 +169,8 @@ export interface EvaluationConfig {
   readonly strictValidation: boolean;
   readonly maxRecursionDepth: number;
   readonly customGateEvaluator?: CustomGateEvaluator;
-  readonly allowCircularDependencies?: boolean;  // 循環依存を許可（オシレータ用）
-  readonly forceTwoPhaseEvaluation?: boolean;    // D-FF二段階評価を強制有効化
+  readonly allowCircularDependencies?: boolean; // 循環依存を許可（オシレータ用）
+  readonly forceTwoPhaseEvaluation?: boolean; // D-FF二段階評価を強制有効化
 }
 
 /**

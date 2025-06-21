@@ -123,7 +123,8 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
                   トレース数: {visibleTraces.length}
                 </span>
                 <span className="status-text" data-testid="time-window-display">
-                  時間窓: {Math.round(timeWindow.start)}ms - {Math.round(timeWindow.end)}ms
+                  時間窓: {Math.round(timeWindow.start)}ms -{' '}
+                  {Math.round(timeWindow.end)}ms
                 </span>
               </div>
 

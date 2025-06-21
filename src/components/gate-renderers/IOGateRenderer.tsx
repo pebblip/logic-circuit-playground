@@ -35,10 +35,14 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
       <>
         <g
           onClick={handleInputClick}
-          onDoubleClick={onInputClick ? (e) => {
-            e.stopPropagation();
-            onInputClick(gate.id);
-          } : handleInputDoubleClick}
+          onDoubleClick={
+            onInputClick
+              ? e => {
+                  e.stopPropagation();
+                  onInputClick(gate.id);
+                }
+              : handleInputDoubleClick
+          }
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
           className="u-cursor-grab"

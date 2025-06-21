@@ -1,0 +1,89 @@
+name: "🛡️ Basic Quality Gate"
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  basic-quality-gate:
+    name: "Basic Quality Checks"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+
+      - name: "📦 Setup pnpm"
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: "⚡ Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: "📚 Install Dependencies"
+        run: pnpm install --frozen-lockfile
+
+      - name: "🔍 Type Safety Check"
+        id: typecheck
+        run: |
+          echo "🔬 Running TypeScript type checking..."
+          pnpm run typecheck
+          echo "✅ TypeScript check passed"
+
+      - name: "📏 Code Quality Check"
+        id: lint
+        run: |
+          echo "📏 Running ESLint..."
+          pnpm run lint
+          echo "✅ Linting passed"
+
+      - name: "🧪 Ideal Tests Execution"
+        id: ideal-tests
+        run: |
+          echo "🧪 Running Ideal Tests..."
+          pnpm run test tests/core/ tests/adapters/ --run
+          echo "✅ Ideal tests passed"
+
+      - name: "📊 Basic Quality Metrics"
+        if: always()
+        run: |
+          echo "=== BASIC QUALITY GATE REPORT ==="
+          echo "TypeScript Status: ${{ steps.typecheck.outcome }}"
+          echo "Linting Status: ${{ steps.lint.outcome }}"
+          echo "Ideal Tests Status: ${{ steps.ideal-tests.outcome }}"
+          echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "=================================="
+
+      - name: "✅ Quality Gate Result"
+        if: failure()
+        run: |
+          echo "❌ BASIC QUALITY GATE FAILED"
+          echo "Please fix the issues above before proceeding."
+          exit 1
+
+  quality-gate-summary:
+    name: "📋 Quality Gate Summary" 
+    runs-on: ubuntu-latest
+    needs: basic-quality-gate
+    if: always()
+
+    steps:
+      - name: "📊 Generate Summary"
+        run: |
+          if [ "${{ needs.basic-quality-gate.result }}" == "success" ]; then
+            echo "🎉 BASIC QUALITY GATE: PASSED"
+            echo "✅ All basic quality checks successful"
+            echo "✅ TypeScript type safety confirmed"
+            echo "✅ Code quality standards met"
+            echo "✅ Ideal tests protecting core functionality"
+          else
+            echo "❌ BASIC QUALITY GATE: FAILED"
+            echo "Please review and fix the quality issues."
+          fi

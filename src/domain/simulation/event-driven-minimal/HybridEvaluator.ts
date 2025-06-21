@@ -18,14 +18,14 @@ export class HybridEvaluator {
   private eventDrivenEngine: EventDrivenEngine;
   private useEventDriven = false;
   private config: HybridEvaluatorConfig;
-  
+
   constructor(config: HybridEvaluatorConfig = {}) {
     this.config = {
       enableDebug: true,
       delayMode: false,
       ...config,
     };
-    
+
     this.eventDrivenEngine = new EventDrivenEngine({
       enableDebug: this.config.enableDebug,
       delayMode: this.config.delayMode,
@@ -41,7 +41,7 @@ export class HybridEvaluator {
   evaluate(circuit: Circuit): Circuit {
     // 循環依存をチェック
     const hasCircular = CircuitAnalyzer.hasCircularDependency(circuit);
-    
+
     if (hasCircular) {
       return this.evaluateWithEventDriven(circuit);
     } else {
@@ -53,7 +53,7 @@ export class HybridEvaluator {
       return this.evaluateWithTopological(circuit);
     }
   }
-  
+
   /**
    * 遅延モードの切り替え
    */
@@ -67,22 +67,22 @@ export class HybridEvaluator {
    */
   private evaluateWithEventDriven(circuit: Circuit): Circuit {
     const result = this.eventDrivenEngine.evaluate(circuit);
-    
+
     if (!result.success) {
       console.warn('[HybridEvaluator] イベント駆動シミュレーション失敗:', {
         cycleCount: result.cycleCount,
         hasOscillation: result.hasOscillation,
       });
     }
-    
+
     if (result.debugTrace) {
       console.debug('[HybridEvaluator] デバッグトレース:', result.debugTrace);
     }
-    
+
     // 更新された状態で新しいcircuitオブジェクトを返す（不変性を保つ）
     return {
       gates: circuit.gates.map(g => ({ ...g })),
-      wires: circuit.wires.map(w => ({ ...w }))
+      wires: circuit.wires.map(w => ({ ...w })),
     };
   }
 
@@ -95,9 +95,9 @@ export class HybridEvaluator {
       wires: circuit.wires,
       metadata: {},
     };
-    
+
     const result = evaluateTopological(circuitData, defaultConfig);
-    
+
     if (result.success) {
       // 成功時は更新された回路を返す
       return result.data.circuit;
@@ -121,7 +121,9 @@ export class HybridEvaluator {
     if (this.useEventDriven) {
       return 'event-driven';
     }
-    return CircuitAnalyzer.hasCircularDependency(circuit) ? 'event-driven' : 'topological';
+    return CircuitAnalyzer.hasCircularDependency(circuit)
+      ? 'event-driven'
+      : 'topological';
   }
 
   /**
@@ -131,7 +133,7 @@ export class HybridEvaluator {
     const hasCircular = CircuitAnalyzer.hasCircularDependency(circuit);
     const circularGates = CircuitAnalyzer.findCircularGates(circuit);
     const complexity = CircuitAnalyzer.getCircuitComplexity(circuit);
-    
+
     return {
       hasCircularDependency: hasCircular,
       circularGates,

@@ -26,39 +26,41 @@ export function evaluateGate(
         inputs,
         defaultConfig
       );
-      
+
       if (result.success) {
         return [...result.data];
       }
     }
-    
+
     // 真理値表による評価
     if (gate.customGateDefinition.truthTable) {
-      const inputPattern = inputs.map(v => v ? '1' : '0').join('');
+      const inputPattern = inputs.map(v => (v ? '1' : '0')).join('');
       const outputPattern = gate.customGateDefinition.truthTable[inputPattern];
-      
+
       if (outputPattern) {
         return outputPattern.split('').map(bit => bit === '1');
       }
     }
-    
+
     // フォールバック
     return [false];
   }
-  
+
   // D-FFとSR-LATCHの特別処理（状態保持ゲート）
   if (gate.type === 'D-FF') {
     if (inputs.length >= 2) {
       const d = inputs[0];
       const clk = inputs[1];
       // 重要：前回評価時のクロック状態を取得（現在のクロック状態ではない）
-      const prevClk = typeof state.metadata?.previousClockState === 'boolean' 
-        ? state.metadata.previousClockState 
-        : false;
-      let qOutput = typeof state.metadata?.qOutput === 'boolean'
-        ? state.metadata.qOutput
-        : false;
-      
+      const prevClk =
+        typeof state.metadata?.previousClockState === 'boolean'
+          ? state.metadata.previousClockState
+          : false;
+      let qOutput =
+        typeof state.metadata?.qOutput === 'boolean'
+          ? state.metadata.qOutput
+          : false;
+
       // 立ち上がりエッジ検出
       if (!prevClk && clk) {
         qOutput = d;
@@ -70,20 +72,21 @@ export function evaluateGate(
         };
       }
       // 注意：previousClockStateの更新は呼び出し側で行われる
-      
+
       return [qOutput, !qOutput];
     }
     return [false, true];
   }
-  
+
   if (gate.type === 'SR-LATCH') {
     if (inputs.length >= 2) {
       const s = inputs[0];
       const r = inputs[1];
-      let qOutput = typeof state.metadata?.qOutput === 'boolean'
-        ? state.metadata.qOutput
-        : false;
-      
+      let qOutput =
+        typeof state.metadata?.qOutput === 'boolean'
+          ? state.metadata.qOutput
+          : false;
+
       // S=1, R=0 => Q=1
       if (s && !r) {
         qOutput = true;
@@ -94,16 +97,20 @@ export function evaluateGate(
       }
       // S=0, R=0 => 状態保持
       // S=1, R=1 => 不定状態（現在の状態を保持）
-      
+
       return [qOutput, !qOutput];
     }
     return [false, true];
   }
-  
+
   // 通常のゲートは統合評価関数を使用（ただしメタデータを渡す）
   const gateWithUpdatedMetadata = { ...gate, metadata: state.metadata };
-  const result = evaluateGateUnified(gateWithUpdatedMetadata, inputs, defaultConfig);
-  
+  const result = evaluateGateUnified(
+    gateWithUpdatedMetadata,
+    inputs,
+    defaultConfig
+  );
+
   if (result.success) {
     return [...result.data.outputs];
   } else {

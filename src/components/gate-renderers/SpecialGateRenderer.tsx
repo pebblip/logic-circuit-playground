@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Gate } from '@/types/circuit';
 import { getGateInputValue } from '@/domain/simulation';
-import { PinComponent } from './PinComponent';
 
 interface SpecialGateRendererProps {
   gate: Gate;
@@ -646,23 +645,38 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
           stroke={isSelected ? '#00aaff' : undefined}
           strokeWidth={isSelected ? '3' : undefined}
         />
-        <text className="gate-text u-text-sm" x="0" y="-15" data-testid="counter-label">
+        <text
+          className="gate-text u-text-sm"
+          x="0"
+          y="-15"
+          data-testid="counter-label"
+        >
           COUNTER
         </text>
-        <text className="gate-text u-text-sm" x="0" y="0" data-testid="counter-bit-label">
+        <text
+          className="gate-text u-text-sm"
+          x="0"
+          y="0"
+          data-testid="counter-bit-label"
+        >
           {bitCount}bit
         </text>
-        
+
         {/* 現在の値を表示 */}
-        <text className="gate-text u-text-lg u-font-mono" x="0" y="20" data-testid="counter-value">
+        <text
+          className="gate-text u-text-lg u-font-mono"
+          x="0"
+          y="20"
+          data-testid="counter-value"
+        >
           {currentValue.toString(2).padStart(bitCount, '0')}
         </text>
-        
+
         {/* CLK入力ラベル */}
         <text className="gate-text u-text-xs u-fill-muted" x="-45" y="5">
           CLK
         </text>
-        
+
         {/* 出力ピンラベル */}
         {Array.from({ length: bitCount }, (_, i) => {
           const spacing = 30;
@@ -720,7 +734,7 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
         const startY = -((bitCount - 1) * spacing) / 2;
         const y = startY + i * spacing;
         const bitValue = (currentValue & (1 << i)) !== 0;
-        
+
         return (
           <g key={i}>
             <circle
@@ -752,4 +766,3 @@ const BinaryCounterGateRenderer: React.FC<SpecialGateRendererProps> = ({
     </>
   );
 };
-

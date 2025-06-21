@@ -5,7 +5,7 @@
 
 import type { Circuit } from '../core/types';
 import type { Result } from '../core/types';
-import type { SimulationStrategy, EnhancedEvaluationResult } from '../event-driven-minimal/EnhancedHybridEvaluator';
+import type { SimulationStrategy } from '../event-driven-minimal/EnhancedHybridEvaluator';
 
 /**
  * 統一評価設定
@@ -13,27 +13,27 @@ import type { SimulationStrategy, EnhancedEvaluationResult } from '../event-driv
 export interface UnifiedEvaluationConfig {
   // 戦略選択
   strategy: SimulationStrategy;
-  
+
   // 自動選択閾値
   autoSelectionThresholds: {
-    maxGatesForLegacy: number;      // 従来方式の最大ゲート数
+    maxGatesForLegacy: number; // 従来方式の最大ゲート数
     minGatesForEventDriven: number; // イベント駆動の最小ゲート数
   };
-  
+
   // デバッグ・ログ設定
   enableDebugLogging: boolean;
   enablePerformanceTracking: boolean;
-  
+
   // キャッシュ設定
   enableCaching: boolean;
   maxCacheSize: number;
-  
+
   // 発振対応設定
   oscillationConfig: {
     continueOnOscillation: boolean;
     maxCyclesAfterDetection: number;
   };
-  
+
   // 遅延モード設定
   delayMode?: boolean;
 }
@@ -44,10 +44,10 @@ export interface UnifiedEvaluationConfig {
 export interface UnifiedEvaluationResult {
   // 評価済み回路
   circuit: Circuit;
-  
+
   // 使用された戦略
   strategyUsed: SimulationStrategy;
-  
+
   // パフォーマンス情報
   performanceInfo: {
     executionTimeMs: number;
@@ -55,7 +55,7 @@ export interface UnifiedEvaluationResult {
     cycleCount?: number;
     cacheHit?: boolean;
   };
-  
+
   // 発振情報
   oscillationInfo?: {
     detected: boolean;
@@ -63,14 +63,14 @@ export interface UnifiedEvaluationResult {
     period?: number;
     pattern?: string[];
   };
-  
+
   // デバッグ情報（有効な場合のみ）
   debugInfo?: {
     strategyReason: string;
     evaluationLogs: string[];
     circularGates: string[];
   };
-  
+
   // 警告・注意事項
   warnings: string[];
 }
@@ -78,7 +78,7 @@ export interface UnifiedEvaluationResult {
 /**
  * 評価エラーの種類
  */
-export type EvaluationErrorType = 
+export type EvaluationErrorType =
   | 'CIRCUIT_INVALID'
   | 'SIMULATION_TIMEOUT'
   | 'OSCILLATION_DETECTED'
@@ -152,23 +152,25 @@ export interface ICircuitEvaluationService {
   /**
    * 回路を評価
    */
-  evaluate(circuit: Circuit): Promise<Result<UnifiedEvaluationResult, UnifiedEvaluationError>>;
-  
+  evaluate(
+    circuit: Circuit
+  ): Promise<Result<UnifiedEvaluationResult, UnifiedEvaluationError>>;
+
   /**
    * 回路の複雑度を分析
    */
   analyzeComplexity(circuit: Circuit): CircuitComplexityAnalysis;
-  
+
   /**
    * 設定を更新
    */
   updateConfig(config: Partial<UnifiedEvaluationConfig>): void;
-  
+
   /**
    * 現在の設定を取得
    */
   getConfig(): UnifiedEvaluationConfig;
-  
+
   /**
    * パフォーマンス統計を取得
    */
@@ -177,7 +179,7 @@ export interface ICircuitEvaluationService {
     avgExecutionTime: number;
     strategyUsageStats: Record<SimulationStrategy, number>;
   };
-  
+
   /**
    * キャッシュをクリア
    */

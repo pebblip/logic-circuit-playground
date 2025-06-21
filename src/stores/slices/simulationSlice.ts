@@ -6,13 +6,13 @@ import { type StateCreator } from 'zustand';
 export interface SimulationConfig {
   /** 遅延モードの有効/無効 */
   delayMode: boolean;
-  
+
   /** カスタム遅延値 (ゲートID -> 遅延値) */
   customDelays: Record<string, number>;
-  
+
   /** デフォルト遅延値の倍率 */
   delayMultiplier: number;
-  
+
   /** デバッグモード */
   enableDebug: boolean;
 }
@@ -22,7 +22,7 @@ export interface SimulationConfig {
  */
 export interface SimulationSlice {
   simulationConfig: SimulationConfig;
-  
+
   // Actions
   setDelayMode: (enabled: boolean) => void;
   setCustomDelay: (gateId: string, delay: number | null) => void;
@@ -49,27 +49,27 @@ export const createSimulationSlice: StateCreator<
   [],
   [],
   SimulationSlice
-> = (set) => ({
+> = set => ({
   simulationConfig: defaultSimulationConfig,
-  
-  setDelayMode: (enabled) =>
-    set((state) => ({
+
+  setDelayMode: enabled =>
+    set(state => ({
       simulationConfig: {
         ...state.simulationConfig,
         delayMode: enabled,
       },
     })),
-  
+
   setCustomDelay: (gateId, delay) =>
-    set((state) => {
+    set(state => {
       const customDelays = { ...state.simulationConfig.customDelays };
-      
+
       if (delay === null) {
         delete customDelays[gateId];
       } else {
         customDelays[gateId] = delay;
       }
-      
+
       return {
         simulationConfig: {
           ...state.simulationConfig,
@@ -77,23 +77,23 @@ export const createSimulationSlice: StateCreator<
         },
       };
     }),
-  
-  setDelayMultiplier: (multiplier) =>
-    set((state) => ({
+
+  setDelayMultiplier: multiplier =>
+    set(state => ({
       simulationConfig: {
         ...state.simulationConfig,
         delayMultiplier: Math.max(0.1, Math.min(10.0, multiplier)),
       },
     })),
-  
-  setDebugMode: (enabled) =>
-    set((state) => ({
+
+  setDebugMode: enabled =>
+    set(state => ({
       simulationConfig: {
         ...state.simulationConfig,
         enableDebug: enabled,
       },
     })),
-  
+
   resetSimulationConfig: () =>
     set(() => ({
       simulationConfig: defaultSimulationConfig,

@@ -3,7 +3,11 @@
  * エクスポート定義
  */
 
-export { CircuitEvaluationService, getGlobalEvaluationService, setGlobalEvaluationService } from './CircuitEvaluationService';
+export {
+  CircuitEvaluationService,
+  getGlobalEvaluationService,
+  setGlobalEvaluationService,
+} from './CircuitEvaluationService';
 export type {
   ICircuitEvaluationService,
   UnifiedEvaluationConfig,

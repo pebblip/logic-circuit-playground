@@ -1,8 +1,6 @@
-import type { Gate, Wire } from '../../../types';
-
 /**
  * 🔥 シンプルリングオシレータ（遅延モード版）
- * 
+ *
  * 改善ポイント：
  * - DELAYゲート不要
  * - 3つのNOTゲートのみで発振を実現
@@ -12,12 +10,13 @@ import type { Gate, Wire } from '../../../types';
 export const SIMPLE_RING_OSCILLATOR = {
   id: 'simple-ring-oscillator',
   title: '🔥 シンプルリングオシレータ（遅延モード版）',
-  description: 'DELAYゲート不要の3-NOTリングオシレータ。遅延モードONで各NOTゲートの自然な1ns遅延により3ns周期で発振します。',
+  description:
+    'DELAYゲート不要の3-NOTリングオシレータ。遅延モードONで各NOTゲートの自然な1ns遅延により3ns周期で発振します。',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 1000,  // 1秒 - 視認しやすく教育的にも適切な速度
+    updateInterval: 1000, // 1秒 - 視認しやすく教育的にも適切な速度
     expectedBehavior: 'oscillator' as const,
-    minimumCycles: 10
+    minimumCycles: 10,
   },
   gates: [
     // 🔥 たったこれだけ！3つのNOTゲートのみ
@@ -42,7 +41,7 @@ export const SIMPLE_RING_OSCILLATOR = {
       output: false,
       inputs: [''],
     },
-    
+
     // 各ゲートの出力を観測
     {
       id: 'OUT_NOT1',
@@ -89,7 +88,7 @@ export const SIMPLE_RING_OSCILLATOR = {
       to: { gateId: 'NOT1', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 観測用接続
     {
       id: 'w4',

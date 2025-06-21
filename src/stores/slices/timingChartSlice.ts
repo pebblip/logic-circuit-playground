@@ -138,7 +138,7 @@ export interface TimingChartSlice {
     // ユーティリティ
     updateStats: () => void;
     cleanup: () => void;
-    
+
     // 🔧 グローバルイベントとの同期（新規追加）
     syncEventsFromGlobalCapture: () => void;
   };
@@ -702,42 +702,61 @@ export const createTimingChartSlice: StateCreator<
       const state = get().timingChart;
 
       if (state.isPaused) {
-        console.log(`[TimingChart] Skipping ${events.length} events due to pause state`);
+        console.log(
+          `[TimingChart] Skipping ${events.length} events due to pause state`
+        );
         return;
       }
 
       console.log(`[TimingChart] Processing ${events.length} events:`, events);
-      console.log(`[TimingChart] Current traces:`, state.traces.map(t => ({
-        id: t.id,
-        gateId: t.gateId,
-        pinType: t.pinType,
-        pinIndex: t.pinIndex,
-        eventsCount: t.events.length
-      })));
+      console.log(
+        `[TimingChart] Current traces:`,
+        state.traces.map(t => ({
+          id: t.id,
+          gateId: t.gateId,
+          pinType: t.pinType,
+          pinIndex: t.pinIndex,
+          eventsCount: t.events.length,
+        }))
+      );
 
       // イベントを処理
       set(currentState => {
         let hasChanges = false;
         const updatedTraces = currentState.timingChart.traces.map(trace => {
-          const relevantEvents = events.filter(
-            e => {
-              const gateMatch = e.gateId === trace.gateId;
-              const pinTypeMatch = e.pinType === trace.pinType;
-              const pinIndexMatch = e.pinIndex === trace.pinIndex;
-              console.log(`[TimingChart] Event ${e.id}: gateId=${e.gateId} (${gateMatch}), pinType=${e.pinType} (${pinTypeMatch}), pinIndex=${e.pinIndex} (${pinIndexMatch})`);
-              return gateMatch && pinTypeMatch && pinIndexMatch;
-            }
-          );
+          const relevantEvents = events.filter(e => {
+            const gateMatch = e.gateId === trace.gateId;
+            const pinTypeMatch = e.pinType === trace.pinType;
+            const pinIndexMatch = e.pinIndex === trace.pinIndex;
+            console.log(
+              `[TimingChart] Event ${e.id}: gateId=${e.gateId} (${gateMatch}), pinType=${e.pinType} (${pinTypeMatch}), pinIndex=${e.pinIndex} (${pinIndexMatch})`
+            );
+            return gateMatch && pinTypeMatch && pinIndexMatch;
+          });
 
-          console.log(`[TimingChart] Trace ${trace.id} (${trace.gateId}:${trace.pinType}[${trace.pinIndex}]) found ${relevantEvents.length} relevant events out of ${events.length} total`);
+          console.log(
+            `[TimingChart] Trace ${trace.id} (${trace.gateId}:${trace.pinType}[${trace.pinIndex}]) found ${relevantEvents.length} relevant events out of ${events.length} total`
+          );
 
           if (relevantEvents.length === 0) return trace;
 
           hasChanges = true;
-          console.log(`[TimingChart] Adding ${relevantEvents.length} events to trace ${trace.id}:`, relevantEvents.map(e => ({ id: e.id, time: e.time, value: e.value, gateId: e.gateId, source: e.source })));
+          console.log(
+            `[TimingChart] Adding ${relevantEvents.length} events to trace ${trace.id}:`,
+            relevantEvents.map(e => ({
+              id: e.id,
+              time: e.time,
+              value: e.value,
+              gateId: e.gateId,
+              source: e.source,
+            }))
+          );
           // 最初の2つのイベントの詳細ログ
           if (relevantEvents.length > 0) {
-            console.log(`[TimingChart] Event details:`, relevantEvents.slice(0, 2));
+            console.log(
+              `[TimingChart] Event details:`,
+              relevantEvents.slice(0, 2)
+            );
           }
 
           // イベントを統合してソート
@@ -750,7 +769,9 @@ export const createTimingChartSlice: StateCreator<
             -currentState.timingChart.settings.captureDepth
           );
 
-          console.log(`[TimingChart] Trace ${trace.id} now has ${limited.length} events (was ${trace.events.length})`);
+          console.log(
+            `[TimingChart] Trace ${trace.id} now has ${limited.length} events (was ${trace.events.length})`
+          );
 
           return {
             ...trace,
@@ -776,7 +797,9 @@ export const createTimingChartSlice: StateCreator<
       if (events.length > 0) {
         const latestEventTime = Math.max(...events.map(e => e.time));
         get().timingChartActions.updateCurrentTime(latestEventTime);
-        console.log(`[TimingChart] Processed ${events.length} events, latest time: ${latestEventTime}`);
+        console.log(
+          `[TimingChart] Processed ${events.length} events, latest time: ${latestEventTime}`
+        );
       }
     },
 
@@ -928,31 +951,36 @@ export const createTimingChartSlice: StateCreator<
           },
         };
       }),
-      
+
     // 🔧 グローバルイベントとの同期
     syncEventsFromGlobalCapture: () => {
       const state = get();
       const globalEvents = globalTimingCapture.getEvents();
       const { traces } = state.timingChart;
-      
-      console.log(`[TimingChart] Syncing ${globalEvents.length} events from globalTimingCapture`);
-      
+
+      console.log(
+        `[TimingChart] Syncing ${globalEvents.length} events from globalTimingCapture`
+      );
+
       // 各トレースに対応するイベントを収集
       const eventsToProcess: TimingEvent[] = [];
-      
+
       traces.forEach(trace => {
-        const traceEvents = globalEvents.filter(event => 
-          event.gateId === trace.gateId &&
-          event.pinType === trace.pinType &&
-          event.pinIndex === trace.pinIndex
+        const traceEvents = globalEvents.filter(
+          event =>
+            event.gateId === trace.gateId &&
+            event.pinType === trace.pinType &&
+            event.pinIndex === trace.pinIndex
         );
-        
+
         if (traceEvents.length > 0) {
-          console.log(`[TimingChart] Found ${traceEvents.length} events for trace ${trace.id} (${trace.gateId})`);
+          console.log(
+            `[TimingChart] Found ${traceEvents.length} events for trace ${trace.id} (${trace.gateId})`
+          );
           eventsToProcess.push(...traceEvents);
         }
       });
-      
+
       // processTimingEventsを使って処理
       if (eventsToProcess.length > 0) {
         state.timingChartActions.processTimingEvents(eventsToProcess);

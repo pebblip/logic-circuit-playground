@@ -8,7 +8,8 @@ import type { CircuitMetadata } from './gallery';
 export const PARITY_CHECKER: CircuitMetadata = {
   id: 'parity-checker',
   title: 'パリティチェッカー',
-  description: 'データの誤り検出に使われるパリティチェック回路。XORゲートの連鎖で「1の個数が奇数か偶数か」を判定！',
+  description:
+    'データの誤り検出に使われるパリティチェック回路。XORゲートの連鎖で「1の個数が奇数か偶数か」を判定！',
   gates: [
     // 4ビット入力
     {

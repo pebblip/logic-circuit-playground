@@ -1,8 +1,6 @@
-import type { Gate, Wire } from '../../../types';
-
 /**
  * 🌀 セルフオシレーティングメモリ（最終版）
- * 
+ *
  * 設計思想：
  * - 最もシンプルで確実な設計
  * - 非安定マルチバイブレータ構成
@@ -11,12 +9,13 @@ import type { Gate, Wire } from '../../../types';
 export const SELF_OSCILLATING_MEMORY_FINAL = {
   id: 'self-oscillating-memory-final',
   title: '🌀 セルフオシレーティングメモリ（最終版）',
-  description: '2つのNORゲートによる非安定マルチバイブレータ！確実に振動し、XORで検出します。',
+  description:
+    '2つのNORゲートによる非安定マルチバイブレータ！確実に振動し、XORで検出します。',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 1300,  // 1.3秒 - メモリ振動を観察しやすい
+    updateInterval: 1300, // 1.3秒 - メモリ振動を観察しやすい
     expectedBehavior: 'oscillator' as const,
-    minimumCycles: 15
+    minimumCycles: 15,
   },
   gates: [
     // 制御入力
@@ -27,7 +26,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       output: true,
       inputs: [],
     },
-    
+
     // トリガー入力（初期パルス）
     {
       id: 'trigger',
@@ -36,7 +35,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       output: false,
       inputs: [],
     },
-    
+
     // 非安定マルチバイブレータのコア（NOR x2）
     {
       id: 'nor1',
@@ -52,7 +51,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // 遅延チェーン1（NOR1用）
     {
       id: 'delay1_1',
@@ -75,7 +74,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       output: false,
       inputs: [''],
     },
-    
+
     // 遅延チェーン2（NOR2用 - より長い）
     {
       id: 'delay2_1',
@@ -112,7 +111,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       output: true,
       inputs: [''],
     },
-    
+
     // フィードバック制御AND
     {
       id: 'fb_and1',
@@ -128,7 +127,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // トリガー用OR
     {
       id: 'trigger_or',
@@ -137,7 +136,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // メモリ（振動状態を保持）
     {
       id: 'memory1',
@@ -155,7 +154,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       inputs: ['', ''],
       outputs: [false, true],
     },
-    
+
     // 振動検出XOR
     {
       id: 'detect_xor',
@@ -164,7 +163,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       output: false,
       inputs: ['', ''],
     },
-    
+
     // 出力
     {
       id: 'out_nor1',
@@ -196,7 +195,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       to: { gateId: 'trigger_or', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // NOR1出力 → 遅延チェーン1
     {
       id: 'nor1_to_delay1',
@@ -216,7 +215,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       to: { gateId: 'delay1_3', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 遅延1 → フィードバック1
     {
       id: 'delay1_to_fb1',
@@ -230,7 +229,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       to: { gateId: 'fb_and1', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // フィードバック1 → NOR2
     {
       id: 'fb1_to_nor2',
@@ -238,7 +237,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       to: { gateId: 'nor2', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // NOR2出力 → 遅延チェーン2
     {
       id: 'nor2_to_delay2',
@@ -270,7 +269,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       to: { gateId: 'delay2_5', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 遅延2 → フィードバック2
     {
       id: 'delay2_to_fb2',
@@ -284,7 +283,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       to: { gateId: 'fb_and2', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // フィードバック2 → トリガーOR
     {
       id: 'fb2_to_or',
@@ -292,7 +291,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       to: { gateId: 'trigger_or', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // トリガーOR → NOR1
     {
       id: 'or_to_nor1',
@@ -300,7 +299,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       to: { gateId: 'nor1', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // クロスカップリング（重要！）
     {
       id: 'nor1_to_nor2_cross',
@@ -314,7 +313,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       to: { gateId: 'nor1', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // メモリ駆動
     {
       id: 'nor1_to_mem1_s',
@@ -340,7 +339,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       to: { gateId: 'memory2', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // XOR接続
     {
       id: 'mem1_to_xor',
@@ -354,7 +353,7 @@ export const SELF_OSCILLATING_MEMORY_FINAL = {
       to: { gateId: 'detect_xor', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // 出力接続
     {
       id: 'nor1_to_out',

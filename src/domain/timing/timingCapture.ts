@@ -179,7 +179,9 @@ export class CircuitTimingCapture implements TimingEventCapture {
 
     // ゲート固有の遅延値があるかチェック
     if (gate.timing?.propagationDelay !== undefined) {
-      return gate.timing.propagationDelay * this.simulationConfig.delayMultiplier;
+      return (
+        gate.timing.propagationDelay * this.simulationConfig.delayMultiplier
+      );
     }
 
     // デフォルト遅延値を使用
@@ -234,11 +236,16 @@ export class CircuitTimingCapture implements TimingEventCapture {
         );
 
         if (previousGate) {
-          const hasChanged = this.hasGateOutputChanged(currentGate, previousGate);
+          const hasChanged = this.hasGateOutputChanged(
+            currentGate,
+            previousGate
+          );
           if (currentGate.type === 'CLOCK') {
-            console.log(`🔍 [TimingCapture] CLOCK ${currentGate.id} change check: current=${currentGate.output}, previous=${previousGate.output}, hasChanged=${hasChanged}`);
+            console.log(
+              `🔍 [TimingCapture] CLOCK ${currentGate.id} change check: current=${currentGate.output}, previous=${previousGate.output}, hasChanged=${hasChanged}`
+            );
           }
-          
+
           if (hasChanged) {
             // 遅延を考慮したイベント時刻を計算
             const gateDelay = this.calculateGateDelay(currentGate);
@@ -246,7 +253,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
 
             const currentValue = this.getGateOutputValue(currentGate);
             const previousValue = this.getGateOutputValue(previousGate);
-            
+
             const event: TimingEvent = {
               id: timingChartUtils.generateEventId(),
               time: delayedTime, // 遅延を考慮した時刻
@@ -258,12 +265,14 @@ export class CircuitTimingCapture implements TimingEventCapture {
               source: `circuit-evaluation-delay:${gateDelay}ms`,
               propagationDelay: gateDelay, // 適用された遅延
             };
-            
+
             // CLOCKゲートの値変化をデバッグ
             if (currentGate.type === 'CLOCK') {
-              console.log(`🔍 [TimingCapture] CLOCK ${currentGate.id} event: ${previousValue} → ${currentValue} (gate.output=${currentGate.output}, delayedTime=${delayedTime})`);
+              console.log(
+                `🔍 [TimingCapture] CLOCK ${currentGate.id} event: ${previousValue} → ${currentValue} (gate.output=${currentGate.output}, delayedTime=${delayedTime})`
+              );
             }
-            
+
             events.push(event);
           }
         }

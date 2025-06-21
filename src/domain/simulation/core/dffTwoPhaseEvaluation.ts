@@ -5,7 +5,7 @@
  */
 
 import type { Gate } from '../../../types/circuit';
-import type { Circuit, EvaluationConfig } from './types';
+import type { Circuit } from './types';
 
 interface DFFSnapshot {
   gateId: string;
@@ -24,7 +24,7 @@ export function snapshotDFFInputs(
   gateInputValues: Map<string, boolean[]>
 ): DFFSnapshot[] {
   const snapshots: DFFSnapshot[] = [];
-  
+
   circuit.gates.forEach(gate => {
     if (gate.type === 'D-FF') {
       const inputs = gateInputValues.get(gate.id) || [false, false];
@@ -32,27 +32,27 @@ export function snapshotDFFInputs(
       const clk = inputs[1];
       const prevClk = gate.metadata?.previousClockState || false;
       const isFirstEvaluation = gate.metadata?.isFirstEvaluation === true;
-      
+
       // 立ち上がりエッジ検出
       const isRisingEdge = !prevClk && clk && !isFirstEvaluation;
-      
+
       // 現在のQ出力
       const currentQ = gate.metadata?.qOutput ?? gate.output;
-      
+
       // 新しいQ出力（エッジがあればDをラッチ、なければ現在値を保持）
       const newQ = isRisingEdge ? d : currentQ;
-      
+
       snapshots.push({
         gateId: gate.id,
         dInput: d,
         clkInput: clk,
         previousClockState: prevClk,
         willLatch: isRisingEdge,
-        newQOutput: newQ
+        newQOutput: newQ,
       });
     }
   });
-  
+
   return snapshots;
 }
 
@@ -64,7 +64,7 @@ export function updateDFFsFromSnapshots(
   snapshots: DFFSnapshot[]
 ): void {
   const snapshotMap = new Map(snapshots.map(s => [s.gateId, s]));
-  
+
   gates.forEach(gate => {
     if (gate.type === 'D-FF') {
       const snapshot = snapshotMap.get(gate.id);
@@ -75,17 +75,17 @@ export function updateDFFsFromSnapshots(
           qOutput: snapshot.newQOutput,
           qBarOutput: !snapshot.newQOutput,
           previousClockState: snapshot.clkInput,
-          isFirstEvaluation: false
+          isFirstEvaluation: false,
         };
-        
+
         // 出力を更新
         gate.output = snapshot.newQOutput;
         gate.outputs = [snapshot.newQOutput, !snapshot.newQOutput];
-        
+
         // 入力表示を更新
         gate.inputs = [
           snapshot.dInput ? '1' : '',
-          snapshot.clkInput ? '1' : ''
+          snapshot.clkInput ? '1' : '',
         ];
       }
     }
@@ -99,12 +99,12 @@ export function needsTwoPhaseEvaluation(circuit: Circuit): boolean {
   // D-FFが複数あり、相互に接続されている場合
   const dffGates = circuit.gates.filter(g => g.type === 'D-FF');
   if (dffGates.length < 2) return false;
-  
+
   // D-FF間の接続を確認
   const dffIds = new Set(dffGates.map(g => g.id));
-  const hasDFFConnections = circuit.wires.some(wire => 
-    dffIds.has(wire.from.gateId) && dffIds.has(wire.to.gateId)
+  const hasDFFConnections = circuit.wires.some(
+    wire => dffIds.has(wire.from.gateId) && dffIds.has(wire.to.gateId)
   );
-  
+
   return hasDFFConnections;
 }

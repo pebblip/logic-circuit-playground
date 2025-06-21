@@ -4,7 +4,10 @@ import { DEFAULT_GATE_DELAYS } from '@/constants/gateDelays';
 
 interface TimingControlsProps {
   selectedGate: Gate;
-  updateGateTiming: (gateId: string, timing: Partial<{ propagationDelay: number }>) => void;
+  updateGateTiming: (
+    gateId: string,
+    timing: Partial<{ propagationDelay: number }>
+  ) => void;
 }
 
 /**
@@ -22,7 +25,7 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
   const currentDelay = selectedGate.timing?.propagationDelay;
   const defaultDelay = DEFAULT_GATE_DELAYS[selectedGate.type] || 1.0;
   const isCustomDelay = currentDelay !== undefined;
-  
+
   const [customValue, setCustomValue] = useState(
     isCustomDelay ? currentDelay.toString() : defaultDelay.toString()
   );
@@ -30,7 +33,7 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
   const handleDelayChange = (value: string) => {
     setCustomValue(value);
     const numericValue = parseFloat(value);
-    
+
     if (!isNaN(numericValue) && numericValue >= 0) {
       updateGateTiming(selectedGate.id, {
         propagationDelay: numericValue,
@@ -52,27 +55,30 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
         <span>⏱️</span>
         <span>タイミング設定</span>
       </div>
-      
+
       <div className="property-row">
         <span className="property-label">現在の遅延</span>
         <span className="property-value">
           {currentDelay !== undefined ? currentDelay : defaultDelay} ns
           {currentDelay === undefined && (
-            <span style={{ opacity: 0.6, fontSize: '0.9em' }}> (デフォルト)</span>
+            <span style={{ opacity: 0.6, fontSize: '0.9em' }}>
+              {' '}
+              (デフォルト)
+            </span>
           )}
         </span>
       </div>
-      
+
       <div className="property-row">
         <span className="property-label">デフォルト遅延</span>
         <span className="property-value">{defaultDelay} ns</span>
       </div>
 
       <div style={{ marginTop: '12px' }}>
-        <label 
+        <label
           htmlFor={`delay-input-${selectedGate.id}`}
-          style={{ 
-            display: 'block', 
+          style={{
+            display: 'block',
             marginBottom: '6px',
             fontSize: '0.9em',
             fontWeight: '500',
@@ -80,7 +86,7 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
         >
           カスタム遅延値 (ns)
         </label>
-        
+
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <input
             id={`delay-input-${selectedGate.id}`}
@@ -89,7 +95,7 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
             max="1000"
             step="0.1"
             value={customValue}
-            onChange={(e) => handleDelayChange(e.target.value)}
+            onChange={e => handleDelayChange(e.target.value)}
             style={{
               flex: 1,
               padding: '6px 8px',
@@ -101,7 +107,7 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
             }}
             placeholder={defaultDelay.toString()}
           />
-          
+
           {isCustomDelay && (
             <button
               onClick={resetToDefault}
@@ -120,12 +126,14 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
             </button>
           )}
         </div>
-        
-        <div style={{ 
-          marginTop: '6px', 
-          fontSize: '0.8em', 
-          color: 'var(--color-text-secondary)' 
-        }}>
+
+        <div
+          style={{
+            marginTop: '6px',
+            fontSize: '0.8em',
+            color: 'var(--color-text-secondary)',
+          }}
+        >
           遅延モードON時に適用されます
         </div>
       </div>

@@ -221,7 +221,9 @@ function evaluateClockGate(
 ): Result<readonly boolean[], EvaluationError> {
   if (!gate.metadata?.isRunning) {
     if (config.enableDebug) {
-      console.log(`⏹️ [CLOCK ${gate.id}] Not running (isRunning=false), output=false`);
+      console.log(
+        `⏹️ [CLOCK ${gate.id}] Not running (isRunning=false), output=false`
+      );
     }
     return success([false]);
   }
@@ -238,15 +240,17 @@ function evaluateClockGate(
   // 周期的な切り替え（半周期ごとに切り替える）
   const halfPeriod = period / 2;
   const cyclePosition = elapsed % period;
-  const isHigh = cyclePosition < halfPeriod;  // 修正: 0-249msがHIGH、250-499msがLOW
-  
+  const isHigh = cyclePosition < halfPeriod; // 修正: 0-249msがHIGH、250-499msがLOW
+
   if (config.enableDebug) {
     // CLOCKの出力変化ログ
     const previousOutput = gate.output;
     if (previousOutput !== isHigh) {
-      console.log(`🔄 [CLOCK ${gate.id}] OUTPUT CHANGE: ${previousOutput} → ${isHigh} (elapsed=${elapsed}ms, cyclePosition=${cyclePosition}ms)`);
+      console.log(
+        `🔄 [CLOCK ${gate.id}] OUTPUT CHANGE: ${previousOutput} → ${isHigh} (elapsed=${elapsed}ms, cyclePosition=${cyclePosition}ms)`
+      );
     }
-    
+
     // 詳細なデバッグログ（毎回表示）
     console.log(`🕒 [CLOCK ${gate.id}] DETAILED:`, {
       frequency: frequency + 'Hz',
@@ -259,17 +263,19 @@ function evaluateClockGate(
       startTime,
       calculation: {
         'elapsed % period': `${elapsed} % ${period} = ${cyclePosition}`,
-        'isHigh condition': `${cyclePosition} < ${halfPeriod} = ${isHigh}`
-      }
+        'isHigh condition': `${cyclePosition} < ${halfPeriod} = ${isHigh}`,
+      },
     });
-    
+
     // 🔧 時間軸の可視化（ギャラリーモード向け）
     const timelineVisualization = Array.from({ length: 20 }, (_, i) => {
       const timePoint = (i * period) / 20;
-      const timeIsHigh = (timePoint % period) < halfPeriod;
+      const timeIsHigh = timePoint % period < halfPeriod;
       return timeIsHigh ? '█' : '░';
     }).join('');
-    console.log(`📊 [CLOCK ${gate.id}] Timeline: ${timelineVisualization} (current: ${isHigh ? '█' : '░'})`);
+    console.log(
+      `📊 [CLOCK ${gate.id}] Timeline: ${timelineVisualization} (current: ${isHigh ? '█' : '░'})`
+    );
   }
 
   return success([isHigh]);
@@ -298,7 +304,7 @@ function evaluateDFlipFlopGate(
   // メタデータから現在の状態を取得（immutableアプローチのため、新しい状態は戻り値で表現）
   const prevClk = gate.metadata?.previousClockState || false;
   let qOutput = gate.metadata?.qOutput || false;
-  
+
   // 初回評価フラグのチェック（LFSRなどで初期状態を保持するため）
   const isFirstEvaluation = gate.metadata?.isFirstEvaluation === true;
 
@@ -351,7 +357,6 @@ function evaluateSRLatchGate(
   return success([qOutput, !qOutput]);
 }
 
-
 /**
  * MUXゲート評価
  */
@@ -394,7 +399,7 @@ function evaluateBinaryCounterGate(
   }
 
   const clk = inputs[0]; // Clock input
-  
+
   // メタデータからビット数とカウンタ値を取得
   const bitCount = (gate.metadata?.bitCount as number) || 2; // デフォルト2ビット
   const previousClockState = gate.metadata?.previousClockState || false;

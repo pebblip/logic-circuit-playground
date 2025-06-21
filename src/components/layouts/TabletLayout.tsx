@@ -61,7 +61,7 @@ export const TabletLayout: React.FC<TabletLayoutProps> = () => {
 
         {/* キャンバス */}
         <div className="tablet-canvas-container">
-          <UnifiedCanvas 
+          <UnifiedCanvas
             config={CANVAS_MODE_PRESETS.editor}
             dataSource={{ store: true }}
           />

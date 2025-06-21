@@ -1,14 +1,13 @@
-import type { Gate, Wire } from '../../../types';
-
 export const SR_LATCH_BASIC = {
   id: 'sr-latch-basic',
   title: 'SRラッチ（基本ゲート版）',
-  description: 'NORゲート2つで作る最も基本的な記憶回路。循環依存を持つ回路の代表例です。',
+  description:
+    'NORゲート2つで作る最も基本的な記憶回路。循環依存を持つ回路の代表例です。',
   simulationConfig: {
     needsAnimation: false,
     updateInterval: 100,
     expectedBehavior: 'memory_circuit' as const,
-    minimumCycles: 5
+    minimumCycles: 5,
   },
   gates: [
     // 入力
@@ -31,7 +30,7 @@ export const SR_LATCH_BASIC = {
       id: 'NOR1',
       type: 'NOR' as const,
       position: { x: 300, y: 150 },
-      output: true,  // Q = 1
+      output: true, // Q = 1
       inputs: ['', ''],
     },
     {

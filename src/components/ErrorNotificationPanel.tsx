@@ -131,18 +131,23 @@ const ErrorNotificationItem: React.FC<ErrorNotificationItemProps> = ({
 
       {notification.actions && notification.actions.length > 0 && (
         <div className="error-notification-actions">
-          {notification.actions.map((action: NonNullable<ErrorNotification['actions']>[number], index: number) => (
-            <button
-              key={index}
-              className={`error-action-button ${action.isPrimary ? 'primary' : 'secondary'}`}
-              onClick={() => {
-                action.action();
-                onDismiss(); // アクション実行後に通知を閉じる
-              }}
-            >
-              {action.label}
-            </button>
-          ))}
+          {notification.actions.map(
+            (
+              action: NonNullable<ErrorNotification['actions']>[number],
+              index: number
+            ) => (
+              <button
+                key={index}
+                className={`error-action-button ${action.isPrimary ? 'primary' : 'secondary'}`}
+                onClick={() => {
+                  action.action();
+                  onDismiss(); // アクション実行後に通知を閉じる
+                }}
+              >
+                {action.label}
+              </button>
+            )
+          )}
         </div>
       )}
     </div>

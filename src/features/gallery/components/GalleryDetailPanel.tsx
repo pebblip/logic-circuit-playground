@@ -1,15 +1,17 @@
 import React from 'react';
-import { CircuitMetadata } from '../data/gallery';
+import type { CircuitMetadata } from '../data/gallery';
 import './GalleryDetailPanel.css';
 
 interface GalleryDetailPanelProps {
   circuit: CircuitMetadata;
 }
 
-export const GalleryDetailPanel: React.FC<GalleryDetailPanelProps> = ({ circuit }) => {
-
+export const GalleryDetailPanel: React.FC<GalleryDetailPanelProps> = ({
+  circuit,
+}) => {
   // 真理値表を生成（単純な回路のみ）
-  const canShowTruthTable = circuit.gates.length <= 10 && 
+  const canShowTruthTable =
+    circuit.gates.length <= 10 &&
     !['oscillator', 'latch', 'counter', 'chaos', 'memory', 'mandala'].some(
       keyword => circuit.id.includes(keyword)
     );
@@ -20,12 +22,20 @@ export const GalleryDetailPanel: React.FC<GalleryDetailPanelProps> = ({ circuit 
         <h2>{circuit.title}</h2>
         <div className="circuit-tags">
           {circuit.gates.length < 5 && <span className="tag basic">基本</span>}
-          {circuit.gates.length >= 5 && circuit.gates.length < 15 && <span className="tag intermediate">中級</span>}
-          {circuit.gates.length >= 15 && <span className="tag advanced">上級</span>}
-          {circuit.id.includes('oscillator') || circuit.id.includes('latch') || 
-           circuit.id.includes('counter') || circuit.id.includes('chaos') || 
-           circuit.id.includes('memory') || circuit.id.includes('mandala') ? 
-            <span className="tag cyclical">循環</span> : null}
+          {circuit.gates.length >= 5 && circuit.gates.length < 15 && (
+            <span className="tag intermediate">中級</span>
+          )}
+          {circuit.gates.length >= 15 && (
+            <span className="tag advanced">上級</span>
+          )}
+          {circuit.id.includes('oscillator') ||
+          circuit.id.includes('latch') ||
+          circuit.id.includes('counter') ||
+          circuit.id.includes('chaos') ||
+          circuit.id.includes('memory') ||
+          circuit.id.includes('mandala') ? (
+            <span className="tag cyclical">循環</span>
+          ) : null}
         </div>
       </div>
 
@@ -63,7 +73,9 @@ export const GalleryDetailPanel: React.FC<GalleryDetailPanelProps> = ({ circuit 
         <h3>使用ゲート</h3>
         <div className="gate-types">
           {Array.from(new Set(circuit.gates.map(g => g.type))).map(type => (
-            <span key={type} className="gate-type">{type}</span>
+            <span key={type} className="gate-type">
+              {type}
+            </span>
           ))}
         </div>
       </div>
@@ -119,16 +131,17 @@ export const GalleryDetailPanel: React.FC<GalleryDetailPanelProps> = ({ circuit 
 
       <div className="detail-actions">
         {canShowTruthTable && (
-          <button className="action-button primary">
-            📊 真理値表を表示
-          </button>
+          <button className="action-button primary">📊 真理値表を表示</button>
         )}
       </div>
 
       {/* 注意事項 */}
-      {(circuit.id.includes('oscillator') || circuit.id.includes('latch') || 
-        circuit.id.includes('counter') || circuit.id.includes('chaos') || 
-        circuit.id.includes('memory') || circuit.id.includes('mandala')) && (
+      {(circuit.id.includes('oscillator') ||
+        circuit.id.includes('latch') ||
+        circuit.id.includes('counter') ||
+        circuit.id.includes('chaos') ||
+        circuit.id.includes('memory') ||
+        circuit.id.includes('mandala')) && (
         <div className="detail-notice" data-testid="cyclical-warning">
           <h4 data-testid="notice-title">⚠️ 注意事項</h4>
           <p data-testid="cyclical-warning-text">

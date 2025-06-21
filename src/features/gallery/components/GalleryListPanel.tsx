@@ -1,5 +1,5 @@
 import React from 'react';
-import { CircuitMetadata } from '../data/gallery';
+import type { CircuitMetadata } from '../data/gallery';
 import { FEATURED_CIRCUITS } from '../data/gallery';
 import './GalleryListPanel.css';
 
@@ -14,15 +14,29 @@ export const GalleryListPanel: React.FC<GalleryListPanelProps> = ({
 }) => {
   // カテゴリ別に回路を分類
   const circuitCategories = {
-    basic: FEATURED_CIRCUITS.filter(circuit => 
+    basic: FEATURED_CIRCUITS.filter(circuit =>
       ['half-adder', 'sr-latch', 'decoder'].includes(circuit.id)
     ),
-    advanced: FEATURED_CIRCUITS.filter(circuit => 
-      ['4bit-comparator', 'parity-checker', 'majority-voter', 'seven-segment'].includes(circuit.id)
+    advanced: FEATURED_CIRCUITS.filter(circuit =>
+      [
+        '4bit-comparator',
+        'parity-checker',
+        'majority-voter',
+        'seven-segment',
+      ].includes(circuit.id)
     ),
-    cyclical: FEATURED_CIRCUITS.filter(circuit => 
-      ['sr-latch-basic', 'simple-ring-oscillator', 'simple-lfsr', 'chaos-generator', 'fibonacci-counter', 'johnson-counter', 'self-oscillating-memory-final', 'mandala-circuit'].includes(circuit.id)
-    )
+    cyclical: FEATURED_CIRCUITS.filter(circuit =>
+      [
+        'sr-latch-basic',
+        'simple-ring-oscillator',
+        'simple-lfsr',
+        'chaos-generator',
+        'fibonacci-counter',
+        'johnson-counter',
+        'self-oscillating-memory-final',
+        'mandala-circuit',
+      ].includes(circuit.id)
+    ),
   };
 
   return (
@@ -35,7 +49,9 @@ export const GalleryListPanel: React.FC<GalleryListPanelProps> = ({
       <div className="gallery-list-content">
         {/* 🔧 基本回路 */}
         <div className="gallery-category" data-testid="gallery-category-basic">
-          <h3 className="category-title" data-testid="category-title-basic">🔧 基本回路</h3>
+          <h3 className="category-title" data-testid="category-title-basic">
+            🔧 基本回路
+          </h3>
           <div className="circuit-list">
             {circuitCategories.basic.map(circuit => (
               <button
@@ -45,15 +61,22 @@ export const GalleryListPanel: React.FC<GalleryListPanelProps> = ({
                 onClick={() => onSelectCircuit(circuit)}
               >
                 <span className="circuit-name">{circuit.title}</span>
-                <span className="circuit-gate-count">{circuit.gates.length}ゲート</span>
+                <span className="circuit-gate-count">
+                  {circuit.gates.length}ゲート
+                </span>
               </button>
             ))}
           </div>
         </div>
 
         {/* ⚡ 高度回路 */}
-        <div className="gallery-category" data-testid="gallery-category-advanced">
-          <h3 className="category-title" data-testid="category-title-advanced">⚡ 高度回路</h3>
+        <div
+          className="gallery-category"
+          data-testid="gallery-category-advanced"
+        >
+          <h3 className="category-title" data-testid="category-title-advanced">
+            ⚡ 高度回路
+          </h3>
           <div className="circuit-list">
             {circuitCategories.advanced.map(circuit => (
               <button
@@ -63,15 +86,22 @@ export const GalleryListPanel: React.FC<GalleryListPanelProps> = ({
                 onClick={() => onSelectCircuit(circuit)}
               >
                 <span className="circuit-name">{circuit.title}</span>
-                <span className="circuit-gate-count">{circuit.gates.length}ゲート</span>
+                <span className="circuit-gate-count">
+                  {circuit.gates.length}ゲート
+                </span>
               </button>
             ))}
           </div>
         </div>
 
         {/* 🌀 循環回路 */}
-        <div className="gallery-category" data-testid="gallery-category-cyclical">
-          <h3 className="category-title" data-testid="category-title-cyclical">🌀 循環回路</h3>
+        <div
+          className="gallery-category"
+          data-testid="gallery-category-cyclical"
+        >
+          <h3 className="category-title" data-testid="category-title-cyclical">
+            🌀 循環回路
+          </h3>
           <div className="circuit-list">
             {circuitCategories.cyclical.map(circuit => (
               <button
@@ -81,7 +111,9 @@ export const GalleryListPanel: React.FC<GalleryListPanelProps> = ({
                 onClick={() => onSelectCircuit(circuit)}
               >
                 <span className="circuit-name">{circuit.title}</span>
-                <span className="circuit-gate-count">{circuit.gates.length}ゲート</span>
+                <span className="circuit-gate-count">
+                  {circuit.gates.length}ゲート
+                </span>
                 <span className="circuit-badge">実験的</span>
               </button>
             ))}

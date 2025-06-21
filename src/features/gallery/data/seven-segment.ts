@@ -8,7 +8,8 @@ import type { CircuitMetadata } from './gallery';
 export const SEVEN_SEGMENT_DECODER: CircuitMetadata = {
   id: 'seven-segment',
   title: '7セグメントデコーダー',
-  description: '0から3までの数字を7セグメントディスプレイ用の信号に変換。デジタル時計や電卓の表示原理がわかる！',
+  description:
+    '0から3までの数字を7セグメントディスプレイ用の信号に変換。デジタル時計や電卓の表示原理がわかる！',
   gates: [
     // 2ビット入力（B1 B0で0-3を表現）
     {
@@ -75,7 +76,7 @@ export const SEVEN_SEGMENT_DECODER: CircuitMetadata = {
     },
     // セグメントe (0,2で点灯) = NOT B0
     // → not_b0をそのまま使用
-    
+
     // セグメントf (0で点灯) = NOT B1 AND NOT B0
     {
       id: 'seg_f_and',
@@ -86,7 +87,7 @@ export const SEVEN_SEGMENT_DECODER: CircuitMetadata = {
     },
     // セグメントg (2,3で点灯) = B1
     // → input_b1をそのまま使用
-    
+
     // 7セグメント出力（a-g）
     {
       id: 'out_a',

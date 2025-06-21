@@ -2,7 +2,7 @@
  * カスタムゲートの内部回路評価
  */
 
-import type { CustomGateDefinition, Gate, Wire } from '../../../types/circuit';
+import type { CustomGateDefinition } from '../../../types/circuit';
 import type { Circuit } from './types';
 import type { EvaluationConfig, EvaluationError, Result } from './types';
 import { success, failure } from './types';
@@ -26,7 +26,8 @@ export function evaluateCustomGateByInternalCircuit(
     } as EvaluationError);
   }
 
-  const { gates, wires, inputMappings, outputMappings } = definition.internalCircuit;
+  const { gates, wires, inputMappings, outputMappings } =
+    definition.internalCircuit;
 
   // 入力数の検証
   if (inputs.length !== definition.inputs.length) {
@@ -62,7 +63,7 @@ export function evaluateCustomGateByInternalCircuit(
   };
 
   const evaluationResult = evaluateCircuit(circuit, config);
-  
+
   if (!evaluationResult.success) {
     return failure({
       type: 'EVALUATION_ERROR',
@@ -77,7 +78,7 @@ export function evaluateCustomGateByInternalCircuit(
 
   // 出力値を収集
   const outputs: boolean[] = [];
-  
+
   for (let i = 0; i < definition.outputs.length; i++) {
     const mapping = outputMappings[i];
     if (!mapping) {
@@ -85,7 +86,9 @@ export function evaluateCustomGateByInternalCircuit(
       continue;
     }
 
-    const outputGate = evaluatedCircuit.gates.find(g => g.id === mapping.gateId);
+    const outputGate = evaluatedCircuit.gates.find(
+      g => g.id === mapping.gateId
+    );
     if (outputGate) {
       outputs.push(outputGate.output);
     } else {
@@ -105,15 +108,23 @@ export function evaluateCustomGateByInternalCircuitWithDelay(
   inputs: readonly boolean[],
   config: Readonly<EvaluationConfig>,
   previousOutputs?: readonly boolean[]
-): Result<{ outputs: readonly boolean[]; hasChanged: boolean }, EvaluationError> {
-  const result = evaluateCustomGateByInternalCircuit(definition, inputs, config);
-  
+): Result<
+  { outputs: readonly boolean[]; hasChanged: boolean },
+  EvaluationError
+> {
+  const result = evaluateCustomGateByInternalCircuit(
+    definition,
+    inputs,
+    config
+  );
+
   if (!result.success) {
     return failure(result.error);
   }
 
   // 出力が変化したかチェック
-  const hasChanged = !previousOutputs || 
+  const hasChanged =
+    !previousOutputs ||
     result.data.length !== previousOutputs.length ||
     result.data.some((output, i) => output !== previousOutputs[i]);
 

@@ -109,9 +109,14 @@ const lessonsWithCategory = cleanLessons.map(lesson => {
   let category = 'basics';
 
   if (
-    ['digital-basics', 'not-gate', 'and-gate', 'or-gate', 'xor-gate', 'nand-gate'].includes(
-      lesson.id
-    )
+    [
+      'digital-basics',
+      'not-gate',
+      'and-gate',
+      'or-gate',
+      'xor-gate',
+      'nand-gate',
+    ].includes(lesson.id)
   ) {
     category = 'basics';
   } else if (
@@ -161,7 +166,14 @@ export const lessonCategories = {
     title: '🌟 Phase 1: デジタルの世界',
     description: '0と1の魔法を理解しよう',
     color: '#00ff88',
-    lessons: ['digital-basics', 'not-gate', 'and-gate', 'or-gate', 'xor-gate', 'nand-gate'],
+    lessons: [
+      'digital-basics',
+      'not-gate',
+      'and-gate',
+      'or-gate',
+      'xor-gate',
+      'nand-gate',
+    ],
   },
   combinational: {
     title: '🔧 Phase 2: 組み合わせ回路',

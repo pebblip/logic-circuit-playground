@@ -6,14 +6,14 @@ export interface PreferencesSlice {
   // 配線スタイル設定
   wireStyle: WireStyle;
   setWireStyle: (style: WireStyle) => void;
-  
+
   // その他の設定（将来的に追加）
   showGrid: boolean;
   setShowGrid: (show: boolean) => void;
-  
+
   gridSize: number;
   setGridSize: (size: number) => void;
-  
+
   // 設定の永続化
   loadPreferences: () => void;
   savePreferences: () => void;
@@ -31,22 +31,22 @@ export const createPreferencesSlice: StateCreator<
   wireStyle: 'bezier',
   showGrid: false,
   gridSize: 20,
-  
+
   setWireStyle: (style: WireStyle) => {
     set({ wireStyle: style });
     get().savePreferences();
   },
-  
+
   setShowGrid: (show: boolean) => {
     set({ showGrid: show });
     get().savePreferences();
   },
-  
+
   setGridSize: (size: number) => {
     set({ gridSize: size });
     get().savePreferences();
   },
-  
+
   loadPreferences: () => {
     try {
       const stored = localStorage.getItem(PREFERENCES_STORAGE_KEY);
@@ -62,7 +62,7 @@ export const createPreferencesSlice: StateCreator<
       console.error('Failed to load preferences:', error);
     }
   },
-  
+
   savePreferences: () => {
     try {
       const state = get();
@@ -71,7 +71,10 @@ export const createPreferencesSlice: StateCreator<
         showGrid: state.showGrid,
         gridSize: state.gridSize,
       };
-      localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(preferences));
+      localStorage.setItem(
+        PREFERENCES_STORAGE_KEY,
+        JSON.stringify(preferences)
+      );
     } catch (error) {
       console.error('Failed to save preferences:', error);
     }

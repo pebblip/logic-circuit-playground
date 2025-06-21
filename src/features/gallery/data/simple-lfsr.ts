@@ -1,5 +1,3 @@
-import type { Gate, Wire } from '../../../types';
-
 /**
  * シンプルな2ビットLFSR - 最小限のテスト用
  * 確実に動作することを確認してから複雑にする
@@ -7,12 +5,13 @@ import type { Gate, Wire } from '../../../types';
 export const SIMPLE_LFSR = {
   id: 'simple-lfsr',
   title: '🔧 シンプル2ビットLFSR（テスト用）',
-  description: '最小限の2ビットLFSRで動作を確認。複雑になる前に基本動作をテスト。',
+  description:
+    '最小限の2ビットLFSRで動作を確認。複雑になる前に基本動作をテスト。',
   simulationConfig: {
     needsAnimation: true,
-    updateInterval: 250,  // 0.25秒 - 1HzCLOCK(1000ms)の1/4間隔で正確な変化を捉える
+    updateInterval: 250, // 0.25秒 - 1HzCLOCK(1000ms)の1/4間隔で正確な変化を捉える
     expectedBehavior: 'oscillator' as const,
-    minimumCycles: 4
+    minimumCycles: 4,
   },
   gates: [
     // CLOCK
@@ -22,20 +21,20 @@ export const SIMPLE_LFSR = {
       position: { x: 100, y: 100 },
       output: false,
       inputs: [],
-      metadata: { frequency: 1, isRunning: true },  // 1Hz - ゆっくり
+      metadata: { frequency: 1, isRunning: true }, // 1Hz - ゆっくり
     },
-    
+
     // 2ビットD-FF
     {
       id: 'dff_a',
       type: 'D-FF' as const,
       position: { x: 250, y: 150 },
-      output: true,  // 初期値 1
+      output: true, // 初期値 1
       inputs: ['', ''],
-      metadata: { 
-        qOutput: true, 
-        previousClockState: false,  // 初回エッジ検出を有効に
-        isFirstEvaluation: true 
+      metadata: {
+        qOutput: true,
+        previousClockState: false, // 初回エッジ検出を有効に
+        isFirstEvaluation: true,
       },
     },
     {
@@ -44,16 +43,16 @@ export const SIMPLE_LFSR = {
       position: { x: 400, y: 150 },
       output: false, // 初期値 0
       inputs: ['', ''],
-      metadata: { 
-        qOutput: false, 
-        previousClockState: false,  // 初回エッジ検出を有効に
-        isFirstEvaluation: true 
+      metadata: {
+        qOutput: false,
+        previousClockState: false, // 初回エッジ検出を有効に
+        isFirstEvaluation: true,
       },
     },
-    
+
     // フィードバック（単純にdff_bの出力をdff_aに戻す）
     // これで [1,0] -> [0,1] -> [1,0] の2周期になる
-    
+
     // 出力観測
     {
       id: 'out_a',
@@ -84,7 +83,7 @@ export const SIMPLE_LFSR = {
       to: { gateId: 'dff_b', pinIndex: 1 },
       isActive: false,
     },
-    
+
     // シフト: dff_a -> dff_b
     {
       id: 'shift',
@@ -92,7 +91,7 @@ export const SIMPLE_LFSR = {
       to: { gateId: 'dff_b', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // フィードバック: dff_b -> dff_a
     {
       id: 'feedback',
@@ -100,7 +99,7 @@ export const SIMPLE_LFSR = {
       to: { gateId: 'dff_a', pinIndex: 0 },
       isActive: false,
     },
-    
+
     // 出力観測
     {
       id: 'observe_a',

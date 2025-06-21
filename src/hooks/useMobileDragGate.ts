@@ -59,7 +59,11 @@ export const useMobileDragGate = () => {
       }
 
       // タッチ位置をSVG座標に変換
-      const transformed = clientToSVGCoordinates(touch.clientX, touch.clientY, canvas);
+      const transformed = clientToSVGCoordinates(
+        touch.clientX,
+        touch.clientY,
+        canvas
+      );
       if (!transformed) {
         setIsDragging(false);
         setDragPreview(null);

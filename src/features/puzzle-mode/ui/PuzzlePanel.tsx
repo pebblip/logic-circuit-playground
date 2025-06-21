@@ -81,7 +81,9 @@ export const PuzzlePanel: React.FC<PuzzlePanelProps> = ({ isVisible }) => {
     return (
       <div className="puzzle-list">
         <h3 data-testid="puzzle-panel-title">🧩 パズル・チャレンジ</h3>
-        <p className="puzzle-intro" data-testid="puzzle-panel-description">制約条件の中で目標回路を作成してください</p>
+        <p className="puzzle-intro" data-testid="puzzle-panel-description">
+          制約条件の中で目標回路を作成してください
+        </p>
 
         {difficulties.map(difficulty => {
           const puzzles = getPuzzlesByDifficulty(difficulty);
@@ -89,7 +91,9 @@ export const PuzzlePanel: React.FC<PuzzlePanelProps> = ({ isVisible }) => {
 
           return (
             <div key={difficulty} className="difficulty-section">
-              <h4 data-testid={`difficulty-label-${difficulty}`}>{difficultyLabels[difficulty]}</h4>
+              <h4 data-testid={`difficulty-label-${difficulty}`}>
+                {difficultyLabels[difficulty]}
+              </h4>
               <div className="puzzle-grid">
                 {puzzles.map(puzzle => (
                   <button
