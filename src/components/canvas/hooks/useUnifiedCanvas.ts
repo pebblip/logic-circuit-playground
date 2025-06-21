@@ -13,6 +13,7 @@ import { handleError } from '@/infrastructure/errorHandler';
 import { EnhancedHybridEvaluator } from '@/domain/simulation/event-driven-minimal';
 import { GateFactory } from '@/models/gates/GateFactory';
 import { calculateCircuitBounds, calculateOptimalScale, calculateCenteringPan } from '../utils/circuitBounds';
+import { autoLayoutCircuit } from '@/features/learning-mode/utils/autoLayout';
 // import { formatCircuitWithAnimation } from '@/domain/circuit/layout';
 import type { Gate, Wire } from '@/types/circuit';
 import type { Circuit } from '@/domain/simulation/core/types';
@@ -152,6 +153,26 @@ export function useUnifiedCanvas(
         };
       }
       
+      // ギャラリーモード時: 自動レイアウトを適用
+      if (dataSource.galleryCircuit && config.mode === 'gallery') {
+        const autoLayoutGates = autoLayoutCircuit(
+          dataSource.galleryCircuit.gates,
+          dataSource.galleryCircuit.wires,
+          {
+            padding: 80,
+            gateSpacing: { x: 160, y: 100 },
+            layerWidth: 180,
+            preferredWidth: 1000,
+            preferredHeight: 600,
+          }
+        );
+        return {
+          displayGates: autoLayoutGates,
+          displayWires: dataSource.galleryCircuit.wires,
+        };
+      }
+      
+      // 非ギャラリーモード時: 元のレイアウトを使用
       if (dataSource.galleryCircuit && config.mode !== 'gallery') {
         return {
           displayGates: dataSource.galleryCircuit.gates,
