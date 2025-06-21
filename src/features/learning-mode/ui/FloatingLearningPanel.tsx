@@ -243,6 +243,15 @@ export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
     }
   }, [selectedLesson, setAllowedGates, currentStepIndex]);
 
+  // パネル閉じた時のクリーンアップ
+  useEffect(() => {
+    if (!isOpen && selectedLesson) {
+      setSelectedLesson(null);
+      setCurrentStepIndex(0);
+      setQuizAnswered(false);
+    }
+  }, [isOpen, selectedLesson]);
+
   // レッスン完了処理
   useEffect(() => {
     if (selectedLesson && currentStepIndex >= selectedLesson.steps.length) {

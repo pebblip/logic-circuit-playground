@@ -109,6 +109,8 @@ export const Header: React.FC<HeaderProps> = ({
           >
             {TERMS.FREE_MODE}
           </button>
+          {/* パズルモード一時無効化 */}
+          {/* 
           <button
             className={`mode-tab ${activeMode === TERMS.PUZZLE_MODE ? 'active' : ''}`}
             data-testid="mode-selector-puzzle"
@@ -116,6 +118,7 @@ export const Header: React.FC<HeaderProps> = ({
           >
             {TERMS.PUZZLE_MODE}
           </button>
+          */}
           <button
             className={`mode-tab ${activeMode === TERMS.GALLERY_MODE ? 'active' : ''}`}
             data-testid="mode-selector-gallery"

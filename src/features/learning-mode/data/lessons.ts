@@ -23,6 +23,9 @@ import { clockSyncStructuredLesson } from './structured-lessons/clock-sync-lesso
 import { trafficLightStructuredLesson } from './structured-lessons/traffic-light-lesson';
 import { digitalClockStructuredLesson } from './structured-lessons/digital-clock-lesson';
 import { diagramCatalogLesson } from './structured-lessons/diagram-catalog-lesson';
+import { nandGateStructuredLesson } from './structured-lessons/nand-gate-lesson';
+import { jkFlipFlopStructuredLesson } from './structured-lessons/jk-flip-flop-lesson';
+import { sevenSegmentDisplayStructuredLesson } from './structured-lessons/seven-segment-display-lesson';
 
 // 既存のインターフェース定義（後方互換性のため維持）
 export interface Lesson {
@@ -78,16 +81,19 @@ const cleanLessons = [
   andGateStructuredLesson,
   orGateStructuredLesson,
   xorGateStructuredLesson,
+  nandGateStructuredLesson, // 新規追加
   halfAdderStructuredLesson,
   fullAdderStructuredLesson,
   fourBitAdderStructuredLesson,
   comparatorStructuredLesson,
   encoderStructuredLesson,
   decoderStructuredLesson,
+  sevenSegmentDisplayStructuredLesson, // 新規追加
   multiplexerStructuredLesson,
   aluBasicsStructuredLesson,
   dFlipFlopStructuredLesson,
   srLatchStructuredLesson,
+  jkFlipFlopStructuredLesson, // 新規追加
   counterStructuredLesson,
   registerStructuredLesson,
   shiftRegisterStructuredLesson,
@@ -103,7 +109,7 @@ const lessonsWithCategory = cleanLessons.map(lesson => {
   let category = 'basics';
 
   if (
-    ['digital-basics', 'not-gate', 'and-gate', 'or-gate', 'xor-gate'].includes(
+    ['digital-basics', 'not-gate', 'and-gate', 'or-gate', 'xor-gate', 'nand-gate'].includes(
       lesson.id
     )
   ) {
@@ -116,6 +122,7 @@ const lessonsWithCategory = cleanLessons.map(lesson => {
       'comparator',
       'encoder',
       'decoder',
+      'seven-segment-display',
       'multiplexer',
       'alu-basics',
     ].includes(lesson.id)
@@ -125,6 +132,7 @@ const lessonsWithCategory = cleanLessons.map(lesson => {
     [
       'd-flip-flop',
       'sr-latch',
+      'jk-flip-flop',
       'counter',
       'register',
       'shift-register',
@@ -153,7 +161,7 @@ export const lessonCategories = {
     title: '🌟 Phase 1: デジタルの世界',
     description: '0と1の魔法を理解しよう',
     color: '#00ff88',
-    lessons: ['digital-basics', 'not-gate', 'and-gate', 'or-gate', 'xor-gate'],
+    lessons: ['digital-basics', 'not-gate', 'and-gate', 'or-gate', 'xor-gate', 'nand-gate'],
   },
   combinational: {
     title: '🔧 Phase 2: 組み合わせ回路',
@@ -166,6 +174,7 @@ export const lessonCategories = {
       'comparator',
       'encoder',
       'decoder',
+      'seven-segment-display',
       'multiplexer',
       'alu-basics',
     ],
@@ -177,6 +186,7 @@ export const lessonCategories = {
     lessons: [
       'd-flip-flop',
       'sr-latch',
+      'jk-flip-flop',
       'counter',
       'register',
       'shift-register',

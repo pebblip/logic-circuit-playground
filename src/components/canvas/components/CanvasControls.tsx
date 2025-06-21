@@ -115,6 +115,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = React.memo(({
         onClick={onZoomOut}
         title="ズームアウト（マウスホイール下）"
         aria-label="ズームアウト"
+        data-testid="zoom-out-button"
       >
         <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
           <path d="M19 13H5v-2h14v2z" />
@@ -127,6 +128,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = React.memo(({
         onClick={onResetZoom}
         title="ズームリセット（ダブルクリック）"
         aria-label={`ズーム率 ${Math.round(scale * 100)}%`}
+        data-testid="zoom-reset-button"
       >
         {Math.round(scale * 100)}%
       </button>
@@ -137,6 +139,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = React.memo(({
         onClick={onZoomIn}
         title="ズームイン（マウスホイール上）"
         aria-label="ズームイン"
+        data-testid="zoom-in-button"
       >
         <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
           <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />

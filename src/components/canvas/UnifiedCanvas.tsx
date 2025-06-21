@@ -48,8 +48,16 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
     features,
   } = useUnifiedCanvas(config, dataSource, handlers);
   
-  // ViewBox管理用のローカル状態（幅と1200x800に統一）
-  const [localViewBox, setLocalViewBox] = React.useState({ x: 0, y: 0, width: 1200, height: 800 });
+  // ViewBox管理：ギャラリーモードはuseUnifiedCanvasのstate.viewBoxを使用
+  const viewBox = config.mode === 'gallery' ? state.viewBox : { x: 0, y: 0, width: 1200, height: 800 };
+  const [localViewBox, setLocalViewBox] = React.useState(viewBox);
+  
+  // ギャラリーモードでstate.viewBoxが変更されたらlocalViewBoxも更新
+  React.useEffect(() => {
+    if (config.mode === 'gallery') {
+      setLocalViewBox(state.viewBox);
+    }
+  }, [config.mode, state.viewBox]);
   
   // Zustandストアからワイヤー描画状態を取得
   const { isDrawingWire, wireStart, cancelWireDrawing, exitCustomGatePreview, viewMode } = useCircuitStore();
@@ -140,8 +148,8 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
     isReadOnly: config.interactionLevel === 'view_only' || config.previewOptions?.readOnly === true,
   });
   
-  // イベントハンドラー統合
-  const handleSvgClick = (event: React.MouseEvent<SVGSVGElement>) => {
+  // イベントハンドラー統合（メモ化）
+  const handleSvgClick = React.useCallback((event: React.MouseEvent<SVGSVGElement>) => {
     try {
       const rect = svgRef.current?.getBoundingClientRect();
       if (!rect) return;
@@ -163,9 +171,9 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         }
       );
     }
-  };
+  }, [handlers, transform]);
   
-  const handleSvgMouseDown = (event: React.MouseEvent<SVGSVGElement>) => {
+  const handleSvgMouseDown = React.useCallback((event: React.MouseEvent<SVGSVGElement>) => {
     try {
       // ドラッグ機能を一時的に無効化
       // TODO: canvasInteraction.handleMouseDown(event);
@@ -202,9 +210,9 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         }
       );
     }
-  };
+  }, [canUsePan, isSpacePressed, panHandlers, canUseSelection, selectionHandlers]);
   
-  const handleSvgMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
+  const handleSvgMouseMove = React.useCallback((event: React.MouseEvent<SVGSVGElement>) => {
     try {
       // ドラッグ機能を一時的に無効化
       // TODO: canvasInteraction.handleMouseMove(event);
@@ -249,9 +257,9 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         }
       );
     }
-  };
+  }, [canUsePan, isDrawingWire, isSpacePressed, panHandlers, localViewBox, canUseSelection, selectionHandlers]);
   
-  const handleSvgMouseUp = (event: React.MouseEvent<SVGSVGElement>) => {
+  const handleSvgMouseUp = React.useCallback((event: React.MouseEvent<SVGSVGElement>) => {
     try {
       // ドラッグ機能を一時的に無効化
       // TODO: canvasInteraction.handleMouseUp(event);
@@ -274,9 +282,9 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         }
       );
     }
-  };
+  }, [canUsePan, canUseSelection, panHandlers, selectionHandlers]);
   
-  const handleWheel = (event: React.WheelEvent<SVGSVGElement>) => {
+  const handleWheel = React.useCallback((event: React.WheelEvent<SVGSVGElement>) => {
     try {
       if (canUseZoom) {
         event.preventDefault();
@@ -300,10 +308,10 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         }
       );
     }
-  };
+  }, [canUseZoom, zoomHandlers]);
   
   // ゲートクリックハンドラー（Zustandストア統合）
-  const handleGateClick = (event: React.MouseEvent, gateId: string) => {
+  const handleGateClick = React.useCallback((event: React.MouseEvent, gateId: string) => {
     try {
       event.stopPropagation();
       
@@ -338,10 +346,10 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         }
       );
     }
-  };
+  }, [actions]);
   
   // タッチイベントハンドラー
-  const handleTouchStart = (event: React.TouchEvent<SVGSVGElement>) => {
+  const handleTouchStart = React.useCallback((event: React.TouchEvent<SVGSVGElement>) => {
     try {
       if (event.touches.length === 1 && canUsePan) {
         const touch = event.touches[0];
@@ -358,9 +366,9 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         }
       );
     }
-  };
+  }, [canUsePan, panHandlers]);
 
-  const handleTouchMove = (event: React.TouchEvent<SVGSVGElement>) => {
+  const handleTouchMove = React.useCallback((event: React.TouchEvent<SVGSVGElement>) => {
     try {
       if (event.touches.length === 1 && panHandlers?.isPanning) {
         const touch = event.touches[0];
@@ -377,9 +385,9 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         }
       );
     }
-  };
+  }, [panHandlers]);
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = React.useCallback(() => {
     try {
       panHandlers.handlePanEnd();
     } catch (error) {
@@ -393,10 +401,10 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         }
       );
     }
-  };
+  }, [panHandlers]);
 
   // ワイヤークリックハンドラー
-  const handleWireClick = (event: React.MouseEvent, wireId: string) => {
+  const handleWireClick = React.useCallback((event: React.MouseEvent, wireId: string) => {
     try {
       event.stopPropagation();
       const wire = state.displayWires.find(w => w.id === wireId);
@@ -414,10 +422,10 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         }
       );
     }
-  };
+  }, [state.displayWires, handlers]);
   
   // CSS classes
-  const canvasClasses = [
+  const canvasClasses = useMemo(() => [
     'unified-canvas',
     `unified-canvas--${config.mode}`,
     `unified-canvas--${config.interactionLevel}`,
@@ -425,7 +433,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
     state.isDragging && 'unified-canvas--dragging',
     state.isAnimating && 'unified-canvas--animating',
     className,
-  ].filter(Boolean).join(' ');
+  ].filter(Boolean).join(' '), [config.mode, config.interactionLevel, state.isPanning, state.isDragging, state.isAnimating, className]);
   
   return (
     <div className={canvasClasses} style={style}>
@@ -509,10 +517,10 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
       {/* コントロールパネル */}
       {features.showControls && (
         <CanvasControls
-          scale={zoomHandlers.scale}
-          onZoomIn={zoomHandlers.zoomIn}
-          onZoomOut={zoomHandlers.zoomOut}
-          onResetZoom={zoomHandlers.resetZoom}
+          scale={config.mode === 'gallery' ? state.scale : zoomHandlers.scale}
+          onZoomIn={config.mode === 'gallery' ? () => actions.setZoom(state.scale * 1.1) : zoomHandlers.zoomIn}
+          onZoomOut={config.mode === 'gallery' ? () => actions.setZoom(state.scale * 0.9) : zoomHandlers.zoomOut}
+          onResetZoom={config.mode === 'gallery' ? () => actions.setZoom(1) : zoomHandlers.resetZoom}
           hideWireStyleButton={config.mode === 'gallery'}  // ギャラリーモードでは非表示
         />
       )}

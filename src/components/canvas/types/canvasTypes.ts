@@ -63,6 +63,12 @@ export interface CanvasConfig {
     
     /** 初期スケール */
     initialScale?: number;
+    
+    /** 自動フィット機能 */
+    autoFit?: boolean;
+    
+    /** 自動フィット時のパディング */
+    autoFitPadding?: number;
   };
   
   /** エディターモード専用設定 */
@@ -203,7 +209,9 @@ export const CANVAS_MODE_PRESETS: Record<CanvasMode, CanvasConfig> = {
       autoSimulation: true,
       animationInterval: 1000,
       showDebugInfo: false,
-      initialScale: 1,
+      initialScale: 0.7,
+      autoFit: true, // 自動フィット有効化
+      autoFitPadding: 80, // 80pxの余白
     },
     uiControls: {
       showControls: true,

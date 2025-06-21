@@ -80,7 +80,8 @@
   position: relative;
 }
 
-.unified-canvas--animating::before {
+/* アニメーション表示インジケーター（ギャラリーモード） */
+.unified-canvas--gallery.unified-canvas--animating::before {
   content: '';
   position: absolute;
   top: 4px;
