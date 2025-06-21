@@ -2,6 +2,8 @@
  * タイミングチャート機能のイベント捕捉システム
  */
 
+declare const performance: { now(): number };
+
 import type { TimingEvent, TimeMs, SignalValue } from '@/types/timing';
 import type { Gate } from '@/types/circuit';
 import type {
@@ -241,9 +243,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
             previousGate
           );
           if (currentGate.type === 'CLOCK') {
-            console.log(
-              `🔍 [TimingCapture] CLOCK ${currentGate.id} change check: current=${currentGate.output}, previous=${previousGate.output}, hasChanged=${hasChanged}`
-            );
+            // CLOCKゲートの特別な処理は必要に応じて実装
           }
 
           if (hasChanged) {
@@ -268,9 +268,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
 
             // CLOCKゲートの値変化をデバッグ
             if (currentGate.type === 'CLOCK') {
-              console.log(
-                `🔍 [TimingCapture] CLOCK ${currentGate.id} event: ${previousValue} → ${currentValue} (gate.output=${currentGate.output}, delayedTime=${delayedTime})`
-              );
+              // CLOCKゲートのデバッグ情報は必要に応じて実装
             }
 
             events.push(event);

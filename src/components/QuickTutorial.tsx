@@ -250,7 +250,7 @@ export const QuickTutorial: React.FC<QuickTutorialProps> = ({
             const svg = document.querySelector('.canvas') as SVGSVGElement;
             const canvasContainer = document.querySelector('.canvas-container');
             if (svg && canvasContainer) {
-              const _canvasRect = canvasContainer.getBoundingClientRect();
+              // const canvasRect = canvasContainer.getBoundingClientRect(); - position calculation unused
               const svgRect = svg.getBoundingClientRect();
 
               // viewBoxとSVGの実際のサイズから比率を計算

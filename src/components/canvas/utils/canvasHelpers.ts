@@ -3,6 +3,7 @@
  * Canvas.tsxから抽出・整理
  */
 
+import type React from 'react';
 import type { Gate } from '@/types/circuit';
 import type { ViewBox } from './canvasConstants';
 // svgCoordinates.tsから直接使用してください

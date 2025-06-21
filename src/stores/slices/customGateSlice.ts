@@ -108,11 +108,8 @@ export const createCustomGateSlice: StateCreator<
 
         const evaluationResult = evaluator.evaluate(circuit);
         evaluatedGates = [...evaluationResult.circuit.gates];
-      } catch (error) {
-        console.warn(
-          'Custom gate creation: Circuit evaluation failed:',
-          error instanceof Error ? error.message : 'Unknown error'
-        );
+      } catch {
+        // エラー時は評価前のゲートを使用
         evaluatedGates = testGates;
       }
 
@@ -183,7 +180,7 @@ export const createCustomGateSlice: StateCreator<
     if (typeof window !== 'undefined' && typeof window.alert === 'function') {
       alert('カスタムゲートが作成されました！');
     } else {
-      console.log('✅ カスタムゲートが作成されました！');
+      // テスト環境では alert が利用できないため、コンソールログのみ
     }
   },
 });

@@ -63,7 +63,7 @@ export const useCanvasZoom = (
 
       setScale(newScale);
     },
-    [scale, svgRef, viewBox, setViewBox]
+    [scale, svgRef, setViewBox] // viewBoxは使用されないため除外
   );
 
   const resetZoom = useCallback(() => {

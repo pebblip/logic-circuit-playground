@@ -3,6 +3,8 @@
  * LegacyCompatibilityLayerのコンセプトを取り入れた高度な戦略選択機能
  */
 
+declare const performance: { now(): number };
+
 import type { Circuit } from '../core/types';
 import type { Gate } from '../../../types/circuit';
 import { CircuitAnalyzer } from './CircuitAnalyzer';
@@ -90,18 +92,6 @@ export class EnhancedHybridEvaluator {
     const strategy = this.determineStrategy(circuit);
 
     // デバッグログ
-    if (this.config.enableDebugLogging) {
-      console.log('[EnhancedHybridEvaluator] Selected strategy:', strategy);
-      console.log('[EnhancedHybridEvaluator] Circuit analysis:', {
-        hasClockGates: circuit.gates.some(g => g.type === 'CLOCK'),
-        hasSequentialElements: circuit.gates.some(
-          g => g.type === 'D-FF' || g.type === 'SR-LATCH'
-        ),
-        hasCircular: CircuitAnalyzer.hasCircularDependency(circuit),
-        gateCount: circuit.gates.length,
-        delayMode: this.config.delayMode,
-      });
-    }
 
     // 実行
     const result = this.executeWithStrategy(circuit, strategy);
@@ -200,32 +190,17 @@ export class EnhancedHybridEvaluator {
     circuit: Circuit,
     strategy: SimulationStrategy
   ): { circuit: Circuit; warnings: string[] } {
-    if (this.config.enableDebugLogging) {
-      console.log(
-        `[EnhancedHybridEvaluator] Executing with strategy: ${strategy}`
-      );
-    }
-
     switch (strategy) {
       case 'LEGACY_ONLY':
-        if (this.config.enableDebugLogging) {
-          console.log('[EnhancedHybridEvaluator] Using LEGACY engine');
-        }
         return this.executeLegacy(circuit);
 
       case 'EVENT_DRIVEN_ONLY':
-        if (this.config.enableDebugLogging) {
-          console.log('[EnhancedHybridEvaluator] Using EVENT_DRIVEN engine');
-        }
         return this.executeEventDriven(circuit);
 
       case 'COMPARISON_MODE':
         return this.executeComparison(circuit);
 
       default:
-        if (this.config.enableDebugLogging) {
-          console.log('[EnhancedHybridEvaluator] Using default LEGACY engine');
-        }
         return this.executeLegacy(circuit);
     }
   }
@@ -245,11 +220,6 @@ export class EnhancedHybridEvaluator {
         gate.metadata &&
         gate.metadata.startTime === undefined
       ) {
-        if (this.config.enableDebugLogging) {
-          console.log(
-            `🔧 [Legacy] ${gate.id}: Initializing startTime to ${currentTime}ms (frequency=${gate.metadata.frequency}Hz)`
-          );
-        }
         return {
           ...gate,
           metadata: {
@@ -257,12 +227,6 @@ export class EnhancedHybridEvaluator {
             startTime: currentTime,
           },
         };
-      } else if (gate.type === 'CLOCK' && gate.metadata?.startTime) {
-        if (this.config.enableDebugLogging) {
-          console.log(
-            `ℹ️ [Legacy] ${gate.id}: Already has startTime=${gate.metadata.startTime}ms (frequency=${gate.metadata.frequency}Hz)`
-          );
-        }
       }
       return gate;
     });
@@ -296,12 +260,6 @@ export class EnhancedHybridEvaluator {
         warnings: [...result.warnings], // readonlyを解除
       };
     } else {
-      if (this.config.enableDebugLogging) {
-        console.error(
-          '[EnhancedHybridEvaluator] トポロジカル評価失敗:',
-          result.error
-        );
-      }
       return {
         circuit,
         warnings: [`評価エラー: ${result.error.message}`],
@@ -325,13 +283,6 @@ export class EnhancedHybridEvaluator {
       if (result.hasOscillation) {
         warnings.push('発振が検出されました');
       }
-    }
-
-    if (this.config.enableDebugLogging && result.debugTrace) {
-      console.debug(
-        '[EnhancedHybridEvaluator] デバッグトレース:',
-        result.debugTrace
-      );
     }
 
     // ワイヤー情報から入力値を動的に計算

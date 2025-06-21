@@ -220,11 +220,6 @@ function evaluateClockGate(
   config: Readonly<EvaluationConfig>
 ): Result<readonly boolean[], EvaluationError> {
   if (!gate.metadata?.isRunning) {
-    if (config.enableDebug) {
-      console.log(
-        `⏹️ [CLOCK ${gate.id}] Not running (isRunning=false), output=false`
-      );
-    }
     return success([false]);
   }
 
@@ -241,42 +236,6 @@ function evaluateClockGate(
   const halfPeriod = period / 2;
   const cyclePosition = elapsed % period;
   const isHigh = cyclePosition < halfPeriod; // 修正: 0-249msがHIGH、250-499msがLOW
-
-  if (config.enableDebug) {
-    // CLOCKの出力変化ログ
-    const previousOutput = gate.output;
-    if (previousOutput !== isHigh) {
-      console.log(
-        `🔄 [CLOCK ${gate.id}] OUTPUT CHANGE: ${previousOutput} → ${isHigh} (elapsed=${elapsed}ms, cyclePosition=${cyclePosition}ms)`
-      );
-    }
-
-    // 詳細なデバッグログ（毎回表示）
-    console.log(`🕒 [CLOCK ${gate.id}] DETAILED:`, {
-      frequency: frequency + 'Hz',
-      period: period + 'ms',
-      halfPeriod: halfPeriod + 'ms',
-      elapsed: elapsed + 'ms',
-      cyclePosition: cyclePosition + 'ms',
-      isHigh,
-      now,
-      startTime,
-      calculation: {
-        'elapsed % period': `${elapsed} % ${period} = ${cyclePosition}`,
-        'isHigh condition': `${cyclePosition} < ${halfPeriod} = ${isHigh}`,
-      },
-    });
-
-    // 🔧 時間軸の可視化（ギャラリーモード向け）
-    const timelineVisualization = Array.from({ length: 20 }, (_, i) => {
-      const timePoint = (i * period) / 20;
-      const timeIsHigh = timePoint % period < halfPeriod;
-      return timeIsHigh ? '█' : '░';
-    }).join('');
-    console.log(
-      `📊 [CLOCK ${gate.id}] Timeline: ${timelineVisualization} (current: ${isHigh ? '█' : '░'})`
-    );
-  }
 
   return success([isHigh]);
 }
@@ -450,7 +409,7 @@ function evaluateCustomGate(
   }
 
   // デフォルト評価戦略
-  return evaluateCustomGateDefault(definition, inputs, config);
+  return evaluateCustomGateDefault(definition, inputs);
 }
 
 /**
@@ -486,8 +445,7 @@ function evaluateWithCustomEvaluator(
  */
 function evaluateCustomGateDefault(
   definition: Readonly<CustomGateDefinition>,
-  inputs: readonly boolean[],
-  _config: Readonly<EvaluationConfig>
+  inputs: readonly boolean[]
 ): Result<readonly boolean[], EvaluationError> {
   // 真理値表評価を優先（シンプルで高速）
   if (definition.truthTable) {

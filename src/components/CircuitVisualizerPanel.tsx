@@ -25,16 +25,10 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
 
   const gateCount = gates.length;
   const wireCount = wires.length;
-  const inputGates = gates.filter(g => g.type === 'INPUT');
   const outputGates = gates.filter(g => g.type === 'OUTPUT');
   const activeGates = gates.filter(g => g.output).length;
 
   // 入出力の状態を取得
-  const _getBinaryInputs = () => {
-    const inputs = inputGates.map(gate => (gate.output ? '1' : '0'));
-    if (inputs.length === 0) return '未接続';
-    return inputs.join('');
-  };
 
   const getBinaryOutputs = () => {
     const outputs = outputGates.map(gate => (gate.output ? '1' : '0'));

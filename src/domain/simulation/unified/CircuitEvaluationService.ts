@@ -3,6 +3,8 @@
  * 全てのシミュレーション機能を統一するサービスレイヤー
  */
 
+declare const performance: { now(): number };
+
 import type { Circuit } from '../core/types';
 import type { Gate, Wire } from '@/types/circuit';
 import type { Result } from '../core/types';

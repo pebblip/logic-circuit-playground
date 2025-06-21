@@ -108,7 +108,7 @@ const classifyError = (error: unknown): ErrorType => {
         return ErrorType.CUSTOM_GATE_INVALID;
       case 'FileLoadError':
         return ErrorType.FILE_LOAD_FAILED;
-      default:
+      default: {
         // エラーメッセージによる分類
         const message = error.message.toLowerCase();
         if (
@@ -142,6 +142,7 @@ const classifyError = (error: unknown): ErrorType => {
           return ErrorType.PERFORMANCE_WARNING;
         }
         return ErrorType.UNKNOWN_ERROR;
+      }
     }
   }
 
@@ -196,7 +197,6 @@ const generateActions = (
           label: '元に戻す',
           action: () => {
             // TODO: 実際のundo機能と連携
-            console.log('Undo action triggered');
           },
           isPrimary: true,
         },
@@ -204,7 +204,6 @@ const generateActions = (
           label: 'すべてクリア',
           action: () => {
             // TODO: 実際のclear機能と連携
-            console.log('Clear all action triggered');
           },
         }
       );
@@ -215,7 +214,6 @@ const generateActions = (
         label: 'ゲートを削除',
         action: () => {
           // TODO: 実際の削除機能と連携
-          console.log('Delete gate action triggered');
         },
         isPrimary: true,
       });
@@ -226,7 +224,6 @@ const generateActions = (
         label: '別のファイルを選択',
         action: () => {
           // TODO: ファイル選択ダイアログと連携
-          console.log('Select file action triggered');
         },
         isPrimary: true,
       });
@@ -237,7 +234,6 @@ const generateActions = (
         label: 'プレビューを終了',
         action: () => {
           // TODO: プレビューモード終了機能と連携
-          console.log('Exit preview action triggered');
         },
         isPrimary: true,
       });
@@ -248,7 +244,6 @@ const generateActions = (
         label: 'ゲートを削除',
         action: () => {
           // TODO: 選択削除機能と連携
-          console.log('Delete gates action triggered');
         },
         isPrimary: true,
       });
@@ -340,7 +335,7 @@ export const handleError = (
     } catch (error) {
       // ストアアクセスエラーの場合のフォールバック
       console.warn('[ErrorHandler] Failed to access error store:', error);
-      console.log('[ErrorHandler] Original notification:', notification);
+      console.error('[ErrorHandler] Original notification:', notification);
     }
   }
 };
@@ -429,17 +424,9 @@ export const handleInfo = (
       store.showErrorNotification(notification);
     } else {
       // フォールバック: コンソールに出力（テスト環境など）
-      console.info(
-        '[ErrorHandler] Info notification (store not available):',
-        notification
-      );
     }
-  } catch (error) {
+  } catch {
     // ストアアクセスエラーの場合のフォールバック
-    console.info(
-      '[ErrorHandler] Info notification (store error):',
-      notification
-    );
   }
 };
 

@@ -7,6 +7,7 @@
  * - 段階的移行による安全性確保
  */
 
+import type React from 'react';
 import type { Gate, Wire } from '@/types/circuit';
 import type { CircuitMetadata } from '@/features/gallery/data/gallery';
 

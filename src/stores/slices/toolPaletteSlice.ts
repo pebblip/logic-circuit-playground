@@ -14,12 +14,12 @@ export const createToolPaletteSlice: StateCreator<
   [],
   [],
   ToolPaletteSlice
-> = _set => ({
+> = set => ({
   selectedToolGateType: null,
   selectedToolCustomGateId: null,
 
   selectToolGate: (type, customGateId) => {
-    _set({
+    set({
       selectedToolGateType: type,
       selectedToolCustomGateId: customGateId || null,
       // ツールパレットでゲートを選択した場合、配置済みゲートの選択をクリア
@@ -29,7 +29,7 @@ export const createToolPaletteSlice: StateCreator<
   },
 
   clearToolSelection: () => {
-    _set({
+    set({
       selectedToolGateType: null,
       selectedToolCustomGateId: null,
     });

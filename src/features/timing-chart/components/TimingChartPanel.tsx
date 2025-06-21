@@ -2,7 +2,7 @@
  * タイミングチャートのメインパネルコンポーネント
  */
 
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChartBarIcon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -16,16 +16,10 @@ interface TimingChartPanelProps {
 export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
   className = '',
 }) => {
-  const [isDraggingHeight, setIsDraggingHeight] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
-  const resizeStartRef = useRef<{ y: number; height: number }>({
-    y: 0,
-    height: 0,
-  });
 
   // Zustand storeから状態とアクションを取得
-  const { timingChart, timingChartActions, gates, selectedClockGateId } =
-    useCircuitStore();
+  const { timingChart, timingChartActions } = useCircuitStore();
 
   const {
     isVisible,
@@ -37,12 +31,13 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
     settings,
   } = timingChart;
 
-  const { hidePanel, setPanelHeight, setCursor, hideCursor } =
-    timingChartActions;
+  const { hidePanel, setCursor, hideCursor } = timingChartActions;
 
   // 自動トレース作成は削除 - 明示的にユーザーが選択した場合のみ表示
 
   // パネル高さのリサイズハンドラ
+  // Resize handler is currently unused but kept for future implementation
+  /*
   const handleResizeStart = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
@@ -72,6 +67,7 @@ export const TimingChartPanel: React.FC<TimingChartPanelProps> = ({
     },
     [panelHeight, setPanelHeight]
   );
+  */
 
   // 波形エリアでのマウス操作
   const handleWaveformMouseMove = useCallback(

@@ -8,11 +8,7 @@ import type {
 } from '@/types/circuit';
 import { GateFactory } from '@/models/gates/GateFactory';
 import type { Circuit } from '@domain/simulation/core/types';
-import {
-  getGlobalEvaluationService,
-  setGlobalEvaluationService,
-  CircuitEvaluationService,
-} from '@domain/simulation/unified';
+import { getGlobalEvaluationService } from '@domain/simulation/unified';
 import { EnhancedHybridEvaluator } from '@domain/simulation/event-driven-minimal/EnhancedHybridEvaluator';
 import { booleanToDisplayState } from '@domain/simulation';
 import {
@@ -22,60 +18,6 @@ import {
 
 // 統一評価サービスを取得
 let evaluationService = getGlobalEvaluationService();
-
-// 評価サービスを遅延モード設定で更新
-function updateEvaluationServiceWithDelayMode(delayMode: boolean) {
-  evaluationService = new CircuitEvaluationService({
-    strategy: 'AUTO_SELECT',
-    enableDebugLogging: false,
-    enablePerformanceTracking: true,
-    delayMode,
-  });
-  setGlobalEvaluationService(evaluationService);
-}
-
-// 統一評価サービスを使用する関数（非同期版）
-async function evaluateCircuitUnified(circuit: Circuit) {
-  const result = await evaluationService.evaluate(circuit);
-
-  if (result.success) {
-    const { data } = result;
-    return {
-      success: true as const,
-      data: {
-        circuit: data.circuit,
-        evaluationStats: {
-          gatesEvaluated: data.circuit.gates.length,
-          evaluationCycles: data.performanceInfo.cycleCount || 1,
-          totalEvaluationTime: data.performanceInfo.executionTimeMs,
-        },
-        dependencyGraph: [], // 後方互換性のため保持
-      },
-      warnings: data.warnings,
-    };
-  } else {
-    console.error('Circuit evaluation failed:', result.error.message);
-    // エラー時も一貫したフォーマットで返す
-    return {
-      success: false as const,
-      error: {
-        message: result.error.message,
-        type: 'EVALUATION_FAILED',
-        recovery: result.error.recovery,
-      },
-      data: {
-        circuit, // 元の回路をそのまま返す
-        evaluationStats: {
-          gatesEvaluated: 0,
-          evaluationCycles: 0,
-          totalEvaluationTime: 0,
-        },
-        dependencyGraph: [],
-      },
-      warnings: [],
-    };
-  }
-}
 
 // Zustand内での同期使用のための一時的なラッパー関数
 function evaluateCircuitSync(circuit: Circuit, delayMode: boolean = false) {
@@ -108,7 +50,6 @@ function evaluateCircuitSync(circuit: Circuit, delayMode: boolean = false) {
       warnings: [], // 簡略版では警告なし
     };
   } catch (error) {
-    console.error('Sync circuit evaluation failed:', error);
     return {
       success: false as const,
       error: {
@@ -187,7 +128,6 @@ export const createGateOperationsSlice: StateCreator<
           wires: [...result.data.circuit.wires],
         };
       } else {
-        console.warn('Circuit evaluation failed');
         return {
           gates: newGates,
           wires: state.wires,
@@ -229,7 +169,6 @@ export const createGateOperationsSlice: StateCreator<
           wires: [...result.data.circuit.wires],
         };
       } else {
-        console.warn('Circuit evaluation failed');
         return {
           gates: newGates,
           wires: state.wires,
@@ -284,7 +223,6 @@ export const createGateOperationsSlice: StateCreator<
           wireStart: newWireStart,
         };
       } else {
-        console.warn('Circuit evaluation failed');
         return {
           gates: newGates,
           wires: state.wires,
@@ -350,7 +288,6 @@ export const createGateOperationsSlice: StateCreator<
           wireStart: newWireStart,
         };
       } else {
-        console.warn('Circuit evaluation failed');
         return {
           gates: newGates,
           wires: state.wires,
@@ -387,9 +324,6 @@ export const createGateOperationsSlice: StateCreator<
         state.selectedClockGateId &&
         gateIdsToDelete.includes(state.selectedClockGateId)
       ) {
-        console.log(
-          `🎯 Clearing selected CLOCK because it's being deleted: ${state.selectedClockGateId}`
-        );
         newSelectedClockGateId = null;
       }
 
@@ -409,7 +343,6 @@ export const createGateOperationsSlice: StateCreator<
           selectedClockGateId: newSelectedClockGateId,
         };
       } else {
-        console.warn('Circuit evaluation failed');
         return {
           gates: newGates,
           wires: newWires,
@@ -443,7 +376,6 @@ export const createGateOperationsSlice: StateCreator<
           wires: [...result.data.circuit.wires],
         };
       } else {
-        console.warn('Circuit evaluation failed');
         return {
           gates: newGates,
           wires: state.wires,
@@ -482,7 +414,6 @@ export const createGateOperationsSlice: StateCreator<
           wires: [...result.data.circuit.wires],
         };
       } else {
-        console.warn('Circuit evaluation failed after clock frequency update');
         return { gates: newGates };
       }
     });
@@ -498,7 +429,10 @@ export const createGateOperationsSlice: StateCreator<
         if (gate.id === gateId) {
           // propagationDelayがundefinedの場合、timingプロパティを削除
           if (timing.propagationDelay === undefined) {
-            const { timing: _, ...gateWithoutTiming } = gate;
+            // timingプロパティを除外した新しいオブジェクトを作成
+            const gateWithoutTiming = Object.fromEntries(
+              Object.entries(gate).filter(([key]) => key !== 'timing')
+            ) as Gate;
             return gateWithoutTiming;
           }
 
@@ -526,7 +460,6 @@ export const createGateOperationsSlice: StateCreator<
           wires: [...result.data.circuit.wires],
         };
       } else {
-        console.warn('Circuit evaluation failed after timing update');
         return { gates: newGates };
       }
     }),

@@ -6,7 +6,6 @@ import { DesktopLayout } from './DesktopLayout';
 import { MobileLayout } from './MobileLayout';
 import { TabletLayout } from './TabletLayout';
 import { ErrorNotificationPanel } from '../ErrorNotificationPanel';
-import { CanvasTestPage } from '../../pages/CanvasTestPage';
 
 interface ResponsiveLayoutProps {
   children?: React.ReactNode;
@@ -20,8 +19,10 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   const [shareLoadMessage, setShareLoadMessage] = useState<string | null>(null);
 
   // 開発用テストページ表示チェック
-  const isTestMode =
-    new URLSearchParams(window.location.search).get('test') === 'canvas';
+  // TODO: CanvasTestPageが実装されたら有効化する
+  const isTestMode = false;
+  // const isTestMode =
+  //   new URLSearchParams(window.location.search).get('test') === 'canvas';
 
   useKeyboardShortcuts();
 
@@ -72,7 +73,8 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
 
       {/* 開発用テストページ */}
       {isTestMode ? (
-        <CanvasTestPage />
+        // TODO: CanvasTestPageが実装されたら有効化する
+        <div>Test mode placeholder</div>
       ) : (
         (() => {
           switch (breakpoint) {

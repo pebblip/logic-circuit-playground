@@ -22,7 +22,6 @@ export const SaveCircuitDialog: React.FC<SaveCircuitDialogProps> = ({
   onSuccess,
   defaultName = '',
   overwriteMode = false,
-  circuitId: _circuitId,
 }) => {
   const { gates, wires } = useCircuitStore();
   const [formData, setFormData] = useState({

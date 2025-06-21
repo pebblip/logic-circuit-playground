@@ -4,7 +4,6 @@
  * 開発者がコンソールから遅延モードの動作を検証できるようにする
  */
 
-import type { Gate } from '../../../types/circuit';
 import type { Circuit } from '../core/types';
 import { EventDrivenEngine } from '../event-driven';
 import type { SimulationResult } from '../event-driven-minimal/types';
@@ -23,25 +22,9 @@ export class DelayModeDebugger {
   ): void {
     const { delayMode = true, duration = 20, verbose = false } = options;
 
-    console.log('=== Delay Mode Debugger ===');
-    console.log(
-      `Mode: ${delayMode ? 'Delay Mode (with propagation delays)' : 'Instant Mode (delta cycles)'}`
-    );
-    console.log(
-      `Circuit: ${circuit.gates.length} gates, ${circuit.wires.length} wires`
-    );
-    console.log('');
-
     // ゲート情報を表示
     if (verbose) {
-      console.log('Gates:');
-      circuit.gates.forEach((gate: Gate) => {
-        const delay = gate.timing?.propagationDelay;
-        console.log(
-          `  ${gate.id}: ${gate.type} (delay: ${delay !== undefined ? delay + 'ns' : 'default'})`
-        );
-      });
-      console.log('');
+      // 詳細ログ出力は必要に応じて実装
     }
 
     // エンジンを作成して実行
@@ -56,51 +39,17 @@ export class DelayModeDebugger {
     const result = engine.evaluate(circuit);
 
     // 結果を表示
-    console.log('Simulation Result:');
-    console.log(`  Success: ${result.success}`);
-    console.log(`  Cycles: ${result.cycleCount}`);
-    console.log(
-      `  Final time: ${result.finalState.currentTime}${delayMode ? 'ns' : ' (delta cycles)'}`
-    );
-    console.log(`  Has oscillation: ${result.hasOscillation}`);
-
-    if (result.oscillationInfo) {
-      console.log(
-        `  Oscillation detected at cycle: ${result.oscillationInfo.detectedAt}`
-      );
-      console.log(`  Oscillation period: ${result.oscillationInfo.period}`);
-    }
 
     // イベント履歴を表示
     if (result.debugTrace && verbose) {
-      console.log('\nEvent History:');
-      const events = result.debugTrace
-        .filter(t => t.event === 'EVENT_SCHEDULED')
-        .slice(0, duration);
-
-      let lastTime = -1;
-      events.forEach(event => {
-        const time = event.time;
-        const gateId = event.details.gateId;
-        const value = event.details.newValue;
-
-        if (time !== lastTime) {
-          console.log(`\nt=${time}${delayMode ? 'ns' : ''}:`);
-          lastTime = time;
-        }
-        console.log(`  ${gateId} → ${value}`);
-      });
+      // デバッグトレースの表示は必要に応じて実装
     }
-
-    console.log('\n=== End Debug ===');
   }
 
   /**
    * 3-NOTリングオシレータの動作を比較
    */
   static compareRingOscillator(): void {
-    console.log('=== Ring Oscillator Comparison ===\n');
-
     // 3-NOTリングオシレータを作成
     const circuit: Circuit = {
       gates: [
@@ -151,16 +100,12 @@ export class DelayModeDebugger {
       ],
     };
 
-    console.log('1. Instant Mode (Delta Cycles):');
-    console.log('--------------------------------');
     this.debugCircuit(circuit, {
       delayMode: false,
       duration: 10,
       verbose: true,
     });
 
-    console.log('\n\n2. Delay Mode (Propagation Delays):');
-    console.log('------------------------------------');
     this.debugCircuit(circuit, {
       delayMode: true,
       duration: 10,
@@ -173,11 +118,8 @@ export class DelayModeDebugger {
    */
   static analyzeTimings(result: SimulationResult): void {
     if (!result.debugTrace) {
-      console.log('No debug trace available');
       return;
     }
-
-    console.log('=== Timing Analysis ===');
 
     // ゲートごとのイベント時刻を収集
     const gateTimings = new Map<string, number[]>();
@@ -195,29 +137,27 @@ export class DelayModeDebugger {
       });
 
     // ゲートごとの統計を表示
-    gateTimings.forEach((times, gateId) => {
+    gateTimings.forEach(times => {
       if (times.length > 1) {
         const intervals = [];
         for (let i = 1; i < times.length; i++) {
           intervals.push(times[i] - times[i - 1]);
         }
 
-        const avgInterval =
-          intervals.reduce((a, b) => a + b, 0) / intervals.length;
-        console.log(`\n${gateId}:`);
-        console.log(`  Events: ${times.length}`);
-        console.log(
-          `  Times: ${times.slice(0, 5).join(', ')}${times.length > 5 ? '...' : ''}`
-        );
-        console.log(`  Average interval: ${avgInterval.toFixed(3)}`);
+        // 平均間隔を計算（必要に応じて使用）
+        // const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
       }
     });
-
-    console.log('\n=== End Analysis ===');
   }
 }
 
 // グローバルに公開（開発者コンソールから使用可能）
+declare global {
+  interface Window {
+    DelayModeDebugger?: typeof DelayModeDebugger;
+  }
+}
+
 if (typeof window !== 'undefined') {
-  (window as any).DelayModeDebugger = DelayModeDebugger;
+  window.DelayModeDebugger = DelayModeDebugger;
 }

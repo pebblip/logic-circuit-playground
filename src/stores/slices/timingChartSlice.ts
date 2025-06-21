@@ -3,6 +3,8 @@
  * 完全再設計版：オシロスコープライクな連続スクロール実装
  */
 
+declare const performance: { now(): number };
+
 import type { StateCreator } from 'zustand';
 import type {
   TimingChartState,
@@ -289,15 +291,11 @@ export const createTimingChartSlice: StateCreator<
       );
 
       if (existingTrace) {
-        console.warn(
-          `Trace already exists for gate ${gateId} ${pinType}[${pinIndex}]`
-        );
         return null;
       }
 
       // 最大トレース数チェック
       if (state.traces.length >= state.maxTraces) {
-        console.warn(`Maximum trace limit (${state.maxTraces}) reached`);
         return null;
       }
 
@@ -305,7 +303,9 @@ export const createTimingChartSlice: StateCreator<
 
       // 🌟 ゲート情報を使って適切な名前を生成するため、ゲートを取得
       const currentState = get();
-      const gates = (currentState as any).gates || [];
+      // gatesプロパティを持つ状態の型を推定
+      type StateWithGates = { gates?: Gate[] };
+      const gates = (currentState as StateWithGates).gates || [];
       const gate = gates.find((g: Gate) => g.id === gateId);
 
       const traceName = gate
@@ -357,15 +357,11 @@ export const createTimingChartSlice: StateCreator<
       );
 
       if (existingTrace) {
-        console.warn(
-          `Trace already exists for gate ${gate.id} ${pinType}[${pinIndex}]`
-        );
         return null;
       }
 
       // 最大トレース数チェック
       if (state.traces.length >= state.maxTraces) {
-        console.warn(`Maximum trace limit (${state.maxTraces}) reached`);
         return null;
       }
 
@@ -453,7 +449,6 @@ export const createTimingChartSlice: StateCreator<
     // === 従来の時間軸制御（手動操作用） ===
     setTimeWindow: (window: TimeWindow) => {
       if (!isValidTimeWindow(window.start, window.end)) {
-        console.warn('Invalid time window:', window);
         return;
       }
 
@@ -702,23 +697,8 @@ export const createTimingChartSlice: StateCreator<
       const state = get().timingChart;
 
       if (state.isPaused) {
-        console.log(
-          `[TimingChart] Skipping ${events.length} events due to pause state`
-        );
         return;
       }
-
-      console.log(`[TimingChart] Processing ${events.length} events:`, events);
-      console.log(
-        `[TimingChart] Current traces:`,
-        state.traces.map(t => ({
-          id: t.id,
-          gateId: t.gateId,
-          pinType: t.pinType,
-          pinIndex: t.pinIndex,
-          eventsCount: t.events.length,
-        }))
-      );
 
       // イベントを処理
       set(currentState => {
@@ -728,36 +708,12 @@ export const createTimingChartSlice: StateCreator<
             const gateMatch = e.gateId === trace.gateId;
             const pinTypeMatch = e.pinType === trace.pinType;
             const pinIndexMatch = e.pinIndex === trace.pinIndex;
-            console.log(
-              `[TimingChart] Event ${e.id}: gateId=${e.gateId} (${gateMatch}), pinType=${e.pinType} (${pinTypeMatch}), pinIndex=${e.pinIndex} (${pinIndexMatch})`
-            );
             return gateMatch && pinTypeMatch && pinIndexMatch;
           });
-
-          console.log(
-            `[TimingChart] Trace ${trace.id} (${trace.gateId}:${trace.pinType}[${trace.pinIndex}]) found ${relevantEvents.length} relevant events out of ${events.length} total`
-          );
 
           if (relevantEvents.length === 0) return trace;
 
           hasChanges = true;
-          console.log(
-            `[TimingChart] Adding ${relevantEvents.length} events to trace ${trace.id}:`,
-            relevantEvents.map(e => ({
-              id: e.id,
-              time: e.time,
-              value: e.value,
-              gateId: e.gateId,
-              source: e.source,
-            }))
-          );
-          // 最初の2つのイベントの詳細ログ
-          if (relevantEvents.length > 0) {
-            console.log(
-              `[TimingChart] Event details:`,
-              relevantEvents.slice(0, 2)
-            );
-          }
 
           // イベントを統合してソート
           const allEvents = [...trace.events, ...relevantEvents];
@@ -769,10 +725,6 @@ export const createTimingChartSlice: StateCreator<
             -currentState.timingChart.settings.captureDepth
           );
 
-          console.log(
-            `[TimingChart] Trace ${trace.id} now has ${limited.length} events (was ${trace.events.length})`
-          );
-
           return {
             ...trace,
             events: limited,
@@ -780,11 +732,9 @@ export const createTimingChartSlice: StateCreator<
         });
 
         if (!hasChanges) {
-          console.log(`[TimingChart] No relevant events found for any traces`);
           return currentState;
         }
 
-        console.log(`[TimingChart] Updated traces with new events`);
         return {
           timingChart: {
             ...currentState.timingChart,
@@ -797,9 +747,6 @@ export const createTimingChartSlice: StateCreator<
       if (events.length > 0) {
         const latestEventTime = Math.max(...events.map(e => e.time));
         get().timingChartActions.updateCurrentTime(latestEventTime);
-        console.log(
-          `[TimingChart] Processed ${events.length} events, latest time: ${latestEventTime}`
-        );
       }
     },
 
@@ -910,7 +857,7 @@ export const createTimingChartSlice: StateCreator<
     // === ユーティリティ ===
     updateStats: () =>
       set(state => {
-        const { traces, timeWindow } = state.timingChart;
+        const { traces } = state.timingChart;
         const now = performance.now();
 
         const totalEvents = traces.reduce(
@@ -918,6 +865,9 @@ export const createTimingChartSlice: StateCreator<
           0
         );
         const memoryUsage = estimateMemoryUsage(traces) / 1024; // MB
+
+        // TODO: eventsPerSecondの計算にはtimeWindowを使用する必要がある
+        // 現在は実装が未完了のため0を返している
 
         return {
           timingChart: {
@@ -935,7 +885,11 @@ export const createTimingChartSlice: StateCreator<
 
     cleanup: () =>
       set(state => {
-        const { traces, timeWindow, settings } = state.timingChart;
+        const { traces } = state.timingChart;
+
+        // TODO: settingsから保持時間を取得してcutoffTimeを計算する
+        // TODO: timeWindowを使用して現在の表示範囲外のイベントを削除する
+        // 現在は固定で60秒前をcutoffとしている
 
         // 古いイベントを削除
         const cutoffTime = performance.now() - 60000; // 60秒前
@@ -958,10 +912,6 @@ export const createTimingChartSlice: StateCreator<
       const globalEvents = globalTimingCapture.getEvents();
       const { traces } = state.timingChart;
 
-      console.log(
-        `[TimingChart] Syncing ${globalEvents.length} events from globalTimingCapture`
-      );
-
       // 各トレースに対応するイベントを収集
       const eventsToProcess: TimingEvent[] = [];
 
@@ -974,9 +924,6 @@ export const createTimingChartSlice: StateCreator<
         );
 
         if (traceEvents.length > 0) {
-          console.log(
-            `[TimingChart] Found ${traceEvents.length} events for trace ${trace.id} (${trace.gateId})`
-          );
           eventsToProcess.push(...traceEvents);
         }
       });

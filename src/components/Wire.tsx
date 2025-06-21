@@ -57,7 +57,7 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
     }
 
     return { fromGate, toGate };
-  }, [gates, wire.from.gateId, wire.to.gateId, wire.id]);
+  }, [gates, wire.from.gateId, wire.to.gateId]); // wire.idは影響しないため除外
 
   // パス計算をメモ化（パフォーマンス最適化）
   const pathData = useMemo(() => {
@@ -114,7 +114,7 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
       });
       return null;
     }
-  }, [gateData, wire.from.pinIndex, wire.to.pinIndex, wireStyle]);
+  }, [gateData, wire.from.pinIndex, wire.to.pinIndex, wireStyle, wire.id]); // wire.idを追加（エラーメッセージで使用）
 
   if (!pathData) return null;
 

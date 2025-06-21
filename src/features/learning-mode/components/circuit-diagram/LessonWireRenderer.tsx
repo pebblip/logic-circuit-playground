@@ -40,11 +40,13 @@ export const LessonWireRenderer: React.FC<LessonWireRendererProps> = ({
   // const midX = (from.x + to.x) / 2;
   // const bezierPath = `M ${from.x} ${from.y} Q ${midX} ${from.y} ${midX} ${(from.y + to.y) / 2} T ${to.x} ${to.y}`;
 
-  // 角の丸み半径（オプション）
-  const cornerRadius = 15;
+  // 角の丸み半径（オプション）- 現在は未使用
+  // const cornerRadius = 15;
 
   // 角を丸めた直交配線のパス（より美しい見た目）
-  const _roundedPath = `
+  // Rounded path logic is currently disabled in favor of straight lines
+  /*
+  const roundedPath = `
     M ${from.x} ${from.y} 
     L ${cornerX - cornerRadius} ${from.y}
     Q ${cornerX} ${from.y} ${cornerX} ${from.y + (to.y > from.y ? cornerRadius : -cornerRadius)}
@@ -52,6 +54,7 @@ export const LessonWireRenderer: React.FC<LessonWireRendererProps> = ({
     Q ${cornerX} ${to.y} ${cornerX + (to.x > cornerX ? cornerRadius : -cornerRadius)} ${to.y}
     L ${to.x} ${to.y}
   `.trim();
+  */
 
   return (
     <g data-wire-id={wire.id}>

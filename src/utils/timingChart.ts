@@ -290,26 +290,6 @@ export function estimateMemoryUsage(traces: TimingTrace[]): number {
 /**
  * デバッグ用：トレース情報の出力
  */
-export function debugTrace(trace: TimingTrace): void {
-  console.group(`🔍 Timing Trace Debug: ${trace.name}`);
-  console.log('Trace ID:', trace.id);
-  console.log('Gate ID:', trace.gateId);
-  console.log('Pin:', `${trace.pinType}[${trace.pinIndex}]`);
-  console.log('Color:', trace.color);
-  console.log('Events:', trace.events.length);
-  console.log('Visible:', trace.visible);
-
-  if (trace.events.length > 0) {
-    console.log('First Event:', trace.events[0]);
-    console.log('Last Event:', trace.events[trace.events.length - 1]);
-
-    // 信号変化の統計
-    const transitions = trace.events.filter(
-      (event, index) =>
-        index === 0 || event.value !== trace.events[index - 1].value
-    );
-    console.log('Transitions:', transitions.length);
-  }
-
-  console.groupEnd();
+export function debugTrace(): void {
+  // Debug function - implementation removed to avoid console logs
 }

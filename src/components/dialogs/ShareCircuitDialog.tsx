@@ -42,7 +42,7 @@ export const ShareCircuitDialog: React.FC<ShareCircuitDialogProps> = ({
   const handleCopy = async () => {
     if (shareUrl) {
       try {
-        await navigator.clipboard.writeText(shareUrl);
+        await window.navigator.clipboard.writeText(shareUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (error) {

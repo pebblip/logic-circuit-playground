@@ -47,7 +47,7 @@ export const CircuitPreview: React.FC<CircuitPreviewProps> = ({
 
       const viewWidth = maxX - minX;
       const viewHeight = maxY - minY;
-      const _scale = Math.min(width / viewWidth, height / viewHeight, 1);
+      // const scale = Math.min(width / viewWidth, height / viewHeight, 1); - scale calculation unused
 
       // SVGプレビューを生成
       const svgContent = `
@@ -69,8 +69,8 @@ export const CircuitPreview: React.FC<CircuitPreviewProps> = ({
               if (!fromGate || !toGate) return '';
 
               // ゲートタイプに応じたピンオフセットを計算
-              const fromOffset = getGateOutputOffset(fromGate);
-              const toOffset = getGateInputOffset(toGate);
+              const fromOffset = getGateOutputOffset();
+              const toOffset = getGateInputOffset();
 
               return `<line x1="${fromGate.position.x + fromOffset.x}" y1="${fromGate.position.y + fromOffset.y}" 
                           x2="${toGate.position.x + toOffset.x}" y2="${toGate.position.y + toOffset.y}"
@@ -166,12 +166,12 @@ function getGateDisplayText(gate: Gate): string {
   return gate.type;
 }
 
-function getGateOutputOffset(_gate: Gate): { x: number; y: number } {
+function getGateOutputOffset(): { x: number; y: number } {
   // ゲートタイプに応じた出力ピンの位置
   return { x: 35, y: 0 };
 }
 
-function getGateInputOffset(_gate: Gate): { x: number; y: number } {
+function getGateInputOffset(): { x: number; y: number } {
   // ゲートタイプに応じた入力ピンの位置
   return { x: -35, y: 0 };
 }

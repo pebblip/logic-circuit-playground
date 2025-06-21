@@ -20,7 +20,6 @@ export function useGateEvents(gate: Gate): UseGateEventsResult {
     addToSelection,
     removeFromSelection,
     updateGateOutput,
-    selectedClockGateId,
     setSelectedClockGate,
   } = useCircuitStore();
 

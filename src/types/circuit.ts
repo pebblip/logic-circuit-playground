@@ -65,10 +65,21 @@ export interface GateMetadata {
   frequency?: number;
   previousClockState?: boolean;
   startTime?: number;
+  lastToggleTime?: number;
 
   // D-FFゲート用
   qOutput?: boolean;
   qBarOutput?: boolean;
+  clockEdge?: 'rising' | 'falling';
+  isFirstEvaluation?: boolean;
+
+  // SR-LATCH用
+  previousS?: boolean;
+  previousR?: boolean;
+
+  // MUX用
+  dataInputCount?: 2 | 4 | 8;
+  selectedInput?: number;
 
   // カウンター/特殊ゲート用
   bitCount?: number;
@@ -86,8 +97,8 @@ export interface GateMetadata {
   id?: string;
   validationTimeMs?: number;
 
-  // 将来の拡張用
-  [key: string]: unknown;
+  // 注意: [key: string]: unknown; は削除済み
+  // 新しいプロパティは明示的に追加すること
 }
 
 export interface Gate {

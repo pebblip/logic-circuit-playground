@@ -7,6 +7,7 @@
  * - 型安全な状態管理とエラーハンドリング
  */
 
+import type React from 'react';
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
 import { handleError } from '@/infrastructure/errorHandler';
@@ -113,9 +114,9 @@ export function useUnifiedCanvas(
   });
   const [scale, setScale] = useState(config.galleryOptions?.initialScale ?? 1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [mousePosition, setMousePosition] = useState({ x: 400, y: 300 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [isPanning, setIsPanning] = useState(false);
+  const [mousePosition] = useState({ x: 400, y: 300 });
+  const [isDragging] = useState(false);
+  const [isPanning] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
   // シミュレーターの初期化
@@ -221,6 +222,7 @@ export function useUnifiedCanvas(
     }
   }, [
     config.simulationMode,
+    config.mode,
     dataSource,
     circuitStore.gates,
     circuitStore.wires,
@@ -329,53 +331,6 @@ export function useUnifiedCanvas(
     };
   }, [viewBox, scale]);
 
-  // ゲートクリック処理
-  const handleGateClick = useCallback(
-    (gateId: string) => {
-      try {
-        const gate = displayGates.find(g => g.id === gateId);
-        if (!gate) return;
-
-        // ハンドラー呼び出し
-        handlers?.onGateClick?.(gateId, gate);
-
-        // 入力ゲートの場合は値を切り替え
-        if (gate.type === 'INPUT' && config.interactionLevel !== 'view_only') {
-          toggleInput(gateId);
-        }
-
-        // 選択機能が有効な場合
-        if (config.editorOptions?.enableMultiSelection) {
-          const newSelection = new Set(selectedIds);
-          if (newSelection.has(gateId)) {
-            newSelection.delete(gateId);
-          } else {
-            newSelection.add(gateId);
-          }
-          setSelectedIds(newSelection);
-          handlers?.onSelectionChange?.(Array.from(newSelection));
-        }
-      } catch (error) {
-        handleError(
-          error instanceof Error ? error : new Error('Gate click failed'),
-          'useUnifiedCanvas',
-          {
-            userAction: 'ゲートクリック',
-            severity: 'low',
-            showToUser: false,
-          }
-        );
-      }
-    },
-    [
-      displayGates,
-      handlers,
-      config.interactionLevel,
-      config.editorOptions?.enableMultiSelection,
-      selectedIds,
-    ]
-  );
-
   // 入力ゲート値切り替え
   const toggleInput = useCallback(
     (gateId: string): CanvasOperationResult => {
@@ -421,6 +376,54 @@ export function useUnifiedCanvas(
       }
     },
     [config.simulationMode, circuitStore, handlers]
+  );
+
+  // ゲートクリック処理
+  const handleGateClick = useCallback(
+    (gateId: string) => {
+      try {
+        const gate = displayGates.find(g => g.id === gateId);
+        if (!gate) return;
+
+        // ハンドラー呼び出し
+        handlers?.onGateClick?.(gateId, gate);
+
+        // 入力ゲートの場合は値を切り替え
+        if (gate.type === 'INPUT' && config.interactionLevel !== 'view_only') {
+          toggleInput(gateId);
+        }
+
+        // 選択機能が有効な場合
+        if (config.editorOptions?.enableMultiSelection) {
+          const newSelection = new Set(selectedIds);
+          if (newSelection.has(gateId)) {
+            newSelection.delete(gateId);
+          } else {
+            newSelection.add(gateId);
+          }
+          setSelectedIds(newSelection);
+          handlers?.onSelectionChange?.(Array.from(newSelection));
+        }
+      } catch (error) {
+        handleError(
+          error instanceof Error ? error : new Error('Gate click failed'),
+          'useUnifiedCanvas',
+          {
+            userAction: 'ゲートクリック',
+            severity: 'low',
+            showToUser: false,
+          }
+        );
+      }
+    },
+    [
+      displayGates,
+      handlers,
+      config.interactionLevel,
+      config.editorOptions?.enableMultiSelection,
+      selectedIds,
+      toggleInput,
+    ]
   );
 
   // アニメーション制御
@@ -584,7 +587,9 @@ export function useUnifiedCanvas(
     }
   }, [
     config.galleryOptions?.autoFit,
+    config.galleryOptions?.autoFitPadding,
     config.mode,
+    dataSource.galleryCircuit,
     dataSource.galleryCircuit?.id,
     localGates,
   ]);
@@ -616,6 +621,7 @@ export function useUnifiedCanvas(
   }, [
     config.galleryOptions?.autoSimulation,
     config.mode,
+    dataSource.galleryCircuit,
     dataSource.galleryCircuit?.id,
     startAnimation,
     stopAnimation,

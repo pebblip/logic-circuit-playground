@@ -741,7 +741,7 @@ export function validateCircuit(
 
   // ゲート個別検証
   const gateIds = new Set<string>();
-  circuit.gates.forEach((gate, _index) => {
+  circuit.gates.forEach(gate => {
     const gateValidation = validateGate(gate);
     if (!gateValidation.success) {
       gateValidation.error.violations?.forEach(violation => {
@@ -769,7 +769,7 @@ export function validateCircuit(
 
   // ワイヤー個別検証
   const wireIds = new Set<string>();
-  circuit.wires.forEach((wire, _index) => {
+  circuit.wires.forEach(wire => {
     const wireValidation = validateWire(wire);
     if (!wireValidation.success) {
       wireValidation.error.violations?.forEach(violation => {
@@ -828,7 +828,7 @@ export function validateCircuit(
   }
 
   // 出力ピンインデックスの検証
-  circuit.wires.forEach((wire, _index) => {
+  circuit.wires.forEach(wire => {
     const sourceGate = circuit.gates.find(g => g.id === wire.from.gateId);
     if (sourceGate) {
       // カスタムゲートの場合、複数出力をチェック

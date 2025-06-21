@@ -72,14 +72,14 @@ export class CircuitPatternRecognizer {
     }
 
     // 4. カウンタっぽい構造か（フリップフロップや論理ゲートの組み合わせ）
-    const hasCounterStructure = this.hasCounterLikeStructure(gates, wires);
+    const hasCounterStructure = this.hasCounterLikeStructure(gates);
 
     let confidence = 60; // 基本スコア
 
     // 信頼度計算
     if (reachableOutputs.length === outputGates.length) confidence += 20;
     if (hasCounterStructure) confidence += 15;
-    if (this.hasSequentialPattern(outputGates, wires)) confidence += 5;
+    if (this.hasSequentialPattern(outputGates)) confidence += 5;
 
     return {
       type: 'led-counter',
@@ -142,7 +142,7 @@ export class CircuitPatternRecognizer {
     return reachableOutputs;
   }
 
-  private hasCounterLikeStructure(gates: Gate[], wires: Wire[]): boolean {
+  private hasCounterLikeStructure(gates: Gate[]): boolean {
     // フリップフロップ、ラッチ、またはフィードバックループの存在をチェック
     const flipflopGates = gates.filter(
       g => g.type === 'D-FF' || g.type === 'SR-LATCH'
@@ -151,16 +151,16 @@ export class CircuitPatternRecognizer {
     if (flipflopGates.length > 0) return true;
 
     // フィードバックループの検出（簡易版）
-    return this.hasFeedbackLoop(gates, wires);
+    return this.hasFeedbackLoop();
   }
 
-  private hasFeedbackLoop(_gates: Gate[], _wires: Wire[]): boolean {
+  private hasFeedbackLoop(): boolean {
     // 簡易的なフィードバックループ検出
     // 詳細な実装は必要に応じて後で
     return false;
   }
 
-  private hasSequentialPattern(outputGates: Gate[], _wires: Wire[]): boolean {
+  private hasSequentialPattern(outputGates: Gate[]): boolean {
     // OUTPUTゲートが順序立って配置されているかチェック
     if (outputGates.length < 2) return false;
 

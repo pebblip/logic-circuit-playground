@@ -19,17 +19,6 @@ export const GalleryModeLayout: React.FC = () => {
     }
   }, [selectedCircuit]);
 
-  // デバッグ: 選択された回路の設定をログ出力
-  useEffect(() => {
-    if (import.meta.env.DEV && selectedCircuit) {
-      console.log('[GalleryMode] Selected circuit:', selectedCircuit.id);
-      console.log(
-        '[GalleryMode] Update interval:',
-        selectedCircuit.simulationConfig?.updateInterval || 'default'
-      );
-    }
-  }, [selectedCircuit]);
-
   return (
     <div className="gallery-mode-layout">
       {/* 左サイドバー: ギャラリーリスト */}

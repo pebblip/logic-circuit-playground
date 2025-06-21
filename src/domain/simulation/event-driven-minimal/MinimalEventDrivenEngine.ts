@@ -284,12 +284,12 @@ export class MinimalEventDrivenEngine {
       if (gate.type === 'CLOCK' && gate.metadata?.isRunning) {
         const state = this.circuitState.gateStates.get(gate.id);
         if (state && state.metadata?.frequency) {
-          const frequency = state.metadata.frequency as number;
-          const period = 1000 / frequency;
-          // 次の変化タイミングを計算
-          const startTime = (state.metadata.startTime as number) || Date.now();
-          const elapsed = Date.now() - startTime;
-          const nextChangeTime = Math.ceil(elapsed / period) * period;
+          // CLOCKゲートの周期的な動作は必要に応じて実装
+          // const frequency = state.metadata.frequency as number;
+          // const period = 1000 / frequency;
+          // const startTime = (state.metadata.startTime as number) || Date.now();
+          // const elapsed = Date.now() - startTime;
+          // const nextChangeTime = Math.ceil(elapsed / period) * period;
         }
       }
     }
@@ -360,13 +360,9 @@ export class MinimalEventDrivenEngine {
 
     // 影響を受けたゲートを再評価
     const nextDeltaTime = time + 0.0001; // デルタ時間を追加
-    let hasChanges = false;
 
     for (const gateId of affectedGates) {
-      const changes = this.evaluateGateAndSchedule(gateId, nextDeltaTime);
-      if (changes) {
-        hasChanges = true;
-      }
+      this.evaluateGateAndSchedule(gateId, nextDeltaTime);
     }
 
     return true; // 収束または処理継続
@@ -512,8 +508,9 @@ export class MinimalEventDrivenEngine {
         });
       }
     } else if (gate.type === 'SR-LATCH' && inputs.length >= 2) {
-      const s = inputs[0];
-      const r = inputs[1];
+      // SR-LATCH inputs are handled by gate.inputs directly
+      // const s = inputs[0];
+      // const r = inputs[1];
 
       if (newOutputs.length >= 2) {
         state.metadata = {
@@ -710,7 +707,6 @@ export class MinimalEventDrivenEngine {
 
     // 2つの状態が交互に現れるパターンも検出（A-B-A-B）
     if (this.stateHistory.length >= 4) {
-      const len = this.stateHistory.length;
       const last4 = this.stateHistory.slice(-4);
       if (
         last4[0] === last4[2] &&

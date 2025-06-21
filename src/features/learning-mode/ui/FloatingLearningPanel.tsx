@@ -78,7 +78,6 @@ const structuredLessons: { [key: string]: StructuredLesson } = {
 export const FloatingLearningPanel: React.FC<FloatingLearningPanelProps> = ({
   isOpen,
   onClose,
-  onOpenHelp: _onOpenHelp,
 }) => {
   const [selectedLesson, setSelectedLesson] = useState<StructuredLesson | null>(
     null

@@ -97,8 +97,6 @@ export const ToolPalette: React.FC = () => {
   const {
     customGates,
     addCustomGate,
-    gates,
-    wires: _wires,
     allowedGates,
     selectedToolGateType,
     selectedToolCustomGateId,
@@ -111,52 +109,10 @@ export const ToolPalette: React.FC = () => {
     dialogInitialData,
     isTruthTableOpen,
     currentTruthTable,
-    openCreateDialog: _openCreateDialog,
     closeCreateDialog,
     openTruthTable,
     closeTruthTable,
   } = useCustomGateDialog();
-
-  // 回路からカスタムゲート作成ダイアログを開く
-  const _handleOpenCreateFromCircuit = () => {
-    const inputGates = gates.filter(g => g.type === 'INPUT');
-    const outputGates = gates.filter(g => g.type === 'OUTPUT');
-
-    if (inputGates.length === 0 || outputGates.length === 0) {
-      alert(
-        `${TERMS.CIRCUIT}には${TERMS.INPUT}${TERMS.GATE}と${TERMS.OUTPUT}${TERMS.GATE}が${TERMS.REQUIRED}です`
-      );
-      return;
-    }
-
-    // 回路から検出されたピン情報を作成
-    const initialInputs = inputGates.map((gate, index) => ({
-      name: `IN${index + 1}`,
-      index,
-      gateId: gate.id,
-    }));
-
-    const initialOutputs = outputGates.map((gate, index) => ({
-      name: `OUT${index + 1}`,
-      index,
-      gateId: gate.id,
-    }));
-
-    // デバッグ: 初期値を確認
-    debug.log('=== Initial Values Debug ===');
-    debug.log('initialInputs:', initialInputs);
-    debug.log('initialOutputs:', initialOutputs);
-
-    // カスタムイベントを発火してダイアログを開く
-    const event = new CustomEvent('open-custom-gate-dialog', {
-      detail: {
-        initialInputs,
-        initialOutputs,
-        isFullCircuit: true,
-      },
-    });
-    window.dispatchEvent(event);
-  };
 
   const handleCreateCustomGate = (definition: CustomGateDefinition) => {
     const state = useCircuitStore.getState();

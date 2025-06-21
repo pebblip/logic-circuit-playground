@@ -35,7 +35,7 @@ export const TimeCursor: React.FC<TimeCursorProps> = ({
   // 信号値の整理
   const signalEntries = useMemo(() => {
     return Object.entries(cursor.signalValues)
-      .filter(([_, value]) => value !== undefined)
+      .filter(([, value]) => value !== undefined)
       .sort((a, b) => a[0].localeCompare(b[0])); // トレースIDでソート
   }, [cursor.signalValues]);
 
@@ -115,7 +115,7 @@ export const TimeCursor: React.FC<TimeCursorProps> = ({
           <div className="px-3 py-2 border-t border-gray-700 bg-gray-800 rounded-b-lg">
             <div className="text-xs text-gray-400">
               {signalEntries.length} 信号,{' '}
-              {signalEntries.filter(([_, v]) => v === true).length} HIGH
+              {signalEntries.filter(([, v]) => v === true).length} HIGH
             </div>
           </div>
         </div>
@@ -123,7 +123,7 @@ export const TimeCursor: React.FC<TimeCursorProps> = ({
 
       {/* ガイドライン（水平） */}
       <div className="absolute inset-0">
-        {signalEntries.map(([traceId, value], index) => {
+        {signalEntries.map(([traceId], index) => {
           // 各信号トレースの高さ位置を計算（仮想的）
           const traceHeight = 40; // 1トレースあたりの高さ
           const yPosition = 20 + index * traceHeight; // ヘッダー分をオフセット
@@ -143,14 +143,12 @@ export const TimeCursor: React.FC<TimeCursorProps> = ({
 
 // 信号値表示用のコンポーネント
 interface SignalValueDisplayProps {
-  traceId: string;
   traceName: string;
   value: boolean | 'unknown' | 'high-z';
   color?: string;
 }
 
 export const SignalValueDisplay: React.FC<SignalValueDisplayProps> = ({
-  traceId,
   traceName,
   value,
   color = '#ffffff',

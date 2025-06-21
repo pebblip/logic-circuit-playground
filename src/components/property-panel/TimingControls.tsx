@@ -17,11 +17,6 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
   selectedGate,
   updateGateTiming,
 }) => {
-  // タイミング設定対象外のゲートは表示しない
-  if (selectedGate.type === 'INPUT' || selectedGate.type === 'OUTPUT') {
-    return null;
-  }
-
   const currentDelay = selectedGate.timing?.propagationDelay;
   const defaultDelay = DEFAULT_GATE_DELAYS[selectedGate.type] || 1.0;
   const isCustomDelay = currentDelay !== undefined;
@@ -29,6 +24,11 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
   const [customValue, setCustomValue] = useState(
     isCustomDelay ? currentDelay.toString() : defaultDelay.toString()
   );
+
+  // タイミング設定対象外のゲートは表示しない
+  if (selectedGate.type === 'INPUT' || selectedGate.type === 'OUTPUT') {
+    return null;
+  }
 
   const handleDelayChange = (value: string) => {
     setCustomValue(value);

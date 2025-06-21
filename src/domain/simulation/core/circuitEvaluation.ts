@@ -60,31 +60,11 @@ export function evaluateCircuit(
   const startTime = Date.now();
   const debugTrace: DebugTraceEntry[] = [];
 
-  if (config.enableDebug) {
-    console.log(
-      '[CircuitEval] evaluateCircuit called with',
-      circuit.gates.length,
-      'gates'
-    );
-  }
-
   try {
     // 1. 入力検証
-    if (config.enableDebug) {
-      console.log(
-        '[CircuitEval] Step 1: Input validation, strictValidation=',
-        config.strictValidation
-      );
-    }
     if (config.strictValidation) {
       const validation = validateCircuit(circuit);
       if (!validation.success) {
-        if (config.enableDebug) {
-          console.error(
-            '[CircuitEval] Circuit validation failed:',
-            validation.error.message
-          );
-        }
         return failure(
           createValidationError(
             `Circuit validation failed: ${validation.error.message}`,
@@ -97,12 +77,6 @@ export function evaluateCircuit(
         const errors = validation.data.violations.filter(
           v => v.severity === 'ERROR'
         );
-        if (config.enableDebug) {
-          console.error(
-            '[CircuitEval] Circuit contains validation errors:',
-            errors
-          );
-        }
         return failure(
           createValidationError(
             `Circuit contains validation errors: ${errors.map(e => e.message).join(', ')}`,
@@ -114,12 +88,6 @@ export function evaluateCircuit(
       // 軽量バリデーション
       const lightValidation = validateCircuitLight(circuit);
       if (!lightValidation.success) {
-        if (config.enableDebug) {
-          console.error(
-            '[CircuitEval] Basic circuit validation failed:',
-            lightValidation.error.message
-          );
-        }
         return failure(
           createValidationError(
             `Basic circuit validation failed: ${lightValidation.error.message}`,
@@ -128,9 +96,6 @@ export function evaluateCircuit(
           )
         );
       }
-    }
-    if (config.enableDebug) {
-      console.log('[CircuitEval] Step 1: Validation passed');
     }
 
     if (config.enableDebug) {
@@ -146,35 +111,16 @@ export function evaluateCircuit(
     }
 
     // 2. 依存関係グラフ構築
-    if (config.enableDebug) {
-      console.log('[CircuitEval] Step 2: Building dependency graph');
-    }
     const dependencyStart = Date.now();
     const dependencyResult = buildDependencyGraph(circuit);
     if (!dependencyResult.success) {
-      if (config.enableDebug) {
-        console.error(
-          '[CircuitEval] Dependency graph build failed:',
-          dependencyResult.error
-        );
-      }
       return dependencyResult;
     }
     const dependencyGraph = dependencyResult.data;
     const dependencyEnd = Date.now();
-    if (config.enableDebug) {
-      console.log('[CircuitEval] Step 2: Dependency graph built successfully');
-    }
 
     // 3. 循環依存チェック
     if (dependencyGraph.hasCycles) {
-      if (config.enableDebug) {
-        console.log(
-          '[CircuitEval] WARNING: Circuit has circular dependencies!'
-        );
-        console.log('[CircuitEval] Cycles:', dependencyGraph.cycles);
-      }
-
       // 循環依存があってもギャラリーモードでは継続する（オシレータのため）
       if (!config.allowCircularDependencies) {
         return failure(
@@ -203,13 +149,6 @@ export function evaluateCircuit(
         ...dependencyGraph,
         evaluationOrder: newEvaluationOrder,
       };
-
-      if (config.enableDebug) {
-        console.log(
-          '[CircuitEval] Modified evaluation order for feedback loops:',
-          newEvaluationOrder
-        );
-      }
     }
 
     const evaluationResult = evaluateCircuitStep(
@@ -402,7 +341,7 @@ function buildDependencyGraph(
     }
 
     // トポロジカルソートと循環依存検出
-    const sortResult = topologicalSort(dependencies, dependents);
+    const sortResult = topologicalSort(dependencies);
     if (!sortResult.success) {
       // Topological sort failed
       return sortResult;
@@ -455,8 +394,7 @@ function buildDependencyGraph(
  * トポロジカルソート実行
  */
 function topologicalSort(
-  dependencies: Map<string, string[]>,
-  _dependents: Map<string, string[]>
+  dependencies: Map<string, string[]>
 ): Result<{ evaluationOrder: string[]; cycles: string[][] }, DependencyError> {
   const visited = new Set<string>();
   const visiting = new Set<string>();
@@ -597,15 +535,12 @@ function evaluateCircuitStep(
           // gate.outputとqOutputが一致しているか確認
           const expectedOutput = gate.metadata.qOutput ?? gate.output;
           if (gate.output !== expectedOutput) {
-            if (config.enableDebug) {
-              console.log(
-                `[InitCheck] ${gate.id}: gate.output=${gate.output} != qOutput=${expectedOutput}, fixing...`
-              );
-            }
             gate.output = expectedOutput;
           }
           // qBarOutputが正しいか確認
-          if (!gate.metadata.hasOwnProperty('qBarOutput')) {
+          if (
+            !Object.prototype.hasOwnProperty.call(gate.metadata, 'qBarOutput')
+          ) {
             gate.metadata.qBarOutput = !gate.metadata.qOutput;
           }
         }
@@ -647,17 +582,6 @@ function evaluateCircuitStep(
       config.forceTwoPhaseEvaluation || needsTwoPhaseEvaluation(tempCircuit);
 
     // デバッグ: 評価順序を確認
-    if (config.enableDebug) {
-      console.log(
-        '[CircuitEval] Evaluation order:',
-        dependencyGraph.evaluationOrder
-      );
-      console.log(
-        '[CircuitEval] Total gates to evaluate:',
-        dependencyGraph.evaluationOrder.length
-      );
-      console.log('[CircuitEval] Two-phase evaluation:', useTwoPhaseEval);
-    }
 
     // D-FFの入力を事前に収集（2フェーズ評価用）
     let dffSnapshots: ReturnType<typeof snapshotDFFInputs> = [];
@@ -665,7 +589,7 @@ function evaluateCircuitStep(
       // 全ゲートの入力値を収集
       const allGateInputs = new Map<string, boolean[]>();
       gateMap.forEach((gate, gateId) => {
-        const inputs = collectGateInputs(gate, gateInputWires, gateMap);
+        const inputs = collectGateInputs(gate, gateInputWires);
         allGateInputs.set(gateId, inputs);
       });
       // D-FFの入力をスナップショット
@@ -697,7 +621,7 @@ function evaluateCircuitStep(
       const gateStartTime = Date.now();
 
       // 入力値の収集
-      const inputs = collectGateInputs(gate, gateInputWires, gateMap);
+      const inputs = collectGateInputs(gate, gateInputWires);
 
       // CLOCKゲートのstartTime初期化（評価前に必要）
       if (
@@ -712,11 +636,6 @@ function evaluateCircuitStep(
       }
 
       // デバッグ: 全ゲートの評価前状態
-      if (config.enableDebug) {
-        console.log(
-          `[CircuitEval] Evaluating ${gate.id} (${gate.type}), current output=${gate.output}`
-        );
-      }
 
       // ゲート評価実行
       // CLOCKゲートも評価する必要がある
@@ -727,15 +646,6 @@ function evaluateCircuitStep(
           continue;
         }
         // デバッグ: 入力の確認
-        if (
-          config.enableDebug &&
-          ((gate.type === 'D-FF' && gate.id.includes('dff')) ||
-            gate.type === 'CLOCK')
-        ) {
-          console.log(
-            `[CircuitEval] About to evaluate ${gate.id} (${gate.type}) with inputs=[${inputs.join(',')}]`
-          );
-        }
 
         // D-FFの場合、評価前にメタデータを更新する必要がある
         // （evaluateGateUnifiedがメタデータを参照するため）
@@ -767,31 +677,11 @@ function evaluateCircuitStep(
         }
 
         // デバッグ: 評価結果の確認
-        if (
-          config.enableDebug &&
-          ((gate.type === 'D-FF' && gate.id.includes('dff')) ||
-            gate.type === 'CLOCK' ||
-            gate.type === 'OUTPUT')
-        ) {
-          console.log(
-            `[CircuitEval] ${gate.id} (${gate.type}): evaluated output=${gate.output}, outputs=[${result.outputs.join(',')}], inputs=[${inputs.join(',')}]`
-          );
-        }
 
         // 入力状態の保存（表示用）
         gate.inputs = inputs.map(input => (input ? '1' : ''));
 
         // デバッグ: LFSRの状態遷移を追跡
-        if (
-          config.enableDebug &&
-          (gate.id === 'xor_feedback' ||
-            gate.id.startsWith('dff') ||
-            gate.id.startsWith('out_bit'))
-        ) {
-          console.log(
-            `[LFSR] ${gate.id}: output=${gate.output}, inputs=[${inputs.join(',')}]`
-          );
-        }
 
         // 特殊ゲートのメタデータ更新（D-FF以外）
         // D-FFは評価前に既に更新済み
@@ -800,22 +690,8 @@ function evaluateCircuitStep(
         }
 
         // デバッグ: メタデータ更新後の確認
-        if (
-          config.enableDebug &&
-          gate.type === 'D-FF' &&
-          gate.id.includes('dff')
-        ) {
-          console.log(
-            `[CircuitEval] ${gate.id}: after metadata update, qOutput=${gate.metadata?.qOutput}, gate.output=${gate.output}`
-          );
-        }
       } else {
         // INPUTゲートの場合
-        if (config.enableDebug) {
-          console.log(
-            `[CircuitEval] Skipping evaluation for ${gate.id} (${gate.type}), keeping output=${gate.output}`
-          );
-        }
       }
 
       const gateEndTime = Date.now();
@@ -874,8 +750,7 @@ function evaluateCircuitStep(
  */
 function collectGateInputs(
   gate: Gate,
-  gateInputWires: Map<string, { wire: Wire; fromGate: Gate }[]>,
-  _gateMap: Map<string, Gate>
+  gateInputWires: Map<string, { wire: Wire; fromGate: Gate }[]>
 ): boolean[] {
   // 期待する入力数を計算
   let inputCount = 0;
@@ -1080,14 +955,16 @@ function getMemoryUsage(): { heapUsed: number; heapTotal: number } | undefined {
 /**
  * 差分更新による高速評価（将来実装）
  */
-export function evaluateCircuitIncremental(
-  circuit: Readonly<Circuit>,
-  changedGateIds: readonly string[],
-  previousResult: Readonly<CircuitEvaluationResult>,
-  _config: Readonly<EvaluationConfig> = defaultConfig
-): Result<CircuitEvaluationResult, EvaluationError> {
+export function evaluateCircuitIncremental(): Result<
+  /* circuit: Readonly<Circuit> */
+  /* changedGateIds: readonly string[] */
+  /* previousResult: Readonly<CircuitEvaluationResult> */
+  CircuitEvaluationResult,
+  EvaluationError
+> {
   // TODO: 将来実装
   // 変更されたゲートとその依存関係のみを再評価
+  // 引数: circuit, changedGateIds, previousResult
 
   return failure(
     createEvaluationError(
@@ -1100,12 +977,14 @@ export function evaluateCircuitIncremental(
 /**
  * 並列評価（将来実装）
  */
-export function evaluateCircuitParallel(
-  circuit: Readonly<Circuit>,
-  _config: Readonly<EvaluationConfig> = defaultConfig
-): Result<CircuitEvaluationResult, EvaluationError> {
+export function evaluateCircuitParallel(): Result<
+  /* circuit: Readonly<Circuit> */
+  CircuitEvaluationResult,
+  EvaluationError
+> {
   // TODO: 将来実装
   // 依存関係のないゲートを並列評価
+  // 引数: circuit
 
   return failure(
     createEvaluationError(

@@ -358,7 +358,6 @@ const helpContents: Record<TabId, HelpContent[]> = {
 export const HelpPanel: React.FC<HelpPanelProps> = ({
   isOpen,
   onClose,
-  onOpenLearningMode: _onOpenLearningMode,
   onStartTutorial,
 }) => {
   const [activeTab, setActiveTab] = useState<TabId>('quick-help');

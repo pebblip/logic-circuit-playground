@@ -3,6 +3,7 @@
  * マウス・タッチイベント、ドラッグ&ドロップ、選択操作を管理
  */
 
+import type React from 'react';
 import type { RefObject } from 'react';
 import { useEffect, useCallback } from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
@@ -11,12 +12,10 @@ import {
   mouseEventToSVGCoordinates,
 } from '@infrastructure/ui/svgCoordinates';
 import { isGateElement } from '../utils/canvasHelpers';
-import type { Gate } from '@/types/circuit';
 import type { SelectionRect } from '@/hooks/useCanvasSelection';
 
 interface UseCanvasInteractionProps {
   svgRef: RefObject<SVGSVGElement>;
-  displayGates: Gate[];
   selectedGateIds: string[];
   isSelecting: boolean;
   selectionRect: SelectionRect | null;
@@ -51,7 +50,6 @@ interface UseCanvasInteractionProps {
 
 export const useCanvasInteraction = ({
   svgRef,
-  displayGates,
   selectedGateIds,
   isSelecting,
   selectionRect,
@@ -289,37 +287,34 @@ export const useCanvasInteraction = ({
     ]
   );
 
-  const handleMouseUp = useCallback(
-    (_event: React.MouseEvent) => {
-      handlePanEnd();
+  const handleMouseUp = useCallback(() => {
+    handlePanEnd();
 
-      // 選択矩形終了時の処理
-      if (isSelecting) {
-        endSelection();
-      }
+    // 選択矩形終了時の処理
+    if (isSelecting) {
+      endSelection();
+    }
 
-      // 選択されたゲート群のドラッグ終了
-      if (isDraggingSelection) {
-        setIsDraggingSelection(false);
-        setDragStart(null);
-        setInitialGatePositions(new Map());
-        setInitialSelectionRect(null);
-        // 履歴に保存
-        const { saveToHistory } = useCircuitStore.getState();
-        saveToHistory();
-      }
-    },
-    [
-      handlePanEnd,
-      isSelecting,
-      endSelection,
-      isDraggingSelection,
-      setIsDraggingSelection,
-      setDragStart,
-      setInitialGatePositions,
-      setInitialSelectionRect,
-    ]
-  );
+    // 選択されたゲート群のドラッグ終了
+    if (isDraggingSelection) {
+      setIsDraggingSelection(false);
+      setDragStart(null);
+      setInitialGatePositions(new Map());
+      setInitialSelectionRect(null);
+      // 履歴に保存
+      const { saveToHistory } = useCircuitStore.getState();
+      saveToHistory();
+    }
+  }, [
+    handlePanEnd,
+    isSelecting,
+    endSelection,
+    isDraggingSelection,
+    setIsDraggingSelection,
+    setDragStart,
+    setInitialGatePositions,
+    setInitialSelectionRect,
+  ]);
 
   // タッチイベント（モバイル用）
   const handleTouchStart = useCallback(

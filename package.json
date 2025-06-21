@@ -29,7 +29,8 @@
     "quality:gate": "npm run typecheck && npm run lint && npm run test tests/core/ tests/adapters/ --run && npm run quality:metrics",
     "ci:basic": "npm run typecheck && npm run lint && npm run test tests/core/ tests/adapters/ --run",
     "ci:integration": "npm run ci:basic && npm run test tests/integration/ --run && npm run validate:gallery",
-    "ci:deployment": "npm run ci:integration && npm run build && npm run test:e2e"
+    "ci:deployment": "npm run ci:integration && npm run build && npm run test:e2e",
+    "prepare": "husky"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
@@ -76,7 +77,9 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-unused-imports": "^4.1.4",
+    "husky": "^9.1.7",
     "jsdom": "^26.1.0",
+    "lint-staged": "^16.1.2",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
     "storybook": "8.6.14",

@@ -157,11 +157,7 @@ export class WireConnectionService {
   /**
    * ワイヤーのピン位置を更新（ゲート移動時）
    */
-  static updateWirePositions(
-    movedGateId: string,
-    wires: Wire[],
-    _gates: Gate[]
-  ): Wire[] {
+  static updateWirePositions(movedGateId: string, wires: Wire[]): Wire[] {
     // ワイヤーの位置は動的に計算されるため、
     // 実際にはワイヤーオブジェクト自体の更新は不要
     // ただし、将来的にキャッシュを持つ場合はここで更新

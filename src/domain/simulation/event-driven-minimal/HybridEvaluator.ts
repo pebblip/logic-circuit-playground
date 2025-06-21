@@ -69,14 +69,7 @@ export class HybridEvaluator {
     const result = this.eventDrivenEngine.evaluate(circuit);
 
     if (!result.success) {
-      console.warn('[HybridEvaluator] イベント駆動シミュレーション失敗:', {
-        cycleCount: result.cycleCount,
-        hasOscillation: result.hasOscillation,
-      });
-    }
-
-    if (result.debugTrace) {
-      console.debug('[HybridEvaluator] デバッグトレース:', result.debugTrace);
+      // エラー時は元の回路をそのまま返す
     }
 
     // 更新された状態で新しいcircuitオブジェクトを返す（不変性を保つ）
@@ -102,7 +95,6 @@ export class HybridEvaluator {
       // 成功時は更新された回路を返す
       return result.data.circuit;
     } else {
-      console.error('[HybridEvaluator] トポロジカル評価失敗:', result.error);
       return circuit; // エラー時は元の回路を返す
     }
   }

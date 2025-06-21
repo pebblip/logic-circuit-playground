@@ -13,6 +13,10 @@ import type {
   ShareUrl,
   ShareResult,
 } from '@/domain/ports/CircuitSharing';
+import type {
+  CircuitComponent,
+  CircuitConnection,
+} from '@/domain/ports/CircuitPersistence';
 
 export class ServiceCircuitSharingAdapter implements CircuitSharing {
   /**
@@ -106,7 +110,7 @@ export class ServiceCircuitSharingAdapter implements CircuitSharing {
   /**
    * 共有データの統計情報取得
    */
-  async getShareStats(shareId: string): Promise<{
+  async getShareStats(): Promise<{
     accessCount: number;
     createdAt: Date;
     lastAccessed: Date;
@@ -122,7 +126,31 @@ export class ServiceCircuitSharingAdapter implements CircuitSharing {
 
   // === 内部変換メソッド ===
 
-  private convertComponentsToGates(components: any[]): Gate[] {
+  private mapGateTypeToCircuitComponentType(
+    gateType: string
+  ): CircuitComponent['type'] {
+    // Map GateType to the restricted set of component types
+    const typeMap: Record<string, CircuitComponent['type']> = {
+      AND: 'AND',
+      OR: 'OR',
+      NOT: 'NOT',
+      XOR: 'XOR',
+      NAND: 'NAND',
+      NOR: 'NOR',
+      INPUT: 'INPUT',
+      OUTPUT: 'OUTPUT',
+      CLOCK: 'CLOCK',
+      CUSTOM: 'CUSTOM',
+      // Map extended gate types to CUSTOM
+      'D-FF': 'CUSTOM',
+      'SR-LATCH': 'CUSTOM',
+      MUX: 'CUSTOM',
+      BINARY_COUNTER: 'CUSTOM',
+    };
+    return typeMap[gateType] || 'CUSTOM';
+  }
+
+  private convertComponentsToGates(components: CircuitComponent[]): Gate[] {
     return components.map(component => ({
       id: component.id,
       type: component.type,
@@ -132,7 +160,7 @@ export class ServiceCircuitSharingAdapter implements CircuitSharing {
     }));
   }
 
-  private convertConnectionsToWires(connections: any[]): Wire[] {
+  private convertConnectionsToWires(connections: CircuitConnection[]): Wire[] {
     return connections.map(connection => ({
       id: connection.id,
       from: {
@@ -147,15 +175,15 @@ export class ServiceCircuitSharingAdapter implements CircuitSharing {
     }));
   }
 
-  private convertGatesToComponents(gates: Gate[]): any[] {
+  private convertGatesToComponents(gates: Gate[]): CircuitComponent[] {
     return gates.map(gate => ({
       id: gate.id,
-      type: gate.type,
+      type: this.mapGateTypeToCircuitComponentType(gate.type),
       position: gate.position,
     }));
   }
 
-  private convertWiresToConnections(wires: Wire[]): any[] {
+  private convertWiresToConnections(wires: Wire[]): CircuitConnection[] {
     return wires.map(wire => ({
       id: wire.id,
       from: {

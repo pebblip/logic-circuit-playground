@@ -137,6 +137,8 @@ export const TimeAxis: React.FC<TimeAxisProps> = ({
   );
 
   // ズーム操作
+  // Zoom handler is defined inline in the JSX below
+  /*
   const handleZoomIn = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
@@ -149,6 +151,7 @@ export const TimeAxis: React.FC<TimeAxisProps> = ({
     },
     [timeWindow, zoomIn]
   );
+  */
 
   const handleZoomOut = useCallback(
     (e: React.MouseEvent) => {

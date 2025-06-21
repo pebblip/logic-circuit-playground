@@ -8,11 +8,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './DebugLogDisplay.css';
 
+// グローバル型定義
+type DebugLogFunction = (
+  level: string,
+  message: string,
+  data?: unknown
+) => void;
+
+declare global {
+  interface Window {
+    debugLog?: DebugLogFunction;
+  }
+}
+
 interface DebugLogEntry {
   timestamp: number;
   level: 'info' | 'warn' | 'error' | 'debug';
   message: string;
-  data?: any;
+  data?: unknown;
 }
 
 interface DebugLogDisplayProps {
@@ -35,7 +48,7 @@ export const DebugLogDisplay: React.FC<DebugLogDisplayProps> = ({
     if (!isEnabled) return;
 
     // グローバルデバッグ関数を追加
-    (window as any).debugLog = (level: string, message: string, data?: any) => {
+    window.debugLog = (level: string, message: string, data?: unknown) => {
       const newLog: DebugLogEntry = {
         timestamp: Date.now(),
         level: level as DebugLogEntry['level'],
@@ -50,36 +63,23 @@ export const DebugLogDisplay: React.FC<DebugLogDisplayProps> = ({
     };
 
     // コンソールログをインターセプト
-    const originalLog = console.log;
     const originalError = console.error;
     const originalWarn = console.warn;
 
-    console.log = (...args) => {
-      originalLog(...args);
-      if (
-        args.some(
-          arg => typeof arg === 'string' && arg.includes('Gallery Animation')
-        )
-      ) {
-        (window as any).debugLog('info', args.join(' '));
-      }
-    };
-
     console.error = (...args) => {
       originalError(...args);
-      (window as any).debugLog('error', args.join(' '));
+      window.debugLog?.('error', args.join(' '));
     };
 
     console.warn = (...args) => {
       originalWarn(...args);
-      (window as any).debugLog('warn', args.join(' '));
+      window.debugLog?.('warn', args.join(' '));
     };
 
     return () => {
-      console.log = originalLog;
       console.error = originalError;
       console.warn = originalWarn;
-      delete (window as any).debugLog;
+      delete window.debugLog;
     };
   }, [isEnabled, maxLogs]);
 
@@ -97,7 +97,7 @@ export const DebugLogDisplay: React.FC<DebugLogDisplayProps> = ({
     return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}.${date.getMilliseconds().toString().padStart(3, '0')}`;
   };
 
-  const formatData = (data: any) => {
+  const formatData = (data: unknown): string => {
     if (data === undefined) return '';
     if (typeof data === 'object') {
       return JSON.stringify(data, null, 2);
@@ -147,7 +147,7 @@ export const DebugLogDisplay: React.FC<DebugLogDisplayProps> = ({
               <div className="debug-log-time">{formatTime(log.timestamp)}</div>
               <div className="debug-log-level">{log.level.toUpperCase()}</div>
               <div className="debug-log-message">{log.message}</div>
-              {log.data && (
+              {log.data !== undefined && (
                 <div className="debug-log-data">
                   <pre>{formatData(log.data)}</pre>
                 </div>
@@ -165,10 +165,3 @@ export const DebugLogDisplay: React.FC<DebugLogDisplayProps> = ({
     </div>
   );
 };
-
-// グローバル関数をTypeScriptで利用可能にする
-declare global {
-  interface Window {
-    debugLog?: (level: string, message: string, data?: any) => void;
-  }
-}

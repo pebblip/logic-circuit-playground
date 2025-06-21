@@ -131,8 +131,7 @@ export function generateWirePath(options: PathGeneratorOptions): string {
  */
 export function generateAdvancedManhattanPath(
   from: Position,
-  to: Position,
-  obstacles: { x: number; y: number; width: number; height: number }[]
+  to: Position
 ): string {
   // 現時点では基本的なマンハッタンパスを返す
   // 将来的にはA*アルゴリズムなどで障害物回避を実装

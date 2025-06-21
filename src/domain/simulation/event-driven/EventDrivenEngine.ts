@@ -72,9 +72,6 @@ export class EventDrivenEngine {
    */
   setDelayMode(enabled: boolean): void {
     this.config.delayMode = enabled;
-    if (this.config.enableDebug) {
-      console.log(`Delay mode ${enabled ? 'enabled' : 'disabled'}`);
-    }
   }
 
   /**
@@ -349,8 +346,6 @@ export class EventDrivenEngine {
     }
 
     // 影響を受けたゲートを再評価
-    let hasChanges = false;
-
     for (const gateId of affectedGates) {
       const gate = this.findGate(gateId);
       if (!gate) continue;
@@ -359,10 +354,7 @@ export class EventDrivenEngine {
       const delay = this.calculateGateDelay(gate);
       const nextTime = time + delay;
 
-      const changes = this.evaluateGateAndSchedule(gateId, nextTime);
-      if (changes) {
-        hasChanges = true;
-      }
+      this.evaluateGateAndSchedule(gateId, nextTime);
     }
 
     return true;
@@ -487,8 +479,9 @@ export class EventDrivenEngine {
         });
       }
     } else if (gate.type === 'SR-LATCH' && inputs.length >= 2) {
-      const s = inputs[0];
-      const r = inputs[1];
+      // SR-LATCH inputs are handled by gate.inputs directly
+      // const s = inputs[0];
+      // const r = inputs[1];
 
       if (newOutputs.length >= 2) {
         state.metadata = {
@@ -630,7 +623,6 @@ export class EventDrivenEngine {
 
     // 2つの状態が交互に現れるパターンも検出（A-B-A-B）
     if (this.stateHistory.length >= 4) {
-      const len = this.stateHistory.length;
       const last4 = this.stateHistory.slice(-4);
       if (
         last4[0] === last4[2] &&

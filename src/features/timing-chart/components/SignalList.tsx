@@ -37,7 +37,7 @@ const SignalItem: React.FC<SignalItemProps> = ({
     setIsEditing(false);
     // TODO: Implement rename functionality
     // onRename(trace.id, editedName);
-  }, [editedName]);
+  }, []); // editedNameは状態設定のみで使用されないため依存関係から除外
 
   const handleNameKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

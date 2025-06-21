@@ -240,7 +240,7 @@ export function getAvailableLessons(
   const minIndex = qualityOrder.indexOf(minQualityLevel);
 
   return Object.entries(LESSON_QUALITY_MAP)
-    .filter(([_, info]) => {
+    .filter(([, info]) => {
       const currentIndex = qualityOrder.indexOf(info.level);
       return currentIndex <= minIndex;
     })

@@ -20,7 +20,6 @@ export const Header: React.FC<HeaderProps> = ({
   activeMode,
   onModeChange,
   onOpenHelp,
-  onHelpDialogStateChange: _onHelpDialogStateChange,
 }) => {
   const { gates } = useCircuitStore();
 

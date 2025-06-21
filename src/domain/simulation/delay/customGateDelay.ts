@@ -197,8 +197,7 @@ function getGateDelay(gate: Gate): number {
  * カスタムゲート定義に推奨遅延を設定
  */
 export function setRecommendedDelay(
-  definition: CustomGateDefinition,
-  multiplier: number = 1.0
+  definition: CustomGateDefinition
 ): CustomGateDefinition {
   const delayInfo = calculateCustomGateDelay(definition);
 

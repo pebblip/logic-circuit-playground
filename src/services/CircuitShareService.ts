@@ -22,14 +22,6 @@ interface SharedWireData {
   t: { gateId: string; pinIndex: number }; // to
 }
 
-interface ShareData {
-  v: number; // version
-  n?: string; // name
-  d?: string; // description
-  g: SharedGateData[]; // gates
-  w: SharedWireData[]; // wires
-}
-
 /**
  * 回路共有URL機能
  * - 回路データをURLパラメータに圧縮エンコード
@@ -170,7 +162,7 @@ export class CircuitShareService {
       }
 
       // Base64URLデコード
-      const decoded = atob(
+      const decoded = globalThis.atob(
         encoded
           .replace(/-/g, '+')
           .replace(/_/g, '/')

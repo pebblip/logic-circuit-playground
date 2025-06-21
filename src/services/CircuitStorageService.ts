@@ -396,7 +396,7 @@ export class CircuitStorageService {
       }
 
       // 新しいIDを生成
-      const _oldId = savedCircuit.metadata.id;
+      // const oldId = savedCircuit.metadata.id; - ID is preserved through update
       savedCircuit.metadata.id = this.generateId();
       savedCircuit.metadata.createdAt = new Date().toISOString();
       savedCircuit.metadata.updatedAt = new Date().toISOString();

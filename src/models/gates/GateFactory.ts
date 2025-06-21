@@ -65,8 +65,8 @@ export class GateFactory {
           ...baseGate,
           inputs: ['', '', ''], // 2:1 MUX default (2 data + 1 select)
           metadata: {
-            dataInputs: ['', ''],
-            selectInputs: [''],
+            dataInputCount: 2,
+            selectedInput: 0,
           },
         };
 

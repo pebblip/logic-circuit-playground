@@ -14,7 +14,6 @@ export const useKeyboardShortcuts = () => {
     selectedGateId,
     selectedGateIds,
     deleteGate,
-    deleteWire: _deleteWire,
     copySelection,
     paste,
     canPaste,

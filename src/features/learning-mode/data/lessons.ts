@@ -219,14 +219,12 @@ export const getLearningStats = (completedLessons: Set<string>) => {
   const completed = completedLessons.size;
   const progress = Math.round((completed / totalLessons) * 100);
 
-  const phaseStats = Object.entries(lessonCategories).map(
-    ([_key, category]) => ({
-      phase: category.title,
-      completed: category.lessons.filter(id => completedLessons.has(id)).length,
-      total: category.lessons.length,
-      color: category.color,
-    })
-  );
+  const phaseStats = Object.entries(lessonCategories).map(([, category]) => ({
+    phase: category.title,
+    completed: category.lessons.filter(id => completedLessons.has(id)).length,
+    total: category.lessons.length,
+    color: category.color,
+  }));
 
   return {
     totalLessons,

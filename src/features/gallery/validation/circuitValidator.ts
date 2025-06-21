@@ -118,7 +118,13 @@ export class CircuitValidator {
           suggestion: `simulationConfig: { needsAnimation: true, updateInterval: 200, expectedBehavior: 'oscillator' }`,
           autoFix: () => {
             if (!circuit.simulationConfig) {
-              (circuit as any).simulationConfig = {};
+              // 型安全な方法で新しいオブジェクトを作成
+              const updatedCircuit = circuit as CircuitMetadata & {
+                simulationConfig: NonNullable<
+                  CircuitMetadata['simulationConfig']
+                >;
+              };
+              updatedCircuit.simulationConfig = {};
             }
             circuit.simulationConfig!.needsAnimation = true;
             circuit.simulationConfig!.updateInterval =
@@ -152,21 +158,8 @@ export class CircuitValidator {
   ) {
     circuit.gates.forEach(gate => {
       if (gate.type === 'D-FF' && gate.metadata) {
-        // ❌ 古い命名規則をチェック
-        if ('state' in gate.metadata) {
-          errors.push({
-            type: 'error',
-            message: `D-FF gate "${gate.id}": 'state' は非推奨です。'qOutput' を使用してください`,
-            suggestion: `metadata: { qOutput: ${gate.metadata.state}, qBarOutput: ${!(gate.metadata.state as boolean)}, previousClockState: false }`,
-            autoFix: () => {
-              const state = gate.metadata!.state as boolean;
-              delete (gate.metadata as any).state;
-              gate.metadata!.qOutput = state;
-              gate.metadata!.qBarOutput = !state;
-              gate.metadata!.previousClockState = false;
-            },
-          });
-        }
+        // 型レベルで 'state' は完全に排除済み
+        // 必要なプロパティの検証のみ行う
 
         // 必須プロパティのチェック
         if (!('previousClockState' in gate.metadata)) {

@@ -160,6 +160,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
     panHandlers,
     viewMode,
     exitCustomGatePreview,
+    svgRef,
   ]);
 
   // CLOCKゲートシミュレーション（エディターモードのみ）
@@ -195,7 +196,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         );
       }
     },
-    [handlers, transform]
+    [handlers, transform, svgRef]
   );
 
   const handleSvgMouseDown = React.useCallback(
@@ -237,7 +238,14 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         );
       }
     },
-    [canUsePan, isSpacePressed, panHandlers, canUseSelection, selectionHandlers]
+    [
+      canUsePan,
+      isSpacePressed,
+      panHandlers,
+      canUseSelection,
+      selectionHandlers,
+      svgRef,
+    ]
   );
 
   const handleSvgMouseMove = React.useCallback(
@@ -289,42 +297,38 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
     },
     [
       canUsePan,
-      isDrawingWire,
-      isSpacePressed,
       panHandlers,
       localViewBox,
       canUseSelection,
       selectionHandlers,
-    ]
+      svgRef,
+    ] // isDrawingWireとisSpacePressedは実際には使用されないため除外
   );
 
-  const handleSvgMouseUp = React.useCallback(
-    (event: React.MouseEvent<SVGSVGElement>) => {
-      try {
-        // ドラッグ機能を一時的に無効化
-        // TODO: canvasInteraction.handleMouseUp(event);
+  const handleSvgMouseUp = React.useCallback(() => {
+    try {
+      // ドラッグ機能を一時的に無効化
+      // TODO: canvasInteraction.handleMouseUp(event);
 
-        if (canUsePan && panHandlers?.isPanning) {
-          panHandlers.handlePanEnd();
-        }
-
-        if (canUseSelection && selectionHandlers?.isSelecting) {
-          selectionHandlers.endSelection();
-        }
-      } catch (error) {
-        handleError(
-          error instanceof Error ? error : new Error('Mouse up failed'),
-          'UnifiedCanvas',
-          {
-            userAction: 'マウスアップ',
-            severity: 'low',
-            showToUser: false,
-          }
-        );
+      if (canUsePan && panHandlers?.isPanning) {
+        panHandlers.handlePanEnd();
       }
-    },
-    [canUsePan, canUseSelection, panHandlers, selectionHandlers]
-  );
+
+      if (canUseSelection && selectionHandlers?.isSelecting) {
+        selectionHandlers.endSelection();
+      }
+    } catch (error) {
+      handleError(
+        error instanceof Error ? error : new Error('Mouse up failed'),
+        'UnifiedCanvas',
+        {
+          userAction: 'マウスアップ',
+          severity: 'low',
+          showToUser: false,
+        }
+      );
+    }
+  }, [canUsePan, canUseSelection, panHandlers, selectionHandlers]);
 
   const handleWheel = React.useCallback(
     (event: React.WheelEvent<SVGSVGElement>) => {
@@ -352,49 +356,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
         );
       }
     },
-    [canUseZoom, zoomHandlers]
-  );
-
-  // ゲートクリックハンドラー（Zustandストア統合）
-  const handleGateClick = React.useCallback(
-    (event: React.MouseEvent, gateId: string) => {
-      try {
-        event.stopPropagation();
-
-        // Zustandストアで選択状態を管理
-        const { selectGate, setSelectedGates, selectedGateIds } =
-          useCircuitStore.getState();
-
-        // Ctrl/Cmdキーで複数選択
-        if (event.ctrlKey || event.metaKey) {
-          if (selectedGateIds.includes(gateId)) {
-            // 既に選択されている場合は選択解除
-            setSelectedGates(selectedGateIds.filter(id => id !== gateId));
-          } else {
-            // 選択に追加
-            setSelectedGates([...selectedGateIds, gateId]);
-          }
-        } else {
-          // 単一選択
-          setSelectedGates([gateId]);
-          selectGate(gateId);
-        }
-
-        // ローカル状態も更新
-        actions.handleGateClick(gateId);
-      } catch (error) {
-        handleError(
-          error instanceof Error ? error : new Error('Gate click failed'),
-          'UnifiedCanvas',
-          {
-            userAction: 'ゲートクリック',
-            severity: 'medium',
-            showToUser: true,
-          }
-        );
-      }
-    },
-    [actions]
+    [canUseZoom, zoomHandlers, svgRef]
   );
 
   // タッチイベントハンドラー
@@ -457,30 +419,6 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
       );
     }
   }, [panHandlers]);
-
-  // ワイヤークリックハンドラー
-  const handleWireClick = React.useCallback(
-    (event: React.MouseEvent, wireId: string) => {
-      try {
-        event.stopPropagation();
-        const wire = state.displayWires.find(w => w.id === wireId);
-        if (wire) {
-          handlers?.onWireClick?.(wireId, wire);
-        }
-      } catch (error) {
-        handleError(
-          error instanceof Error ? error : new Error('Wire click failed'),
-          'UnifiedCanvas',
-          {
-            userAction: 'ワイヤークリック',
-            severity: 'low',
-            showToUser: false,
-          }
-        );
-      }
-    },
-    [state.displayWires, handlers]
-  );
 
   // CSS classes
   const canvasClasses = useMemo(

@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
 import type { Gate } from '@/types/circuit';
-import { useIsMobile } from '@/hooks/useResponsive';
 import { useGateDragAndDrop } from '@/hooks/useGateDragAndDrop';
 import { useGateWireConnection } from '@/hooks/useGateWireConnection';
 import { useGateEvents } from '@/hooks/useGateEvents';
@@ -21,17 +20,12 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
   isHighlighted = false,
   onInputClick,
 }) => {
-  const isMobile = useIsMobile();
   // モバイルでのスケール倍率を1.5に削減（以前は2倍で大きすぎた）
-  const scaleFactor = isMobile ? 1.5 : 1;
+  // Note: scaleFactor is currently unused but may be needed for future mobile optimization
 
   // カスタムフックを使用
-  const {
-    isDragging: _isDragging,
-    handleMouseDown,
-    handleTouchStart,
-    hasDragged,
-  } = useGateDragAndDrop(gate);
+  const { handleMouseDown, handleTouchStart, hasDragged } =
+    useGateDragAndDrop(gate);
   const { handlePinClick } = useGateWireConnection(gate);
   const {
     isSelected,

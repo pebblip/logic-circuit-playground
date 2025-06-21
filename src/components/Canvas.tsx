@@ -31,7 +31,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   const [viewBox, setViewBox] = useState<ViewBox>(
     CANVAS_CONSTANTS.DEFAULT_VIEWBOX
   );
-  const [_savedViewBox, _setSavedViewBox] = useState<ViewBox | null>(null);
+  // Removed unused savedViewBox state
   const [isSpacePressed, setIsSpacePressed] = useState(false);
   const [isDraggingSelection, setIsDraggingSelection] = useState(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(
@@ -42,10 +42,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
   >(new Map());
   const [initialSelectionRect, setInitialSelectionRect] =
     useState<SelectionRect | null>(null);
-  const [_selectionRectOffset, _setSelectionRectOffset] = useState<{
-    x: number;
-    y: number;
-  }>({ x: 0, y: 0 });
+  // Removed unused selectionRectOffset state
 
   const {
     gates,
@@ -56,9 +53,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     selectedGateIds,
     setSelectedGates,
     clearSelection,
-    addGate,
-    addCustomGateInstance,
-    moveMultipleGates: _moveMultipleGates,
     viewMode,
     previewingCustomGateId,
     customGates,
@@ -161,7 +155,7 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     if (needsCoordinatefix) {
       useCircuitStore.setState({ gates: fixedGates });
     }
-  }, []); // 初回のみ実行
+  }, [displayData.isReadOnly]); // 依存関係を追加
 
   // CLOCKアニメーション処理はuseCanvasSimulationに統合
   // useEffect(() => {
@@ -422,7 +416,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     updateSelection,
     endSelection,
     clearSelection: clearSelectionRect,
-    moveSelectionRect: _moveSelectionRect,
     setSelectionRect,
   } = useCanvasSelection(
     displayData.displayGates,
@@ -492,7 +485,6 @@ export const Canvas: React.FC<CanvasProps> = ({ highlightedGateId }) => {
     handleTouchEnd,
   } = useCanvasInteraction({
     svgRef,
-    displayGates: displayData.displayGates,
     selectedGateIds,
     isSelecting,
     selectionRect,

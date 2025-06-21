@@ -24,7 +24,7 @@ import type {
 } from '@/domain/ports/CircuitPersistence';
 import { CircuitStorageService } from '@/services/CircuitStorageService';
 import { CircuitShareService } from '@/services/CircuitShareService';
-import type { Gate, Wire } from '@/types/circuit';
+import type { Gate, Wire, GateType } from '@/types/circuit';
 import type {
   SavedCircuit as StorageServiceSavedCircuit,
   CircuitMetadata,
@@ -40,7 +40,7 @@ export class ServiceCircuitStorageAdapter implements CircuitStorage {
   // === 内部ヘルパーメソッド ===
 
   private mapGateTypeToCircuitComponentType(
-    gateType: any
+    gateType: GateType | string
   ): CircuitContent['components'][0]['type'] {
     // Map GateType to the restricted set of component types
     const typeMap: Record<string, CircuitContent['components'][0]['type']> = {
@@ -75,7 +75,7 @@ export class ServiceCircuitStorageAdapter implements CircuitStorage {
   } {
     const gates: Gate[] = content.components.map(component => ({
       id: component.id,
-      type: component.type as any,
+      type: component.type as GateType,
       position: component.position,
       inputs: [], // デフォルト値
       output: false, // デフォルト値
@@ -384,8 +384,8 @@ export class ServiceCircuitStorageAdapter implements CircuitStorage {
     for (const circuit of circuitsList) {
       try {
         await this.delete(circuit.id);
-      } catch (error) {
-        console.warn(`回路 ${circuit.id} の削除に失敗:`, error);
+      } catch {
+        // 削除に失敗した場合は無視して続行
       }
     }
   }
@@ -447,11 +447,9 @@ export class ServiceCircuitStorageAdapter implements CircuitStorage {
 
   async createBackup(): Promise<void> {
     // バックアップ機能のモック実装
-    console.log('バックアップを作成しました（モック実装）');
   }
 
   async restoreFromBackup(): Promise<void> {
     // 復元機能のモック実装
-    console.log('バックアップから復元しました（モック実装）');
   }
 }

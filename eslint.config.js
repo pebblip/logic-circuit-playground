@@ -73,9 +73,10 @@ export default [
       'unused-imports/no-unused-vars': [
         'error',
         {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-          destructuredArrayIgnorePattern: '^_',
+          // アンダースコアでの回避を許さない - 品質第一！
+          argsIgnorePattern: '^$', // 何もマッチしない = 例外なし
+          varsIgnorePattern: '^$', // 何もマッチしない = 例外なし
+          destructuredArrayIgnorePattern: '^$', // 何もマッチしない = 例外なし
         },
       ],
       '@typescript-eslint/consistent-type-imports': [

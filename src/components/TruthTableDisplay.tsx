@@ -19,7 +19,6 @@ interface TruthTableDisplayProps {
 
 export const TruthTableDisplay: React.FC<TruthTableDisplayProps> = ({
   result: resultProp,
-  gateType: _gateType,
   truthTable,
   inputNames,
   outputNames,
