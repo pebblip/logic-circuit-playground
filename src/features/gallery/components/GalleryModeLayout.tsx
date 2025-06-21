@@ -44,7 +44,7 @@ export const GalleryModeLayout: React.FC = () => {
                 CANVAS_MODE_PRESETS.gallery.galleryOptions?.animationInterval ||
                 1000,
               // 🔍 デバッグ情報を一時的に有効化
-              showDebugInfo: false,
+              showDebugInfo: true,
               // 🎯 自動フィット機能を有効化
               autoFit: true,
               autoFitPadding: 80,

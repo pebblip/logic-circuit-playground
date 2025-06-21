@@ -28,7 +28,7 @@ export const JOHNSON_COUNTER = {
       position: { x: 200, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { qOutput: false, previousClockState: false },
+      metadata: { qOutput: false, qBarOutput: true, previousClockState: false },
     },
     {
       id: 'dff1',
@@ -36,7 +36,7 @@ export const JOHNSON_COUNTER = {
       position: { x: 300, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { qOutput: false, previousClockState: false },
+      metadata: { qOutput: false, qBarOutput: true, previousClockState: false },
     },
     {
       id: 'dff2',
@@ -44,7 +44,7 @@ export const JOHNSON_COUNTER = {
       position: { x: 400, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { qOutput: false, previousClockState: false },
+      metadata: { qOutput: false, qBarOutput: true, previousClockState: false },
     },
     {
       id: 'dff3',
@@ -52,7 +52,7 @@ export const JOHNSON_COUNTER = {
       position: { x: 500, y: 200 },
       output: false,
       inputs: ['', ''],
-      metadata: { qOutput: false, previousClockState: false },
+      metadata: { qOutput: false, qBarOutput: true, previousClockState: false },
     },
 
     // 反転フィードバック用NOTゲート

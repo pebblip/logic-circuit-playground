@@ -130,6 +130,11 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
     title: 'SR ラッチ',
     description:
       'Set/Resetで状態を記憶する基本的なメモリ素子。デジタル回路におけるメモリの基礎概念を学べます。',
+    simulationConfig: {
+      needsAnimation: true,
+      updateInterval: 200,
+      expectedBehavior: 'memory_circuit',
+    },
     gates: [
       // Set入力
       {

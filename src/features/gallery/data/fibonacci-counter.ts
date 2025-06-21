@@ -26,9 +26,9 @@ export const FIBONACCI_COUNTER = {
       id: 'reg_a_0',
       type: 'D-FF' as const,
       position: { x: 200, y: 150 },
-      output: true, // F(0) = 1
+      output: false, // F(0) = 0
       inputs: ['', ''],
-      metadata: { qOutput: true, previousClockState: false },
+      metadata: { qOutput: false, qBarOutput: true, previousClockState: false, isFirstEvaluation: true },
     },
     {
       id: 'reg_a_1',
@@ -36,7 +36,7 @@ export const FIBONACCI_COUNTER = {
       position: { x: 300, y: 150 },
       output: false,
       inputs: ['', ''],
-      metadata: { qOutput: false, previousClockState: false },
+      metadata: { qOutput: false, qBarOutput: true, previousClockState: false, isFirstEvaluation: true },
     },
 
     // フィボナッチ数列レジスタ B (現在の値) - 2ビット版
@@ -46,7 +46,7 @@ export const FIBONACCI_COUNTER = {
       position: { x: 200, y: 350 },
       output: true, // F(1) = 1
       inputs: ['', ''],
-      metadata: { qOutput: true, previousClockState: false },
+      metadata: { qOutput: true, qBarOutput: false, previousClockState: false, isFirstEvaluation: true },
     },
     {
       id: 'reg_b_1',
@@ -54,7 +54,7 @@ export const FIBONACCI_COUNTER = {
       position: { x: 300, y: 350 },
       output: false,
       inputs: ['', ''],
-      metadata: { qOutput: false, previousClockState: false },
+      metadata: { qOutput: false, qBarOutput: true, previousClockState: false, isFirstEvaluation: true },
     },
 
     // 2ビット加算器 (A + B) - 中央に配置
@@ -118,7 +118,7 @@ export const FIBONACCI_COUNTER = {
       position: { x: 400, y: 150 },
       output: false,
       inputs: ['', ''],
-      metadata: { qOutput: false, previousClockState: false },
+      metadata: { qOutput: false, qBarOutput: true, previousClockState: false, isFirstEvaluation: true },
     },
     {
       id: 'reg_b_2',
@@ -126,7 +126,7 @@ export const FIBONACCI_COUNTER = {
       position: { x: 400, y: 350 },
       output: false,
       inputs: ['', ''],
-      metadata: { qOutput: false, previousClockState: false },
+      metadata: { qOutput: false, qBarOutput: true, previousClockState: false, isFirstEvaluation: true },
     },
 
     // 出力表示 - 右側に整列

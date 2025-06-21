@@ -33,6 +33,7 @@ export const SIMPLE_LFSR = {
       inputs: ['', ''],
       metadata: {
         qOutput: true,
+        qBarOutput: false,
         previousClockState: false, // 初回エッジ検出を有効に
         isFirstEvaluation: true,
       },
@@ -45,6 +46,7 @@ export const SIMPLE_LFSR = {
       inputs: ['', ''],
       metadata: {
         qOutput: false,
+        qBarOutput: true,
         previousClockState: false, // 初回エッジ検出を有効に
         isFirstEvaluation: true,
       },

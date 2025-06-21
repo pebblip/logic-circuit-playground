@@ -30,6 +30,7 @@ export const CHAOS_GENERATOR = {
       inputs: ['', ''],
       metadata: {
         qOutput: true,
+        qBarOutput: false,
         previousClockState: false,
         isFirstEvaluation: true,
       }, // 初回エッジ検出を防ぐ
@@ -42,6 +43,7 @@ export const CHAOS_GENERATOR = {
       inputs: ['', ''],
       metadata: {
         qOutput: false,
+        qBarOutput: true,
         previousClockState: false,
         isFirstEvaluation: true,
       }, // 初回エッジ検出を防ぐ
@@ -54,6 +56,7 @@ export const CHAOS_GENERATOR = {
       inputs: ['', ''],
       metadata: {
         qOutput: true,
+        qBarOutput: false,
         previousClockState: false,
         isFirstEvaluation: true,
       }, // 初回エッジ検出を防ぐ
@@ -66,6 +69,7 @@ export const CHAOS_GENERATOR = {
       inputs: ['', ''],
       metadata: {
         qOutput: false,
+        qBarOutput: true,
         previousClockState: false,
         isFirstEvaluation: true,
       }, // 初回エッジ検出を防ぐ

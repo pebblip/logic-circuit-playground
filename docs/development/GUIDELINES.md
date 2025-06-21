@@ -33,24 +33,57 @@ src/
 
 ### TypeScript使用規則
 
-#### 型定義
+#### 型定義 - Type-level Prevention戦略
 ```typescript
-// ✅ 推奨: 明確で制限的な型定義
+// ✅ 推奨: 明示的で厳密な型定義（Index signature回避）
 interface Gate {
   readonly id: string;
   readonly type: GateType;
   position: Position;
   output: boolean;
   inputs: readonly string[];
-  metadata?: Readonly<Record<string, unknown>>;
+  // 🚨 [key: string]: unknown は禁止
+  // 全プロパティを明示的に定義すること
+}
+
+interface DFlipFlopMetadata {
+  clockEdge: 'rising' | 'falling';
+  previousClockState: boolean;
+  qOutput: boolean;
+  qBarOutput: boolean;
+  isFirstEvaluation?: boolean;
+  // ✅ 必要に応じて明示的プロパティを追加
+  // ❌ [key: string]: unknown; の使用禁止
 }
 
 // ❌ 避ける: 曖昧な型定義
 interface LooseGate {
-  id: any;
-  type: string;
-  data: object;
+  id: any;                           // any型
+  type: string;                      // 制限のない文字列
+  data: object;                      // 曖昧なobject型
+  [key: string]: unknown;            // Index signature（型安全性を破る）
 }
+```
+
+#### Type-level Prevention原則
+```typescript
+// ✅ Compile-time型安全性優先
+interface StrictConfig {
+  enableFeature: boolean;
+  maxRetries: number;
+  allowedTypes: ReadonlyArray<'A' | 'B' | 'C'>;
+}
+
+// ❌ Runtime validation依存（型レベルで防げるものは防ぐ）
+interface LooseConfig {
+  [key: string]: unknown;  // Runtimeでのvalidationが必要
+}
+
+// ✅ Union型による制限
+type GateType = 'AND' | 'OR' | 'NOT' | 'XOR' | 'CLOCK' | 'INPUT' | 'OUTPUT';
+
+// ❌ 文字列での自由記述
+type LooseGateType = string;
 ```
 
 #### 型安全なエラーハンドリング
@@ -72,13 +105,19 @@ function validateCircuit(circuit: Circuit): Result<ValidatedCircuit, ValidationE
 }
 ```
 
-#### 禁止事項
+#### 禁止事項と例外
 ```typescript
-// ❌ 使用禁止
+// ❌ 使用禁止（ESLintが自動検出）
 const data: any = {};                    // any型
 const config = circuit as any;           // 不適切なキャスト
 eval(userInput);                        // eval関数
-delete object.property;                  // delete演算子（readonly型で対応）
+
+// ⚠️ 例外的使用（必要最小限のみ）
+delete gate.metadata!.state;            // 型安全な範囲でのdelete（設計上必要な場合）
+
+// ✅ 推奨代替手段
+const { state, ...cleanMetadata } = gate.metadata; // Destructuring分離
+const newMetadata: Metadata = { /* 明示的構築 */ };  // 型安全な再構築
 ```
 
 ### React開発規約
@@ -238,9 +277,18 @@ vi.mock('entire-module'); // モジュール全体のモック
 
 ## 🔍 品質管理
 
+### 品質徹底主義
+このプロジェクトは**妥協なき品質追求**を基本方針とします：
+
+#### 核心原則
+- ✅ **場当たり的修正の絶対禁止**: アンダースコア逃避等の回避策は使用しない
+- ✅ **警告も含む完全準拠**: ESLintエラー・警告は全て0件を維持
+- ✅ **Type-level prevention**: Runtime validationよりcompile-time型安全性を優先
+- ✅ **自動品質ゲート**: Pre-commit hooksによる強制チェック
+
 ### 静的解析ツール
 
-#### ESLint設定
+#### ESLint厳格設定
 ```json
 {
   "extends": [
@@ -252,9 +300,62 @@ vi.mock('entire-module'); // モジュール全体のモック
     "@typescript-eslint/prefer-readonly": "error",
     "@typescript-eslint/prefer-readonly-parameter-types": "warn",
     "prefer-const": "error",
-    "no-var": "error"
+    "no-var": "error",
+    "unused-imports/no-unused-vars": [
+      "error",
+      {
+        // 🚨 アンダースコア逃避を完全禁止
+        "argsIgnorePattern": "^",     // 何もマッチしない = 例外なし
+        "varsIgnorePattern": "^",     // 何もマッチしない = 例外なし
+        "destructuredArrayIgnorePattern": "^" // 何もマッチしない = 例外なし
+      }
+    ]
   }
 }
+```
+
+#### 品質コマンド
+```bash
+# 総合品質確認（必須）
+npm run typecheck && npm run test && npm run lint
+
+# 段階別確認
+npm run typecheck    # TypeScript型安全性確認
+npm run lint         # ESLint完全準拠確認（エラー・警告0件）
+npm run test         # テスト完全成功確認
+```
+
+### Pre-commit Hooks自動化
+
+#### Husky + lint-staged設定
+```json
+// .lintstagedrc.json
+{
+  "*.{ts,tsx}": [
+    "prettier --write",
+    "eslint --fix --max-warnings 0"  // 警告も含む0件強制
+  ],
+  "*.{json,md,yml,yaml}": [
+    "prettier --write"
+  ],
+  "*.css": [
+    "prettier --write"
+  ]
+}
+```
+
+```bash
+# .husky/pre-commit
+npx lint-staged
+```
+
+#### 設定手順
+```bash
+# 初回設定
+npm install --save-dev husky lint-staged
+npm run prepare
+
+# 既存プロジェクトでは設定済み
 ```
 
 #### TypeScript厳格設定
@@ -335,25 +436,58 @@ element.innerHTML = userContent;
 ## 📊 コード品質メトリクス
 
 ### 測定指標
-| メトリクス | 目標値 | 現在値 | ツール |
-|-----------|--------|--------|--------|
-| TypeScript厳格度 | 100% | 確認中 | tsc --strict |
-| テストカバレッジ | 80%+ | 確認中 | vitest --coverage |
-| ESLintエラー | 0 | 確認中 | eslint |
-| 循環的複雑度 | <10 | 確認中 | 静的解析 |
-| バンドルサイズ | <1MB | 確認中 | bundleanalyzer |
+| メトリクス | 目標値 | 現在値 | ステータス | ツール |
+|-----------|--------|--------|-----------|--------|
+| TypeScript厳格度 | 100% | **100%** | ✅ 達成 | tsc --strict |
+| ESLintエラー | 0 | **0** | ✅ 達成 | eslint |
+| ESLint警告 | 0 | **0** | ✅ 達成 | eslint --max-warnings 0 |
+| Pre-commit自動化 | 有効 | **有効** | ✅ 達成 | husky + lint-staged |
+| Type-level Prevention | 有効 | **有効** | ✅ 達成 | 明示的型定義 |
+| テストカバレッジ | 80%+ | 確認中 | 🔄 測定要 | vitest --coverage |
+| 循環的複雑度 | <10 | 確認中 | 🔄 測定要 | 静的解析 |
+| バンドルサイズ | <1MB | 確認中 | 🔄 測定要 | bundleanalyzer |
 
-### 継続的改善
+### 継続的改善・品質維持
+
+#### 日次品質確認（必須）
 ```bash
-# 日次実行推奨
-npm run typecheck     # 型安全性確認
-npm run lint         # コード品質確認
-npm run test         # テスト実行
-npm run build        # ビルド確認
+# 総合品質ゲート通過確認
+npm run typecheck && npm run lint && npm run test
 
-# 週次実行推奨
-npm run test:coverage # カバレッジ確認
+# 段階別詳細確認
+npm run typecheck     # TypeScript型安全性（エラー0件）
+npm run lint         # ESLint完全準拠（エラー・警告0件）
+npm run test         # テスト完全成功
+npm run build        # ビルド確認
+```
+
+#### Pre-commit品質自動化
+```bash
+# 自動実行（git commit時）
+npx lint-staged      # Prettier + ESLint --max-warnings 0
+
+# 手動確認
+git add . && git commit -m "test"  # フックテスト
+```
+
+#### 週次実行推奨
+```bash
+npm run test:coverage # カバレッジ確認（80%+目標）
 npm run analyze      # バンドル分析
+npm audit            # セキュリティ確認
+npm outdated         # 依存関係更新確認
+```
+
+#### 品質劣化防止チェック
+```bash
+# エラー・警告チェック
+npm run lint -- --format=compact | wc -l  # 0行である事を確認
+
+# 型エラーチェック  
+npm run typecheck 2>&1 | grep "error TS" | wc -l  # 0行である事を確認
+
+# テスト失敗チェック
+npm run test 2>&1 | grep -E "(FAIL|FAILED)" | wc -l  # 0行である事を確認
 ```
 
 ## 📝 ドキュメント標準
