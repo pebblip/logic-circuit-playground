@@ -15,7 +15,7 @@ export const CHAOS_GENERATOR = {
       id: 'clock',
       type: 'CLOCK' as const,
       position: { x: 100, y: 150 },
-      output: true, // 初期状態でONにしてクロック信号を見やすく
+      outputs: [true], // 初期状態でONにしてクロック信号を見やすく
       inputs: [],
       metadata: { frequency: 2, isRunning: true }, // 2Hz - startTimeは評価時に自動設定
     },
@@ -26,8 +26,8 @@ export const CHAOS_GENERATOR = {
       id: 'dff1',
       type: 'D-FF' as const,
       position: { x: 200, y: 200 },
-      output: true, // 初期値
-      inputs: ['', ''],
+      outputs: [true], // 初期値
+      inputs: [],
       metadata: {
         qOutput: true,
         qBarOutput: false,
@@ -39,8 +39,8 @@ export const CHAOS_GENERATOR = {
       id: 'dff2',
       type: 'D-FF' as const,
       position: { x: 300, y: 200 },
-      output: false,
-      inputs: ['', ''],
+      outputs: [false],
+      inputs: [],
       metadata: {
         qOutput: false,
         qBarOutput: true,
@@ -52,8 +52,8 @@ export const CHAOS_GENERATOR = {
       id: 'dff3',
       type: 'D-FF' as const,
       position: { x: 400, y: 200 },
-      output: true, // 1に変更
-      inputs: ['', ''],
+      outputs: [true], // 1に変更
+      inputs: [],
       metadata: {
         qOutput: true,
         qBarOutput: false,
@@ -65,8 +65,8 @@ export const CHAOS_GENERATOR = {
       id: 'dff4',
       type: 'D-FF' as const,
       position: { x: 500, y: 200 },
-      output: false,
-      inputs: ['', ''],
+      outputs: [false],
+      inputs: [],
       metadata: {
         qOutput: false,
         qBarOutput: true,
@@ -80,8 +80,8 @@ export const CHAOS_GENERATOR = {
       id: 'xor_feedback',
       type: 'XOR' as const,
       position: { x: 350, y: 100 },
-      output: false,
-      inputs: ['', ''],
+      outputs: [false],
+      inputs: [],
     },
 
     // 出力観測用
@@ -89,29 +89,29 @@ export const CHAOS_GENERATOR = {
       id: 'out_bit3',
       type: 'OUTPUT' as const,
       position: { x: 200, y: 300 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
     {
       id: 'out_bit2',
       type: 'OUTPUT' as const,
       position: { x: 300, y: 300 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
     {
       id: 'out_bit1',
       type: 'OUTPUT' as const,
       position: { x: 400, y: 300 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
     {
       id: 'out_bit0',
       type: 'OUTPUT' as const,
       position: { x: 500, y: 300 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
 
     // ランダム出力
@@ -119,8 +119,8 @@ export const CHAOS_GENERATOR = {
       id: 'random_output',
       type: 'OUTPUT' as const,
       position: { x: 600, y: 200 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
   ],
   wires: [

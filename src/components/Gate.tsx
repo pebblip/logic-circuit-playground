@@ -27,20 +27,12 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
   const { handleMouseDown, handleTouchStart, hasDragged } =
     useGateDragAndDrop(gate);
   const { handlePinClick } = useGateWireConnection(gate);
-  const {
-    isSelected,
-    handleGateClick,
-    handleInputClick,
-    handleInputDoubleClick,
-  } = useGateEvents(gate);
+  const { isSelected, handleGateClick, handleInputDoubleClick } =
+    useGateEvents(gate);
 
   // クリックハンドラーにドラッグ状態を渡す
   const wrappedHandleGateClick = (event: React.MouseEvent) => {
     handleGateClick(event, hasDragged);
-  };
-
-  const wrappedHandleInputClick = (event: React.MouseEvent) => {
-    handleInputClick(event, hasDragged);
   };
 
   const wrappedHandleInputDoubleClick = (event: React.MouseEvent) => {
@@ -89,7 +81,6 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
           <IOGateRenderer
             {...baseProps}
             handleGateClick={wrappedHandleGateClick}
-            handleInputClick={wrappedHandleInputClick}
             handleInputDoubleClick={wrappedHandleInputDoubleClick}
             onInputClick={onInputClick}
           />

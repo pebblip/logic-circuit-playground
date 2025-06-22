@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import type { Gate } from '@/types/circuit';
-import { getGateInputValue } from '@/domain/simulation';
 
 interface PinComponentProps {
   gate: Gate;
@@ -34,11 +33,16 @@ export const PinComponent: React.FC<PinComponentProps> = ({
   if (isActive !== undefined) {
     isPinActive = isActive;
   } else if (isOutput) {
-    isPinActive = gate.output;
+    isPinActive = gate.outputs?.[0] ?? gate.output ?? false;
   } else {
-    // 入力ピンの場合：安全性チェックを追加
+    // 入力ピンの場合：安全なアクセス（型混在に対応）
     if (gate.inputs && gate.inputs.length > pinIndex) {
-      isPinActive = getGateInputValue(gate, pinIndex);
+      const inputValue = gate.inputs[pinIndex];
+      // PureCircuit形式（boolean）またはlegacy形式（string）に対応
+      isPinActive =
+        typeof inputValue === 'boolean'
+          ? inputValue
+          : inputValue === '1' || inputValue === 'true';
     }
   }
 

@@ -5,34 +5,13 @@
 
 import type { Circuit } from '../core/types';
 import type { Result } from '../core/types';
-import type { SimulationStrategy } from '../event-driven-minimal/EnhancedHybridEvaluator';
 
 /**
- * 統一評価設定
+ * 統一評価設定（大幅に簡素化）
  */
 export interface UnifiedEvaluationConfig {
-  // 戦略選択
-  strategy: SimulationStrategy;
-
-  // 自動選択閾値
-  autoSelectionThresholds: {
-    maxGatesForLegacy: number; // 従来方式の最大ゲート数
-    minGatesForEventDriven: number; // イベント駆動の最小ゲート数
-  };
-
   // デバッグ・ログ設定
   enableDebugLogging: boolean;
-  enablePerformanceTracking: boolean;
-
-  // キャッシュ設定
-  enableCaching: boolean;
-  maxCacheSize: number;
-
-  // 発振対応設定
-  oscillationConfig: {
-    continueOnOscillation: boolean;
-    maxCyclesAfterDetection: number;
-  };
 
   // 遅延モード設定
   delayMode?: boolean;
@@ -46,7 +25,7 @@ export interface UnifiedEvaluationResult {
   circuit: Circuit;
 
   // 使用された戦略
-  strategyUsed: SimulationStrategy;
+  strategyUsed: 'PURE_ENGINE';
 
   // パフォーマンス情報
   performanceInfo: {
@@ -96,28 +75,16 @@ export interface UnifiedEvaluationError {
   gateId?: string;
   originalError?: Error;
   recovery?: {
-    suggestedStrategy?: SimulationStrategy;
+    suggestedStrategy?: 'PURE_ENGINE';
     suggestedActions: string[];
   };
 }
 
 /**
- * デフォルト設定
+ * デフォルト設定（大幅に簡素化）
  */
 export const DEFAULT_UNIFIED_CONFIG: UnifiedEvaluationConfig = {
-  strategy: 'AUTO_SELECT',
-  autoSelectionThresholds: {
-    maxGatesForLegacy: 20,
-    minGatesForEventDriven: 50,
-  },
   enableDebugLogging: false,
-  enablePerformanceTracking: true,
-  enableCaching: false, // 初期は無効（将来実装）
-  maxCacheSize: 100,
-  oscillationConfig: {
-    continueOnOscillation: true,
-    maxCyclesAfterDetection: 50,
-  },
   delayMode: false,
 };
 
@@ -132,7 +99,7 @@ export interface CircuitComplexityAnalysis {
   maxDepth: number;
   hasClock: boolean;
   hasSequentialElements: boolean;
-  recommendedStrategy: SimulationStrategy;
+  recommendedStrategy: 'PURE_ENGINE';
   reasoning: string;
 }
 
@@ -177,7 +144,7 @@ export interface ICircuitEvaluationService {
   getPerformanceStats(): {
     totalEvaluations: number;
     avgExecutionTime: number;
-    strategyUsageStats: Record<SimulationStrategy, number>;
+    strategyUsageStats: Record<'PURE_ENGINE', number>;
   };
 
   /**

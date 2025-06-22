@@ -10,8 +10,11 @@ import {
   loadCustomGates,
 } from '@infrastructure/storage/customGateStorage';
 import type { Circuit } from '@domain/simulation/core/types';
-import { getGlobalEvaluationService } from '@domain/simulation/unified';
-import { EnhancedHybridEvaluator } from '@domain/simulation/event-driven-minimal/EnhancedHybridEvaluator';
+import { CircuitEvaluator } from '@domain/simulation/core/evaluator';
+import type {
+  EvaluationCircuit,
+  EvaluationContext,
+} from '@domain/simulation/core/types';
 import { IdGenerator } from '@shared/id';
 
 export interface CustomGateSlice {
@@ -92,22 +95,49 @@ export const createCustomGateSlice: StateCreator<
 
       // 回路を評価（統一評価サービス使用）
       const circuit: Circuit = { gates: testGates, wires: state.wires };
-      const evaluationService = getGlobalEvaluationService();
+      // const evaluationService = getGlobalEvaluationService();
 
       let evaluatedGates: Gate[];
       try {
         // 統一サービスと同じ設定を適用した評価
-        const complexity = evaluationService.analyzeComplexity(circuit);
-        const strategy = complexity.recommendedStrategy;
+        // const complexity = evaluationService.analyzeComplexity(circuit);
+        // const strategy = complexity.recommendedStrategy;
 
-        // 同期評価（EnhancedHybridEvaluatorを直接使用）
-        const evaluator = new EnhancedHybridEvaluator({
-          strategy,
-          enableDebugLogging: false,
-        });
+        // 同期評価（CircuitEvaluatorを直接使用）
+        const evaluator = new CircuitEvaluator();
 
-        const evaluationResult = evaluator.evaluate(circuit);
-        evaluatedGates = [...evaluationResult.circuit.gates];
+        // Circuit型をEvaluationCircuit型に変換
+        const evaluationCircuit: EvaluationCircuit = {
+          gates: circuit.gates.map(gate => ({
+            id: gate.id,
+            type: gate.type,
+            position: gate.position,
+            inputs: gate.inputs || [],
+            outputs: gate.outputs || [],
+          })),
+          wires: circuit.wires,
+        };
+
+        // 評価コンテキストを作成
+        const evaluationContext: EvaluationContext = {
+          currentTime: Date.now(),
+          memory: {},
+        };
+
+        // 即座評価を使用（カスタムゲート生成は組み合わせ回路前提）
+        const evaluationResult = evaluator.evaluateImmediate(
+          evaluationCircuit,
+          evaluationContext
+        );
+
+        // 結果をCircuit形式に変換
+        evaluatedGates = evaluationResult.circuit.gates.map(gate => ({
+          ...gate,
+          position: gate.position,
+          inputs: [...gate.inputs],
+          outputs: [...gate.outputs],
+          output: gate.outputs[0] ?? false,
+        }));
       } catch {
         // エラー時は評価前のゲートを使用
         evaluatedGates = testGates;
@@ -119,12 +149,12 @@ export const createCustomGateSlice: StateCreator<
           const evaluatedGate = evaluatedGates.find(
             g => g.id === outputGate.id
           );
-          // OUTPUTゲートの場合、inputs[0]を文字列として比較
+          // OUTPUTゲートの場合、inputs[0]をbooleanとして評価
           if (evaluatedGate?.inputs && evaluatedGate.inputs.length > 0) {
-            return evaluatedGate.inputs[0] === '1' ? '1' : '0';
+            return evaluatedGate.inputs[0] ? '1' : '0';
           }
-          // 新API対応: OUTPUTゲートのoutputプロパティもチェック
-          return evaluatedGate?.output ? '1' : '0';
+          // デフォルト値
+          return '0';
         })
         .join('');
 

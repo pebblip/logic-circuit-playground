@@ -5,7 +5,7 @@
  */
 
 // 信号変換ユーティリティのみエクスポート（UIで使用）
-export * from './signalConversion';
+export * from './core/utils';
 
 // 新APIのエクスポート（推奨）
 export * from './core';

@@ -21,7 +21,8 @@ export class GateFactory {
       type,
       position,
       inputs: this.createInputArray(type),
-      output: type === 'INPUT' ? false : false,
+      outputs: type === 'OUTPUT' ? [] : [false], // PureCircuit形式
+      output: type === 'INPUT' ? false : false, // Legacy互換性
     };
 
     // 特殊ゲート用のメタデータを追加
@@ -40,7 +41,7 @@ export class GateFactory {
       case 'D-FF':
         return {
           ...baseGate,
-          inputs: ['', ''], // D, CLK
+          inputs: [false, false], // D, CLK
           metadata: {
             clockEdge: 'rising',
             previousClockState: false,
@@ -52,7 +53,7 @@ export class GateFactory {
       case 'SR-LATCH':
         return {
           ...baseGate,
-          inputs: ['', ''], // S, R
+          inputs: [false, false], // S, R
           output: false, // 初期状態
           metadata: {
             qOutput: false,
@@ -63,7 +64,7 @@ export class GateFactory {
       case 'MUX':
         return {
           ...baseGate,
-          inputs: ['', '', ''], // 2:1 MUX default (2 data + 1 select)
+          inputs: [false, false, false], // 2:1 MUX default (2 data + 1 select)
           metadata: {
             dataInputCount: 2,
             selectedInput: 0,
@@ -73,7 +74,7 @@ export class GateFactory {
       case 'BINARY_COUNTER':
         return {
           ...baseGate,
-          inputs: [''], // CLK input only
+          inputs: [false], // CLK input only
           outputs: [false, false], // デフォルト2ビット（4カウント）
           metadata: {
             bitCount: 2,
@@ -99,15 +100,15 @@ export class GateFactory {
     position: Position
   ): Gate {
     const id = IdGenerator.generateGateId();
-    const inputsArray = new Array(definition.inputs.length).fill('');
+    const inputsArray = new Array(definition.inputs.length).fill(false);
 
     const customGate: Gate = {
       id,
       type: 'CUSTOM' as const,
       position,
       inputs: inputsArray,
-      output: false,
       outputs: new Array(definition.outputs.length).fill(false), // 複数出力の初期化
+      output: false, // Legacy互換性
       customGateDefinition: definition,
     };
 
@@ -115,23 +116,23 @@ export class GateFactory {
   }
 
   /**
-   * ゲートタイプに応じた入力配列を作成
+   * ゲートタイプに応じた入力配列を作成 (PureCircuit形式)
    */
-  private static createInputArray(type: GateType): string[] {
+  private static createInputArray(type: GateType): boolean[] {
     if (type === 'INPUT' || type === 'CLOCK') {
       return []; // 入力ピンなし
     }
 
     if (type === 'NOT' || type === 'OUTPUT') {
-      return ['']; // 1入力
+      return [false]; // 1入力
     }
 
     if (type === 'MUX') {
-      return ['', '', '']; // デフォルトは2:1 MUX
+      return [false, false, false]; // デフォルトは2:1 MUX
     }
 
     // その他は2入力
-    return ['', ''];
+    return [false, false];
   }
 
   /**

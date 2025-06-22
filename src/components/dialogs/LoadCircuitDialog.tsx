@@ -176,13 +176,14 @@ export const LoadCircuitDialog: React.FC<LoadCircuitDialogProps> = ({
         });
 
         // 回路の評価を強制的に実行
-        const { evaluateCircuit, defaultConfig } = await import(
-          '@domain/simulation/core'
+        const { getGlobalEvaluationService } = await import(
+          '@domain/simulation/services/CircuitEvaluationService'
         );
-        const evaluatedCircuit = await evaluateCircuit(
-          { gates: circuit.gates, wires: circuit.wires },
-          defaultConfig
-        );
+        const evaluationService = getGlobalEvaluationService();
+        const evaluatedCircuit = await evaluationService.evaluate({
+          gates: circuit.gates,
+          wires: circuit.wires,
+        });
 
         if (evaluatedCircuit.success) {
           useCircuitStore.setState({

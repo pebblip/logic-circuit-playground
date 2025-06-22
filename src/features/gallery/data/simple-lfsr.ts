@@ -19,7 +19,7 @@ export const SIMPLE_LFSR = {
       id: 'clock',
       type: 'CLOCK' as const,
       position: { x: 100, y: 100 },
-      output: false,
+      outputs: [false],
       inputs: [],
       metadata: { frequency: 1, isRunning: true }, // 1Hz - ゆっくり
     },
@@ -29,8 +29,8 @@ export const SIMPLE_LFSR = {
       id: 'dff_a',
       type: 'D-FF' as const,
       position: { x: 250, y: 150 },
-      output: true, // 初期値 1
-      inputs: ['', ''],
+      outputs: [true], // 初期値 1
+      inputs: [],
       metadata: {
         qOutput: true,
         qBarOutput: false,
@@ -42,8 +42,8 @@ export const SIMPLE_LFSR = {
       id: 'dff_b',
       type: 'D-FF' as const,
       position: { x: 400, y: 150 },
-      output: false, // 初期値 0
-      inputs: ['', ''],
+      outputs: [false], // 初期値 0
+      inputs: [],
       metadata: {
         qOutput: false,
         qBarOutput: true,
@@ -60,15 +60,15 @@ export const SIMPLE_LFSR = {
       id: 'out_a',
       type: 'OUTPUT' as const,
       position: { x: 250, y: 250 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
     {
       id: 'out_b',
       type: 'OUTPUT' as const,
       position: { x: 400, y: 250 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
   ],
   wires: [

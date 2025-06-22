@@ -8,41 +8,110 @@ import type {
 } from '@/types/circuit';
 import { GateFactory } from '@/models/gates/GateFactory';
 import type { Circuit } from '@domain/simulation/core/types';
-import { getGlobalEvaluationService } from '@domain/simulation/unified';
-import { EnhancedHybridEvaluator } from '@domain/simulation/event-driven-minimal/EnhancedHybridEvaluator';
-import { booleanToDisplayState } from '@domain/simulation';
+import { CircuitEvaluator } from '@domain/simulation/core/evaluator';
+import type {
+  EvaluationCircuit,
+  EvaluationContext,
+  GateMemory,
+} from '@domain/simulation/core/types';
 import {
   getInputPinPosition,
   getOutputPinPosition,
 } from '@domain/analysis/pinPositionCalculator';
 
 // 統一評価サービスを取得
-let evaluationService = getGlobalEvaluationService();
+// let evaluationService = getGlobalEvaluationService();
 
 // Zustand内での同期使用のための一時的なラッパー関数
 function evaluateCircuitSync(circuit: Circuit, delayMode: boolean = false) {
   // 同期版：EnhancedHybridEvaluatorを直接使用（統一設定適用）
   try {
     // 統一サービスと同じ設定を適用したエバリュエーターを使用
-    const complexity = evaluationService.analyzeComplexity(circuit);
-    const strategy = complexity.recommendedStrategy;
+    // const complexity = evaluationService.analyzeComplexity(circuit);
+    // const strategy = complexity.recommendedStrategy;
 
-    // EnhancedHybridEvaluatorを直接使用（同期処理）
-    const evaluator = new EnhancedHybridEvaluator({
-      strategy,
-      enableDebugLogging: false,
-      delayMode,
+    // CircuitEvaluatorを直接使用（同期処理）
+    const evaluator = new CircuitEvaluator();
+
+    // Circuit型をEvaluationCircuit型に変換
+    const evaluationCircuit: EvaluationCircuit = {
+      gates: circuit.gates.map(gate => ({
+        id: gate.id,
+        type: gate.type,
+        position: gate.position,
+        inputs: gate.inputs || [],
+        outputs: gate.outputs || [],
+      })),
+      wires: circuit.wires,
+    };
+
+    // 評価コンテキストを作成（INPUTゲートの状態を初期化）
+    const memory: GateMemory = {};
+    circuit.gates.forEach(gate => {
+      if (gate.type === 'INPUT') {
+        memory[gate.id] = { state: gate.output ?? false };
+      } else if (gate.type === 'CLOCK') {
+        memory[gate.id] = {
+          output: gate.output ?? false,
+          frequency: gate.metadata?.frequency || 1,
+          manualToggle: gate.output ?? false,
+        };
+      } else if (gate.type === 'D-FF') {
+        memory[gate.id] = {
+          prevClk: false,
+          q: gate.outputs?.[0] ?? gate.output ?? false,
+        };
+      } else if (gate.type === 'SR-LATCH') {
+        memory[gate.id] = {
+          q: gate.outputs?.[0] ?? gate.output ?? false,
+        };
+      }
     });
 
-    const evaluationResult = evaluator.evaluate(circuit);
+    const evaluationContext: EvaluationContext = {
+      currentTime: Date.now(),
+      memory,
+    };
+
+    // 遅延モードに応じて適切な評価メソッドを呼び出し
+    const evaluationResult = delayMode
+      ? evaluator.evaluateDelayed(evaluationCircuit, evaluationContext)
+      : evaluator.evaluateImmediate(evaluationCircuit, evaluationContext);
+
+    // 結果をCircuit型に変換
+    const resultCircuit: Circuit = {
+      gates: evaluationResult.circuit.gates.map(evalGate => {
+        const originalGate = circuit.gates.find(g => g.id === evalGate.id);
+
+        // OUTPUTゲートの場合、入力値をoutputとして設定
+        let outputValue = evalGate.outputs[0] ?? false;
+        if (evalGate.type === 'OUTPUT') {
+          outputValue = evalGate.inputs[0] ?? false;
+        }
+
+        return {
+          ...originalGate,
+          ...evalGate,
+          position: evalGate.position,
+          inputs: [...evalGate.inputs],
+          outputs: [...evalGate.outputs],
+          output: outputValue,
+          // INPUTゲートの場合、元のoutput値を保持
+          ...(originalGate?.type === 'INPUT'
+            ? { output: originalGate.output }
+            : {}),
+        };
+      }),
+      wires: evaluationResult.circuit.wires,
+    };
 
     return {
       success: true as const,
       data: {
-        circuit: evaluationResult.circuit,
+        circuit: resultCircuit,
         evaluationStats: {
-          gatesEvaluated: evaluationResult.circuit.gates.length,
-          evaluationCycles: 1, // EnhancedHybridEvaluatorではcycleCountは提供されない
+          gatesEvaluated: resultCircuit.gates.length,
+          evaluationCycles: 1,
           totalEvaluationTime: 0, // 同期版では測定なし
         },
         dependencyGraph: [],
@@ -105,12 +174,8 @@ export const createGateOperationsSlice: StateCreator<
   addGate: (type, position) => {
     const newGate = GateFactory.createGate(type, position);
 
-    // ゲートの入力値を適切な形式で初期化
-    if (newGate.inputs && newGate.inputs.length > 0) {
-      newGate.inputs = newGate.inputs.map(input =>
-        typeof input === 'boolean' ? booleanToDisplayState(input) : input
-      );
-    }
+    // 🚀 PURE CIRCUIT: boolean形式のまま保持（legacy変換は廃止）
+    // newGate.inputsはすでにPureCircuit形式（boolean[]）なので変換不要
 
     set(state => {
       const newGates = [...state.gates, newGate];
@@ -147,11 +212,8 @@ export const createGateOperationsSlice: StateCreator<
     const newGate = GateFactory.createCustomGate(definition, position);
 
     // カスタムゲートの入力値を適切な形式で初期化
-    if (newGate.inputs && newGate.inputs.length > 0) {
-      newGate.inputs = newGate.inputs.map(input =>
-        typeof input === 'boolean' ? booleanToDisplayState(input) : input
-      );
-    }
+    // 🚀 PURE CIRCUIT: boolean形式のまま保持（legacy変換は廃止）
+    // newGate.inputsはすでにPureCircuit形式（boolean[]）なので変換不要
 
     set(state => {
       const newGates = [...state.gates, newGate];

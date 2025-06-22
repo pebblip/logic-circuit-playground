@@ -2,12 +2,78 @@ import type { StateCreator } from 'zustand';
 import type { CircuitStore, ClipboardData } from '../types';
 import type { Position, Gate, Wire } from '@/types/circuit';
 import { IdGenerator } from '@shared/id';
-import {
-  evaluateCircuit,
-  defaultConfig,
-  isSuccess,
-} from '@domain/simulation/core';
+import { isSuccess } from '@domain/simulation/core';
 import type { Circuit } from '@domain/simulation/core/types';
+import { CircuitEvaluator } from '@domain/simulation/core/evaluator';
+import type {
+  EvaluationCircuit,
+  EvaluationContext,
+} from '@domain/simulation/core/types';
+
+// 統一評価サービスを取得
+// const evaluationService = getGlobalEvaluationService();
+
+// Zustand内での同期使用のためのラッパー関数
+function evaluateCircuitSync(circuit: Circuit) {
+  // 同期版：CircuitEvaluatorを直接使用（統一設定適用）
+  try {
+    // const complexity = evaluationService.analyzeComplexity(circuit);
+    const evaluator = new CircuitEvaluator();
+
+    // Circuit型をEvaluationCircuit型に変換
+    const evaluationCircuit: EvaluationCircuit = {
+      gates: circuit.gates.map(gate => ({
+        id: gate.id,
+        type: gate.type,
+        position: gate.position,
+        inputs: gate.inputs || [],
+        outputs: gate.outputs || [],
+      })),
+      wires: circuit.wires,
+    };
+
+    // 評価コンテキストを作成
+    const evaluationContext: EvaluationContext = {
+      currentTime: Date.now(),
+      memory: {},
+    };
+
+    // 即座評価を使用
+    const evaluationResult = evaluator.evaluateImmediate(
+      evaluationCircuit,
+      evaluationContext
+    );
+
+    // 結果をCircuit型に変換
+    const resultCircuit: Circuit = {
+      gates: evaluationResult.circuit.gates.map(gate => ({
+        ...gate,
+        position: gate.position,
+        inputs: [...gate.inputs],
+        outputs: [...gate.outputs],
+        output: gate.outputs[0] ?? false,
+      })),
+      wires: evaluationResult.circuit.wires,
+    };
+
+    return {
+      success: true as const,
+      data: {
+        circuit: resultCircuit,
+      },
+      warnings: [],
+    };
+  } catch (error) {
+    return {
+      success: false as const,
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        type: 'EVALUATION_FAILED',
+      },
+      warnings: [],
+    };
+  }
+}
 
 export interface ClipboardSlice {
   clipboard: ClipboardData | null;
@@ -117,7 +183,7 @@ export const createClipboardSlice: StateCreator<
 
     // 回路全体を評価
     const circuit: Circuit = { gates: allGates, wires: allWires };
-    const result = evaluateCircuit(circuit, defaultConfig);
+    const result = evaluateCircuitSync(circuit);
 
     // 新しくペーストしたゲートを選択
     const newGateIds = newGates.map(g => g.id);

@@ -40,35 +40,33 @@ export function displayStatesToBooleanArray(states: string[]): boolean[] {
 }
 
 /**
- * 安全なゲート入力の取得（型不整合を吸収）
+ * 型安全なゲート入力の取得
  * @param gate ゲート
  * @param index 入力インデックス
  * @returns boolean値
  */
 export function getGateInputValue(
-  gate: { inputs: (string | boolean)[] },
+  gate: { inputs: readonly boolean[] },
   index: number
 ): boolean {
-  const input = gate.inputs[index];
-  if (typeof input === 'boolean') {
-    return input;
-  }
-  return displayStateToBoolean(input as string);
+  return gate.inputs[index] ?? false;
 }
 
 /**
- * 安全なゲート入力の設定（型不整合を吸収）
+ * 型安全なゲート入力の設定（不変性版）
  * @param gate ゲート
  * @param index 入力インデックス
  * @param value boolean値
+ * @returns 新しい入力配列
  */
 export function setGateInputValue(
-  gate: { inputs: (string | boolean)[] },
+  gate: { inputs: readonly boolean[] },
   index: number,
   value: boolean
-): void {
-  // 現在の実装に合わせて文字列として保存
-  gate.inputs[index] = booleanToDisplayState(value);
+): readonly boolean[] {
+  const newInputs = [...gate.inputs];
+  newInputs[index] = value;
+  return newInputs;
 }
 
 /**
@@ -77,11 +75,9 @@ export function setGateInputValue(
  * @returns boolean配列
  */
 export function getGateInputsAsBoolean(gate: {
-  inputs: (string | boolean)[];
-}): boolean[] {
-  return gate.inputs.map(input =>
-    typeof input === 'boolean' ? input : displayStateToBoolean(input as string)
-  );
+  inputs: readonly boolean[];
+}): readonly boolean[] {
+  return [...gate.inputs];
 }
 
 /**

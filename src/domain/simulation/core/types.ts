@@ -190,7 +190,7 @@ export const defaultConfig: EvaluationConfig = {
 /**
  * ゲートメタデータ
  */
-export interface GateMetadata {
+export interface SimulationGateMetadata {
   readonly evaluationTime?: number;
   readonly inputValidation?: {
     readonly expectedInputCount: number;
@@ -219,7 +219,7 @@ export interface DebugInfo {
  */
 export interface GateEvaluationResult {
   readonly outputs: readonly boolean[]; // 常に配列、単一出力でも[boolean]
-  readonly metadata?: Readonly<GateMetadata>;
+  readonly metadata?: Readonly<SimulationGateMetadata>;
   readonly debugInfo?: Readonly<DebugInfo>;
 
   // 便利プロパティ（後方互換性用）
@@ -231,7 +231,7 @@ export interface GateEvaluationResult {
 // 回路評価結果
 // ===============================
 
-import type { Gate, Wire } from '../../../types/circuit';
+import type { Gate, Wire, GateMetadata } from '../../../types/circuit';
 
 /**
  * Immutableな回路定義
@@ -440,7 +440,7 @@ export function flatMapResult<T, U, E>(
  */
 export function createGateResult(
   outputs: readonly boolean[],
-  metadata?: Readonly<GateMetadata>,
+  metadata?: Readonly<SimulationGateMetadata>,
   debugInfo?: Readonly<DebugInfo>
 ): GateEvaluationResult {
   return {
@@ -496,4 +496,154 @@ export function createDependencyError(
     circularDependencies,
     context,
   };
+}
+
+// =============================
+// 評価エンジン用の型定義
+// =============================
+
+import type { GateType, Position } from '../../../types/circuit';
+
+/**
+ * 評価エンジン専用ゲート定義
+ * inputs/outputsはすべてboolean配列で統一
+ */
+export interface EvaluationGate {
+  readonly id: string;
+  readonly type: GateType;
+  readonly position: Position;
+  readonly inputs: readonly boolean[];
+  readonly outputs: readonly boolean[];
+  readonly metadata?: GateMetadata; // CLOCKゲートなどのメタデータ用
+}
+
+/**
+ * 評価エンジン専用回路定義
+ */
+export interface EvaluationCircuit {
+  readonly gates: readonly EvaluationGate[];
+  readonly wires: readonly Wire[];
+}
+
+/**
+ * 評価コンテキスト
+ * 時刻やメモリなど、評価に必要な外部情報を含む
+ */
+export interface EvaluationContext {
+  readonly currentTime: number;
+  readonly memory: GateMemory;
+}
+
+/**
+ * ゲートの永続化された状態
+ */
+export interface GateMemory {
+  [gateId: string]: {
+    readonly [key: string]: unknown;
+  };
+}
+
+/**
+ * ゲート評価関数の型
+ * 純粋関数として、同じ入力に対して常に同じ出力を返す
+ */
+export type GateEvaluator<
+  TInputs extends readonly boolean[] = readonly boolean[],
+  TOutputs extends readonly boolean[] = readonly boolean[],
+> = (
+  inputs: TInputs,
+  gateId: string,
+  context: EvaluationContext,
+  gate?: EvaluationGate
+) => EvaluationResult<TOutputs>;
+
+/**
+ * 評価結果
+ */
+export interface EvaluationResult<
+  TOutputs extends readonly boolean[] = readonly boolean[],
+> {
+  readonly outputs: TOutputs;
+  readonly memoryUpdate?: {
+    readonly [key: string]: unknown;
+  };
+}
+
+/**
+ * 各ゲートタイプの入出力定義
+ */
+export interface GateTypeDefinitions {
+  // 基本論理ゲート
+  AND: { inputs: readonly [boolean, boolean]; outputs: readonly [boolean] };
+  OR: { inputs: readonly [boolean, boolean]; outputs: readonly [boolean] };
+  NOT: { inputs: readonly [boolean]; outputs: readonly [boolean] };
+  XOR: { inputs: readonly [boolean, boolean]; outputs: readonly [boolean] };
+  NAND: { inputs: readonly [boolean, boolean]; outputs: readonly [boolean] };
+  NOR: { inputs: readonly [boolean, boolean]; outputs: readonly [boolean] };
+
+  // 入出力
+  INPUT: { inputs: readonly []; outputs: readonly [boolean] };
+  OUTPUT: { inputs: readonly [boolean]; outputs: readonly [] };
+
+  // 順序回路
+  'SR-LATCH': {
+    inputs: readonly [boolean, boolean];
+    outputs: readonly [boolean, boolean];
+  };
+  'D-FF': {
+    inputs: readonly [boolean, boolean];
+    outputs: readonly [boolean, boolean];
+  };
+
+  // 特殊ゲート
+  CLOCK: { inputs: readonly []; outputs: readonly [boolean] };
+  MUX: { inputs: readonly boolean[]; outputs: readonly [boolean] };
+  BINARY_COUNTER: {
+    inputs: readonly [boolean, boolean];
+    outputs: readonly boolean[];
+  };
+  CUSTOM: { inputs: readonly boolean[]; outputs: readonly boolean[] };
+}
+
+/**
+ * 型安全なゲート評価関数のマップ
+ */
+export type GateEvaluatorMap = {
+  [K in keyof GateTypeDefinitions]: GateEvaluator<
+    GateTypeDefinitions[K]['inputs'],
+    GateTypeDefinitions[K]['outputs']
+  >;
+};
+
+/**
+ * 評価エンジンの内部結果
+ */
+export interface EvaluatorResult {
+  readonly circuit: EvaluationCircuit;
+  readonly context: EvaluationContext;
+  readonly hasChanges: boolean;
+  readonly warnings?: readonly string[];
+}
+
+/**
+ * 循環依存エラー
+ */
+export class CircularDependencyError extends Error {
+  constructor(public readonly loops: readonly string[][]) {
+    const loopDescriptions = loops.map(
+      loop => loop.join(' → ') + ' → ' + loop[0]
+    );
+
+    super(
+      `
+循環回路が検出されました：
+${loopDescriptions.join('\\n')}
+
+この回路を正しくシミュレートするには遅延モードが必要です。
+⏱️ ボタンをクリックして遅延モードを有効にしてください。
+    `.trim()
+    );
+
+    this.name = 'CircularDependencyError';
+  }
 }

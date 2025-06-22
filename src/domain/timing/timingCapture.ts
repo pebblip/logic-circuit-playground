@@ -324,7 +324,7 @@ export class CircuitTimingCapture implements TimingEventCapture {
       // CLOCKの状態変化を記録
       const watcherKey = `${gate.id}_output_0`;
       const watcher = this.watchers.get(watcherKey);
-      const currentValue = gate.output;
+      const currentValue: SignalValue = gate.outputs[0] ?? false;
 
       if (watcher && watcher.lastValue !== currentValue) {
         const event: TimingEvent = {
@@ -454,8 +454,8 @@ export class CircuitTimingCapture implements TimingEventCapture {
   }
 
   private getGateOutputValue(gate: Gate): SignalValue {
-    if ('output' in gate) {
-      return gate.output;
+    if ('outputs' in gate && gate.outputs.length > 0) {
+      return gate.outputs[0] ?? false;
     }
     return false; // デフォルト値
   }
@@ -508,7 +508,10 @@ export class CircuitTimingCapture implements TimingEventCapture {
     return Math.round(totalSize / 1024); // KB単位
   }
 
-  private convertToSignalValue(input: string): SignalValue {
+  private convertToSignalValue(input: boolean | string): SignalValue {
+    // boolean型の場合はそのまま返す
+    if (typeof input === 'boolean') return input;
+
     // 文字列の入力値を適切なSignalValueに変換
     if (input === 'true' || input === '1') return true;
     if (input === 'false' || input === '0') return false;

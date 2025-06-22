@@ -3,7 +3,7 @@
  * 循環依存の検出とシミュレーション方式の選択
  */
 
-import type { Circuit } from '../core/types';
+import type { Circuit } from '../simulation/core/types';
 
 export class CircuitAnalyzer {
   /**

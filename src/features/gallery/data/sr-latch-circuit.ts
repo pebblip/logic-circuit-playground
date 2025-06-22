@@ -15,14 +15,14 @@ export const SR_LATCH_BASIC = {
       id: 'S',
       type: 'INPUT' as const,
       position: { x: 100, y: 100 },
-      output: false,
+      outputs: [false],
       inputs: [],
     },
     {
       id: 'R',
       type: 'INPUT' as const,
       position: { x: 100, y: 300 },
-      output: false,
+      outputs: [false],
       inputs: [],
     },
     // NORゲート - 初期状態を設定（Q=1, Q̄=0）
@@ -30,30 +30,30 @@ export const SR_LATCH_BASIC = {
       id: 'NOR1',
       type: 'NOR' as const,
       position: { x: 300, y: 150 },
-      output: true, // Q = 1
-      inputs: ['', ''],
+      outputs: [true], // Q = 1
+      inputs: [],
     },
     {
       id: 'NOR2',
       type: 'NOR' as const,
       position: { x: 300, y: 250 },
-      output: false, // Q̄ = 0
-      inputs: ['', ''],
+      outputs: [false], // Q̄ = 0
+      inputs: [],
     },
     // 出力
     {
       id: 'Q',
       type: 'OUTPUT' as const,
       position: { x: 500, y: 150 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
     {
       id: 'Q_BAR',
       type: 'OUTPUT' as const,
       position: { x: 500, y: 250 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
   ],
   wires: [

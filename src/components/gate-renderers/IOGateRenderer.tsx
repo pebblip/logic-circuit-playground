@@ -1,6 +1,5 @@
 import React from 'react';
 import type { Gate } from '@/types/circuit';
-import { getGateInputValue } from '@/domain/simulation';
 import { PinComponent } from './PinComponent';
 
 interface IOGateRendererProps {
@@ -14,7 +13,7 @@ interface IOGateRendererProps {
     isOutput: boolean
   ) => void;
   handleGateClick: (event: React.MouseEvent) => void;
-  handleInputClick: (event: React.MouseEvent) => void;
+  /* handleInputClick is intentionally omitted - not used in this component */
   handleInputDoubleClick: (event: React.MouseEvent) => void;
   onInputClick?: (gateId: string) => void;
 }
@@ -26,7 +25,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
   handleTouchStart,
   handlePinClick,
   handleGateClick,
-  handleInputClick,
+  /* _handleInputClick omitted - not used */
   handleInputDoubleClick,
   onInputClick,
 }) => {
@@ -34,7 +33,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
     return (
       <>
         <g
-          onClick={handleInputClick}
+          onClick={handleGateClick}
           onDoubleClick={
             onInputClick
               ? e => {
@@ -89,7 +88,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
           onClick={handleGateClick}
           className="u-cursor-grab"
           data-testid={`output-${gate.id}`}
-          data-active={getGateInputValue(gate, 0) ? 'true' : 'false'}
+          data-active={gate.inputs?.[0] ? 'true' : 'false'}
         >
           {/* 外側の円（枠） */}
           <circle
@@ -105,7 +104,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
             cx="0"
             cy="0"
             r="15"
-            fill={getGateInputValue(gate, 0) ? '#00ff88' : '#333'}
+            fill={gate.inputs?.[0] ? '#00ff88' : '#333'}
           />
           {/* 電球アイコン */}
           <text x="0" y="5" className="gate-text u-text-xl">
@@ -120,7 +119,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
           y={0}
           pinIndex={0}
           isOutput={false}
-          isActive={getGateInputValue(gate, 0)}
+          isActive={gate.inputs?.[0]}
           onPinClick={handlePinClick}
         />
       </>

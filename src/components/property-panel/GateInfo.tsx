@@ -126,7 +126,7 @@ export const GateInfo: React.FC<GateInfoProps> = ({ selectedGate }) => {
                 fontWeight: '600',
               }}
             >
-              出力: {booleanToDisplayState(selectedGate.output)}
+              出力: {booleanToDisplayState(selectedGate.output ?? false)}
             </span>
           </div>
         </div>

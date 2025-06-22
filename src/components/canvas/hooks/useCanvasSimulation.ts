@@ -7,7 +7,12 @@ import { useEffect, useRef } from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
 import type { Circuit } from '@domain/simulation/core/types';
 import { isSuccess } from '@domain/simulation/core';
-import { EnhancedHybridEvaluator } from '@/domain/simulation/event-driven-minimal';
+import { CircuitEvaluator } from '@/domain/simulation/core/evaluator';
+import type {
+  EvaluationCircuit,
+  EvaluationContext,
+  EvaluationGate,
+} from '@/domain/simulation/core/types';
 import { globalTimingCapture } from '@/domain/timing/timingCapture';
 import { handleError } from '@/infrastructure/errorHandler';
 import {
@@ -29,8 +34,8 @@ export const useCanvasSimulation = ({
   // 前回の回路状態を追跡（タイミングチャート用）
   const previousCircuitRef = useRef<Circuit | null>(null);
 
-  // 🔧 パフォーマンス改善: EnhancedHybridEvaluatorのインスタンスを再利用
-  const evaluatorRef = useRef<EnhancedHybridEvaluator | null>(null);
+  // 🔧 パフォーマンス改善: CircuitEvaluatorのインスタンスを再利用
+  const evaluatorRef = useRef<CircuitEvaluator | null>(null);
 
   // Zustandストアから必要な状態を取得
   const simulationConfig = useCircuitStore(state => state.simulationConfig);
@@ -86,17 +91,13 @@ export const useCanvasSimulation = ({
     return unsubscribe;
   }, []);
 
-  // 🔧 evaluatorの初期化と設定変更時の再作成
+  // 🔧 evaluatorの初期化
   useEffect(() => {
-    // 初回作成か、delayModeが変更された場合は再作成
+    // 初回作成
     if (!evaluatorRef.current) {
-      evaluatorRef.current = new EnhancedHybridEvaluator({
-        strategy: 'AUTO_SELECT',
-        enableDebugLogging: false, // デバッグログを無効化（大量のログを防ぐ）
-        delayMode: simulationConfig.delayMode,
-      });
+      evaluatorRef.current = new CircuitEvaluator();
     }
-  }, [simulationConfig.delayMode]);
+  }, []);
 
   // CLOCKゲートがある場合、定期的に回路を更新
   useEffect(() => {
@@ -163,15 +164,126 @@ export const useCanvasSimulation = ({
 
       // 🔧 パフォーマンス改善: 既存のevaluatorインスタンスを使用
       if (!evaluatorRef.current) {
-        console.error('[useCanvasSimulation] Evaluator not initialized');
+        console.error('[useCanvasSimulation] CircuitEvaluator not initialized');
         return;
       }
 
       let result;
 
       try {
-        const evaluationResult = evaluatorRef.current.evaluate(currentCircuit);
-        const updatedCircuit = evaluationResult.circuit;
+        // Circuit型をEvaluationCircuit型に変換（metadata保持）
+        const evaluationCircuit: EvaluationCircuit = {
+          gates: currentCircuit.gates.map(gate => ({
+            id: gate.id,
+            type: gate.type as EvaluationGate['type'],
+            position: gate.position,
+            inputs: gate.inputs || [],
+            outputs: gate.outputs || [],
+            metadata: gate.metadata, // 🔧 重要: CLOCKゲートのmetadataを保持
+          })),
+          wires: currentCircuit.wires,
+        };
+
+        // 評価コンテキストを作成（適切なメモリ初期化）
+        const evaluationContext: EvaluationContext = {
+          currentTime: Date.now(),
+          memory: {},
+        };
+
+        // 🔧 重要: ゲートの初期メモリを設定
+        for (const gate of evaluationCircuit.gates) {
+          switch (gate.type) {
+            case 'INPUT':
+              evaluationContext.memory[gate.id] = {
+                state: gate.outputs[0] ?? false,
+              };
+              break;
+
+            case 'CLOCK': {
+              // startTimeは一度設定されたら固定する
+              const currentTime = Date.now();
+              const startTime = gate.metadata?.startTime ?? currentTime;
+
+              evaluationContext.memory[gate.id] = {
+                output: gate.outputs[0] ?? false,
+                frequency: gate.metadata?.frequency ?? 1,
+                startTime: startTime,
+                manualToggle: false, // 時間ベース動作を有効化
+              };
+
+              // metadataにstartTimeを永続化（不変性を保ちつつ）
+              // 注意: gate自体はreadonlyなので、ここでの変更は
+              // 評価エンジン内部でのメタデータ更新処理に委ねる
+              break;
+            }
+
+            case 'D-FF':
+              evaluationContext.memory[gate.id] = {
+                prevClk: false,
+                q: gate.outputs[0] ?? false,
+              };
+              break;
+
+            case 'SR-LATCH':
+              evaluationContext.memory[gate.id] = {
+                q: gate.outputs[0] ?? false,
+              };
+              break;
+          }
+        }
+
+        // 🔧 デバッグ：CLOCK評価状況をログ出力
+        const clockGates = evaluationCircuit.gates.filter(
+          g => g.type === 'CLOCK'
+        );
+        if (clockGates.length > 0) {
+          console.warn(
+            'CLOCK Gates in useCanvasSimulation:',
+            clockGates.map(g => ({
+              id: g.id,
+              metadata: g.metadata,
+              memoryEntry: evaluationContext.memory[g.id],
+            }))
+          );
+        }
+
+        // 遅延モードに応じて適切な評価メソッドを呼び出し
+        const evaluationResult = currentState.simulationConfig.delayMode
+          ? evaluatorRef.current.evaluateDelayed(
+              evaluationCircuit,
+              evaluationContext
+            )
+          : evaluatorRef.current.evaluateImmediate(
+              evaluationCircuit,
+              evaluationContext
+            );
+
+        // 🔧 デバッグ：評価結果をログ出力
+        if (clockGates.length > 0) {
+          const updatedClockGates = evaluationResult.circuit.gates.filter(
+            g => g.type === 'CLOCK'
+          );
+          console.warn(
+            'CLOCK Evaluation Results:',
+            updatedClockGates.map(g => ({
+              id: g.id,
+              outputs: g.outputs,
+              currentTime: evaluationContext.currentTime,
+            }))
+          );
+        }
+
+        // 結果をCircuit型に変換
+        const updatedCircuit: Circuit = {
+          gates: evaluationResult.circuit.gates.map(gate => ({
+            ...gate,
+            position: gate.position,
+            inputs: [...gate.inputs],
+            outputs: [...gate.outputs],
+            output: gate.outputs[0] ?? false,
+          })),
+          wires: evaluationResult.circuit.wires,
+        };
 
         // 既存のコードとの互換性のためResult形式にラップ
         result = {
@@ -300,7 +412,7 @@ export const useCanvasSimulation = ({
                   gateId: clockGate.id,
                   pinType: 'output' as const,
                   pinIndex: 0,
-                  value: clockGate.output,
+                  value: clockGate.outputs[0] ?? false,
                   source: 'MANUAL_GENERATION',
                   metadata: {
                     source: 'MANUAL_GENERATION',

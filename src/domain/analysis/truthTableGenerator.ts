@@ -1,7 +1,11 @@
 import type { Gate, Wire } from '../../types/circuit';
 import type { Circuit } from '../simulation/core/types';
-import { getGlobalEvaluationService } from '../simulation/unified';
-import { EnhancedHybridEvaluator } from '../simulation/event-driven-minimal/EnhancedHybridEvaluator';
+// import { getGlobalEvaluationService } from '../simulation/services/CircuitEvaluationService';
+import { CircuitEvaluator } from '../simulation/core/evaluator';
+import type {
+  EvaluationCircuit,
+  EvaluationContext,
+} from '../simulation/core/types';
 
 export interface TruthTableRow {
   inputs: string;
@@ -57,22 +61,49 @@ export function generateTruthTable(
       wires: [...wires],
     };
 
-    const evaluationService = getGlobalEvaluationService();
+    // const evaluationService = getGlobalEvaluationService();
     let evaluatedGates: Gate[];
 
     try {
       // 統一サービスと同じ設定を適用した評価
-      const complexity = evaluationService.analyzeComplexity(circuit);
-      const strategy = complexity.recommendedStrategy;
+      // const complexity = evaluationService.analyzeComplexity(circuit);
+      // const strategy = complexity.recommendedStrategy;
 
-      // 同期評価（EnhancedHybridEvaluatorを直接使用）
-      const evaluator = new EnhancedHybridEvaluator({
-        strategy,
-        enableDebugLogging: false,
-      });
+      // 同期評価（CircuitEvaluatorを直接使用）
+      const evaluator = new CircuitEvaluator();
 
-      const evaluationResult = evaluator.evaluate(circuit);
-      evaluatedGates = [...evaluationResult.circuit.gates];
+      // Circuit型をEvaluationCircuit型に変換
+      const evaluationCircuit: EvaluationCircuit = {
+        gates: circuit.gates.map(gate => ({
+          id: gate.id,
+          type: gate.type,
+          position: gate.position,
+          inputs: gate.inputs || [],
+          outputs: gate.outputs || [],
+        })),
+        wires: circuit.wires,
+      };
+
+      // 評価コンテキストを作成
+      const evaluationContext: EvaluationContext = {
+        currentTime: Date.now(),
+        memory: {},
+      };
+
+      // 即座評価を使用（真理値表生成は組み合わせ回路前提）
+      const evaluationResult = evaluator.evaluateImmediate(
+        evaluationCircuit,
+        evaluationContext
+      );
+
+      // 結果をCircuit形式に変換
+      evaluatedGates = evaluationResult.circuit.gates.map(gate => ({
+        ...gate,
+        position: gate.position,
+        inputs: [...gate.inputs],
+        outputs: [...gate.outputs],
+        output: gate.outputs[0] ?? false,
+      }));
     } catch (error) {
       // エラー時は元のゲート状態を使用（フォールバック）
       console.warn(
@@ -88,7 +119,7 @@ export function generateTruthTable(
     const outputPattern = outputGates
       .map(outputGate => {
         const evaluatedGate = evaluatedGates.find(g => g.id === outputGate.id);
-        const outputValue = evaluatedGate?.inputs[0] === '1' || false;
+        const outputValue = evaluatedGate?.inputs[0] === true || false;
         outputValues.push(outputValue);
         return outputValue ? '1' : '0';
       })

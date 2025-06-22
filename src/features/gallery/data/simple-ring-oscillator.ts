@@ -24,22 +24,22 @@ export const SIMPLE_RING_OSCILLATOR = {
       id: 'NOT1',
       type: 'NOT' as const,
       position: { x: 300, y: 200 },
-      output: true, // 初期状態をtrueに設定して発振開始
-      inputs: [''],
+      outputs: [true], // 初期状態をtrueに設定して発振開始
+      inputs: [],
     },
     {
       id: 'NOT2',
       type: 'NOT' as const,
       position: { x: 500, y: 200 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
     {
       id: 'NOT3',
       type: 'NOT' as const,
       position: { x: 700, y: 200 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
 
     // 各ゲートの出力を観測
@@ -47,22 +47,22 @@ export const SIMPLE_RING_OSCILLATOR = {
       id: 'OUT_NOT1',
       type: 'OUTPUT' as const,
       position: { x: 300, y: 100 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
     {
       id: 'OUT_NOT2',
       type: 'OUTPUT' as const,
       position: { x: 500, y: 100 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
     {
       id: 'OUT_NOT3',
       type: 'OUTPUT' as const,
       position: { x: 700, y: 100 },
-      output: false,
-      inputs: [''],
+      outputs: [false],
+      inputs: [],
     },
   ],
   wires: [

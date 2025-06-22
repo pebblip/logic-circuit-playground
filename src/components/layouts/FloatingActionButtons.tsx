@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import {
-  evaluateCircuit,
-  defaultConfig,
-  isSuccess,
-} from '../../domain/simulation/core';
+import { isSuccess } from '../../domain/simulation/core';
 import type { Circuit } from '../../domain/simulation/core/types';
+import { getGlobalEvaluationService } from '../../domain/simulation/services/CircuitEvaluationService';
 import { useCircuitStore } from '../../stores/circuitStore';
 import { SaveCircuitDialog } from '../dialogs/SaveCircuitDialog';
 import { LoadCircuitDialog } from '../dialogs/LoadCircuitDialog';
@@ -16,15 +13,17 @@ export const FloatingActionButtons: React.FC = () => {
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
-  const handleSimulate = () => {
+  const handleSimulate = async () => {
     // 手動でシミュレーションを実行
     const circuit: Circuit = { gates, wires };
-    const result = evaluateCircuit(circuit, defaultConfig);
+    const evaluationService = getGlobalEvaluationService();
+    const result = await evaluationService.evaluate(circuit);
 
     if (isSuccess(result)) {
+      const data = result.data;
       useCircuitStore.setState({
-        gates: [...result.data.circuit.gates],
-        wires: [...result.data.circuit.wires],
+        gates: [...data.circuit.gates],
+        wires: [...data.circuit.wires],
       });
     } else {
       alert(`Circuit evaluation failed: ${result.error.message}`);

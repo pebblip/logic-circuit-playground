@@ -14,7 +14,7 @@ const g = (
   id,
   type,
   position: { x, y },
-  output: false,
+  outputs: [false],
   inputs: [],
   ...(metadata && { metadata }),
 });

@@ -1,23 +1,22 @@
 import React from 'react';
 import { useCircuitStore } from '../../stores/circuitStore';
-import {
-  evaluateCircuit,
-  defaultConfig,
-  isSuccess,
-} from '../../domain/simulation/core';
+import { isSuccess } from '../../domain/simulation/core';
 import type { Circuit } from '../../domain/simulation/core/types';
+import { getGlobalEvaluationService } from '../../domain/simulation/services/CircuitEvaluationService';
 
 export const MobileSimulationFAB: React.FC = () => {
   const { gates, wires } = useCircuitStore();
 
-  const handleSimulate = () => {
+  const handleSimulate = async () => {
     const circuit: Circuit = { gates, wires };
-    const result = evaluateCircuit(circuit, defaultConfig);
+    const evaluationService = getGlobalEvaluationService();
+    const result = await evaluationService.evaluate(circuit);
 
     if (isSuccess(result)) {
+      const data = result.data;
       useCircuitStore.setState({
-        gates: [...result.data.circuit.gates],
-        wires: [...result.data.circuit.wires],
+        gates: [...data.circuit.gates],
+        wires: [...data.circuit.wires],
       });
     }
   };

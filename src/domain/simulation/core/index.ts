@@ -28,7 +28,7 @@ export type {
 
   // ゲート評価結果
   GateEvaluationResult,
-  GateMetadata,
+  SimulationGateMetadata,
   DebugInfo,
 
   // 回路関連型
@@ -78,87 +78,13 @@ export {
 } from './types';
 
 // ===============================
-// バリデーション機能のエクスポート
+// 削除されたファイルへの参照（コメントアウト）
 // ===============================
 
-export {
-  // 基本バリデーション
-  validateGateId,
-  validateGateType,
-  validateGatePosition,
-  validateGateInputs,
-
-  // 構造バリデーション
-  validateGate,
-  validateWire,
-  validateCustomGateDefinition,
-
-  // 回路バリデーション
-  validateCircuit,
-  validateCircuitLight,
-} from './validation';
-
-// ===============================
-// ゲート評価機能のエクスポート
-// ===============================
-
-export {
-  // メイン評価関数
-  evaluateGateUnified,
-
-  // 後方互換性ヘルパー（非推奨）
-  evaluateGateSingle,
-  evaluateGateMulti,
-  convertToLegacyFormat,
-
-  // カスタムゲート評価器
-  defaultCustomGateEvaluator,
-} from './gateEvaluation';
-
-// ===============================
-// 回路評価機能のエクスポート
-// ===============================
-
-export {
-  // メイン回路評価関数
-  evaluateCircuit,
-
-  // 将来拡張機能（現在は未実装）
-  evaluateCircuitIncremental,
-  evaluateCircuitParallel,
-
-  // デバッグユーティリティ
-  visualizeDependencyGraph,
-  formatEvaluationStats,
-} from './circuitEvaluation';
-
-// ===============================
-// 推奨API関数（メイン関数）
-// ===============================
-
-/**
- * 新API - ゲート評価
- *
- * 推奨: この関数を使用してください
- * @see evaluateGateUnified
- */
-export { evaluateGateUnified as evaluateGate_v2 } from './gateEvaluation';
-
-/**
- * 新API - 回路評価
- *
- * 推奨: この関数を使用してください
- * @see evaluateCircuit
- */
-export { evaluateCircuit as evaluateCircuit_v2 } from './circuitEvaluation';
-
-/**
- * 新API - 回路検証
- *
- * 推奨: この関数を使用してください
- * @see validateCircuit
- */
-export { validateCircuit as validateCircuit_v2 } from './validation';
+// 以下のエクスポートは関連ファイルが削除されたため無効化されています
+// - validation機能
+// - gateEvaluation機能
+// - circuitEvaluation機能
 
 // ===============================
 // 使用例とドキュメント
