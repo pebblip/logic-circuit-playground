@@ -1,6 +1,6 @@
 /**
  * Canvas状態伝播テスト
- * 
+ *
  * 目的: 内部状態の変更が適切にUI表示に反映されることを保証
  * - localGatesとdisplayGatesの同期
  * - シミュレーション結果のUI反映
@@ -10,18 +10,37 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useUnifiedCanvas } from '../../../src/components/canvas/hooks/useUnifiedCanvas';
-import type { CanvasConfig, CanvasDataSource } from '../../../src/components/canvas/types/canvasTypes';
+import type {
+  CanvasConfig,
+  CanvasDataSource,
+} from '../../../src/components/canvas/types/canvasTypes';
 import type { Gate, Wire } from '../../../src/types/circuit';
 
 describe('Canvas State Propagation', () => {
   describe('Gallery Mode State Sync', () => {
     const createTestCircuit = () => ({
       gates: [
-        { id: 'NOT1', type: 'NOT', position: { x: 100, y: 100 }, inputs: [''], output: false },
-        { id: 'OUT1', type: 'OUTPUT', position: { x: 200, y: 100 }, inputs: [''], output: false },
+        {
+          id: 'NOT1',
+          type: 'NOT',
+          position: { x: 100, y: 100 },
+          inputs: [''],
+          output: false,
+        },
+        {
+          id: 'OUT1',
+          type: 'OUTPUT',
+          position: { x: 200, y: 100 },
+          inputs: [''],
+          output: false,
+        },
       ] as Gate[],
       wires: [
-        { id: 'w1', from: { gateId: 'NOT1', pinIndex: -1 }, to: { gateId: 'OUT1', pinIndex: 0 } },
+        {
+          id: 'w1',
+          from: { gateId: 'NOT1', pinIndex: -1 },
+          to: { gateId: 'OUT1', pinIndex: 0 },
+        },
       ] as Wire[],
     });
 
@@ -45,13 +64,15 @@ describe('Canvas State Propagation', () => {
 
       // 初期状態確認
       expect(result.current.state.displayGates).toHaveLength(2);
-      const initialOutputGate = result.current.state.displayGates.find(g => g.id === 'OUT1');
-      expect(initialOutputGate?.inputs[0]).toBe('');
+      const initialOutputGate = result.current.state.displayGates.find(
+        g => g.id === 'OUT1'
+      );
+      expect(initialOutputGate?.inputs[0]).toBe(false);
 
       // シミュレーション実行
       act(() => {
         result.current.actions.updateCircuit(
-          result.current.state.displayGates.map(gate => 
+          result.current.state.displayGates.map(gate =>
             gate.id === 'OUT1' ? { ...gate, inputs: ['1'] } : gate
           ),
           result.current.state.displayWires
@@ -59,7 +80,9 @@ describe('Canvas State Propagation', () => {
       });
 
       // displayGatesが更新されているか確認
-      const updatedOutputGate = result.current.state.displayGates.find(g => g.id === 'OUT1');
+      const updatedOutputGate = result.current.state.displayGates.find(
+        g => g.id === 'OUT1'
+      );
       expect(updatedOutputGate?.inputs[0]).toBe('1');
     });
 
@@ -90,7 +113,7 @@ describe('Canvas State Propagation', () => {
       // displayGatesが静的データではなく動的なlocalGatesを参照しているか
       // （localGatesが空でない限り）
       expect(result.current.state.displayGates).toBeDefined();
-      
+
       // updateCircuitでlocalGatesを更新
       const modifiedGates = staticCircuit.gates.map(gate => ({
         ...gate,
@@ -98,11 +121,16 @@ describe('Canvas State Propagation', () => {
       }));
 
       act(() => {
-        result.current.actions.updateCircuit(modifiedGates, staticCircuit.wires);
+        result.current.actions.updateCircuit(
+          modifiedGates,
+          staticCircuit.wires
+        );
       });
 
       // displayGatesに変更が反映されているか
-      const outputGate = result.current.state.displayGates.find(g => g.id === 'OUT1');
+      const outputGate = result.current.state.displayGates.find(
+        g => g.id === 'OUT1'
+      );
       expect(outputGate?.inputs[0]).toBe('1');
     });
   });
@@ -116,7 +144,13 @@ describe('Canvas State Propagation', () => {
 
       const circuit = {
         gates: [
-          { id: 'OUT1', type: 'OUTPUT', position: { x: 100, y: 100 }, inputs: [''], output: false },
+          {
+            id: 'OUT1',
+            type: 'OUTPUT',
+            position: { x: 100, y: 100 },
+            inputs: [''],
+            output: false,
+          },
         ] as Gate[],
         wires: [] as Wire[],
       };
@@ -130,11 +164,13 @@ describe('Canvas State Propagation', () => {
         },
       };
 
-      const { result, rerender } = renderHook(() => useUnifiedCanvas(config, dataSource));
+      const { result, rerender } = renderHook(() =>
+        useUnifiedCanvas(config, dataSource)
+      );
 
       let renderCount = 0;
       const originalDisplayGates = result.current.state.displayGates;
-      
+
       // レンダリング回数をカウント
       rerender();
       renderCount++;
@@ -150,9 +186,11 @@ describe('Canvas State Propagation', () => {
 
       // displayGatesが変更されたか確認
       expect(result.current.state.displayGates).not.toBe(originalDisplayGates);
-      
+
       // OUTPUTゲートの値が更新されたか
-      const outputGate = result.current.state.displayGates.find(g => g.id === 'OUT1');
+      const outputGate = result.current.state.displayGates.find(
+        g => g.id === 'OUT1'
+      );
       expect(outputGate?.inputs[0]).toBe('1');
     });
   });

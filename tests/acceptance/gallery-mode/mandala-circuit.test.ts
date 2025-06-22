@@ -1,6 +1,6 @@
 /**
  * マンダラ回路動作検証テスト
- * 
+ *
  * 期待動作: 3つの異なる周期のリングオシレータが独立して動作
  * - 3段リング: 高速振動
  * - 5段リング: 中速振動
@@ -10,15 +10,15 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { MANDALA_CIRCUIT } from '../../../src/features/gallery/data/mandala-circuit';
-import { EnhancedHybridEvaluator } from '../../../src/domain/simulation/event-driven-minimal';
+import { CircuitEvaluationService } from '@/domain/simulation/services/CircuitEvaluationService';
 import type { Circuit } from '../../../src/domain/simulation/core/types';
 
 describe('Mandala Circuit Gallery Circuit', () => {
-  let evaluator: EnhancedHybridEvaluator;
+  let evaluator: CircuitEvaluationService;
   let circuit: Circuit;
 
   beforeEach(() => {
-    evaluator = new EnhancedHybridEvaluator({
+    evaluator = new CircuitEvaluationService({
       strategy: 'EVENT_DRIVEN_ONLY',
       enableDebugLogging: false,
       delayMode: true,
@@ -43,10 +43,10 @@ describe('Mandala Circuit Gallery Circuit', () => {
 
     it('should have all OUTPUT gates connected', () => {
       const outputGates = circuit.gates.filter(g => g.type === 'OUTPUT');
-      
+
       outputGates.forEach(outputGate => {
-        const inputWire = circuit.wires.find(w => 
-          w.to.gateId === outputGate.id && w.to.pinIndex === 0
+        const inputWire = circuit.wires.find(
+          w => w.to.gateId === outputGate.id && w.to.pinIndex === 0
         );
         expect(inputWire).toBeDefined();
       });
@@ -65,23 +65,23 @@ describe('Mandala Circuit Gallery Circuit', () => {
       };
 
       const stateHistory: boolean[][] = [];
-      
+
       // 50ステップ実行して状態変化を記録
       for (let step = 0; step < 50; step++) {
-        const result = evaluator.evaluate(circuit);
+        const result = evaluator.evaluateCircuit(circuit);
         circuit = result.circuit;
         stateHistory.push(getOutputStates());
       }
 
       // 各リングが独立して振動しているか確認
       // Ring 1 (3段): OUT1-OUT3
-      // Ring 2 (5段): OUT4-OUT8  
+      // Ring 2 (5段): OUT4-OUT8
       // Ring 3 (7段): OUT9-OUT15
       // Center: OUT16-OUT17
 
       // 少なくとも1つのリングで周期的な変化があるか
       let hasPeriodicChange = false;
-      
+
       for (let i = 0; i < stateHistory.length - 10; i++) {
         for (let period = 3; period <= 14; period++) {
           if (i + period < stateHistory.length) {
@@ -115,15 +115,24 @@ describe('Mandala Circuit Gallery Circuit', () => {
 
       // 100ステップ実行
       for (let step = 0; step < 100; step++) {
-        const result = evaluator.evaluate(circuit);
+        const result = evaluator.evaluateCircuit(circuit);
         circuit = result.circuit;
 
         const outputs = circuit.gates.filter(g => g.type === 'OUTPUT');
-        
+
         // 各リングの状態を取得（仮定: OUTPUTゲートのIDで分類）
-        const ring1State = outputs.slice(0, 3).map(g => g.inputs[0]).join('');
-        const ring2State = outputs.slice(3, 8).map(g => g.inputs[0]).join('');
-        const ring3State = outputs.slice(8, 15).map(g => g.inputs[0]).join('');
+        const ring1State = outputs
+          .slice(0, 3)
+          .map(g => g.inputs[0])
+          .join('');
+        const ring2State = outputs
+          .slice(3, 8)
+          .map(g => g.inputs[0])
+          .join('');
+        const ring3State = outputs
+          .slice(8, 15)
+          .map(g => g.inputs[0])
+          .join('');
 
         if (step > 0) {
           if (ring1State !== prevStates.ring1) ringChangeCounts.ring1++;
@@ -131,13 +140,17 @@ describe('Mandala Circuit Gallery Circuit', () => {
           if (ring3State !== prevStates.ring3) ringChangeCounts.ring3++;
         }
 
-        prevStates = { ring1: ring1State, ring2: ring2State, ring3: ring3State };
+        prevStates = {
+          ring1: ring1State,
+          ring2: ring2State,
+          ring3: ring3State,
+        };
       }
 
       // 異なる周波数で振動しているか（変化回数が異なるか）
       const counts = Object.values(ringChangeCounts);
       const uniqueCounts = new Set(counts);
-      
+
       // 少なくとも2つの異なる周波数があるか
       expect(uniqueCounts.size).toBeGreaterThanOrEqual(2);
     });
@@ -147,12 +160,12 @@ describe('Mandala Circuit Gallery Circuit', () => {
       const initialOutputs = circuit.gates
         .filter(g => g.type === 'OUTPUT')
         .map(g => g.inputs[0] === '1' || g.inputs[0] === true);
-      
+
       const allOff = initialOutputs.every(v => !v);
-      
+
       // 複数ステップ実行
       for (let i = 0; i < 30; i++) {
-        const result = evaluator.evaluate(circuit);
+        const result = evaluator.evaluateCircuit(circuit);
         circuit = result.circuit;
       }
 
@@ -160,9 +173,9 @@ describe('Mandala Circuit Gallery Circuit', () => {
       const finalOutputs = circuit.gates
         .filter(g => g.type === 'OUTPUT')
         .map(g => g.inputs[0] === '1' || g.inputs[0] === true);
-      
+
       const someOn = finalOutputs.some(v => v);
-      
+
       expect(someOn).toBe(true);
     });
   });
@@ -182,14 +195,14 @@ describe('Mandala Circuit Gallery Circuit', () => {
     it('should handle high OUTPUT count efficiently', () => {
       // 17個のOUTPUTゲート同時更新のパフォーマンステスト
       const startTime = Date.now();
-      
+
       // 10回評価
       for (let i = 0; i < 10; i++) {
-        evaluator.evaluate(circuit);
+        evaluator.evaluateCircuit(circuit);
       }
-      
+
       const elapsed = Date.now() - startTime;
-      
+
       // 10回の評価が100ms以内で完了すること
       expect(elapsed).toBeLessThan(100);
     });

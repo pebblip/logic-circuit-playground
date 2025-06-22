@@ -1,21 +1,21 @@
 /**
  * フィボナッチカウンター動作検証テスト
- * 
+ *
  * 期待動作: CLOCKに同期して0→1→1→2→3→5→8→13→21...の数列を生成
  * 12個のOUTPUTゲートが2進数表現で値を表示
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { FIBONACCI_COUNTER } from '../../../src/features/gallery/data/fibonacci-counter';
-import { EnhancedHybridEvaluator } from '../../../src/domain/simulation/event-driven-minimal';
+import { CircuitEvaluationService } from '@/domain/simulation/services/CircuitEvaluationService';
 import type { Circuit } from '../../../src/domain/simulation/core/types';
 
 describe('Fibonacci Counter Gallery Circuit', () => {
-  let evaluator: EnhancedHybridEvaluator;
+  let evaluator: CircuitEvaluationService;
   let circuit: Circuit;
 
   beforeEach(() => {
-    evaluator = new EnhancedHybridEvaluator({
+    evaluator = new CircuitEvaluationService({
       strategy: 'LEGACY_ONLY',
       enableDebugLogging: false,
       delayMode: true,
@@ -52,49 +52,55 @@ describe('Fibonacci Counter Gallery Circuit', () => {
       const clock = circuit.gates.find(g => g.type === 'CLOCK');
       const baseTime = Date.now();
       if (clock) {
-        clock.metadata = { ...clock.metadata, isRunning: true, startTime: baseTime };
+        clock.metadata = {
+          ...clock.metadata,
+          isRunning: true,
+          startTime: baseTime,
+        };
       }
 
       const values: number[] = [];
-      
+
       // 20サイクル実行
       for (let cycle = 0; cycle < 20; cycle++) {
         // 時間を進める（600ms周期なので700ms進める）
-        const mockTime = baseTime + (cycle * 700);
-        
+        const mockTime = baseTime + cycle * 700;
+
         // Date.nowをモック
         const originalDateNow = Date.now;
         Date.now = () => mockTime;
-        
+
         // 評価を実行
         for (let i = 0; i < 10; i++) {
-          const result = evaluator.evaluate(circuit);
+          const result = evaluator.evaluateCircuit(circuit);
           circuit = result.circuit;
         }
-        
+
         // Date.nowを元に戻す
         Date.now = originalDateNow;
-        
+
         // B レジスタの値を取得
         const regB0 = circuit.gates.find(g => g.id === 'reg_b_0');
         const regB1 = circuit.gates.find(g => g.id === 'reg_b_1');
         let value = 0;
         if (regB0?.output) value += 1;
         if (regB1?.output) value += 2;
-        
+
         values.push(value);
-        
+
         if (cycle < 5) {
           const clock = circuit.gates.find(g => g.type === 'CLOCK');
-          console.log(`Cycle ${cycle}: B value = ${value}, Clock output = ${clock?.output}`);
+          console.log(
+            `Cycle ${cycle}: B value = ${value}, Clock output = ${clock?.output}`
+          );
         }
       }
-      
+
       // 少なくとも2つの異なる値が存在することを確認
       const uniqueValues = new Set(values);
       expect(uniqueValues.size).toBeGreaterThan(1);
     });
-    
+
     it.skip('should generate correct fibonacci sequence', () => {
       // TODO: フィボナッチ回路の初期化問題を修正後に有効化
       const expectedSequence = [1, 1, 2, 3, 1, 0, 1, 1, 2, 3, 1, 0];
@@ -120,7 +126,7 @@ describe('Fibonacci Counter Gallery Circuit', () => {
           gate.output = gate.metadata.qOutput;
         }
       });
-      
+
       // 初期値を記録（最初のクロックエッジ前）
       const regB0_initial = circuit.gates.find(g => g.id === 'reg_b_0');
       const regB1_initial = circuit.gates.find(g => g.id === 'reg_b_1');
@@ -128,19 +134,26 @@ describe('Fibonacci Counter Gallery Circuit', () => {
       if (regB0_initial?.output) initialValue += 1;
       if (regB1_initial?.output) initialValue += 2;
       actualSequence.push(initialValue);
-      
-      console.log('Initial B register outputs:', { b0: regB0_initial?.output, b1: regB1_initial?.output });
+
+      console.log('Initial B register outputs:', {
+        b0: regB0_initial?.output,
+        b1: regB1_initial?.output,
+      });
 
       // CLOCKを開始（600ms周期なのでstartTimeを過去にして最初のエッジを早める）
       if (clock) {
-        clock.metadata = { ...clock.metadata, isRunning: true, startTime: Date.now() - 300 };
+        clock.metadata = {
+          ...clock.metadata,
+          isRunning: true,
+          startTime: Date.now() - 300,
+        };
       }
 
       // 11ステップ実行（初期値を含めて12個の値）
       for (let step = 0; step < 11; step++) {
         // クロックサイクルをシミュレート
         for (let i = 0; i < 10; i++) {
-          const result = evaluator.evaluate(circuit);
+          const result = evaluator.evaluateCircuit(circuit);
           circuit = result.circuit;
         }
 
@@ -161,7 +174,11 @@ describe('Fibonacci Counter Gallery Circuit', () => {
         if (regB1?.output) value += 2;
 
         if (step < 4) {
-          console.log(`Step ${step + 1}: B registers =`, { b0: regB0?.output, b1: regB1?.output }, `Value = ${value}`);
+          console.log(
+            `Step ${step + 1}: B registers =`,
+            { b0: regB0?.output, b1: regB1?.output },
+            `Value = ${value}`
+          );
         }
 
         actualSequence.push(value);
@@ -176,11 +193,11 @@ describe('Fibonacci Counter Gallery Circuit', () => {
     it('should have all OUTPUT gates properly connected', () => {
       // 初期状態で全OUTPUTゲートが接続されているか
       const outputGates = circuit.gates.filter(g => g.type === 'OUTPUT');
-      
+
       outputGates.forEach(outputGate => {
         // 各OUTPUTゲートに入力ワイヤーが存在するか
-        const inputWire = circuit.wires.find(w => 
-          w.to.gateId === outputGate.id && w.to.pinIndex === 0
+        const inputWire = circuit.wires.find(
+          w => w.to.gateId === outputGate.id && w.to.pinIndex === 0
         );
         expect(inputWire).toBeDefined();
       });
@@ -190,16 +207,20 @@ describe('Fibonacci Counter Gallery Circuit', () => {
       // TODO: OUTPUT ゲートへの信号伝播問題を修正後に有効化
       const clock = circuit.gates.find(g => g.type === 'CLOCK');
       if (clock) {
-        clock.metadata = { ...clock.metadata, isRunning: true, startTime: Date.now() };
+        clock.metadata = {
+          ...clock.metadata,
+          isRunning: true,
+          startTime: Date.now(),
+        };
       }
 
       // 複数サイクル実行
       const outputStates: string[][] = [];
-      
+
       for (let cycle = 0; cycle < 5; cycle++) {
         // CLOCKサイクル実行
         for (let i = 0; i < 20; i++) {
-          const result = evaluator.evaluate(circuit);
+          const result = evaluator.evaluateCircuit(circuit);
           circuit = result.circuit;
         }
 
@@ -208,14 +229,17 @@ describe('Fibonacci Counter Gallery Circuit', () => {
           .filter(g => g.type === 'OUTPUT')
           .sort((a, b) => a.id.localeCompare(b.id))
           .map(g => g.inputs[0] || '0');
-        
+
         outputStates.push(outputs);
       }
 
       // 各サイクルで異なる状態になっているか
       let hasChange = false;
       for (let i = 1; i < outputStates.length; i++) {
-        if (JSON.stringify(outputStates[i]) !== JSON.stringify(outputStates[i-1])) {
+        if (
+          JSON.stringify(outputStates[i]) !==
+          JSON.stringify(outputStates[i - 1])
+        ) {
           hasChange = true;
           break;
         }
@@ -236,7 +260,7 @@ describe('Fibonacci Counter Gallery Circuit', () => {
       circuit.gates.forEach(gate => {
         expect(gate.inputs).toBeDefined();
         expect(Array.isArray(gate.inputs)).toBe(true);
-        
+
         if (gate.type === 'D-FF') {
           expect(gate.metadata).toBeDefined();
         }
