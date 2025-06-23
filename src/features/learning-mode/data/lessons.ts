@@ -1,4 +1,4 @@
-// 🎓 論理回路マスターへの道 - 体系的学習カリキュラム
+// 論理回路マスターへの道 - 体系的学習カリキュラム
 // 初学者から実用レベルまで、完全習得
 
 import { digitalBasicsStructuredLesson } from './structured-lessons/digital-basics-lesson';
@@ -158,10 +158,10 @@ const lessonsWithCategory = cleanLessons.map(lesson => {
 // エクスポートするレッスン配列
 export const lessons: Lesson[] = lessonsWithCategory;
 
-// 📚 カテゴリー別整理（重複なし）
+// カテゴリー別整理（重複なし）
 export const lessonCategories = {
   basics: {
-    title: '🌟 Phase 1: デジタルの世界',
+    title: 'Phase 1: デジタルの世界',
     description: '0と1の魔法を理解しよう',
     color: '#00ff88',
     lessons: [
@@ -174,7 +174,7 @@ export const lessonCategories = {
     ],
   },
   combinational: {
-    title: '🔧 Phase 2: 組み合わせ回路',
+    title: 'Phase 2: 組み合わせ回路',
     description: '実用的な計算・判断回路を作ろう',
     color: '#ff6699',
     lessons: [
@@ -190,7 +190,7 @@ export const lessonCategories = {
     ],
   },
   sequential: {
-    title: '⏰ Phase 3: 記憶と時系列',
+    title: 'Phase 3: 記憶と時系列',
     description: '時間と記憶を扱う回路を学ぼう',
     color: '#ffd700',
     lessons: [
@@ -204,14 +204,14 @@ export const lessonCategories = {
     ],
   },
   systems: {
-    title: '🚀 Phase 4: 実用システム',
+    title: 'Phase 4: 実用システム',
     description: '本格的なシステムを構築しよう',
     color: '#ff7b00',
     lessons: ['traffic-light', 'digital-clock', 'diagram-catalog'],
   },
 };
 
-// 🏆 学習統計
+// 学習統計
 export const getLearningStats = (completedLessons: Set<string>) => {
   const totalLessons = lessons.length;
   const completed = completedLessons.size;

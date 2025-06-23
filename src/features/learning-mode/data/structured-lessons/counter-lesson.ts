@@ -19,7 +19,7 @@ export const counterStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '🎯 今回の目標',
+          text: '今回の目標',
         },
         {
           type: 'table',
@@ -44,16 +44,16 @@ export const counterStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🔧 必要な部品',
+          text: '必要な部品',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '⏰ CLOCK：カウントのタイミング',
-            '🔢 2つのD-FF：状態記憶（Q1, Q0）',
-            '🎛️ NOT・OR：次状態の計算',
-            '💡 2つのOUTPUT：カウント値表示',
+            'CLOCK：カウントのタイミング',
+            '2つのD-FF：状態記憶（Q1, Q0）',
+            'NOT・OR：次状態の計算',
+            '2つのOUTPUT：カウント値表示',
           ],
         },
         {
@@ -68,7 +68,7 @@ export const counterStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🤔 次状態の計算',
+          text: '次状態の計算',
         },
         {
           type: 'text',
@@ -100,7 +100,7 @@ export const counterStructuredLesson: StructuredLesson = {
         },
         {
           type: 'heading',
-          text: '🔧 必要な接続',
+          text: '必要な接続',
         },
         {
           type: 'list',
@@ -244,7 +244,7 @@ export const counterStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🔢 カウントテスト',
+          text: 'カウントテスト',
         },
         {
           type: 'text',
@@ -286,7 +286,7 @@ export const counterStructuredLesson: StructuredLesson = {
       content: [
         {
           type: 'heading',
-          text: '🌍 身近なカウンタシステム',
+          text: '身近なカウンタシステム',
         },
         {
           type: 'text',
@@ -296,22 +296,22 @@ export const counterStructuredLesson: StructuredLesson = {
           type: 'list',
           ordered: false,
           items: [
-            '⏰ デジタル時計の秒・分・時間表示',
-            '🎮 ゲームのスコアやタイマー',
-            '💻 CPUの周波数分割器',
-            '🚗 車のスピードメーター',
-            '🏠 電気メーターの使用量計測',
+            'デジタル時計の秒・分・時間表示',
+            'ゲームのスコアやタイマー',
+            'CPUの周波数分割器',
+            '車のスピードメーター',
+            '電気メーターの使用量計測',
           ],
         },
       ],
     },
     {
       id: 'achievement',
-      instruction: '🎉 カウンタマスター！',
+      instruction: 'カウンタマスター！',
       content: [
         {
           type: 'heading',
-          text: '🏆 おめでとうございます！',
+          text: 'おめでとうございます！',
         },
         {
           type: 'text',
@@ -321,11 +321,11 @@ export const counterStructuredLesson: StructuredLesson = {
           type: 'list',
           ordered: false,
           items: [
-            '✅ 同期式バイナリカウンタの設計',
-            '✅ 組み合わせ回路による次状態計算',
-            '✅ クロック同期制御システム',
-            '✅ デジタル計数回路の構築',
-            '✅ 実用カウンタシステムの理解',
+            '同期式バイナリカウンタの設計',
+            '組み合わせ回路による次状態計算',
+            'クロック同期制御システム',
+            'デジタル計数回路の構築',
+            '実用カウンタシステムの理解',
           ],
         },
         {

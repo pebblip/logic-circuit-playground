@@ -205,16 +205,18 @@ export const Canvas: React.FC<CanvasProps> = ({
         // ドラッグ機能を一時的に無効化
         // TODO: canvasInteraction.handleMouseDown(event);
 
-        // スペース+左クリックでパン（優先的に処理）
-        if (event.button === 0 && isSpacePressed) {
-          panHandlers.handlePanStart(event.clientX, event.clientY);
-          return;
-        }
-
+        // パン操作の判定（優先的に処理）
         if (canUsePan) {
-          const rect = svgRef.current?.getBoundingClientRect();
-          if (rect) {
+          // スペース+左クリック、中クリック、またはCtrl+左クリックでパン
+          const shouldPan =
+            (event.button === 0 && isSpacePressed) || // スペース+左クリック
+            event.button === 1 || // 中クリック
+            (event.button === 0 && event.ctrlKey); // Ctrl+左クリック
+
+          if (shouldPan) {
+            event.preventDefault(); // デフォルトの動作を防ぐ
             panHandlers.handlePanStart(event.clientX, event.clientY);
+            return;
           }
         }
 
@@ -253,6 +255,12 @@ export const Canvas: React.FC<CanvasProps> = ({
       try {
         // ドラッグ機能を一時的に無効化
         // TODO: canvasInteraction.handleMouseMove(event);
+
+        // パン操作の処理
+        if (canUsePan && panHandlers?.isPanning) {
+          panHandlers.handlePan(event.clientX, event.clientY);
+          return; // パン中は他の処理をスキップ
+        }
 
         // マウス位置を更新（ワイヤー描画用）
         if (svgRef.current) {
