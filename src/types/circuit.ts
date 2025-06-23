@@ -6,6 +6,7 @@ export type GateType =
   | 'XOR'
   | 'NAND'
   | 'NOR'
+  | 'XNOR'
   | 'INPUT'
   | 'OUTPUT'
   | 'CLOCK'

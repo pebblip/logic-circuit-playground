@@ -1,14 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { CircuitEvaluationService } from '@/domain/simulation/services/CircuitEvaluationService';
-import { EnhancedHybridEvaluator } from '@/domain/simulation/event-driven-minimal/EnhancedHybridEvaluator';
 import type { Circuit } from '@/domain/simulation/core/types';
 import type { Gate, Wire } from '@/types/circuit';
 
 describe.skip('リングオシレーターの初期状態による動作の違い', () => {
   // DISABLED: 高度なオシレーター動作のテスト - 基本評価エンジンが動作していれば後で対応
   it('すべて0から始めた場合でも振動する', () => {
-    const evaluator = new EnhancedHybridEvaluator({
-      strategy: 'EVENT_DRIVEN_ONLY',
+    const evaluator = new CircuitEvaluationService({
       enableDebugLogging: false,
     });
 
@@ -93,8 +91,7 @@ describe.skip('リングオシレーターの初期状態による動作の違�
   });
 
   it('1つを1にした場合 - 振動する', () => {
-    const evaluator = new EnhancedHybridEvaluator({
-      strategy: 'EVENT_DRIVEN_ONLY',
+    const evaluator = new CircuitEvaluationService({
       enableDebugLogging: false,
     });
 
@@ -179,8 +176,7 @@ describe.skip('リングオシレーターの初期状態による動作の違�
   });
 
   it('偶数個のNOTゲートでは振動しない', () => {
-    const evaluator = new EnhancedHybridEvaluator({
-      strategy: 'EVENT_DRIVEN_ONLY',
+    const evaluator = new CircuitEvaluationService({
       enableDebugLogging: false,
     });
 

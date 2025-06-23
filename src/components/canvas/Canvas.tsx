@@ -1,10 +1,10 @@
 /**
- * 統一キャンバスコンポーネント
+ * キャンバスコンポーネント
  *
- * CLAUDE.md準拠: 段階的移行によるリスク軽減
- * - Canvas.tsx と GalleryCanvas.tsx を統合
+ * CLAUDE.md準拠: 高品質な統合実装
+ * - エディターモードとギャラリーモードの統合管理
  * - モード別機能の動的切り替え
- * - 既存コンポーネントとの完全互換性
+ * - 型安全で拡張可能な設計
  */
 
 import React, { useMemo } from 'react';
@@ -15,7 +15,7 @@ import { CanvasControls } from './components/CanvasControls';
 import { CanvasPreviewHeader } from './components/CanvasPreviewHeader';
 import { SelectionRect } from './components/SelectionRect';
 import { WirePreview } from './components/WirePreview';
-import { useUnifiedCanvas } from './hooks/useUnifiedCanvas';
+import { useCanvas } from './hooks/useCanvas';
 import { useCanvasPan } from '../../hooks/useCanvasPan';
 import { useCanvasZoom } from '../../hooks/useCanvasZoom';
 import { useCanvasSelection } from '../../hooks/useCanvasSelection';
@@ -24,13 +24,13 @@ import { useCanvasSimulation } from './hooks/useCanvasSimulation';
 // import { useCanvasInteraction } from './hooks/useCanvasInteraction';
 import { useCircuitStore } from '@/stores/circuitStore';
 import { handleError } from '@/infrastructure/errorHandler';
-import type { UnifiedCanvasProps } from './types/canvasTypes';
-import './UnifiedCanvas.css';
+import type { CanvasProps } from './types/canvasTypes';
+import './Canvas.css';
 
 /**
- * 統一キャンバスコンポーネント
+ * キャンバスコンポーネント
  */
-export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
+export const Canvas: React.FC<CanvasProps> = ({
   config,
   dataSource,
   handlers,
@@ -38,14 +38,14 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
   className,
   style,
 }) => {
-  // 統一キャンバス管理
-  const { svgRef, state, transform, actions, features } = useUnifiedCanvas(
+  // キャンバス管理
+  const { svgRef, state, transform, actions, features } = useCanvas(
     config,
     dataSource,
     handlers
   );
 
-  // ViewBox管理：ギャラリーモードはuseUnifiedCanvasのstate.viewBoxを使用
+  // ViewBox管理：ギャラリーモードはuseCanvasのstate.viewBoxを使用
   const viewBox =
     config.mode === 'gallery'
       ? state.viewBox
@@ -187,7 +187,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
       } catch (error) {
         handleError(
           error instanceof Error ? error : new Error('Canvas click failed'),
-          'UnifiedCanvas',
+          'Canvas',
           {
             userAction: 'キャンバスクリック',
             severity: 'low',
@@ -229,7 +229,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
       } catch (error) {
         handleError(
           error instanceof Error ? error : new Error('Mouse down failed'),
-          'UnifiedCanvas',
+          'Canvas',
           {
             userAction: 'マウスダウン',
             severity: 'low',
@@ -286,7 +286,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
       } catch (error) {
         handleError(
           error instanceof Error ? error : new Error('Mouse move failed'),
-          'UnifiedCanvas',
+          'Canvas',
           {
             userAction: 'マウス移動',
             severity: 'low',
@@ -347,7 +347,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
       } catch (error) {
         handleError(
           error instanceof Error ? error : new Error('Wheel event failed'),
-          'UnifiedCanvas',
+          'Canvas',
           {
             userAction: 'ホイール操作',
             severity: 'low',
@@ -370,7 +370,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
       } catch (error) {
         handleError(
           error instanceof Error ? error : new Error('Touch start failed'),
-          'UnifiedCanvas',
+          'Canvas',
           {
             userAction: 'タッチ開始',
             severity: 'low',
@@ -392,7 +392,7 @@ export const UnifiedCanvas: React.FC<UnifiedCanvasProps> = ({
       } catch (error) {
         handleError(
           error instanceof Error ? error : new Error('Touch move failed'),
-          'UnifiedCanvas',
+          'Canvas',
           {
             userAction: 'タッチ移動',
             severity: 'low',

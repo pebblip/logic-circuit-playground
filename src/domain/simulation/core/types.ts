@@ -580,10 +580,11 @@ export interface GateTypeDefinitions {
   XOR: { inputs: readonly [boolean, boolean]; outputs: readonly [boolean] };
   NAND: { inputs: readonly [boolean, boolean]; outputs: readonly [boolean] };
   NOR: { inputs: readonly [boolean, boolean]; outputs: readonly [boolean] };
+  XNOR: { inputs: readonly [boolean, boolean]; outputs: readonly [boolean] };
 
   // 入出力
   INPUT: { inputs: readonly []; outputs: readonly [boolean] };
-  OUTPUT: { inputs: readonly [boolean]; outputs: readonly [] };
+  OUTPUT: { inputs: readonly [boolean]; outputs: readonly [boolean] };
 
   // 順序回路
   'SR-LATCH': {

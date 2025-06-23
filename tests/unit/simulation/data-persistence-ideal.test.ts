@@ -13,7 +13,6 @@
  */
 
 import { describe, test, expect, beforeEach } from 'vitest';
-import { MockCircuitStorage } from '../adapters/MockCircuitStorage';
 import type {
   CircuitStorage,
   CircuitContent,
@@ -26,7 +25,7 @@ describe.skip('回路データの永続性保護', () => {
   let storage: CircuitStorage;
 
   beforeEach(() => {
-    storage = new MockCircuitStorage();
+    // storage = new MockCircuitStorage();
   });
 
   describe('回路の保存と復元', () => {

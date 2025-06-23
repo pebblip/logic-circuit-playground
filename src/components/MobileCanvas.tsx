@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-import { UnifiedCanvas } from './canvas/UnifiedCanvas';
+import { Canvas } from './canvas/Canvas';
 import { CANVAS_MODE_PRESETS } from './canvas/types/canvasTypes';
 import { useMobileGateMovement } from '../hooks/useMobileGateMovement';
 import { useMobileTapWireConnection } from '../hooks/useMobileTapWireConnection';
@@ -216,7 +216,7 @@ export const MobileCanvas: React.FC<MobileCanvasProps> = ({
 
   return (
     <div ref={canvasRef} className="mobile-canvas-wrapper">
-      <UnifiedCanvas
+      <Canvas
         config={CANVAS_MODE_PRESETS.editor}
         dataSource={{ store: true }}
         highlightedGateId={highlightedGateId}

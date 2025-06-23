@@ -12,6 +12,8 @@ import { SIMPLE_LFSR } from './simple-lfsr';
 import { FIBONACCI_COUNTER } from './fibonacci-counter';
 import { JOHNSON_COUNTER } from './johnson-counter';
 import { SELF_OSCILLATING_MEMORY_FINAL } from './self-oscillating-memory-final';
+import { SELF_OSCILLATING_MEMORY_IMPROVED } from './self-oscillating-memory-improved';
+import { SELF_OSCILLATING_MEMORY_SIMPLE } from './self-oscillating-memory-simple';
 import { MANDALA_CIRCUIT } from './mandala-circuit';
 
 export interface SimulationConfig {
@@ -426,5 +428,7 @@ export const FEATURED_CIRCUITS: CircuitMetadata[] = [
   FIBONACCI_COUNTER,
   JOHNSON_COUNTER,
   SELF_OSCILLATING_MEMORY_FINAL,
+  SELF_OSCILLATING_MEMORY_IMPROVED,
+  SELF_OSCILLATING_MEMORY_SIMPLE,
   MANDALA_CIRCUIT,
 ];

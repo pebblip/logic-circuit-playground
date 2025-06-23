@@ -7,7 +7,6 @@ import { useCircuitStore } from '@/stores/circuitStore';
 import { GateFactory } from '@/models/gates/GateFactory';
 import { globalTimingCapture } from '@/domain/timing/timingCapture';
 import { CircuitEvaluationService } from '@/domain/simulation/services/CircuitEvaluationService';
-import { EnhancedHybridEvaluator } from '@/domain/simulation/event-driven-minimal/EnhancedHybridEvaluator';
 import type { Circuit } from '@/types/circuit';
 
 describe.skip('タイミングチャート完全統合テスト', () => {

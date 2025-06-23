@@ -33,7 +33,7 @@ export const GalleryListPanel: React.FC<GalleryListPanelProps> = ({
         'chaos-generator',
         'fibonacci-counter',
         'johnson-counter',
-        'self-oscillating-memory-final',
+        'self-oscillating-memory-simple',
         'mandala-circuit',
       ].includes(circuit.id)
     ),

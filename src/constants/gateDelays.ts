@@ -21,6 +21,7 @@ export const DEFAULT_GATE_DELAYS: Record<GateType, number> = {
   AND: 2.0, // NAND + NOT
   OR: 2.0, // NOR + NOT
   XOR: 3.0, // 最も複雑
+  XNOR: 3.0, // XORと同等の複雑さ
 
   // 入出力（遅延なし）
   INPUT: 0,

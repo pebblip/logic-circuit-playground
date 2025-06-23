@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { CircuitMetadata } from '../data/gallery';
 import { FEATURED_CIRCUITS } from '../data/gallery';
 import { GalleryListPanel } from './GalleryListPanel';
-import { UnifiedCanvas } from '@/components/canvas/UnifiedCanvas';
+import { Canvas } from '@/components/canvas/Canvas';
 import { CANVAS_MODE_PRESETS } from '@/components/canvas/types/canvasTypes';
 import { GalleryDetailPanel } from './GalleryDetailPanel';
 import { DebugLogDisplay } from '@/components/debug/DebugLogDisplay';
@@ -31,7 +31,7 @@ export const GalleryModeLayout: React.FC = () => {
 
       {/* 中央: 読み取り専用キャンバス */}
       <main className="gallery-main-canvas">
-        <UnifiedCanvas
+        <Canvas
           config={{
             ...CANVAS_MODE_PRESETS.gallery,
             galleryOptions: {

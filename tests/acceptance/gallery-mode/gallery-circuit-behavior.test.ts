@@ -8,7 +8,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { FEATURED_CIRCUITS } from '../../../src/features/gallery/data/gallery';
 import { CircuitEvaluationService } from '@/domain/simulation/services/CircuitEvaluationService';
-import { EnhancedHybridEvaluator } from '@/domain/simulation/event-driven-minimal/EnhancedHybridEvaluator';
 import type { Circuit } from '../../../src/domain/simulation/core/types';
 
 describe('Gallery Circuit Behavior Tests with Pure Engine', () => {

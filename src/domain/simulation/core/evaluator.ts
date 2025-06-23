@@ -26,8 +26,7 @@ export class CircuitEvaluator {
     circuit: EvaluationCircuit,
     context: EvaluationContext
   ): EvaluatorResult {
-    // 循環検出
-    // Convert EvaluationCircuit to Circuit for dependency detection
+    // 🔥 循環検出は行うが、evaluateDelayed に移譲して適切に処理
     const circuitForDetection = {
       gates: circuit.gates.map(g => ({
         id: g.id,
@@ -39,15 +38,15 @@ export class CircuitEvaluator {
       })),
       wires: circuit.wires,
     };
+    
     if (this.circularDetector.hasCircularDependency(circuitForDetection)) {
-      // const cycles = this.circularDetector.detectCycles(circuit as any);
-      // 循環依存がある場合は警告を返して元の回路をそのまま返す
+      // 🔥 循環回路の場合は遅延モードで評価（警告付き）
+      const delayedResult = this.evaluateDelayed(circuit, context);
       return {
-        circuit,
-        context,
-        hasChanges: false,
+        ...delayedResult,
         warnings: [
-          '循環回路が検出されました。遅延モードを有効にしてください。',
+          ...(delayedResult.warnings || []),
+          '循環回路が検出されたため遅延モードで評価しました。',
         ],
       };
     }
@@ -78,8 +77,23 @@ export class CircuitEvaluator {
     let currentCircuit = circuit;
     let currentContext = context;
     let hasChanges = true;
+    let hasAnyChanges = false; // 🔥 全体で変化があったかを追跡
     let iterations = 0;
     const maxIterations = 10;
+
+    // 🔍 循環回路かどうかの判定
+    const circuitForDetection = {
+      gates: circuit.gates.map(g => ({
+        id: g.id,
+        type: g.type,
+        position: g.position,
+        inputs: g.inputs,
+        outputs: g.outputs,
+        output: g.outputs[0],
+      })),
+      wires: circuit.wires,
+    };
+    const isCircularCircuit = this.circularDetector.hasCircularDependency(circuitForDetection);
 
     while (hasChanges && iterations < maxIterations) {
       // 1. ワイヤーから各ゲートの入力を更新
@@ -136,6 +150,10 @@ export class CircuitEvaluator {
         updatedWires
       );
 
+      if (hasChanges) {
+        hasAnyChanges = true; // 🔥 変化があったことを記録
+      }
+
       // 次のイテレーションのために回路を更新
       currentCircuit = {
         gates: evaluatedGates,
@@ -149,10 +167,14 @@ export class CircuitEvaluator {
       iterations++;
     }
 
+    // 🔥 循環回路かつ変化があった場合は、hasChanges: true を維持
+    // これにより発振回路のアニメーションが継続される
+    const finalHasChanges = isCircularCircuit && hasAnyChanges;
+
     return {
       circuit: currentCircuit,
       context: currentContext,
-      hasChanges: false, // 収束したので変更なし
+      hasChanges: finalHasChanges, // 🔥 循環回路では変化を維持
       warnings: [],
     };
   }
@@ -244,6 +266,18 @@ export class CircuitEvaluator {
 
       const outputIndex = wire.from.pinIndex === -1 ? 0 : wire.from.pinIndex;
       const isActive = sourceGate.outputs[outputIndex] ?? false;
+
+      // 🔧 DEBUG: INPUTゲートのワイヤー状態
+      if (sourceGate.type === 'INPUT' && (sourceGate.id === 'trigger' || sourceGate.id === 'enable')) {
+        console.warn('🔍 INPUT WIRE UPDATE:', {
+          gateId: sourceGate.id,
+          outputs: sourceGate.outputs,
+          outputIndex,
+          isActive,
+          wireId: wire.id,
+          to: wire.to.gateId
+        });
+      }
 
       return { ...wire, isActive };
     });

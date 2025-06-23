@@ -12,8 +12,9 @@ import {
   createTimingChartSlice,
   type TimingChartSlice,
 } from '@/stores/slices/timingChartSlice';
-// import { evaluateGateUnified } from '@/domain/simulation/core/gateEvaluation'; // DISABLED: gateEvaluation module removed
 import { CircuitTimingCapture } from '@/domain/timing/timingCapture';
+import { CircuitEvaluator } from '@/domain/simulation/core/evaluator';
+import type { EvaluationCircuit, EvaluationContext } from '@/domain/simulation/core/types';
 
 // テスト用のstore作成
 const createTestStore = () => {
@@ -42,6 +43,9 @@ describe('タイミングチャート統合テスト', () => {
         isRunning: true,
         startTime: 0,
       };
+      
+      // CLOCKゲートの初期outputsを設定
+      clockGate.outputs = [true];
 
       // CLOCKゲートのみの最小回路を作成
       const circuit = {
@@ -57,14 +61,19 @@ describe('タイミングチャート統合テスト', () => {
 
       // 時間経過をシミュレートして実際の出力をテスト
       const results: Array<{ time: number; output: boolean }> = [];
-
+      
+      // 回路とコンテキストを初期化
+      const evalCircuit = evaluationService.toEvaluationCircuit(circuit);
+      let context = evaluationService.createInitialContext(evalCircuit);
+      
       for (let time = 0; time < 400; time += 50) {
-        // 回路を評価（時間を設定して）
-        const evalCircuit = evaluationService.toEvaluationCircuit(circuit);
-        const context = evaluationService.createInitialContext(evalCircuit);
+        // 時間を更新して評価
         context.currentTime = time;
-
         const result = evaluationService.evaluateDirect(evalCircuit, context);
+        
+        // 次の評価のためにコンテキストを更新
+        context = result.context;
+        
         const evaluatedClock = result.circuit.gates.find(
           g => g.type === 'CLOCK'
         );
@@ -363,7 +372,7 @@ describe('タイミングチャート統合テスト', () => {
 
       // CLOCKゲートを作成
       const clockGate = GateFactory.createGate('CLOCK', { x: 100, y: 100 });
-      clockGate.output = true; // 現在true状態
+      clockGate.outputs = [true]; // 現在true状態
       clockGate.metadata = {
         ...clockGate.metadata,
         frequency: 5,
@@ -399,7 +408,7 @@ describe('タイミングチャート統合テスト', () => {
 
       // シナリオ2: previousStateが存在するが、同じ値（変化なし）
       const previousCircuit = {
-        gates: [{ ...clockGate, output: true }], // 前回もtrue
+        gates: [{ ...clockGate, outputs: [true] }], // 前回もtrue
         wires: [],
       };
 
@@ -413,7 +422,7 @@ describe('タイミングチャート統合テスト', () => {
 
       // シナリオ3: previousStateが存在し、値が変化している
       const previousCircuitChanged = {
-        gates: [{ ...clockGate, output: false }], // 前回はfalse
+        gates: [{ ...clockGate, outputs: [false] }], // 前回はfalse
         wires: [],
       };
 
@@ -448,7 +457,7 @@ describe('タイミングチャート統合テスト', () => {
       };
 
       const clockGate1 = GateFactory.createGate('CLOCK', { x: 100, y: 100 });
-      clockGate1.output = false;
+      clockGate1.outputs = [false];
 
       const firstEvaluation = {
         gates: [clockGate1],
@@ -468,7 +477,7 @@ describe('タイミングチャート統合テスト', () => {
       );
 
       // 2回目の実行（状態変化）
-      const clockGate2 = { ...clockGate1, output: true }; // false → true
+      const clockGate2 = { ...clockGate1, outputs: [true] }; // false → true
       const secondEvaluation = {
         gates: [clockGate2],
         wires: [],
@@ -506,19 +515,30 @@ describe('タイミングチャート統合テスト', () => {
         startTime: undefined, // 未設定
       };
 
-      const config = {
-        timeProvider: { getCurrentTime: () => 1000 }, // 1000ms時点
-        enableDebug: false,
-        strictValidation: false,
-        delayMode: false,
+      // CircuitEvaluatorを使用して評価
+      const evaluator = new CircuitEvaluator();
+      const circuit: EvaluationCircuit = {
+        gates: [{
+          id: clockGate.id,
+          type: clockGate.type,
+          position: clockGate.position,
+          inputs: clockGate.inputs,
+          outputs: clockGate.outputs,
+          metadata: clockGate.metadata,
+        }],
+        wires: [],
       };
-
-      const result = evaluateGateUnified(clockGate, [], config);
-      expect(result.success).toBe(true);
-
+      
+      const context: EvaluationContext = {
+        currentTime: 1000,
+        memory: {},
+      };
+      
+      const result = evaluator.evaluateImmediate(circuit, context);
+      
       // startTimeが未設定の場合、現在時刻がstartTimeとして使われる
       // elapsed = 1000 - 1000 = 0, cyclePosition = 0, isHigh = true（CLOCKは0時点でtrueから開始）
-      expect(result.data.primaryOutput).toBe(true);
+      expect(result.circuit.gates[0].outputs[0]).toBe(true);
     });
   });
 });

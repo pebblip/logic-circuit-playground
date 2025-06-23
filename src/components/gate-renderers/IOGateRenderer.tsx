@@ -48,23 +48,23 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
         >
           {/* スイッチトラック */}
           <rect
-            className={`switch-track ${gate.output ? 'active' : ''}`}
+            className={`switch-track ${gate.outputs?.[0] ? 'active' : ''}`}
             x="-25"
             y="-15"
             width="50"
             height="30"
             rx="15"
-            fill={gate.output ? 'rgba(0, 255, 136, 0.1)' : '#1a1a1a'}
-            stroke={isSelected ? '#00aaff' : gate.output ? '#00ff88' : '#444'}
+            fill={gate.outputs?.[0] ? 'rgba(0, 255, 136, 0.1)' : '#1a1a1a'}
+            stroke={isSelected ? '#00aaff' : gate.outputs?.[0] ? '#00ff88' : '#444'}
             strokeWidth={isSelected ? '3' : '2'}
           />
           {/* スイッチサム */}
           <circle
-            className={`switch-thumb ${gate.output ? 'active' : ''}`}
-            cx={gate.output ? 10 : -10}
+            className={`switch-thumb ${gate.outputs?.[0] ? 'active' : ''}`}
+            cx={gate.outputs?.[0] ? 10 : -10}
             cy="0"
             r="10"
-            fill={gate.output ? '#00ff88' : '#666'}
+            fill={gate.outputs?.[0] ? '#00ff88' : '#666'}
           />
         </g>
 
@@ -104,7 +104,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
             cx="0"
             cy="0"
             r="15"
-            fill={gate.inputs?.[0] ? '#00ff88' : '#333'}
+            fill={gate.outputs?.[0] ? '#00ff88' : '#333'}
           />
           {/* 電球アイコン */}
           <text x="0" y="5" className="gate-text u-text-xl">
@@ -119,7 +119,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
           y={0}
           pinIndex={0}
           isOutput={false}
-          isActive={gate.inputs?.[0]}
+          isActive={gate.outputs?.[0]}
           onPinClick={handlePinClick}
         />
       </>

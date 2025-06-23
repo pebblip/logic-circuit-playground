@@ -96,8 +96,24 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
         memory: mutableMemory,
       };
 
+      // 🔥 循環回路の自動検出と遅延モード強制設定
+      const circuitForDetection = {
+        gates: circuit.gates.map(g => ({
+          id: g.id,
+          type: g.type,
+          position: g.position,
+          inputs: g.inputs || [],
+          outputs: g.outputs || [],
+          output: g.output,
+        })),
+        wires: circuit.wires,
+      };
+      
+      const hasCircularDependency = CircuitAnalyzer.hasCircularDependency(circuitForDetection);
+      const shouldUseDelayMode = this.config.delayMode || hasCircularDependency;
+
       // 遅延モードに応じて適切な評価メソッドを呼び出し
-      const evaluationResult = this.config.delayMode
+      const evaluationResult = shouldUseDelayMode
         ? this.evaluator.evaluateDelayed(
             evaluationCircuit,
             updatedEvaluationContext
@@ -195,8 +211,24 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
       memory: initialMemory,
     };
 
+    // 🔥 循環回路の自動検出と遅延モード強制設定
+    const circuitForDetection = {
+      gates: circuit.gates.map(g => ({
+        id: g.id,
+        type: g.type,
+        position: g.position,
+        inputs: g.inputs || [],
+        outputs: g.outputs || [],
+        output: g.output,
+      })),
+      wires: circuit.wires,
+    };
+    
+    const hasCircularDependency = CircuitAnalyzer.hasCircularDependency(circuitForDetection);
+    const shouldUseDelayMode = this.config.delayMode || hasCircularDependency;
+
     // 遅延モードに応じて適切な評価メソッドを呼び出し
-    const evaluationResult = this.config.delayMode
+    const evaluationResult = shouldUseDelayMode
       ? this.evaluator.evaluateDelayed(evaluationCircuit, evaluationContext)
       : this.evaluator.evaluateImmediate(evaluationCircuit, evaluationContext);
 
@@ -350,11 +382,29 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
     context: EvaluationContext,
     delayMode?: boolean
   ): EvaluatorResult {
-    // 評価時に現在時刻を更新
+    // 評価時に現在時刻を更新（contextに時刻が設定されていない場合のみ）
     const updatedContext = {
       ...context,
-      currentTime: Date.now(),
+      currentTime: context.currentTime ?? Date.now(),
     };
+
+    // 🔥 循環回路の自動検出
+    if (delayMode === undefined) {
+      const circuitForDetection = {
+        gates: circuit.gates.map(g => ({
+          id: g.id,
+          type: g.type,
+          position: g.position,
+          inputs: g.inputs,
+          outputs: g.outputs,
+          output: g.outputs[0],
+        })),
+        wires: circuit.wires,
+      };
+      
+      const hasCircularDependency = CircuitAnalyzer.hasCircularDependency(circuitForDetection);
+      delayMode = this.config.delayMode || hasCircularDependency;
+    }
 
     return delayMode
       ? this.evaluator.evaluateDelayed(circuit, updatedContext)
@@ -461,6 +511,22 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
   ): ClockCycleResult {
     // 初期状態をキャプチャ
     const initialState = this.captureCircuitState(circuit);
+    
+    // 🔍 CLOCKサイクルデバッグログ
+    if (import.meta.env.DEV) {
+      console.warn('🕰️ CLOCK Cycle Debug:', {
+        cycleNumber,
+        initialState,
+        initialDffStates: circuit.gates
+          .filter(g => g.type === 'D-FF')
+          .map(g => ({
+            id: g.id,
+            inputs: g.inputs,
+            outputs: g.outputs,
+            memory: context.memory[g.id]
+          }))
+      });
+    }
 
     // 1. CLOCK LOW→HIGH
     let { circuit: highCircuit, context: highContext } = this.setClockState(
@@ -496,6 +562,24 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
     const finalState = this.captureCircuitState(result.circuit);
     const hasStateChange =
       JSON.stringify(initialState) !== JSON.stringify(finalState);
+      
+    // 🔍 CLOCKサイクル結果デバッグログ
+    if (import.meta.env.DEV) {
+      console.warn('🕰️ CLOCK Cycle Result:', {
+        cycleNumber,
+        hasStateChange,
+        initialState,
+        finalState,
+        finalDffStates: result.circuit.gates
+          .filter(g => g.type === 'D-FF')
+          .map(g => ({
+            id: g.id,
+            inputs: g.inputs,
+            outputs: g.outputs,
+            memory: result.context.memory[g.id]
+          }))
+      });
+    }
 
     return {
       circuit: result.circuit,

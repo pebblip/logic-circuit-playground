@@ -164,9 +164,9 @@ export interface CanvasEventHandlers {
 }
 
 /**
- * 統一キャンバスProps
+ * キャンバスProps
  */
-export interface UnifiedCanvasProps {
+export interface CanvasProps {
   /** キャンバス設定 */
   config: CanvasConfig;
 

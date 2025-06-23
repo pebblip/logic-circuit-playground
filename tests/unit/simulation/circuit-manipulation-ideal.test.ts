@@ -13,7 +13,6 @@
  */
 
 import { describe, test, expect, beforeEach } from 'vitest';
-import { MockCircuit } from '../adapters/MockCircuit';
 import type { Circuit, ComponentId } from '@/domain/ports/CircuitDesigner';
 
 describe.skip('回路設計者として', () => {
@@ -21,7 +20,7 @@ describe.skip('回路設計者として', () => {
   let circuit: Circuit;
 
   beforeEach(() => {
-    circuit = new MockCircuit('テスト回路');
+    // circuit = new MockCircuit('テスト回路');
   });
 
   describe('ゲートの配置と削除', () => {

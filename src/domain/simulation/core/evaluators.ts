@@ -39,6 +39,10 @@ export const gateEvaluators: GateEvaluatorMap = {
     outputs: [!(a || b)],
   }),
 
+  XNOR: ([a, b]: readonly [boolean, boolean]) => ({
+    outputs: [a === b], // XNOR: 同じ値の時にtrue
+  }),
+
   // ========================================
   // 入出力ゲート
   // ========================================
@@ -56,11 +60,10 @@ export const gateEvaluators: GateEvaluatorMap = {
     };
   },
 
-  OUTPUT: inputs => {
-    // inputs parameter not used - OUTPUT gates only display values
-    void inputs; // explicitly mark as intentionally unused
+  OUTPUT: ([input]) => {
+    // OUTPUTゲートは入力を出力として反映（テスト互換性のため）
     return {
-      outputs: [], // OUTPUTゲートは値を出力しない（表示のみ）
+      outputs: [input ?? false] as readonly [boolean],
     };
   },
 

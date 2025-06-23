@@ -8,8 +8,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { FEATURED_CIRCUITS } from '../../src/features/gallery/data/gallery';
-import { CircuitValidator } from '../../src/features/gallery/validation/circuitValidator';
+import { FEATURED_CIRCUITS } from '../../../src/features/gallery/data/gallery';
+import { CircuitValidator } from '../../../src/features/gallery/validation/circuitValidator';
 
 describe('Gallery Circuit Validation', () => {
   describe('All Gallery Circuits', () => {

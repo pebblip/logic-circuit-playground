@@ -13,7 +13,6 @@
  */
 
 import { describe, test, expect, beforeEach } from 'vitest';
-import { MockCircuitSharing } from '../adapters/MockCircuitSharing';
 import type {
   CircuitSharing,
   CircuitContent,
@@ -25,7 +24,7 @@ describe.skip('回路共有者として', () => {
   let sharing: CircuitSharing;
 
   beforeEach(() => {
-    sharing = new MockCircuitSharing();
+    // sharing = new MockCircuitSharing();
   });
 
   describe('基本的な共有機能', () => {

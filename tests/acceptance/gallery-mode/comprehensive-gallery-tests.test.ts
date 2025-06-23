@@ -8,12 +8,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { FEATURED_CIRCUITS } from '../../../src/features/gallery/data/gallery';
 import { CircuitEvaluationService } from '@/domain/simulation/services/CircuitEvaluationService';
-import { EnhancedHybridEvaluator } from '@/domain/simulation/event-driven-minimal/EnhancedHybridEvaluator';
 import type { Circuit } from '../../../src/domain/simulation/core/types';
 
 describe('Comprehensive Gallery Circuit Tests', () => {
   let evaluator: CircuitEvaluationService;
-  let delayEvaluator: EnhancedHybridEvaluator;
+  let delayEvaluator: CircuitEvaluationService;
 
   beforeEach(() => {
     // 通常モード評価器（組み合わせ回路用）
@@ -23,7 +22,7 @@ describe('Comprehensive Gallery Circuit Tests', () => {
     });
 
     // 遅延モード評価器（順序回路・発振回路用）
-    delayEvaluator = new EnhancedHybridEvaluator({
+    delayEvaluator = new CircuitEvaluationService({
       enableDebugLogging: false,
       delayMode: true,
     });
