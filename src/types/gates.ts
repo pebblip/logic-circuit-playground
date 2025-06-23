@@ -11,7 +11,8 @@ export type SpecialGateType =
   | 'D-FF'
   | 'SR-LATCH'
   | 'MUX'
-  | 'BINARY_COUNTER';
+  | 'BINARY_COUNTER'
+  | 'LED';
 export type CustomGateType = 'CUSTOM';
 export type AllGateType =
   | BasicGateType
@@ -54,6 +55,16 @@ export interface BinaryCounterGate extends Gate {
   previousClockState: boolean;
 }
 
+export interface LEDGateData {
+  bitWidth: number; // 1-16 任意のピン数
+  displayMode: 'binary' | 'decimal' | 'both' | 'hex';
+}
+
+export interface LEDGate extends Gate {
+  type: 'LED';
+  gateData: LEDGateData;
+}
+
 export interface CustomGate extends Gate {
   type: 'CUSTOM';
   customGateDefinition: CustomGateDefinition;
@@ -79,6 +90,7 @@ export const GATE_SIZES = {
   'SR-LATCH': { width: 100, height: 80 },
   MUX: { width: 100, height: 100 },
   BINARY_COUNTER: { width: 120, height: 100 },
+  LED: { width: 120, height: 100 }, // 動的サイズ（デフォルト値）
 
   // カスタムゲート（デフォルト、実際は可変）
   CUSTOM: { width: 100, height: 80 },
@@ -104,6 +116,7 @@ export const PIN_CONFIGS = {
   'SR-LATCH': { inputs: 2, outputs: 2 }, // S, R -> Q, Q̄
   MUX: { inputs: -1, outputs: 1 }, // 可変
   BINARY_COUNTER: { inputs: 1, outputs: -1 }, // CLK入力, ビット数分の出力
+  LED: { inputs: -1, outputs: 0 }, // 動的ピン数、表示のみ
 
   // カスタムゲート（可変）
   CUSTOM: { inputs: -1, outputs: -1 }, // 可変
@@ -128,6 +141,10 @@ export function isMuxGate(gate: Gate): gate is MuxGate {
 
 export function isBinaryCounterGate(gate: Gate): gate is BinaryCounterGate {
   return gate.type === 'BINARY_COUNTER';
+}
+
+export function isLEDGate(gate: Gate): gate is LEDGate {
+  return gate.type === 'LED';
 }
 
 export function isCustomGate(gate: Gate): gate is CustomGate {

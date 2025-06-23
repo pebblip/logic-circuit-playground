@@ -130,6 +130,13 @@ export interface CircuitStoreActions {
     gateId: string,
     timing: Partial<{ propagationDelay: number | undefined }>
   ) => void;
+  updateLEDGateData: (
+    gateId: string,
+    gateData: {
+      bitWidth: number;
+      displayMode: 'binary' | 'decimal' | 'both' | 'hex';
+    }
+  ) => void;
 
   // Undo/Redo/Clear
   undo: () => void;

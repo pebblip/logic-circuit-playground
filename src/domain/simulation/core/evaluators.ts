@@ -253,6 +253,17 @@ export const gateEvaluators: GateEvaluatorMap = {
     };
   },
 
+  LED: (inputs, gateId, context) => {
+    // LEDゲートは表示専用（出力なし）
+    // 入力値を受け取って表示するだけ
+    void gateId; // explicitly mark as intentionally unused
+    void context; // explicitly mark as intentionally unused
+    void inputs; // explicitly mark as intentionally unused
+    return {
+      outputs: [], // 出力なし
+    };
+  },
+
   CUSTOM: (inputs, gateId, context) => {
     // カスタムゲートは別途定義が必要
     // ここではパススルーとして実装

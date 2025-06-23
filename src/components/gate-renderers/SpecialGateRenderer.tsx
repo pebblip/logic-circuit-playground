@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Gate } from '@/types/circuit';
 import { getGateInputValue } from '@/domain/simulation';
+import { LEDGateRenderer } from './LEDGateRenderer';
 
 interface SpecialGateRendererProps {
   gate: Gate;
@@ -79,6 +80,19 @@ export const SpecialGateRenderer: React.FC<SpecialGateRendererProps> = ({
     case 'BINARY_COUNTER':
       return (
         <BinaryCounterGateRenderer
+          {...{
+            gate,
+            isSelected,
+            handleMouseDown,
+            handleTouchStart,
+            handlePinClick,
+            handleGateClick,
+          }}
+        />
+      );
+    case 'LED':
+      return (
+        <LEDGateRenderer
           {...{
             gate,
             isSelected,

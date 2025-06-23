@@ -154,6 +154,11 @@ export const PIN_OFFSETS = {
       ],
     },
   },
+
+  // LEDゲート（動的ピン数対応 - PinConnectionManagerで処理）
+  LED: {
+    // LEDゲートは動的ピン配置のため、calculateLEDGatePinPositionで処理
+  },
 } as const;
 
 // カスタムゲート設定
@@ -284,6 +289,9 @@ export function getPinConfig(gateType: GateType): GatePinConfig {
 
     case 'BINARY_COUNTER':
       return PIN_OFFSETS.BINARY_COUNTER;
+
+    case 'LED':
+      return PIN_OFFSETS.LED;
 
     case 'CUSTOM':
       // カスタムゲートは動的計算が必要

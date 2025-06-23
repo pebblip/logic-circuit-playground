@@ -12,6 +12,7 @@ export const BASIC_GATES: { type: GateType; label: string }[] = [
 export const IO_GATES: { type: GateType; label: string }[] = [
   { type: 'INPUT', label: '入力' },
   { type: 'OUTPUT', label: '出力' },
+  { type: 'LED', label: 'LED表示' },
   { type: 'CLOCK', label: 'クロック' },
 ];
 

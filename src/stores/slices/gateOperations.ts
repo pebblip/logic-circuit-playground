@@ -163,6 +163,13 @@ export interface GateOperationsSlice {
     gateId: string,
     timing: Partial<{ propagationDelay: number | undefined }>
   ) => void;
+  updateLEDGateData: (
+    gateId: string,
+    gateData: {
+      bitWidth: number;
+      displayMode: 'binary' | 'decimal' | 'both' | 'hex';
+    }
+  ) => void;
 }
 
 export const createGateOperationsSlice: StateCreator<
@@ -525,4 +532,50 @@ export const createGateOperationsSlice: StateCreator<
         return { gates: newGates };
       }
     }),
+
+  // LEDゲートのデータを更新
+  updateLEDGateData: (
+    gateId: string,
+    gateData: {
+      bitWidth: number;
+      displayMode: 'binary' | 'decimal' | 'both' | 'hex';
+    }
+  ) => {
+    set(state => {
+      const newGates = state.gates.map(gate => {
+        if (gate.id === gateId && gate.type === 'LED') {
+          // 入力配列のサイズを調整
+          const newInputs = Array(gateData.bitWidth)
+            .fill(false)
+            .map((_, i) => gate.inputs[i] || false);
+
+          return {
+            ...gate,
+            inputs: newInputs,
+            gateData: {
+              ...gate.gateData,
+              ...gateData,
+            },
+          };
+        }
+        return gate;
+      });
+
+      // 回路全体を再評価
+      const circuit: Circuit = { gates: newGates, wires: state.wires };
+      const result = evaluateCircuitSync(
+        circuit,
+        state.simulationConfig.delayMode
+      );
+
+      if (result.success) {
+        return {
+          gates: [...result.data.circuit.gates],
+          wires: [...result.data.circuit.wires],
+        };
+      } else {
+        return { gates: newGates };
+      }
+    });
+  },
 });

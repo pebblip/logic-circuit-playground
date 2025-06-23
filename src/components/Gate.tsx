@@ -89,7 +89,7 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
 
       // 特殊ゲート
       if (
-        ['CLOCK', 'D-FF', 'SR-LATCH', 'MUX', 'BINARY_COUNTER'].includes(
+        ['CLOCK', 'D-FF', 'SR-LATCH', 'MUX', 'BINARY_COUNTER', 'LED'].includes(
           gate.type
         )
       ) {
@@ -112,12 +112,15 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
       }
 
       // 未知のゲートタイプの場合
-      handleError(`Unknown gate type: ${gate.type}`, 'Gate Component', {
-        userAction: 'ゲート描画',
-        severity: 'medium',
-        showToUser: true,
-        logToConsole: true,
-      });
+      // レンダリング中のstate更新を防ぐため、非同期でエラーを処理
+      setTimeout(() => {
+        handleError(`Unknown gate type: ${gate.type}`, 'Gate Component', {
+          userAction: 'ゲート描画',
+          severity: 'medium',
+          showToUser: true,
+          logToConsole: true,
+        });
+      }, 0);
 
       // フォールバック: 基本的なゲートレンダラーを使用
       return (

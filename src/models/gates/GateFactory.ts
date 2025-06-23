@@ -83,6 +83,17 @@ export class GateFactory {
           },
         };
 
+      case 'LED':
+        return {
+          ...baseGate,
+          inputs: [false, false, false, false], // デフォルト4bit
+          outputs: [], // 出力なし
+          gateData: {
+            bitWidth: 4,
+            displayMode: 'both' as const,
+          },
+        };
+
       case 'CUSTOM':
         // カスタムゲートは後で設定される
         return baseGate;
@@ -131,6 +142,10 @@ export class GateFactory {
       return [false, false, false]; // デフォルトは2:1 MUX
     }
 
+    if (type === 'LED') {
+      return [false, false, false, false]; // デフォルト4bit
+    }
+
     // その他は2入力
     return [false, false];
   }
@@ -150,6 +165,20 @@ export class GateFactory {
         width: gate.customGateDefinition.width,
         height: gate.customGateDefinition.height,
       };
+    }
+
+    // LEDゲートの場合は動的サイズを計算
+    if (gate.type === 'LED' && 'gateData' in gate && gate.gateData) {
+      const ledData = gate.gateData as {
+        bitWidth: number;
+        displayMode: string;
+      };
+      const bitWidth = ledData.bitWidth || 4;
+      const minPinSpacing = 24;
+      const requiredWidth = bitWidth * minPinSpacing + 40;
+      const baseWidth = 120;
+      const width = Math.max(baseWidth, requiredWidth);
+      return { width, height: 100 };
     }
 
     return (

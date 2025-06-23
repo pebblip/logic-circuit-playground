@@ -579,6 +579,7 @@ export interface GateTypeDefinitions {
     inputs: readonly [boolean, boolean];
     outputs: readonly boolean[];
   };
+  LED: { inputs: readonly boolean[]; outputs: readonly [] }; // 動的入力、出力なし
   CUSTOM: { inputs: readonly boolean[]; outputs: readonly boolean[] };
 }
 

@@ -35,6 +35,7 @@ export const DEFAULT_GATE_DELAYS: Record<GateType, number> = {
   // その他
   MUX: 2.5, // 中程度の複雑さ
   BINARY_COUNTER: 10.0, // 内部に複数のFFを含む
+  LED: 0.5, // 表示素子（最小遅延）
   CUSTOM: 5.0, // デフォルト値（実際は内部回路から計算）
 };
 

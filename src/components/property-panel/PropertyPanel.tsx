@@ -3,6 +3,7 @@ import { useCircuitStore } from '@/stores/circuitStore';
 import { GateInfo } from './GateInfo';
 import { ClockControls } from './ClockControls';
 import { TimingControls } from './TimingControls';
+import { LEDControls } from './LEDControls';
 import { DetailModal } from './DetailModal';
 import { TruthTableModal } from './TruthTableModal';
 import { gateDescriptions } from '@/data/gateDescriptions';
@@ -214,6 +215,7 @@ export const PropertyPanel: React.FC = () => {
           selectedGate={selectedGate}
           updateClockFrequency={updateClockFrequency}
         />
+        <LEDControls selectedGate={selectedGate} />
 
         {/* 配置済みゲートにも学習リソースを表示 */}
         {(hasDescription || hasTruthTable) && (

@@ -1,3 +1,5 @@
+import type { LEDGateData } from './gates';
+
 // 基本的な型定義
 export type GateType =
   | 'AND'
@@ -14,6 +16,7 @@ export type GateType =
   | 'SR-LATCH'
   | 'MUX'
   | 'BINARY_COUNTER'
+  | 'LED'
   | 'CUSTOM';
 
 export interface Position {
@@ -112,6 +115,7 @@ export interface Gate {
   metadata?: GateMetadata; // 特殊ゲート用の追加データ
   customGateDefinition?: CustomGateDefinition; // カスタムゲート用定義
   timing?: GateTiming; // 遅延モード用のタイミング設定（Phase 0で追加）
+  gateData?: LEDGateData; // LEDゲート等の特殊ゲート用データ
 }
 
 // 遅延モード用のタイミング設定

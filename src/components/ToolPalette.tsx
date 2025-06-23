@@ -24,6 +24,7 @@ const BASIC_GATES: { type: GateType; label: string }[] = [
 const IO_GATES: { type: GateType; label: string }[] = [
   { type: 'INPUT', label: TERMS.INPUT },
   { type: 'OUTPUT', label: TERMS.OUTPUT },
+  { type: 'LED', label: TERMS.LED },
   { type: 'CLOCK', label: TERMS.CLOCK },
 ];
 

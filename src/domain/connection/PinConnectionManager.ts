@@ -121,6 +121,11 @@ export class PinConnectionManager {
       return this.calculateCustomGatePinPosition(gate, pinIndex, isOutput);
     }
 
+    // LEDゲートの特別処理
+    if (gate.type === 'LED') {
+      return this.calculateLEDGatePinPosition(gate, pinIndex, isOutput);
+    }
+
     // 通常ゲートの処理
     const config = getPinConfig(gate.type);
 
@@ -196,6 +201,53 @@ export class PinConnectionManager {
     );
 
     return -((pinCount - 1) * spacing) / 2 + pinIndex * spacing;
+  }
+
+  /**
+   * LEDゲートのピン位置計算（上側に横並び配置）
+   */
+  private calculateLEDGatePinPosition(
+    gate: Gate,
+    pinIndex: number,
+    isOutput: boolean
+  ): Position {
+    // LEDゲートは出力ピンなし
+    if (isOutput) {
+      console.warn('LED gate has no output pins');
+      return { x: 0, y: 0 };
+    }
+
+    // ビット幅を取得
+    let bitWidth = 4; // デフォルト
+    if ('gateData' in gate && gate.gateData) {
+      const ledData = gate.gateData as { bitWidth: number };
+      bitWidth = ledData.bitWidth || 4;
+    }
+
+    // GateFactoryのサイズ計算と同じロジックを使用
+    const minPinSpacing = 24;
+    const gateHeight = 100; // LEDゲートの固定高さ
+
+    // LEDゲートの幅計算（GateFactoryと同じロジック）
+    const requiredWidth = bitWidth * minPinSpacing + 40;
+    const baseWidth = 120;
+    const width = Math.max(baseWidth, requiredWidth);
+
+    // Y位置（ゲート上端から12px外側、視覚的な分離を明確に）
+    const inputY = -gateHeight / 2 - 12;
+
+    // X位置の計算（横に等間隔で配置）
+    if (bitWidth === 1) {
+      return { x: 0, y: inputY }; // 単一ピンは中央
+    }
+
+    // 複数ピンの場合は横に均等配置
+    const availableWidth = width - 40; // 左右マージン
+    const spacing = Math.min(minPinSpacing, availableWidth / (bitWidth - 1));
+    const startX = -((bitWidth - 1) * spacing) / 2;
+    const pinX = startX + pinIndex * spacing;
+
+    return { x: pinX, y: inputY };
   }
 
   /**
@@ -486,6 +538,13 @@ export class PinConnectionManager {
         return 3;
       case 'BINARY_COUNTER':
         return 1; // CLK入力のみ
+      case 'LED':
+        // LEDゲートの入力ピン数を動的に取得
+        if ('gateData' in gate && gate.gateData) {
+          const ledData = gate.gateData as { bitWidth: number };
+          return ledData.bitWidth || 4; // デフォルト4ビット
+        }
+        return gate.inputs.length; // フォールバック
       default:
         return 2; // デフォルト
     }
@@ -514,6 +573,8 @@ export class PinConnectionManager {
         return 2; // Q, Q̄
       case 'BINARY_COUNTER':
         return 3; // Q0, Q1, Q2
+      case 'LED':
+        return 0; // LEDは出力ピンなし（表示専用）
       default:
         return 1; // デフォルト
     }
