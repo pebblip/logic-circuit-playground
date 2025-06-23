@@ -92,7 +92,7 @@ export const Canvas: React.FC<CanvasProps> = ({
   );
 
   // 実際に使用するかどうかは機能フラグで判定
-  const canUsePan = features.canPan && config.mode === 'editor';
+  const canUsePan = features.canPan; // ギャラリーモードでもパン操作を有効化
   const canUseZoom = features.canZoom;
   const canUseSelection = features.canSelect && config.mode === 'editor';
 
