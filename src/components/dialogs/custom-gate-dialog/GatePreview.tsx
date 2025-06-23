@@ -3,6 +3,7 @@ import type { CustomGatePin } from '@/types/circuit';
 import { useCircuitStore } from '@/stores/circuitStore';
 import { CircuitPreview } from '../../common/CircuitPreview';
 import '../../common/CircuitPreview.css';
+import { calculateCustomGatePinSpacing } from '@/domain/connection/pinConnectionConfig';
 
 interface GatePreviewProps {
   displayName: string;
@@ -124,11 +125,10 @@ export const GatePreview: React.FC<GatePreviewProps> = ({
               {/* 入力ピン */}
               {inputs.map((input, index) => {
                 const pinCount = inputs.length;
-                const availableHeight = Math.max(40, gateHeight - 80);
-                const spacing =
-                  pinCount === 1
-                    ? 0
-                    : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
+                const spacing = calculateCustomGatePinSpacing(
+                  pinCount,
+                  gateHeight
+                );
                 const y =
                   pinCount === 1
                     ? 0
@@ -168,11 +168,10 @@ export const GatePreview: React.FC<GatePreviewProps> = ({
               {/* 出力ピン */}
               {outputs.map((output, index) => {
                 const pinCount = outputs.length;
-                const availableHeight = Math.max(40, gateHeight - 80);
-                const spacing =
-                  pinCount === 1
-                    ? 0
-                    : Math.max(30, availableHeight / Math.max(1, pinCount - 1));
+                const spacing = calculateCustomGatePinSpacing(
+                  pinCount,
+                  gateHeight
+                );
                 const y =
                   pinCount === 1
                     ? 0

@@ -2,6 +2,7 @@ import React from 'react';
 import type { Gate } from '@/types/circuit';
 import { getGateInputValue } from '@/domain/simulation';
 import { isCustomGate } from '@/types/gates';
+import { calculateCustomGatePinSpacing } from '@/domain/connection/pinConnectionConfig';
 
 interface CustomGateRendererProps {
   gate: Gate;
@@ -58,14 +59,14 @@ export const CustomGateRenderer: React.FC<CustomGateRendererProps> = ({
   const getInputPinY = (index: number) => {
     const inputCount = definition.inputs.length;
     if (inputCount === 1) return 0;
-    const spacing = Math.min(30, (height - 20) / (inputCount - 1));
+    const spacing = calculateCustomGatePinSpacing(inputCount, height);
     return -((inputCount - 1) * spacing) / 2 + index * spacing;
   };
 
   const getOutputPinY = (index: number) => {
     const outputCount = definition.outputs.length;
     if (outputCount === 1) return 0;
-    const spacing = Math.min(30, (height - 20) / (outputCount - 1));
+    const spacing = calculateCustomGatePinSpacing(outputCount, height);
     return -((outputCount - 1) * spacing) / 2 + index * spacing;
   };
 

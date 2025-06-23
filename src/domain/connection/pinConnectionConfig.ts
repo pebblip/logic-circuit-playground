@@ -170,12 +170,35 @@ export const CUSTOM_GATE_CONFIG = {
   pinSpacing: {
     default: 30,
     minimum: 20,
+    perPin: 30, // 高さ計算用のピンあたりの高さ
   },
   margins: {
     horizontal: 10, // ピンからゲート境界までの距離
-    vertical: 10,
+    vertical: 15, // 上下マージン（より余裕を持たせる）
   },
+  minHeight: 90, // 最小高さ
 } as const;
+
+// カスタムゲートの高さ計算
+export function calculateCustomGateHeight(maxPins: number): number {
+  const baseHeight = CUSTOM_GATE_CONFIG.minHeight;
+  const additionalHeight = maxPins * CUSTOM_GATE_CONFIG.pinSpacing.perPin;
+  return Math.max(baseHeight, additionalHeight);
+}
+
+// カスタムゲートのピン間隔計算（統一された計算式）
+export function calculateCustomGatePinSpacing(
+  pinCount: number,
+  gateHeight: number
+): number {
+  if (pinCount <= 1) return 0;
+
+  const availableHeight = gateHeight - 2 * CUSTOM_GATE_CONFIG.margins.vertical;
+  const idealSpacing = availableHeight / (pinCount - 1);
+
+  // 最小間隔を保証しつつ、理想的な間隔を使用
+  return Math.max(CUSTOM_GATE_CONFIG.pinSpacing.minimum, idealSpacing);
+}
 
 // 接続判定設定
 export const CONNECTION_VALIDATION = {

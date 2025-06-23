@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { CustomGatePin } from '@/types/circuit';
 import { debug } from '@/shared/debug';
+import { calculateCustomGateHeight } from '@/domain/connection/pinConnectionConfig';
 
 export interface CustomGateFormData {
   gateName: string;
@@ -71,8 +72,8 @@ export const useCustomGateForm = ({
   // ゲート高さを入力/出力数に応じて調整
   useEffect(() => {
     const maxPins = Math.max(inputs.length, outputs.length);
-    // ピンラベルが重ならないよう十分な高さを確保
-    const newHeight = Math.max(120, 60 + maxPins * 25);
+    // 統一された高さ計算を使用
+    const newHeight = calculateCustomGateHeight(maxPins);
     setGateHeight(newHeight);
   }, [inputs.length, outputs.length]);
 
