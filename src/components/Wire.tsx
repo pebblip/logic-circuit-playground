@@ -1,4 +1,5 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Wire, Gate } from '../types/circuit';
 import { useCircuitStore } from '../stores/circuitStore';
 import {
@@ -7,6 +8,7 @@ import {
 } from '../domain/analysis/pinPositionCalculator';
 import { handleError } from '@/infrastructure/errorHandler';
 import { generateWirePath } from '@/utils/wirePathGenerator';
+import { WireContextMenu } from './WireContextMenu';
 
 interface WireComponentProps {
   wire: Wire;
@@ -23,6 +25,12 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
 
   // プロパティで渡されたゲートがあればそれを使用、なければstoreから取得
   const gates = propGates || storeGates;
+
+  // コンテキストメニューの状態
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
 
   // ゲート検索結果をメモ化（パフォーマンス最適化）
   const gateData = useMemo(() => {
@@ -124,43 +132,58 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    deleteWire(wire.id);
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+    });
   };
 
   return (
-    <g
-      onContextMenu={handleContextMenu}
-      data-wire-id={wire.id}
-      data-testid={`wire-${wire.id}`}
-    >
-      <path
-        d={path}
-        className={`wire ${wire.isActive ? 'active' : ''}`}
-        style={{ cursor: 'context-menu' }}
-      />
-      {/* 見えない太い線でクリック領域を拡大 */}
-      <path
-        d={path}
-        fill="none"
-        stroke="transparent"
-        strokeWidth="20"
-        style={{ cursor: 'context-menu' }}
-      />
-      {wire.isActive && (
-        <>
-          <path
-            id={`wire-path-${wire.id}`}
-            d={path}
-            style={{ display: 'none' }}
-          />
-          <circle className="signal-particle" r="6">
-            <animateMotion dur="1.5s" repeatCount="indefinite">
-              <mpath xlinkHref={`#wire-path-${wire.id}`} />
-            </animateMotion>
-          </circle>
-        </>
-      )}
-    </g>
+    <>
+      <g
+        onContextMenu={handleContextMenu}
+        data-wire-id={wire.id}
+        data-testid={`wire-${wire.id}`}
+      >
+        <path
+          d={path}
+          className={`wire ${wire.isActive ? 'active' : ''}`}
+          style={{ cursor: 'context-menu' }}
+        />
+        {/* 見えない太い線でクリック領域を拡大 */}
+        <path
+          d={path}
+          fill="none"
+          stroke="transparent"
+          strokeWidth="20"
+          style={{ cursor: 'context-menu' }}
+        />
+        {wire.isActive && (
+          <>
+            <path
+              id={`wire-path-${wire.id}`}
+              d={path}
+              style={{ display: 'none' }}
+            />
+            <circle className="signal-particle" r="6">
+              <animateMotion dur="1.5s" repeatCount="indefinite">
+                <mpath xlinkHref={`#wire-path-${wire.id}`} />
+              </animateMotion>
+            </circle>
+          </>
+        )}
+      </g>
+      {contextMenu &&
+        createPortal(
+          <WireContextMenu
+            x={contextMenu.x}
+            y={contextMenu.y}
+            onDelete={() => deleteWire(wire.id)}
+            onClose={() => setContextMenu(null)}
+          />,
+          document.body
+        )}
+    </>
   );
 };
 
