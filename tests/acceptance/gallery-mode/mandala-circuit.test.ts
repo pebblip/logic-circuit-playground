@@ -31,14 +31,14 @@ describe('Mandala Circuit Gallery Circuit', () => {
   });
 
   describe('Circuit Structure', () => {
-    it('should have 12 OUTPUT gates', () => {
+    it('should have 6 OUTPUT gates', () => {
       const outputGates = circuit.gates.filter(g => g.type === 'OUTPUT');
-      expect(outputGates).toHaveLength(12);
+      expect(outputGates).toHaveLength(6);
     });
 
-    it('should have three ring oscillators', () => {
+    it('should have two ring oscillators', () => {
       const notGates = circuit.gates.filter(g => g.type === 'NOT');
-      expect(notGates.length).toBeGreaterThanOrEqual(15); // 3 + 5 + 7 = 15
+      expect(notGates.length).toBe(8); // 3 + 5 = 8
     });
 
     it('should have all OUTPUT gates connected', () => {

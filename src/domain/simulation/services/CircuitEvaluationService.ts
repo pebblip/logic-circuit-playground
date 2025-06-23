@@ -108,8 +108,9 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
         })),
         wires: circuit.wires,
       };
-      
-      const hasCircularDependency = CircuitAnalyzer.hasCircularDependency(circuitForDetection);
+
+      const hasCircularDependency =
+        CircuitAnalyzer.hasCircularDependency(circuitForDetection);
       const shouldUseDelayMode = this.config.delayMode || hasCircularDependency;
 
       // 遅延モードに応じて適切な評価メソッドを呼び出し
@@ -223,8 +224,9 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
       })),
       wires: circuit.wires,
     };
-    
-    const hasCircularDependency = CircuitAnalyzer.hasCircularDependency(circuitForDetection);
+
+    const hasCircularDependency =
+      CircuitAnalyzer.hasCircularDependency(circuitForDetection);
     const shouldUseDelayMode = this.config.delayMode || hasCircularDependency;
 
     // 遅延モードに応じて適切な評価メソッドを呼び出し
@@ -401,8 +403,9 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
         })),
         wires: circuit.wires,
       };
-      
-      const hasCircularDependency = CircuitAnalyzer.hasCircularDependency(circuitForDetection);
+
+      const hasCircularDependency =
+        CircuitAnalyzer.hasCircularDependency(circuitForDetection);
       delayMode = this.config.delayMode || hasCircularDependency;
     }
 
@@ -511,7 +514,7 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
   ): ClockCycleResult {
     // 初期状態をキャプチャ
     const initialState = this.captureCircuitState(circuit);
-    
+
     // 🔍 CLOCKサイクルデバッグログ
     if (import.meta.env.DEV) {
       console.warn('🕰️ CLOCK Cycle Debug:', {
@@ -523,8 +526,8 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
             id: g.id,
             inputs: g.inputs,
             outputs: g.outputs,
-            memory: context.memory[g.id]
-          }))
+            memory: context.memory[g.id],
+          })),
       });
     }
 
@@ -562,7 +565,7 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
     const finalState = this.captureCircuitState(result.circuit);
     const hasStateChange =
       JSON.stringify(initialState) !== JSON.stringify(finalState);
-      
+
     // 🔍 CLOCKサイクル結果デバッグログ
     if (import.meta.env.DEV) {
       console.warn('🕰️ CLOCK Cycle Result:', {
@@ -576,8 +579,8 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
             id: g.id,
             inputs: g.inputs,
             outputs: g.outputs,
-            memory: result.context.memory[g.id]
-          }))
+            memory: result.context.memory[g.id],
+          })),
       });
     }
 

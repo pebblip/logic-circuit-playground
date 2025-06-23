@@ -44,7 +44,7 @@ export const SELF_OSCILLATING_MEMORY_IMPROVED = {
       inputs: [],
       metadata: { frequency: 10, isRunning: true }, // 10Hz - 高速サンプリング
     },
-    
+
     // D-FFでtrigger状態を記憶
     {
       id: 'trigger_dff',
@@ -53,7 +53,7 @@ export const SELF_OSCILLATING_MEMORY_IMPROVED = {
       outputs: [false, true],
       inputs: [],
     },
-    
+
     // XORでエッジ検出（立ち上がりのみ）
     {
       id: 'edge_detector',
@@ -62,7 +62,7 @@ export const SELF_OSCILLATING_MEMORY_IMPROVED = {
       outputs: [false],
       inputs: [],
     },
-    
+
     // NOT（前回値の反転）
     {
       id: 'prev_not',
@@ -118,7 +118,7 @@ export const SELF_OSCILLATING_MEMORY_IMPROVED = {
       outputs: [false],
       inputs: [],
     },
-    
+
     // 発振器へのフィードバック制御
     {
       id: 'feedback_control',
@@ -143,7 +143,7 @@ export const SELF_OSCILLATING_MEMORY_IMPROVED = {
       outputs: [false],
       inputs: [],
     },
-    
+
     // 反転出力用NOT
     {
       id: 'output_not',

@@ -8,7 +8,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useCanvas } from '../../src/components/canvas/hooks/useCanvas';
-import { FEATURED_CIRCUITS } from '../../src/features/gallery/data/gallery';
+import { FEATURED_CIRCUITS } from '../../src/features/gallery/data/index';
 import type { CanvasConfig, CanvasDataSource } from '../../src/components/canvas/types/canvasTypes';
 
 describe('All Gallery Circuits Comprehensive Behavior', () => {

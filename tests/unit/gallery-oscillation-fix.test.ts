@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { FEATURED_CIRCUITS } from '../../src/features/gallery/data/gallery';
+import { FEATURED_CIRCUITS } from '../../src/features/gallery/data/index';
 
 describe('Gallery Mode Oscillation Fix', () => {
   it('should identify ring oscillator as needing animation', () => {

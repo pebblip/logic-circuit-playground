@@ -1,11 +1,11 @@
-import type { CircuitMetadata } from './gallery';
+import type { GalleryCircuit } from './types';
 
 /**
  * 4ビット偶数パリティチェッカー
  * 入力ビット中の1の個数が偶数なら0、奇数なら1を出力
  * XORゲートの美しいカスケード接続例
  */
-export const PARITY_CHECKER: CircuitMetadata = {
+export const PARITY_CHECKER: GalleryCircuit = {
   id: 'parity-checker',
   title: 'パリティチェッカー',
   description:

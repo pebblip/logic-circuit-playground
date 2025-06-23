@@ -9,7 +9,7 @@
 
 import type React from 'react';
 import type { Gate, Wire } from '@/types/circuit';
-import type { CircuitMetadata } from '@/features/gallery/data/gallery';
+import type { GalleryCircuit } from '@/features/gallery/data/types';
 
 /**
  * キャンバス動作モード
@@ -117,7 +117,7 @@ export interface CanvasDataSource {
   store?: boolean;
 
   /** ギャラリーモード: 直接データ指定 */
-  galleryCircuit?: CircuitMetadata;
+  galleryCircuit?: GalleryCircuit;
 
   /** カスタムデータ: 直接ゲート・ワイヤー指定 */
   customData?: {

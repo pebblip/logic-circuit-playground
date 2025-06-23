@@ -1,4 +1,6 @@
-export const MANDALA_CIRCUIT = {
+import type { GalleryCircuit } from './types';
+
+export const MANDALA_CIRCUIT: GalleryCircuit = {
   id: 'mandala-circuit',
   title: '🌸 マンダラ回路（ミニマル版）',
   description:

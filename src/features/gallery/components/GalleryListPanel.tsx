@@ -1,11 +1,11 @@
 import React from 'react';
-import type { CircuitMetadata } from '../data/gallery';
-import { FEATURED_CIRCUITS } from '../data/gallery';
+import type { GalleryCircuit } from '../data/types';
+import { FEATURED_CIRCUITS } from '../data';
 import './GalleryListPanel.css';
 
 interface GalleryListPanelProps {
-  selectedCircuit: CircuitMetadata | null;
-  onSelectCircuit: (circuit: CircuitMetadata) => void;
+  selectedCircuit: GalleryCircuit | null;
+  onSelectCircuit: (circuit: GalleryCircuit) => void;
 }
 
 export const GalleryListPanel: React.FC<GalleryListPanelProps> = ({

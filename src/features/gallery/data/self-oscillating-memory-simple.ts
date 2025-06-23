@@ -7,7 +7,10 @@
  * - SR-LATCHでメモリ機能を実現
  * - 8ゲート構成で実用的
  */
-export const SELF_OSCILLATING_MEMORY_SIMPLE = {
+
+import type { GalleryCircuit } from './types';
+
+export const SELF_OSCILLATING_MEMORY_SIMPLE: GalleryCircuit = {
   id: 'self-oscillating-memory-simple',
   title: '🌀 セルフオシレーティングメモリ（シンプル版）',
   description:

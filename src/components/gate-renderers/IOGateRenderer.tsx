@@ -55,7 +55,9 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
             height="30"
             rx="15"
             fill={gate.outputs?.[0] ? 'rgba(0, 255, 136, 0.1)' : '#1a1a1a'}
-            stroke={isSelected ? '#00aaff' : gate.outputs?.[0] ? '#00ff88' : '#444'}
+            stroke={
+              isSelected ? '#00aaff' : gate.outputs?.[0] ? '#00ff88' : '#444'
+            }
             strokeWidth={isSelected ? '3' : '2'}
           />
           {/* スイッチサム */}

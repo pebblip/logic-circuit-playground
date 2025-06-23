@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { CircuitEvaluationService } from '../../src/domain/simulation/services/CircuitEvaluationService';
-import { PURE_CIRCUITS } from '../../src/features/gallery/data/circuits-pure';
+import { GALLERY_CIRCUITS } from '../../src/features/gallery/data/index';
 
 describe('2-to-4 Decoder Pure Implementation', () => {
   let service: CircuitEvaluationService;
@@ -15,7 +15,7 @@ describe('2-to-4 Decoder Pure Implementation', () => {
   });
 
   it('should decode 00 input correctly (initial state)', () => {
-    const circuit = PURE_CIRCUITS['decoder'];
+    const circuit = GALLERY_CIRCUITS['decoder'];
     expect(circuit).toBeDefined();
 
     // 初期状態確認: A=0, B=0 → output_0 = 1
@@ -58,7 +58,7 @@ describe('2-to-4 Decoder Pure Implementation', () => {
   });
 
   it('should show proper wire propagation for all paths', () => {
-    const circuit = PURE_CIRCUITS['decoder'];
+    const circuit = GALLERY_CIRCUITS['decoder'];
     const evalCircuit = service.toEvaluationCircuit(circuit);
     let context = service.createInitialContext(evalCircuit);
     let result = service.evaluateDirect(evalCircuit, context);
@@ -86,33 +86,22 @@ describe('2-to-4 Decoder Pure Implementation', () => {
   });
 
   it('should support input toggling (A=1, B=0 case)', () => {
-    const circuit = PURE_CIRCUITS['decoder'];
-    const evalCircuit = service.toEvaluationCircuit(circuit);
-    let context = service.createInitialContext(evalCircuit);
-
-    // A入力をONに変更してA=1, B=0の状態をテスト
+    const circuit = GALLERY_CIRCUITS['decoder'];
+    
+    // A=1, B=0の状態でテスト
     const modifiedCircuit = {
-      ...evalCircuit,
-      gates: evalCircuit.gates.map(gate =>
-        gate.id === 'input_a'
-          ? { ...gate, outputs: [true] } // A=1に変更
-          : gate
-      ),
+      ...circuit,
+      gates: circuit.gates.map(gate => {
+        if (gate.id === 'input_a') {
+          return { ...gate, outputs: [true] }; // A=1
+        }
+        return gate;
+      }),
     };
 
-    // 関連するワイヤー状態も更新
-    const updatedCircuit = {
-      ...modifiedCircuit,
-      wires: modifiedCircuit.wires.map(wire => ({
-        ...wire,
-        isActive:
-          wire.from.gateId === 'input_a'
-            ? true // A関連をアクティブ
-            : wire.isActive,
-      })),
-    };
-
-    let result = service.evaluateDirect(updatedCircuit, context);
+    // evaluateDirect を使用して同期的に評価
+    const context = service.createInitialContext(modifiedCircuit);
+    const result = service.evaluateDirect(service.toEvaluationCircuit(modifiedCircuit), context);
 
     console.log('=== Decoder Test: A=1, B=0 ===');
     // logCircuitState is not available in CircuitEvaluationService
@@ -129,7 +118,7 @@ describe('2-to-4 Decoder Pure Implementation', () => {
   });
 
   it('should validate all 4 decoder states through simulation', () => {
-    const circuit = PURE_CIRCUITS['decoder'];
+    const circuit = GALLERY_CIRCUITS['decoder'];
 
     // 4つの状態をテスト
     const testCases = [

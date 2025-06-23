@@ -1,11 +1,11 @@
-import type { CircuitMetadata } from './gallery';
+import type { GalleryCircuit } from './types';
 
 /**
  * 7セグメントデコーダー（0-3表示）
  * 2ビット入力を7セグメントディスプレイのパターンに変換
  * 実際のデジタル表示の基本原理
  */
-export const SEVEN_SEGMENT_DECODER: CircuitMetadata = {
+export const SEVEN_SEGMENT_DECODER: GalleryCircuit = {
   id: 'seven-segment',
   title: '7セグメントデコーダー',
   description:

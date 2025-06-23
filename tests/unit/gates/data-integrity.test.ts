@@ -17,7 +17,22 @@ describe('データの永続性', () => {
 
   beforeEach(() => {
     // IndexedDBをグローバルに定義（後で上書きされる）
-    global.indexedDB = {} as any;
+    global.indexedDB = {
+      open: vi.fn(() => ({
+        onsuccess: null,
+        onerror: null,
+        result: {
+          createObjectStore: vi.fn(),
+          transaction: vi.fn(() => ({
+            objectStore: vi.fn(() => ({
+              get: vi.fn(() => ({ onsuccess: null, onerror: null })),
+              put: vi.fn(() => ({ onsuccess: null, onerror: null })),
+              delete: vi.fn(() => ({ onsuccess: null, onerror: null }))
+            }))
+          }))
+        }
+      }))
+    } as any;
     
     // CircuitStorageServiceのインスタンスを取得
     storage = CircuitStorageService.getInstance();

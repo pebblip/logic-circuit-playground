@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import type { CircuitMetadata } from '../data/gallery';
-import { FEATURED_CIRCUITS } from '../data/gallery';
+import type { GalleryCircuit } from '../data/types';
+import { FEATURED_CIRCUITS } from '../data';
 import { GalleryListPanel } from './GalleryListPanel';
 import { Canvas } from '@/components/canvas/Canvas';
 import { CANVAS_MODE_PRESETS } from '@/components/canvas/types/canvasTypes';
@@ -9,8 +9,9 @@ import { DebugLogDisplay } from '@/components/debug/DebugLogDisplay';
 import './GalleryModeLayout.css';
 
 export const GalleryModeLayout: React.FC = () => {
-  const [selectedCircuit, setSelectedCircuit] =
-    useState<CircuitMetadata | null>(null);
+  const [selectedCircuit, setSelectedCircuit] = useState<GalleryCircuit | null>(
+    null
+  );
 
   // 初朝選択: 最初の回路を自動選択
   useEffect(() => {

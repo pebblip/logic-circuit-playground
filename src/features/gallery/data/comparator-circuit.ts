@@ -1,4 +1,4 @@
-import type { CircuitMetadata } from './gallery';
+import type { GalleryCircuit } from './types';
 
 /**
  * 4ビット比較器回路（シンプル版）
@@ -6,7 +6,7 @@ import type { CircuitMetadata } from './gallery';
  * 標準的な階層比較ロジックを使用（約26ゲート）
  * A=5, B=3でデモンストレーション（A>Bが光る）
  */
-export const COMPARATOR_4BIT: CircuitMetadata = {
+export const COMPARATOR_4BIT: GalleryCircuit = {
   id: '4bit-comparator',
   title: '4ビット比較器（シンプル版）',
   description:

@@ -5,9 +5,9 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { FEATURED_CIRCUITS } from '../../src/features/gallery/data/gallery';
+import { FEATURED_CIRCUITS } from '../../src/features/gallery/data/index';
 import { getGlobalEvaluationService } from '../../src/domain/simulation/services/CircuitEvaluationService';
-import { PURE_CIRCUITS } from '../../src/features/gallery/data/circuits-pure';
+import { GALLERY_CIRCUITS } from '../../src/features/gallery/data/index';
 
 describe('Ring Oscillator Data Structure', () => {
   it('should have correct circuit metadata', () => {
@@ -63,7 +63,7 @@ describe('Ring Oscillator Data Structure', () => {
   });
 
   it('should have pure circuit equivalent', () => {
-    const pureCircuit = PURE_CIRCUITS['simple-ring-oscillator'];
+    const pureCircuit = GALLERY_CIRCUITS['simple-ring-oscillator'];
     
     expect(pureCircuit).toBeDefined();
     expect(pureCircuit.gates.length).toBe(6);

@@ -38,7 +38,7 @@ export class CircuitEvaluator {
       })),
       wires: circuit.wires,
     };
-    
+
     if (this.circularDetector.hasCircularDependency(circuitForDetection)) {
       // 🔥 循環回路の場合は遅延モードで評価（警告付き）
       const delayedResult = this.evaluateDelayed(circuit, context);
@@ -93,7 +93,8 @@ export class CircuitEvaluator {
       })),
       wires: circuit.wires,
     };
-    const isCircularCircuit = this.circularDetector.hasCircularDependency(circuitForDetection);
+    const isCircularCircuit =
+      this.circularDetector.hasCircularDependency(circuitForDetection);
 
     while (hasChanges && iterations < maxIterations) {
       // 1. ワイヤーから各ゲートの入力を更新
@@ -268,14 +269,17 @@ export class CircuitEvaluator {
       const isActive = sourceGate.outputs[outputIndex] ?? false;
 
       // 🔧 DEBUG: INPUTゲートのワイヤー状態
-      if (sourceGate.type === 'INPUT' && (sourceGate.id === 'trigger' || sourceGate.id === 'enable')) {
+      if (
+        sourceGate.type === 'INPUT' &&
+        (sourceGate.id === 'trigger' || sourceGate.id === 'enable')
+      ) {
         console.warn('🔍 INPUT WIRE UPDATE:', {
           gateId: sourceGate.id,
           outputs: sourceGate.outputs,
           outputIndex,
           isActive,
           wireId: wire.id,
-          to: wire.to.gateId
+          to: wire.to.gateId,
         });
       }
 

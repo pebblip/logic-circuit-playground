@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { CircuitEvaluationService } from '../../src/domain/simulation/services/CircuitEvaluationService';
-import { PURE_CIRCUITS } from '../../src/features/gallery/data/circuits-pure';
+import { GALLERY_CIRCUITS } from '../../src/features/gallery/data/index';
 
 describe.skip('Oscillating Circuits', () => {
   // DISABLED: 高度な発振・循環機能のテスト - 基本評価エンジンは動作しているため優先度低
@@ -17,7 +17,7 @@ describe.skip('Oscillating Circuits', () => {
 
   describe('Simple Ring Oscillator', () => {
     it('should oscillate through NOT gate ring', () => {
-      const circuit = PURE_CIRCUITS['simple-ring-oscillator'];
+      const circuit = GALLERY_CIRCUITS['simple-ring-oscillator'];
       const evalCircuit = service.toEvaluationCircuit(circuit);
       const context = service.createInitialContext(evalCircuit);
 
@@ -110,7 +110,7 @@ describe.skip('Oscillating Circuits', () => {
     });
 
     it('should show proper wire propagation in ring', () => {
-      const circuit = PURE_CIRCUITS['simple-ring-oscillator'];
+      const circuit = GALLERY_CIRCUITS['simple-ring-oscillator'];
       const evalCircuit = service.toEvaluationCircuit(circuit);
       const context = service.createInitialContext(evalCircuit);
 
@@ -139,7 +139,7 @@ describe.skip('Oscillating Circuits', () => {
 
   describe('Mandala Circuit', () => {
     it('should oscillate with SR-LATCH and NOT gates', () => {
-      const circuit = PURE_CIRCUITS['mandala-circuit'];
+      const circuit = GALLERY_CIRCUITS['mandala-circuit'];
       const evalCircuit = service.toEvaluationCircuit(circuit);
       const context = service.createInitialContext(evalCircuit);
 
@@ -200,7 +200,7 @@ describe.skip('Oscillating Circuits', () => {
     });
 
     it('should show complex feedback patterns', () => {
-      const circuit = PURE_CIRCUITS['mandala-circuit'];
+      const circuit = GALLERY_CIRCUITS['mandala-circuit'];
       const context = service.createInitialContext(circuit);
 
       let result = service.evaluate(circuit, context);
@@ -232,8 +232,8 @@ describe.skip('Oscillating Circuits', () => {
 
   describe('Integration with Legacy UI', () => {
     it('should provide correct legacy format conversion', () => {
-      const ringCircuit = PURE_CIRCUITS['simple-ring-oscillator'];
-      const mandalaCircuit = PURE_CIRCUITS['mandala-circuit'];
+      const ringCircuit = GALLERY_CIRCUITS['simple-ring-oscillator'];
+      const mandalaCircuit = GALLERY_CIRCUITS['mandala-circuit'];
 
       // PureCircuitがlegacy形式に正しく変換可能か確認
       expect(

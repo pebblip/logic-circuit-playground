@@ -1,11 +1,11 @@
-import type { CircuitMetadata } from './gallery';
+import type { GalleryCircuit } from './types';
 
 /**
  * 3入力多数決回路
  * 3つの入力のうち2つ以上が1なら1を出力
  * 民主主義を論理回路で表現！
  */
-export const MAJORITY_VOTER: CircuitMetadata = {
+export const MAJORITY_VOTER: GalleryCircuit = {
   id: 'majority-voter',
   title: '多数決回路',
   description:
@@ -16,21 +16,21 @@ export const MAJORITY_VOTER: CircuitMetadata = {
       id: 'voter_a',
       type: 'INPUT',
       position: { x: 100, y: 150 },
-      outputs: [false],
+      outputs: [],
       inputs: [],
     },
     {
       id: 'voter_b',
       type: 'INPUT',
       position: { x: 100, y: 250 },
-      outputs: [false],
+      outputs: [],
       inputs: [],
     },
     {
       id: 'voter_c',
       type: 'INPUT',
       position: { x: 100, y: 350 },
-      outputs: [false],
+      outputs: [],
       inputs: [],
     },
     // 2人の組み合わせをチェック（A∧B, B∧C, A∧C）
@@ -38,21 +38,21 @@ export const MAJORITY_VOTER: CircuitMetadata = {
       id: 'and_ab',
       type: 'AND',
       position: { x: 300, y: 100 },
-      outputs: [false],
+      outputs: [],
       inputs: [],
     },
     {
       id: 'and_bc',
       type: 'AND',
       position: { x: 300, y: 250 },
-      outputs: [false],
+      outputs: [],
       inputs: [],
     },
     {
       id: 'and_ac',
       type: 'AND',
       position: { x: 300, y: 400 },
-      outputs: [false],
+      outputs: [],
       inputs: [],
     },
     // いずれかの組み合わせが成立すれば可決
@@ -60,14 +60,14 @@ export const MAJORITY_VOTER: CircuitMetadata = {
       id: 'or_ab_bc',
       type: 'OR',
       position: { x: 500, y: 175 },
-      outputs: [false],
+      outputs: [],
       inputs: [],
     },
     {
       id: 'or_final',
       type: 'OR',
       position: { x: 650, y: 250 },
-      outputs: [false],
+      outputs: [],
       inputs: [],
     },
     // 多数決結果
@@ -75,7 +75,7 @@ export const MAJORITY_VOTER: CircuitMetadata = {
       id: 'result',
       type: 'OUTPUT',
       position: { x: 800, y: 250 },
-      outputs: [false],
+      outputs: [],
       inputs: [],
     },
     // デバッグ用：各ANDゲートの出力
@@ -83,21 +83,21 @@ export const MAJORITY_VOTER: CircuitMetadata = {
       id: 'debug_ab',
       type: 'OUTPUT',
       position: { x: 450, y: 100 },
-      outputs: [false],
+      outputs: [],
       inputs: [],
     },
     {
       id: 'debug_bc',
       type: 'OUTPUT',
       position: { x: 450, y: 250 },
-      outputs: [false],
+      outputs: [],
       inputs: [],
     },
     {
       id: 'debug_ac',
       type: 'OUTPUT',
       position: { x: 450, y: 400 },
-      outputs: [false],
+      outputs: [],
       inputs: [],
     },
   ],

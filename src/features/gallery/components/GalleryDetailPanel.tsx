@@ -1,9 +1,9 @@
 import React from 'react';
-import type { CircuitMetadata } from '../data/gallery';
+import type { GalleryCircuit } from '../data/types';
 import './GalleryDetailPanel.css';
 
 interface GalleryDetailPanelProps {
-  circuit: CircuitMetadata;
+  circuit: GalleryCircuit;
 }
 
 export const GalleryDetailPanel: React.FC<GalleryDetailPanelProps> = ({

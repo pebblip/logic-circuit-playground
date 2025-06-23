@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { CircuitEvaluationService } from '../../src/domain/simulation/services/CircuitEvaluationService';
-import { PURE_CIRCUITS } from '../../src/features/gallery/data/circuits-pure';
+import { GALLERY_CIRCUITS } from '../../src/features/gallery/data/index';
 import type { EvaluationContext } from '../../src/domain/simulation/core/types';
 
 describe.skip('Sequential Circuits', () => {
@@ -18,7 +18,7 @@ describe.skip('Sequential Circuits', () => {
 
   describe('D-FF Basic Operation', () => {
     it('should capture input on clock rising edge', () => {
-      const circuit = PURE_CIRCUITS['basic-dff'];
+      const circuit = GALLERY_CIRCUITS['basic-dff'];
       const evalCircuit = service.toEvaluationCircuit(circuit);
       const context = service.createInitialContext(evalCircuit);
 
@@ -52,7 +52,7 @@ describe.skip('Sequential Circuits', () => {
 
   describe('2-bit LFSR Operation', () => {
     it('should generate correct sequence pattern', () => {
-      const circuit = PURE_CIRCUITS['simple-lfsr'];
+      const circuit = GALLERY_CIRCUITS['simple-lfsr'];
       const evalCircuit = service.toEvaluationCircuit(circuit);
       const context = service.createInitialContext(evalCircuit);
 
@@ -127,7 +127,7 @@ describe.skip('Sequential Circuits', () => {
     });
 
     it('should maintain proper feedback loop', () => {
-      const circuit = PURE_CIRCUITS['simple-lfsr'];
+      const circuit = GALLERY_CIRCUITS['simple-lfsr'];
       const evalCircuit = service.toEvaluationCircuit(circuit);
       const context = service.createInitialContext(evalCircuit);
 
@@ -160,7 +160,7 @@ describe.skip('Sequential Circuits', () => {
 
   describe('SR-Latch Operation', () => {
     it('should maintain SET state correctly', () => {
-      const circuit = PURE_CIRCUITS['sr-latch'];
+      const circuit = GALLERY_CIRCUITS['sr-latch'];
       const evalCircuit = service.toEvaluationCircuit(circuit);
       const context = service.createInitialContext(evalCircuit);
 

@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { CircuitEvaluationService } from '../../src/domain/simulation/services/CircuitEvaluationService';
-import { PURE_CIRCUITS } from '../../src/features/gallery/data/circuits-pure';
+import { GALLERY_CIRCUITS } from '../../src/features/gallery/data/index';
 
 describe('Half Adder Pure Implementation', () => {
   let service: CircuitEvaluationService;
@@ -15,7 +15,7 @@ describe('Half Adder Pure Implementation', () => {
   });
 
   it('should correctly calculate sum and carry for all input combinations', () => {
-    const circuit = PURE_CIRCUITS['half-adder'];
+    const circuit = GALLERY_CIRCUITS['half-adder'];
     expect(circuit).toBeDefined();
 
     console.log('=== Half Adder Test: A=1, B=0 ===');
@@ -51,38 +51,49 @@ describe('Half Adder Pure Implementation', () => {
     console.log('✅ Half adder structure verified');
   });
 
-  it('should support input toggling for interactive testing', async () => {
-    const circuit = PURE_CIRCUITS['half-adder'];
+  it('should support input toggling for interactive testing', () => {
+    const circuit = GALLERY_CIRCUITS['half-adder'];
 
-    // B入力をONに変更してA=1, B=1の状態をテスト
+    // 両方の入力を設定したテスト用回路を作成
     const modifiedCircuit = {
       ...circuit,
-      gates: circuit.gates.map(gate =>
-        gate.id === 'input-b'
-          ? { ...gate, outputs: [true], output: true } // B=1に変更
-          : gate
-      ),
+      gates: circuit.gates.map(gate => {
+        if (gate.id === 'input-a') {
+          return { ...gate, outputs: [true] }; // A=1
+        } else if (gate.id === 'input-b') {
+          return { ...gate, outputs: [true] }; // B=1
+        }
+        return gate;
+      }),
     };
 
     console.log('=== Half Adder Test: A=1, B=1 ===');
 
-    const result = await service.evaluate(modifiedCircuit);
-    expect(result.success).toBe(true);
+    // evaluateDirect を使用して同期的に評価
+    const context = service.createInitialContext(modifiedCircuit);
+    const result = service.evaluateDirect(modifiedCircuit, context);
+    
+    const inputA = result.circuit.gates.find(g => g.id === 'input-a')!;
+    const inputB = result.circuit.gates.find(g => g.id === 'input-b')!;
+    const xorGate = result.circuit.gates.find(g => g.id === 'xor-sum')!;
+    const andGate = result.circuit.gates.find(g => g.id === 'and-carry')!;
+    
+    console.log('Debug - Input states:');
+    console.log('  input-a outputs:', inputA.outputs);
+    console.log('  input-b outputs:', inputB.outputs);
+    console.log('Debug - Gate states:');
+    console.log('  XOR inputs:', xorGate.inputs, 'outputs:', xorGate.outputs);
+    console.log('  AND inputs:', andGate.inputs, 'outputs:', andGate.outputs);
 
-    if (result.success) {
-      const xorGate = result.data.circuit.gates.find(g => g.id === 'xor-sum')!;
-      const andGate = result.data.circuit.gates.find(g => g.id === 'and-carry')!;
+    // 期待値: SUM=0, CARRY=1 (1+1=10 in binary)
+    expect(xorGate.outputs[0]).toBe(false); // 1 XOR 1 = 0
+    expect(andGate.outputs[0]).toBe(true); // 1 AND 1 = 1
 
-      // 期待値: SUM=0, CARRY=1 (1+1=10 in binary)
-      expect(xorGate.outputs[0]).toBe(false); // 1 XOR 1 = 0
-      expect(andGate.outputs[0]).toBe(true); // 1 AND 1 = 1
-
-      console.log('✅ Half adder working correctly for A=1, B=1');
-    }
+    console.log('✅ Half adder working correctly for A=1, B=1');
   });
 
   it('should have proper wire propagation for UI display', () => {
-    const circuit = PURE_CIRCUITS['half-adder'];
+    const circuit = GALLERY_CIRCUITS['half-adder'];
     
     console.log('=== Wire Propagation Debug ===');
     console.log('Original circuit wires:');

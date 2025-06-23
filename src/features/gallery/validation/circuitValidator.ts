@@ -1,4 +1,4 @@
-import type { CircuitMetadata } from '../data/gallery';
+import type { GalleryCircuit } from '../data/types';
 
 export interface ValidationError {
   type: 'error' | 'warning' | 'info';
@@ -18,7 +18,7 @@ export class CircuitValidator {
   /**
    * ギャラリー回路の品質検証
    */
-  static validate(circuit: CircuitMetadata): ValidationResult {
+  static validate(circuit: GalleryCircuit): ValidationResult {
     const errors: ValidationError[] = [];
     const warnings: ValidationError[] = [];
     const suggestions: ValidationError[] = [];
@@ -47,7 +47,7 @@ export class CircuitValidator {
   }
 
   private static validateBasicStructure(
-    circuit: CircuitMetadata,
+    circuit: GalleryCircuit,
     errors: ValidationError[]
   ) {
     if (!circuit.id) {
@@ -93,7 +93,7 @@ export class CircuitValidator {
   }
 
   private static validateSimulationConfig(
-    circuit: CircuitMetadata,
+    circuit: GalleryCircuit,
     errors: ValidationError[],
     warnings: ValidationError[]
   ) {
@@ -119,9 +119,9 @@ export class CircuitValidator {
           autoFix: () => {
             if (!circuit.simulationConfig) {
               // 型安全な方法で新しいオブジェクトを作成
-              const updatedCircuit = circuit as CircuitMetadata & {
+              const updatedCircuit = circuit as GalleryCircuit & {
                 simulationConfig: NonNullable<
-                  CircuitMetadata['simulationConfig']
+                  GalleryCircuit['simulationConfig']
                 >;
               };
               updatedCircuit.simulationConfig = {};
@@ -153,7 +153,7 @@ export class CircuitValidator {
   }
 
   private static validateMetadataNaming(
-    circuit: CircuitMetadata,
+    circuit: GalleryCircuit,
     errors: ValidationError[]
   ) {
     circuit.gates.forEach(gate => {
@@ -176,7 +176,7 @@ export class CircuitValidator {
   }
 
   private static validateOscillatorConsistency(
-    circuit: CircuitMetadata,
+    circuit: GalleryCircuit,
     warnings: ValidationError[]
   ) {
     if (circuit.simulationConfig?.needsAnimation) {
@@ -209,7 +209,7 @@ export class CircuitValidator {
   }
 
   private static validatePerformance(
-    circuit: CircuitMetadata,
+    circuit: GalleryCircuit,
     warnings: ValidationError[]
   ) {
     const gateCount = circuit.gates.length;

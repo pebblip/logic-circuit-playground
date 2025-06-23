@@ -17,7 +17,7 @@ import type {
   EvaluationCircuit,
   EvaluationContext,
 } from '@/domain/simulation/core/types';
-import { PURE_CIRCUITS } from '@/features/gallery/data/circuits-pure';
+import { GALLERY_CIRCUITS } from '@/features/gallery/data';
 import {
   calculateCircuitBounds,
   calculateOptimalScale,
@@ -205,54 +205,19 @@ export function useCanvas(
         console.warn('🔍 URGENT DEBUG - Gallery circuit loading:', {
           circuitId: dataSource.galleryCircuit.id,
           circuitTitle: dataSource.galleryCircuit.title,
-          availablePureCircuits: Object.keys(PURE_CIRCUITS),
+          availablePureCircuits: Object.keys(GALLERY_CIRCUITS),
         });
 
-        const pureCircuit = PURE_CIRCUITS[
-          dataSource.galleryCircuit.id as keyof typeof PURE_CIRCUITS
-        ];
-        
-        // 🔍 デバッグ: データソース詳細確認
-        if (dataSource.galleryCircuit.id === 'self-oscillating-memory-final') {
-          console.log('🔍 SELF-OSCILLATING DEBUG - Initial loading:', {
-            circuitId: dataSource.galleryCircuit.id,
-            gatesCount: dataSource.galleryCircuit.gates.length,
-            hasPureCircuit: !!pureCircuit,
-            pureCircuitGatesCount: pureCircuit?.gates.length || 'N/A'
-          });
-        }
-          
+        const pureCircuit =
+          GALLERY_CIRCUITS[
+            dataSource.galleryCircuit.id as keyof typeof GALLERY_CIRCUITS
+          ];
+
         if (pureCircuit) {
-          // 🔍 デバッグ: pureCircuit設定確認
-          console.log('🔍 PURECIRCUIT SET:', {
-            circuitId: dataSource.galleryCircuit.id,
-            pureCircuitGatesCount: pureCircuit.gates.length,
-            firstGateId: pureCircuit.gates[0]?.id,
-            source: 'PURE_CIRCUITS lookup'
-          });
-          
           pureCircuitRef.current = pureCircuit;
           contextRef.current =
             evaluatorRef.current.createInitialContext(pureCircuit);
-
-          console.warn('✅ PureCircuit loaded successfully:', {
-            circuitId: dataSource.galleryCircuit.id,
-            gates: pureCircuit.gates.length,
-            wires: pureCircuit.wires.length,
-            inputGates: pureCircuit.gates
-              .filter(g => g.type === 'INPUT')
-              .map(g => ({ id: g.id, outputs: g.outputs })),
-            outputGates: pureCircuit.gates
-              .filter(g => g.type === 'OUTPUT')
-              .map(g => ({ id: g.id, inputs: g.inputs })),
-          });
         } else {
-          // 🔍 デバッグ: pureCircuitRef.currentをnullに設定確認
-          console.log('🔍 PURECIRCUIT NULL SET:', {
-            circuitId: dataSource.galleryCircuit.id,
-            source: 'No PURE_CIRCUITS match, setting null'
-          });
-          
           // 🔧 individual fileからpureCircuit形式に変換（配線状態も正確に設定）
           const convertedPureCircuit: EvaluationCircuit = {
             gates: dataSource.galleryCircuit.gates.map(gate => {
@@ -263,7 +228,7 @@ export function useCanvas(
                   type: gate.type,
                   position: gate.position,
                   inputs: [],
-                  outputs: gate.outputs || [gate.output ?? false]
+                  outputs: gate.outputs || [false],
                 };
               } else if (gate.type === 'OUTPUT') {
                 return {
@@ -271,7 +236,7 @@ export function useCanvas(
                   type: gate.type,
                   position: gate.position,
                   inputs: gate.inputs || [false],
-                  outputs: [false] // OUTPUTゲートは常に出力を持つ
+                  outputs: [false], // OUTPUTゲートは常に出力を持つ
                 };
               } else {
                 return {
@@ -279,58 +244,33 @@ export function useCanvas(
                   type: gate.type,
                   position: gate.position,
                   inputs: gate.inputs || [],
-                  outputs: gate.outputs || [gate.output ?? false]
+                  outputs: gate.outputs || [false],
                 };
               }
             }),
             wires: dataSource.galleryCircuit.wires.map(wire => {
               // 🔧 配線のisActiveを送信元ゲートの出力状態に基づいて設定
-              const fromGate = dataSource.galleryCircuit.gates.find(g => g.id === wire.from.gateId);
-              const outputValue = fromGate?.outputs?.[wire.from.pinIndex] ?? fromGate?.output ?? false;
-              
+              const fromGate = dataSource.galleryCircuit?.gates.find(
+                g => g.id === wire.from.gateId
+              );
+              const outputValue =
+                fromGate?.outputs?.[wire.from.pinIndex] ?? false;
+
               return {
                 id: wire.id,
                 from: wire.from,
                 to: wire.to,
-                isActive: outputValue
+                isActive: outputValue,
               };
-            })
+            }),
           };
-          
-          console.log('🔧 CONVERTED TO PURECIRCUIT:', {
-            circuitId: dataSource.galleryCircuit.id,
-            originalGates: dataSource.galleryCircuit.gates.length,
-            convertedGates: convertedPureCircuit.gates.length,
-            source: 'individual file conversion'
-          });
-          
+
           pureCircuitRef.current = convertedPureCircuit;
-          contextRef.current = evaluatorRef.current.createInitialContext(convertedPureCircuit);
-          
-          console.warn('⚠️ No PureCircuit found, converted individual file to pureCircuit:', dataSource.galleryCircuit.id);
-          console.warn('Available PureCircuits:', Object.keys(PURE_CIRCUITS));
-          
-          // 🔍 デバッグ: 個別ファイル詳細確認
-          if (dataSource.galleryCircuit.id === 'self-oscillating-memory-final') {
-            console.log('🔍 SELF-OSCILLATING DEBUG - Using individual file:', {
-              circuitId: dataSource.galleryCircuit.id,
-              gatesCount: dataSource.galleryCircuit.gates.length,
-              source: 'individual file (.ts)',
-              firstFewGates: dataSource.galleryCircuit.gates.slice(0, 5).map(g => g.id)
-            });
-          }
+          contextRef.current =
+            evaluatorRef.current.createInitialContext(convertedPureCircuit);
         }
-      } else {
-        console.warn('🚨 No galleryCircuit in dataSource');
       }
     }
-
-    return () => {
-      if (animationRef.current) {
-        clearTimeout(animationRef.current);
-        animationRef.current = null;
-      }
-    };
   }, [
     config.mode,
     config.simulationMode,
@@ -373,8 +313,8 @@ export function useCanvas(
 
         // 初期ロード時のみ自動レイアウトを適用
         const autoLayoutGates = autoLayoutCircuit(
-          dataSource.galleryCircuit.gates,
-          dataSource.galleryCircuit.wires,
+          [...dataSource.galleryCircuit.gates] as Gate[],
+          [...dataSource.galleryCircuit.wires],
           {
             padding: 80,
             gateSpacing: { x: 160, y: 100 },
@@ -439,15 +379,6 @@ export function useCanvas(
   >(null);
 
   useEffect(() => {
-    // 🔍 デバッグ: useEffect実行確認
-    if (dataSource.galleryCircuit?.id === 'self-oscillating-memory-final') {
-      console.log('🔍 SELF-OSCILLATING DEBUG - useEffect triggered:', {
-        timestamp: Date.now(),
-        mode: config.mode,
-        hasGalleryCircuit: !!dataSource.galleryCircuit
-      });
-    }
-    
     if (config.mode === 'gallery' && dataSource.galleryCircuit) {
       // 同じ回路が既に読み込まれている場合はスキップ
       if (currentGalleryCircuitId === dataSource.galleryCircuit.id) {
@@ -463,19 +394,11 @@ export function useCanvas(
       hasAutoFitRef.current = false;
 
       try {
-        // 🔍 デバッグ: 渡された回路データの確認
-        console.log('🔍 CIRCUIT DEBUG - DataSource galleryCircuit:', {
-          id: dataSource.galleryCircuit.id,
-          title: dataSource.galleryCircuit.title,
-          gateCount: dataSource.galleryCircuit.gates.length,
-          firstGateId: dataSource.galleryCircuit.gates[0]?.id,
-          lastGateId: dataSource.galleryCircuit.gates[dataSource.galleryCircuit.gates.length - 1]?.id
-        });
-        
         // PureCircuit形式を使用可能かチェック
-        const pureCircuit = PURE_CIRCUITS[
-          dataSource.galleryCircuit.id as keyof typeof PURE_CIRCUITS
-        ];
+        const pureCircuit =
+          GALLERY_CIRCUITS[
+            dataSource.galleryCircuit.id as keyof typeof GALLERY_CIRCUITS
+          ];
 
         if (pureCircuit) {
           console.warn('🔧 Loading PureCircuit:', dataSource.galleryCircuit.id);
@@ -525,17 +448,6 @@ export function useCanvas(
             activeWires: formattedWires.filter(w => w.isActive).length,
           });
         } else {
-          console.warn('⚠️ No PureCircuit found, using legacy format');
-          
-          // 🔍 デバッグ: レガシー形式変換詳細確認
-          if (dataSource.galleryCircuit.id === 'self-oscillating-memory-final') {
-            console.log('🔍 SELF-OSCILLATING DEBUG - Converting to legacy format:', {
-              circuitId: dataSource.galleryCircuit.id,
-              originalGatesCount: dataSource.galleryCircuit.gates.length,
-              source: 'legacy format conversion'
-            });
-          }
-
           // フォールバック: PureCircuit形式に変換
           const formattedGates = dataSource.galleryCircuit.gates.map(gate => {
             let inputs: boolean[] = [];
@@ -545,7 +457,7 @@ export function useCanvas(
               if (gate.type === 'INPUT' || gate.type === 'CLOCK') {
                 inputs = [];
                 // 🔧 FIX: outputs配列から初期値を取得
-                outputs = gate.outputs ? [...gate.outputs] : [gate.output ?? false];
+                outputs = gate.outputs ? [...gate.outputs] : [false];
               } else if (gate.type === 'NOT' || gate.type === 'OUTPUT') {
                 inputs = [false];
                 outputs = [false]; // OUTPUTゲートも出力値を持つ
@@ -557,7 +469,7 @@ export function useCanvas(
               // 型安全: inputs は常に boolean[] として扱う
               inputs = [...gate.inputs];
               // 🔧 FIX: outputs配列から値を取得、なければoutputから
-              outputs = gate.outputs ? [...gate.outputs] : [gate.output ?? false];
+              outputs = gate.outputs ? [...gate.outputs] : [false];
             }
 
             return {
@@ -568,17 +480,10 @@ export function useCanvas(
             } as Gate;
           });
 
-          // 🔍 デバッグ: Legacy形式変換後のゲート数確認
-          console.log('🔍 LEGACY CONVERSION RESULT:', {
-            circuitId: dataSource.galleryCircuit.id,
-            formattedGatesCount: formattedGates.length,
-            source: 'after legacy format conversion'
-          });
-          
           setLocalGates(formattedGates);
-          setLocalWires(dataSource.galleryCircuit.wires);
+          setLocalWires([...dataSource.galleryCircuit.wires]);
           localGatesRef.current = formattedGates;
-          localWiresRef.current = dataSource.galleryCircuit.wires;
+          localWiresRef.current = [...dataSource.galleryCircuit.wires];
         }
       } catch (error) {
         handleError(
@@ -594,6 +499,7 @@ export function useCanvas(
         );
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     config.mode,
     dataSource.galleryCircuit?.id,
@@ -642,11 +548,13 @@ export function useCanvas(
         hasPureCircuit: !!pureCircuitRef.current,
         hasEvaluator: !!evaluatorRef.current,
         hasContext: !!contextRef.current,
-        currentGates: displayGates.filter(g => g.type === 'INPUT').map(g => ({
-          id: g.id,
-          output: g.output,
-          outputs: g.outputs
-        }))
+        currentGates: displayGates
+          .filter(g => g.type === 'INPUT')
+          .map(g => ({
+            id: g.id,
+            output: g.outputs?.[0] ?? false,
+            outputs: g.outputs,
+          })),
       });
 
       try {
@@ -690,12 +598,14 @@ export function useCanvas(
 
               // 🔧 DEBUG: 更新直後のpureCircuitRef確認
               if (gateId === 'trigger') {
-                const triggerInPureCircuit = pureCircuitRef.current.gates.find(g => g.id === 'trigger');
+                const triggerInPureCircuit = pureCircuitRef.current.gates.find(
+                  g => g.id === 'trigger'
+                );
                 console.warn('🔥 PURECIRCUIT REF AFTER UPDATE:', {
                   triggerOutputs: triggerInPureCircuit?.outputs,
                   allInputGates: pureCircuitRef.current.gates
                     .filter(g => g.type === 'INPUT')
-                    .map(g => ({ id: g.id, outputs: g.outputs }))
+                    .map(g => ({ id: g.id, outputs: g.outputs })),
                 });
               }
 
@@ -708,43 +618,47 @@ export function useCanvas(
                       oldValue: gate.output,
                       newValue,
                       oldOutputs: gate.outputs,
-                      newOutputs: [newValue]
+                      newOutputs: [newValue],
                     });
-                    return { 
-                      ...gate, 
+                    return {
+                      ...gate,
                       output: newValue,
-                      outputs: [newValue] // outputsも更新
+                      outputs: [newValue], // outputsも更新
                     };
                   }
                   return gate;
                 });
                 return updatedGates;
               });
-              
+
               // 🔧 FIX: 発振状態保持のため、memoryを保持しつつcontextを更新
               if (contextRef.current && evaluatorRef.current) {
                 // 現在のmemory（発振状態）を保持
                 const preservedMemory = { ...contextRef.current.memory };
-                
+
                 // 🔧 FIX: INPUTゲートの新しい値をメモリに設定
                 preservedMemory[gateId] = {
                   ...preservedMemory[gateId],
-                  state: newValue
+                  state: newValue,
                 };
-                
+
                 // 新しいcontextを作成（入力値更新のため）
-                const newContext = evaluatorRef.current.createInitialContext(updatedPureCircuit);
-                
+                const newContext =
+                  evaluatorRef.current.createInitialContext(updatedPureCircuit);
+
                 // memoryを復元（発振状態を維持）
                 contextRef.current = {
                   ...newContext,
-                  memory: preservedMemory
+                  memory: preservedMemory,
                 };
               }
-              
+
               // 🔧 発振回路の場合は、1回評価を実行して安定化
               if (dataSource.galleryCircuit?.simulationConfig?.needsAnimation) {
                 try {
+                  if (!contextRef.current) {
+                    throw new Error('Evaluation context not initialized');
+                  }
                   const initialResult = evaluatorRef.current.evaluateDirect(
                     updatedPureCircuit,
                     contextRef.current
@@ -757,15 +671,17 @@ export function useCanvas(
                         // 更新したINPUT値を維持
                         return {
                           ...gate,
-                          outputs: [newValue]
+                          outputs: [newValue],
                         };
                       }
                       return gate;
-                    })
+                    }),
                   };
                   contextRef.current = initialResult.context;
-                  
-                  console.warn('🔧 Oscillating circuit stabilized after input change');
+
+                  console.warn(
+                    '🔧 Oscillating circuit stabilized after input change'
+                  );
                 } catch (error) {
                   console.warn('⚠️ Stabilization failed:', error);
                 }
@@ -774,10 +690,15 @@ export function useCanvas(
               console.warn('🎯 PureCircuit input updated:', {
                 gateId,
                 newValue,
-                updatedGateOutputs: updatedPureCircuit.gates.find(g => g.id === gateId)?.outputs
+                updatedGateOutputs: updatedPureCircuit.gates.find(
+                  g => g.id === gateId
+                )?.outputs,
               });
 
               // 即座に評価・UI更新
+              if (!contextRef.current) {
+                throw new Error('Evaluation context not initialized');
+              }
               const result = evaluatorRef.current.evaluateDirect(
                 pureCircuitRef.current, // 更新済みのpureCircuitRefを使用
                 contextRef.current,
@@ -786,14 +707,18 @@ export function useCanvas(
 
               // 🔧 DEBUG: 評価結果のワイヤー状態確認
               if (gateId === 'trigger') {
-                const triggerWires = result.circuit.wires.filter(w => w.from.gateId === 'trigger');
+                const triggerWires = result.circuit.wires.filter(
+                  w => w.from.gateId === 'trigger'
+                );
                 console.warn('🔍 TRIGGER WIRE STATE:', {
                   triggerWires: triggerWires.map(w => ({
                     id: w.id,
                     to: w.to.gateId,
-                    isActive: w.isActive
+                    isActive: w.isActive,
                   })),
-                  triggerGate: result.circuit.gates.find(g => g.id === 'trigger')
+                  triggerGate: result.circuit.gates.find(
+                    g => g.id === 'trigger'
+                  ),
                 });
               }
 
@@ -810,7 +735,7 @@ export function useCanvas(
                     metadata: result.context.memory[pureGate.id] || {},
                   };
                 }
-                
+
                 return {
                   id: pureGate.id,
                   type: pureGate.type,
@@ -823,13 +748,15 @@ export function useCanvas(
               });
 
               // 🔧 DEBUG: 評価後の入力ゲート確認
-              const inputGatesAfterEval = pureGates.filter(g => g.type === 'INPUT');
+              const inputGatesAfterEval = pureGates.filter(
+                g => g.type === 'INPUT'
+              );
               console.warn('🔍 EVALUATION RESULT INPUT GATES:', {
                 gates: inputGatesAfterEval.map(g => ({
                   id: g.id,
                   output: g.output,
-                  outputs: g.outputs
-                }))
+                  outputs: g.outputs,
+                })),
               });
 
               const pureWires = result.circuit.wires.map(wire => ({
@@ -848,11 +775,11 @@ export function useCanvas(
                   if (gate.type === 'INPUT' && gate.id === gateId) {
                     return {
                       ...gate,
-                      outputs: [newValue]
+                      outputs: [newValue],
                     };
                   }
                   return gate;
-                })
+                }),
               };
 
               console.warn('⚡ PureCircuit evaluation completed');
@@ -864,10 +791,10 @@ export function useCanvas(
                 if (gate.id === gateId && gate.type === 'INPUT') {
                   const newValue = !gate.output;
                   handlers?.onInputToggle?.(gateId, newValue);
-                  return { 
-                    ...gate, 
+                  return {
+                    ...gate,
                     output: newValue,
-                    outputs: [newValue]
+                    outputs: [newValue],
                   };
                 }
                 return gate;
@@ -895,7 +822,13 @@ export function useCanvas(
         return { success: false, error: errorMessage };
       }
     },
-    [config.simulationMode, circuitStore, handlers]
+    [
+      config.simulationMode,
+      circuitStore,
+      handlers,
+      dataSource.galleryCircuit?.simulationConfig?.needsAnimation,
+      displayGates,
+    ]
   );
 
   // ゲートクリック処理
@@ -991,7 +924,7 @@ export function useCanvas(
       try {
         // 🔧 重要: アニメーション継続中かどうかは animationRef で判定
         const isActuallyAnimating = !!animationRef.current;
-        
+
         // 🔥 スコープ問題修正: hasChanges を最初に初期化
         let hasChanges = false;
 
@@ -1009,7 +942,9 @@ export function useCanvas(
         // 🚨 CRITICAL: pureCircuitが存在しない場合はアニメーション停止
         if (!pureCircuitRef.current) {
           if (config.galleryOptions?.showDebugInfo && import.meta.env.DEV) {
-            console.warn('🚨 No pureCircuit available - stopping animation for legacy circuit');
+            console.warn(
+              '🚨 No pureCircuit available - stopping animation for legacy circuit'
+            );
           }
           // アニメーション停止
           if (animationRef.current) {
@@ -1081,24 +1016,26 @@ export function useCanvas(
                 '🌀 Oscillating circuit without CLOCK: using direct evaluation'
               );
             }
-            
+
             // 🔧 FIX: 評価前に入力ゲートの現在値を同期
             const syncedCircuit = {
               ...pureCircuitRef.current,
               gates: pureCircuitRef.current.gates.map(gate => {
                 if (gate.type === 'INPUT') {
-                  const currentInput = localGatesRef.current.find(g => g.id === gate.id);
+                  const currentInput = localGatesRef.current.find(
+                    g => g.id === gate.id
+                  );
                   if (currentInput && currentInput.outputs) {
                     return {
                       ...gate,
-                      outputs: [...currentInput.outputs]
+                      outputs: [...currentInput.outputs],
                     };
                   }
                 }
                 return gate;
-              })
+              }),
             };
-            
+
             result = evaluatorRef.current.evaluateDirect(
               syncedCircuit,
               contextRef.current
@@ -1111,32 +1048,28 @@ export function useCanvas(
             ...result.circuit,
             gates: result.circuit.gates.map(gate => {
               if (gate.type === 'INPUT') {
-                const currentInput = localGatesRef.current.find(g => g.id === gate.id);
+                const currentInput = localGatesRef.current.find(
+                  g => g.id === gate.id
+                );
                 if (currentInput && currentInput.outputs) {
                   return {
                     ...gate,
-                    outputs: [...currentInput.outputs]
+                    outputs: [...currentInput.outputs],
                   };
                 }
               }
               return gate;
-            })
+            }),
           };
 
           // 結果をlegacy形式に変換してUI表示
-          // 🔍 デバッグ: アニメーション中のlegacy変換
-          if (result.circuit.gates.some(g => g.id === 'enable')) {
-            console.log('🔍 SELF-OSCILLATING DEBUG - Animation legacy conversion:', {
-              source: 'animation loop',
-              pureCircuitGatesCount: result.circuit.gates.length,
-              timestamp: Date.now()
-            });
-          }
-          
+
           const legacyGates = result.circuit.gates.map(pureGate => {
             // 🔧 FIX: 入力ゲートは現在の値を保持（アニメーションで上書きしない）
             if (pureGate.type === 'INPUT') {
-              const currentInput = localGatesRef.current.find(g => g.id === pureGate.id);
+              const currentInput = localGatesRef.current.find(
+                g => g.id === pureGate.id
+              );
               if (currentInput) {
                 return {
                   id: pureGate.id,
@@ -1144,12 +1077,14 @@ export function useCanvas(
                   position: pureGate.position,
                   output: currentInput.output ?? false,
                   inputs: [...pureGate.inputs],
-                  outputs: currentInput.outputs || [currentInput.output ?? false],
+                  outputs: currentInput.outputs || [
+                    currentInput.output ?? false,
+                  ],
                   metadata: result.context.memory[pureGate.id] || {},
                 };
               }
             }
-            
+
             return {
               id: pureGate.id,
               type: pureGate.type,
@@ -1235,9 +1170,12 @@ export function useCanvas(
           });
 
           // 🔧 循環回路の特別処理: アニメーション必須の回路は常に更新
-          const forceUpdateForOscillation = dataSource.galleryCircuit?.simulationConfig?.needsAnimation === true ||
-            dataSource.galleryCircuit?.simulationConfig?.expectedBehavior === 'oscillator';
-          
+          const forceUpdateForOscillation =
+            dataSource.galleryCircuit?.simulationConfig?.needsAnimation ===
+              true ||
+            dataSource.galleryCircuit?.simulationConfig?.expectedBehavior ===
+              'oscillator';
+
           // 🔧 パフォーマンス改善: 変化があった場合のみ更新（循環回路は例外）
           if (hasChanges || forceUpdateForOscillation) {
             if (config.galleryOptions?.showDebugInfo && import.meta.env.DEV) {
@@ -1270,7 +1208,7 @@ export function useCanvas(
                       displayGate: displayGate
                         ? {
                             inputs: displayGate.inputs,
-                            output: displayGate.output,
+                            output: displayGate.outputs?.[0] ?? false,
                           }
                         : 'not found',
                       areIdentical: displayGate
@@ -1281,13 +1219,7 @@ export function useCanvas(
                   }),
               });
             }
-            // 🔍 デバッグ: アニメーションによるゲート数変更確認
-            console.log('🔍 ANIMATION UPDATE:', {
-              circuitId: dataSource.galleryCircuit?.id,
-              newGatesCount: newGates.length,
-              source: 'animation loop setLocalGates'
-            });
-            
+
             setLocalGates(newGates);
             setLocalWires(newWires);
           } else if (
@@ -1306,10 +1238,13 @@ export function useCanvas(
         const interval = calculateOptimalInterval();
 
         // 🔧 循環回路では強制的にアニメーション継続
-        const needsAnimation = dataSource.galleryCircuit?.simulationConfig?.needsAnimation === true ||
-          dataSource.galleryCircuit?.simulationConfig?.expectedBehavior === 'oscillator';
+        const needsAnimation =
+          dataSource.galleryCircuit?.simulationConfig?.needsAnimation ===
+            true ||
+          dataSource.galleryCircuit?.simulationConfig?.expectedBehavior ===
+            'oscillator';
         const shouldContinueAnimation = needsAnimation || hasChanges;
-        
+
         if (shouldContinueAnimation) {
           animationRef.current = window.setTimeout(() => {
             animate();
@@ -1484,8 +1419,8 @@ export function useCanvas(
   // 内部状態の構築
   const state: CanvasInternalState = useMemo(
     () => ({
-      displayGates,
-      displayWires,
+      displayGates: [...displayGates] as Gate[],
+      displayWires: [...displayWires],
       viewBox,
       scale,
       selectedIds,

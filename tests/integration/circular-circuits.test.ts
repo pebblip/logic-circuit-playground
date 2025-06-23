@@ -10,7 +10,7 @@ import {
   SIMPLE_LFSR,
   SIMPLE_RING_OSCILLATOR,
   MANDALA_CIRCUIT,
-} from '@/features/gallery/data/circuits-pure';
+} from '@/features/gallery/data/index';
 import type { EvaluationCircuit } from '@/domain/simulation/core/types';
 
 describe.skip('循環回路の機能仕様', () => {

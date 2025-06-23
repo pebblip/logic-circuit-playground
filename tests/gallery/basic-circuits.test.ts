@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { CircuitEvaluationService } from '../../src/domain/simulation/services/CircuitEvaluationService';
-import { PURE_CIRCUITS } from '../../src/features/gallery/data/circuits-pure';
+import { GALLERY_CIRCUITS } from '../../src/features/gallery/data/index';
 
 describe('Basic Circuits Pure Implementation', () => {
   let service: CircuitEvaluationService;
@@ -16,7 +16,7 @@ describe('Basic Circuits Pure Implementation', () => {
 
   describe('Parity Checker', () => {
     it('should detect even parity for all zeros (initial state)', () => {
-      const circuit = PURE_CIRCUITS['parity-checker'];
+      const circuit = GALLERY_CIRCUITS['parity-checker'];
       expect(circuit).toBeDefined();
 
       // 初期状態: 全入力0 → 偶数パリティ(0)
@@ -44,7 +44,7 @@ describe('Basic Circuits Pure Implementation', () => {
     });
 
     it('should validate wire propagation through XOR cascade', () => {
-      const circuit = PURE_CIRCUITS['parity-checker'];
+      const circuit = GALLERY_CIRCUITS['parity-checker'];
       const evalCircuit = service.toEvaluationCircuit(circuit);
       let context = service.createInitialContext(evalCircuit);
       let result = service.evaluateDirect(evalCircuit, context);
@@ -63,7 +63,7 @@ describe('Basic Circuits Pure Implementation', () => {
 
   describe('Majority Voter', () => {
     it('should return 0 for no votes (initial state)', () => {
-      const circuit = PURE_CIRCUITS['majority-voter'];
+      const circuit = GALLERY_CIRCUITS['majority-voter'];
       expect(circuit).toBeDefined();
 
       // 初期状態: A=0, B=0, C=0 → 多数決結果0
@@ -84,27 +84,27 @@ describe('Basic Circuits Pure Implementation', () => {
       expect(andAC.outputs[0]).toBe(false); // 0 AND 0 = 0
 
       // ORゲートの動作確認
-      const orFirst = result.circuit.gates.find(g => g.id === 'or_first')!;
+      const orFirst = result.circuit.gates.find(g => g.id === 'or_ab_bc')!;
       const orFinal = result.circuit.gates.find(g => g.id === 'or_final')!;
 
       expect(orFirst.outputs[0]).toBe(false); // 0 OR 0 = 0
       expect(orFinal.outputs[0]).toBe(false); // 0 OR 0 = 0
 
       // 最終結果確認
-      const resultOut = result.circuit.gates.find(g => g.id === 'result_out')!;
+      const resultOut = result.circuit.gates.find(g => g.id === 'result')!;
       expect(resultOut.inputs[0]).toBe(false); // 過半数なし → 0
 
       console.log('✅ Majority voter correctly rejects minority');
     });
 
     it('should validate two-stage OR gate structure', () => {
-      const circuit = PURE_CIRCUITS['majority-voter'];
+      const circuit = GALLERY_CIRCUITS['majority-voter'];
       const evalCircuit = service.toEvaluationCircuit(circuit);
       let context = service.createInitialContext(evalCircuit);
       let result = service.evaluateDirect(evalCircuit, context);
 
       // 2段OR構造の確認
-      const orFirst = result.circuit.gates.find(g => g.id === 'or_first')!;
+      const orFirst = result.circuit.gates.find(g => g.id === 'or_ab_bc')!;
       const orFinal = result.circuit.gates.find(g => g.id === 'or_final')!;
 
       expect(orFirst).toBeDefined();
@@ -114,7 +114,7 @@ describe('Basic Circuits Pure Implementation', () => {
 
       // ワイヤー接続の確認
       const or1ToFinalWire = result.circuit.wires.find(
-        w => w.from.gateId === 'or_first' && w.to.gateId === 'or_final'
+        w => w.from.gateId === 'or_ab_bc' && w.to.gateId === 'or_final'
       );
       expect(or1ToFinalWire).toBeDefined();
 
@@ -122,7 +122,7 @@ describe('Basic Circuits Pure Implementation', () => {
     });
 
     it('should demonstrate logic with truth table validation', () => {
-      const circuit = PURE_CIRCUITS['majority-voter'];
+      const circuit = GALLERY_CIRCUITS['majority-voter'];
 
       // 多数決真理値表の理論確認
       const truthTable = [
@@ -157,7 +157,7 @@ describe('Basic Circuits Pure Implementation', () => {
       ];
 
       basicCircuits.forEach(circuitId => {
-        const circuit = PURE_CIRCUITS[circuitId as keyof typeof PURE_CIRCUITS];
+        const circuit = GALLERY_CIRCUITS[circuitId as keyof typeof GALLERY_CIRCUITS];
         expect(circuit).toBeDefined();
         expect(circuit.gates).toBeDefined();
         expect(circuit.wires).toBeDefined();
