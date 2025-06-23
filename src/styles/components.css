@@ -496,11 +496,11 @@
 }
 
 .zoom-button.zoom-reset {
-  width: auto;
-  padding: 0 var(--spacing-md);
+  width: 65px; /* 固定幅で999%まで対応 */
+  padding: 0 var(--spacing-xs);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  min-width: 60px;
+  text-align: center;
 }
 
 .zoom-button.zoom-reset:hover {

@@ -1449,7 +1449,23 @@ export function useCanvas(
     actions: {
       handleGateClick,
       toggleInput,
-      setZoom: setScale,
+      setZoom: (newScale: number) => {
+        const clampedScale = Math.max(0.25, Math.min(4, newScale));
+        setScale(clampedScale);
+
+        // ビューボックスも更新（中心を基準にズーム）
+        const centerX = viewBox.x + viewBox.width / 2;
+        const centerY = viewBox.y + viewBox.height / 2;
+        const newWidth = 1200 / clampedScale;
+        const newHeight = 800 / clampedScale;
+
+        setViewBox({
+          x: centerX - newWidth / 2,
+          y: centerY - newHeight / 2,
+          width: newWidth,
+          height: newHeight,
+        });
+      },
       setPan: offset =>
         setViewBox(prev => ({ ...prev, x: offset.x, y: offset.y })),
       setSelection: gateIds => {

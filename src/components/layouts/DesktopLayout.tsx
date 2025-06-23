@@ -221,18 +221,22 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
               <div className="status-item">
                 <span>接続: {wires.length}</span>
               </div>
+              <div
+                className="status-item"
+                style={{
+                  color: simulationConfig.delayMode
+                    ? 'var(--color-accent)'
+                    : 'inherit',
+                }}
+              >
+                <span>
+                  ⏱️ 遅延: {simulationConfig.delayMode ? 'ON' : 'OFF'}
+                </span>
+              </div>
               {simulationConfig.delayMode && (
-                <>
-                  <div
-                    className="status-item"
-                    style={{ color: 'var(--color-accent)' }}
-                  >
-                    <span>⏱️ 遅延モード: ON</span>
-                  </div>
-                  <div className="status-item">
-                    <span>エンジン: イベント駆動</span>
-                  </div>
-                </>
+                <div className="status-item">
+                  <span>エンジン: イベント駆動</span>
+                </div>
               )}
             </div>
           </>

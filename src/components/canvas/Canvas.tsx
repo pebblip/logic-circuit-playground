@@ -554,7 +554,13 @@ export const Canvas: React.FC<CanvasProps> = ({
           <div>Mode: {config.mode}</div>
           <div>Gates: {state.displayGates.length}</div>
           <div>Wires: {state.displayWires.length}</div>
-          <div>Scale: {zoomHandlers.scale.toFixed(2)}</div>
+          <div>
+            Scale:{' '}
+            {(config.mode === 'gallery'
+              ? state.scale
+              : zoomHandlers.scale
+            ).toFixed(2)}
+          </div>
           <div>Animating: {state.isAnimating ? 'Yes' : 'No'}</div>
         </div>
       )}
