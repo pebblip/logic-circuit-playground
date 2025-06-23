@@ -35,6 +35,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
     timingChartActions,
     simulationConfig,
     setDelayMode,
+    selectedGateId,
   } = useCircuitStore();
   const [isVisualizerOpen, setIsVisualizerOpen] = useState(false);
   const [highlightedGateId, setHighlightedGateId] = useState<string | null>(
@@ -93,6 +94,14 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = () => {
   //     }
   //   }
   // }, [gates, isVisualizerOpen]);
+
+  // ゲート選択時にプロパティパネルを自動表示
+  React.useEffect(() => {
+    if (selectedGateId && isVisualizerOpen && appMode === 'フリーモード') {
+      // ゲートが選択されたらビジュアライザーを閉じてプロパティパネルを表示
+      setIsVisualizerOpen(false);
+    }
+  }, [selectedGateId, isVisualizerOpen, appMode]);
 
   return (
     <div
