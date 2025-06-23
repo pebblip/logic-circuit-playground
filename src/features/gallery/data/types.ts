@@ -2,7 +2,7 @@
  * ギャラリー回路の型定義
  */
 
-import type { EvaluationCircuit } from '@/domain/simulation/core/types';
+import type { Gate, Wire } from '@/types/circuit';
 
 /**
  * ギャラリー回路のメタデータ
@@ -25,8 +25,9 @@ export interface GalleryCircuitMetadata {
 }
 
 /**
- * ギャラリー回路（メタデータ付きEvaluationCircuit）
+ * ギャラリー回路（メタデータ付きCircuit）
  */
-export interface GalleryCircuit
-  extends EvaluationCircuit,
-    GalleryCircuitMetadata {}
+export interface GalleryCircuit extends GalleryCircuitMetadata {
+  gates: Gate[];
+  wires: Wire[];
+}

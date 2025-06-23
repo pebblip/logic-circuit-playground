@@ -231,16 +231,11 @@ export interface GateEvaluationResult {
 // 回路評価結果
 // ===============================
 
-import type { Gate, Wire, GateMetadata } from '../../../types/circuit';
+import type { Gate, Circuit as BaseCircuit } from '../../../types/circuit';
 
-/**
- * Immutableな回路定義
- */
-export interface Circuit {
-  readonly gates: readonly Gate[];
-  readonly wires: readonly Wire[];
-  readonly metadata?: Readonly<CircuitMetadata>;
-}
+// ※ Circuit型を再エクスポート（必要に応じてReadonly化）
+export type Circuit = BaseCircuit;
+export type EvaluationCircuit = Circuit; // 後方互換性
 
 /**
  * 回路メタデータ
@@ -502,28 +497,9 @@ export function createDependencyError(
 // 評価エンジン用の型定義
 // =============================
 
-import type { GateType, Position } from '../../../types/circuit';
+// ※ EvaluationGateは削除し、Gate型を直接使用
 
-/**
- * 評価エンジン専用ゲート定義
- * inputs/outputsはすべてboolean配列で統一
- */
-export interface EvaluationGate {
-  readonly id: string;
-  readonly type: GateType;
-  readonly position: Position;
-  readonly inputs: readonly boolean[];
-  readonly outputs: readonly boolean[];
-  readonly metadata?: GateMetadata; // CLOCKゲートなどのメタデータ用
-}
-
-/**
- * 評価エンジン専用回路定義
- */
-export interface EvaluationCircuit {
-  readonly gates: readonly EvaluationGate[];
-  readonly wires: readonly Wire[];
-}
+// ※ EvaluationCircuitは削除し、Circuit型を直接使用
 
 /**
  * 評価コンテキスト
@@ -554,7 +530,7 @@ export type GateEvaluator<
   inputs: TInputs,
   gateId: string,
   context: EvaluationContext,
-  gate?: EvaluationGate
+  gate?: Gate
 ) => EvaluationResult<TOutputs>;
 
 /**
@@ -620,7 +596,7 @@ export type GateEvaluatorMap = {
  * 評価エンジンの内部結果
  */
 export interface EvaluatorResult {
-  readonly circuit: EvaluationCircuit;
+  readonly circuit: Circuit;
   readonly context: EvaluationContext;
   readonly hasChanges: boolean;
   readonly warnings?: readonly string[];

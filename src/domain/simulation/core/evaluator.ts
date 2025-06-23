@@ -4,14 +4,8 @@
  * イミュータブルなデータ構造と純粋関数で回路を評価する
  */
 
-import type {
-  EvaluationGate,
-  EvaluationCircuit,
-  EvaluationContext,
-  EvaluatorResult,
-  GateMemory,
-} from './types';
-import type { Wire } from '../../../types/circuit';
+import type { EvaluationContext, EvaluatorResult, GateMemory } from './types';
+import type { Wire, Gate, Circuit } from '../../../types/circuit';
 import { gateEvaluators } from './evaluators';
 import { CircularDependencyDetector } from '../../analysis/circular-dependency-detector';
 
@@ -23,7 +17,7 @@ export class CircuitEvaluator {
    * 循環依存がある場合はエラーを発生させる
    */
   evaluateImmediate(
-    circuit: EvaluationCircuit,
+    circuit: Circuit,
     context: EvaluationContext
   ): EvaluatorResult {
     // 🔥 循環検出は行うが、evaluateDelayed に移譲して適切に処理
@@ -59,7 +53,7 @@ export class CircuitEvaluator {
    * 発振回路や順序回路に対応
    */
   evaluateDelayed(
-    circuit: EvaluationCircuit,
+    circuit: Circuit,
     context: EvaluationContext
   ): EvaluatorResult {
     // 遅延モードでは循環を許可
@@ -70,7 +64,7 @@ export class CircuitEvaluator {
    * 内部的な評価処理
    */
   private evaluateInternal(
-    circuit: EvaluationCircuit,
+    circuit: Circuit,
     context: EvaluationContext
   ): EvaluatorResult {
     // 収束するまで評価を繰り返す（最大10回）
@@ -183,9 +177,7 @@ export class CircuitEvaluator {
   /**
    * ワイヤーの状態からゲートの入力を更新
    */
-  private updateGateInputsFromWires(
-    circuit: EvaluationCircuit
-  ): EvaluationCircuit {
+  private updateGateInputsFromWires(circuit: Circuit): Circuit {
     // ゲートIDでマップを作成
     const gateMap = new Map(circuit.gates.map(g => [g.id, g]));
 
@@ -255,7 +247,7 @@ export class CircuitEvaluator {
    */
   private updateWireStatesFromGates(
     wires: readonly Wire[],
-    gates: readonly EvaluationGate[]
+    gates: readonly Gate[]
   ): Wire[] {
     const gateMap = new Map(gates.map(g => [g.id, g]));
 
@@ -290,7 +282,7 @@ export class CircuitEvaluator {
   /**
    * ゲートの入力数を取得
    */
-  private getInputCount(gate: EvaluationGate): number {
+  private getInputCount(gate: Gate): number {
     switch (gate.type) {
       case 'INPUT':
         return 0;
@@ -322,8 +314,8 @@ export class CircuitEvaluator {
    * 変更があったかどうかを検出
    */
   private detectChanges(
-    originalCircuit: EvaluationCircuit,
-    newGates: readonly EvaluationGate[],
+    originalCircuit: Circuit,
+    newGates: readonly Gate[],
     newWires: readonly Wire[]
   ): boolean {
     // ゲートの出力が変わったかチェック

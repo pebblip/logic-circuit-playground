@@ -5,14 +5,10 @@
 
 import { useEffect, useRef } from 'react';
 import { useCircuitStore } from '@/stores/circuitStore';
-import type { Circuit } from '@domain/simulation/core/types';
+// ※ Circuit型は@/types/circuitから直接import
 import { isSuccess } from '@domain/simulation/core';
 import { CircuitEvaluator } from '@/domain/simulation/core/evaluator';
-import type {
-  EvaluationCircuit,
-  EvaluationContext,
-  EvaluationGate,
-} from '@/domain/simulation/core/types';
+import type { EvaluationContext } from '@/domain/simulation/core/types';
 import { globalTimingCapture } from '@/domain/timing/timingCapture';
 import { handleError } from '@/infrastructure/errorHandler';
 import {
@@ -20,7 +16,7 @@ import {
   calculateUpdateInterval,
 } from '../utils/canvasHelpers';
 import { CANVAS_CONSTANTS } from '../utils/canvasConstants';
-import type { Gate } from '@/types/circuit';
+import type { Gate, Circuit } from '@/types/circuit';
 
 interface UseCanvasSimulationProps {
   displayGates: Gate[];
@@ -171,11 +167,11 @@ export const useCanvasSimulation = ({
       let result;
 
       try {
-        // Circuit型をEvaluationCircuit型に変換（metadata保持）
-        const evaluationCircuit: EvaluationCircuit = {
+        // Circuit型の準備（metadata保持）
+        const evaluationCircuit: Circuit = {
           gates: currentCircuit.gates.map(gate => ({
             id: gate.id,
-            type: gate.type as EvaluationGate['type'],
+            type: gate.type as Gate['type'],
             position: gate.position,
             inputs: gate.inputs || [],
             outputs: gate.outputs || [],

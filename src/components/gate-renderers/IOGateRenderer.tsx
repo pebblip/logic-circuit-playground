@@ -106,7 +106,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
             cx="0"
             cy="0"
             r="15"
-            fill={gate.outputs?.[0] ? '#00ff88' : '#333'}
+            fill={gate.inputs?.[0] ? '#00ff88' : '#333'}
           />
           {/* 電球アイコン */}
           <text x="0" y="5" className="gate-text u-text-xl">
