@@ -5,7 +5,6 @@ import { GalleryListPanel } from './GalleryListPanel';
 import { Canvas } from '@/components/canvas/Canvas';
 import { CANVAS_MODE_PRESETS } from '@/components/canvas/types/canvasTypes';
 import { GalleryDetailPanel } from './GalleryDetailPanel';
-import { DebugLogDisplay } from '@/components/debug/DebugLogDisplay';
 import './GalleryModeLayout.css';
 
 export const GalleryModeLayout: React.FC = () => {
@@ -62,15 +61,6 @@ export const GalleryModeLayout: React.FC = () => {
       >
         {selectedCircuit && <GalleryDetailPanel circuit={selectedCircuit} />}
       </aside>
-
-      {/* 🔍 デバッグログ表示（開発環境のみ） */}
-      {import.meta.env.DEV && (
-        <DebugLogDisplay
-          isEnabled={true}
-          position="bottom-right"
-          maxLogs={15}
-        />
-      )}
     </div>
   );
 };

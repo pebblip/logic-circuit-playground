@@ -3,6 +3,7 @@ import { TruthTableDisplay } from '@/components/TruthTableDisplay';
 import { useCircuitStore } from '@/stores/circuitStore';
 import type { Gate } from '@/types/circuit';
 import { DEMO_CUSTOM_GATES } from '@/components/tool-palette/gateDefinitions';
+import { TERMS } from '@/features/learning-mode/data/terms';
 
 export interface TruthTableResult {
   table: Array<{
@@ -69,8 +70,8 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
 
     const truthTable = getTruthTable();
     if (truthTable) {
-      const inputNames = gateType === 'NOT' ? ['入力'] : ['A', 'B'];
-      const outputNames = ['出力'];
+      const inputNames = gateType === 'NOT' ? [TERMS.INPUT] : ['A', 'B'];
+      const outputNames = [TERMS.OUTPUT];
 
       return (
         <TruthTableDisplay
@@ -96,10 +97,10 @@ export const TruthTableModal: React.FC<TruthTableModalProps> = ({
 
       if (customGate && customGate.truthTable) {
         const inputNames = customGate.inputs.map(
-          pin => pin.name || `入力${pin.index + 1}`
+          pin => pin.name || `${TERMS.INPUT}${pin.index + 1}`
         );
         const outputNames = customGate.outputs.map(
-          pin => pin.name || `出力${pin.index + 1}`
+          pin => pin.name || `${TERMS.OUTPUT}${pin.index + 1}`
         );
 
         return (

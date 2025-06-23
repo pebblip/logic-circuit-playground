@@ -49,10 +49,10 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
           {/* スイッチトラック */}
           <rect
             className={`switch-track ${gate.outputs?.[0] ? 'active' : ''}`}
-            x="-25"
-            y="-15"
-            width="50"
-            height="30"
+            x="-30"
+            y="-18"
+            width="60"
+            height="36"
             rx="15"
             fill={gate.outputs?.[0] ? 'rgba(0, 255, 136, 0.1)' : '#1a1a1a'}
             stroke={
@@ -67,6 +67,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
             cy="0"
             r="10"
             fill={gate.outputs?.[0] ? '#00ff88' : '#666'}
+            style={{ pointerEvents: 'none' }}
           />
         </g>
 

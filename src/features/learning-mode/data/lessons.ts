@@ -22,7 +22,6 @@ import { shiftRegisterStructuredLesson } from './structured-lessons/shift-regist
 import { clockSyncStructuredLesson } from './structured-lessons/clock-sync-lesson';
 import { trafficLightStructuredLesson } from './structured-lessons/traffic-light-lesson';
 import { digitalClockStructuredLesson } from './structured-lessons/digital-clock-lesson';
-import { diagramCatalogLesson } from './structured-lessons/diagram-catalog-lesson';
 import { nandGateStructuredLesson } from './structured-lessons/nand-gate-lesson';
 import { jkFlipFlopStructuredLesson } from './structured-lessons/jk-flip-flop-lesson';
 import { sevenSegmentDisplayStructuredLesson } from './structured-lessons/seven-segment-display-lesson';
@@ -100,7 +99,6 @@ const cleanLessons = [
   clockSyncStructuredLesson,
   trafficLightStructuredLesson,
   digitalClockStructuredLesson,
-  diagramCatalogLesson, // SVG図表カタログ
 ];
 
 // カテゴリを追加（旧形式との互換性のため）

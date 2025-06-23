@@ -1,5 +1,6 @@
 import React from 'react';
 import type { GalleryCircuit } from '../data/types';
+import { TERMS } from '@/features/learning-mode/data/terms';
 import './GalleryDetailPanel.css';
 
 interface GalleryDetailPanelProps {
@@ -55,13 +56,13 @@ export const GalleryDetailPanel: React.FC<GalleryDetailPanelProps> = ({
             <span className="stat-value">{circuit.wires.length}</span>
           </div>
           <div className="stat-item">
-            <span className="stat-label">入力数</span>
+            <span className="stat-label">{TERMS.INPUT}数</span>
             <span className="stat-value">
               {circuit.gates.filter(g => g.type === 'INPUT').length}
             </span>
           </div>
           <div className="stat-item">
-            <span className="stat-label">出力数</span>
+            <span className="stat-label">{TERMS.OUTPUT}数</span>
             <span className="stat-value">
               {circuit.gates.filter(g => g.type === 'OUTPUT').length}
             </span>

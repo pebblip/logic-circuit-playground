@@ -5,14 +5,15 @@ import {
   booleanToDisplayState,
   getGateInputsAsBoolean,
 } from '@domain/simulation';
+import { TERMS } from '@/features/learning-mode/data/terms';
 
 // ゲートタイプの表示名を取得
 const getGateDisplayName = (type: GateType): string => {
   switch (type) {
     case 'INPUT':
-      return '入力';
+      return TERMS.INPUT;
     case 'OUTPUT':
-      return '出力';
+      return TERMS.OUTPUT;
     case 'CLOCK':
       return 'クロック';
     default:
@@ -89,7 +90,7 @@ export const GateInfo: React.FC<GateInfoProps> = ({ selectedGate }) => {
                     color: 'rgba(255, 255, 255, 0.6)',
                   }}
                 >
-                  入力:
+                  {TERMS.INPUT}:
                 </span>
                 {getGateInputsAsBoolean(selectedGate).map((input, index) => (
                   <span
@@ -126,7 +127,8 @@ export const GateInfo: React.FC<GateInfoProps> = ({ selectedGate }) => {
                 fontWeight: '600',
               }}
             >
-              出力: {booleanToDisplayState(selectedGate.output ?? false)}
+              {TERMS.OUTPUT}:{' '}
+              {booleanToDisplayState(selectedGate.output ?? false)}
             </span>
           </div>
         </div>

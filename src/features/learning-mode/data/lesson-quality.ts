@@ -210,13 +210,6 @@ export const LESSON_QUALITY_MAP: Record<string, LessonQualityInfo> = {
     lastReviewed: '2024-12-13',
     reviewer: 'system',
   },
-  'diagram-catalog': {
-    level: 'beta',
-    completionScore: 70,
-    issues: ['図表の充実必要'],
-    lastReviewed: '2024-12-13',
-    reviewer: 'system',
-  },
 };
 
 /**

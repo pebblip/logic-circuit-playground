@@ -13,10 +13,12 @@ export const TERMS = {
   D_FF: 'D-FF',
   SR_LATCH: 'SR-LATCH',
   MUX: 'MUX',
+  LED: 'LED表示',
 
   // 基本用語
   INPUT: '入力',
   OUTPUT: '出力',
+  INPUT_OUTPUT: '入出力',
   GATE: 'ゲート',
   LOGIC_GATE: '論理ゲート',
   CIRCUIT: '回路',

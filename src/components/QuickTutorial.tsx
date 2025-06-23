@@ -159,7 +159,7 @@ export const QuickTutorial: React.FC<QuickTutorialProps> = ({
           sections.forEach(section => {
             const text = section.textContent || '';
             if (
-              text.includes('入出力') ||
+              text.includes(TERMS.INPUT_OUTPUT) ||
               text.includes('INPUT') ||
               text.includes('I/O')
             ) {
@@ -173,7 +173,7 @@ export const QuickTutorial: React.FC<QuickTutorialProps> = ({
               .nextElementSibling as HTMLElement | null;
             const gridRect = toolsGrid?.getBoundingClientRect();
 
-            debug.log('入出力セクション位置:', {
+            debug.log(`${TERMS.INPUT_OUTPUT}セクション位置:`, {
               section: rect,
               grid: gridRect,
               text: (ioSection as HTMLElement).textContent,
