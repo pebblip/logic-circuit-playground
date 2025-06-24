@@ -11,22 +11,26 @@
 Logic Circuit Playgroundは、論理回路の基礎から応用まで段階的に学習できるインタラクティブなWebアプリケーションです。ドラッグ&ドロップでゲートを配置し、リアルタイムでシミュレーションを実行できます。
 
 ### ✨ 特徴
+
 - 🎮 **4つのモード**: 学習・フリー・パズル・ギャラリー
 - 🎨 **直感的な操作**: ドラッグ&ドロップで簡単ゲート配置
 - ⚡ **リアルタイムシミュレーション**: coreAPIによる高速・型安全な回路評価
 - 🔧 **カスタムゲート作成**: 回路から新しいゲートを作成可能
 - 📊 **真理値表表示**: ゲートの動作を視覚的に確認
 - 📱 **マルチデバイス対応**: PC・タブレット・スマホで快適操作
+- ⏱️ **遅延モード**: 信号伝播の遅延をビジュアル化
+- 🎯 **自動フィット機能**: ギャラリー回路を画面に最適表示
 - 🎯 **段階的学習**: 22の構造化レッスン（18レッスンがproduction品質、4レッスンがbeta品質）
 - ⌨️ **キーボードショートカット**: Delete、Undo/Redo、Copy/Paste、SelectAll
 - 🔗 **URL共有機能**: Base64エンコードによる即座の回路共有
 - 🚨 **視覚的エラー通知**: トースト形式の分かりやすいエラー表示
 
 ### 🛠️ 技術的特徴
+
 - **coreAPI**: Result<T,E>パターンによる型安全なシミュレーション
 - **Hybrid Feature-Domain Architecture**: プロジェクト規模に適した設計
 - **Zustand**: 10個のスライスによる効率的な状態管理
-- **TypeScript strict mode**: エラー0の型安全性
+- **TypeScript strict mode**: エラー0の型安全性（統一型システム完成）
 - **統一されたレッスン構造**: 7ステップ構成の学習体験
 - **レスポンシブ設計**: 各デバイスに最適化されたレイアウト
 - **オブジェクト指向設計**: 設定駆動型アーキテクチャで高い拡張性
@@ -35,10 +39,12 @@ Logic Circuit Playgroundは、論理回路の基礎から応用まで段階的�
 ## 🎯 始め方
 
 ### 必要環境
+
 - Node.js 18以上
 - npm または pnpm
 
 ### インストール
+
 ```bash
 # リポジトリをクローン
 git clone https://github.com/yourusername/logic-circuit-playground.git
@@ -52,6 +58,7 @@ npm run dev
 ```
 
 ### ビルド
+
 ```bash
 # プロダクションビルド
 npm run build
@@ -63,6 +70,7 @@ npm run preview
 ## 🎮 使い方
 
 ### 学習モード（22レッスン実装済み）
+
 1. 基礎編：NOT、AND、OR、XORゲート
 2. 算術編：半加算器、全加算器、4ビット加算器
 3. 記憶編：D-FF、SR-LATCH、レジスタ、シフトレジスタ
@@ -71,6 +79,7 @@ npm run preview
 6. 各レッスンは7ステップ構成（導入→原理→回路作成→実験→分析→応用→まとめ）
 
 ### フリーモード
+
 1. ツールパレットからゲートをドラッグ&ドロップで配置
 2. ピンをクリックして接続を作成
 3. リアルタイムでシミュレーション実行
@@ -79,31 +88,38 @@ npm run preview
 6. **真理値表で動作を確認**
 
 ### パズルモード
+
 1. 与えられた条件を満たす回路を作成
 2. リアルタイムで正誤判定
 3. 段階的ヒントシステムで学習をサポート
 4. 難易度別の問題セット
 
 ### ギャラリーモード
+
 1. 基本回路から高度な回路まで多数のサンプル
 2. 動作説明付きで理解を深める
 3. 自由に編集・実験可能
+4. **動的回路**: CLOCKやフィードバックループを含む回路
+5. **自動フィット**: 回路全体を画面に最適表示
 
 ## ⚡ 主要機能
 
 ### 🔧 カスタムゲート作成
+
 - **回路から新しいゲートを作成**: 複雑な回路を再利用可能なゲートに変換
 - **自動真理値表生成**: カスタムゲートの動作を自動的に分析
 - **視覚的な動作確認**: 真理値表で入出力関係を確認
 - **ピン位置の最適化**: CustomGateRendererによる自動レイアウト
 
 ### 🎨 プロパティパネル強化
+
 - **ゲート情報表示**: 選択したゲートの詳細情報
 - **真理値表の統合**: ワンクリックで真理値表を表示
 - **学習リソース**: 配置済みゲートにも学習資料を表示
 - **カスタムゲートサポート**: 作成したゲートの説明も表示
 
 ### ⌨️ キーボードショートカット
+
 - **Delete**: 選択したゲートを削除
 - **Ctrl/Cmd+Z/Y**: Undo/Redo
 - **Ctrl/Cmd+C/V**: Copy/Paste
@@ -112,12 +128,14 @@ npm run preview
 - **?**: ヘルプ表示
 
 ### 🚀 coreAPI設計
+
 - **Result<T,E>パターン**: Rustスタイルの型安全なエラーハンドリング
 - **純粋関数設計**: サイドエフェクトなし、完全にテスタブル
 - **Immutable**: 元データを変更せず、新しいデータを返す
 - **防御的プログラミング**: 予期せぬ入力に対する堅牢性
 
 ### 🎯 使用例
+
 ```typescript
 import { evaluateCircuit, defaultConfig } from '@domain/simulation/core';
 
@@ -152,10 +170,11 @@ src/
 ## 🧪 開発
 
 ### コマンド一覧
+
 ```bash
 npm run dev        # 開発サーバー起動
 npm run build      # プロダクションビルド
-npm run test       # 単体テスト実行（推奨）
+npm run test       # 単体テスト実行（623 tests passed）
 npm run test:e2e   # E2Eテスト実行
 npm run typecheck  # 型チェック
 npm run lint       # リント実行
@@ -163,29 +182,35 @@ npm run format     # コード整形
 ```
 
 ### テスト戦略
+
 - 機能カバレッジ100%を目指す包括的テスト体系
 - 明確な価値判定基準に基づくテスト管理
 - テストピラミッド原則（単体70%、統合20%、E2E10%）
 - 継続的な品質向上プロセス
+- 技術的制約による211件のスキップテスト（文書化済み）
 
 詳細は [テスト戦略ドキュメント](docs/testing/TEST_STRATEGY.md) を参照
 
 ### 品質チェック
+
 ```bash
 # コミット前に必ず実行
 npm run typecheck && npm run test && npm run build
 ```
+
 詳細なプロセスは[開発ガイドライン](./docs/development/GUIDELINES.md)を参照。
 
 ## 📚 ドキュメント
 
 ### 🚀 スタートガイド
+
 - [🚀 クイックスタート](./docs/user-guide/QUICK_START.md) - 5分で始めるLogicCirc
 - [❓ FAQ](./docs/user-guide/FAQ.md) - よくある質問と解決方法
 - [🔧 トラブルシューティング](./docs/user-guide/TROUBLESHOOTING.md) - 詳細な問題解決ガイド
 - [📋 コマンドリファレンス](./docs/user-guide/COMMAND_REFERENCE.md) - 全コマンドの完全ガイド
 
 ### 📖 設計・開発
+
 - [ドキュメント構成](./docs/README.md) - ドキュメントの全体像と関係
 - [プロジェクト設計書](./docs/management/PROJECT_BLUEPRINT.md) - 全体設計（What & Why）
 - [技術アーキテクチャ](./docs/development/ARCHITECTURE.md) - 実装詳細（How）
@@ -198,8 +223,15 @@ npm run typecheck && npm run test && npm run build
 
 - **Phase 0**: ✅ 基本機能の確立（完了）
 - **Phase 1**: ✅ アーキテクチャ整理（完了）
-- **Phase 2**: 🚧 UI/UX改善（80%完了）
-- **Phase 3**: 📋 次世代機能（計画中）
+  - 型システム統一（EvaluationGate→Gate）完了
+  - coreAPI設計完成
+- **Phase 2**: ✅ UI/UX改善（完了）
+  - ギャラリーレイアウト最適化
+  - 自動フィット機能実装
+  - 遅延モード実装
+- **Phase 3**: 🚧 品質改善フェーズ（進行中）
+  - UI一貫性修正
+  - 操作性改善
 
 詳細は[開発ロードマップ](./docs/development/ROADMAP.md)を参照。
 
@@ -212,6 +244,7 @@ npm run typecheck && npm run test && npm run build
 5. プルリクエストを作成
 
 ### コミット規約
+
 [Conventional Commits](https://www.conventionalcommits.org/)形式を使用。  
 詳細は[開発ガイドライン](./docs/development/GUIDELINES.md)を参照。
 
