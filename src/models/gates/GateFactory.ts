@@ -4,103 +4,160 @@ import type {
   Position,
   CustomGateDefinition,
 } from '../../types/circuit';
-import { GATE_SIZES, PIN_CONFIGS, isCustomGate } from '../../types/gates';
+import { isCustomGate } from '../../types/gates';
 import { IdGenerator } from '../../shared/id';
+
+// ゲートタイプ別設定定義（オブジェクト指向パターン）
+interface GateConfig {
+  size: { width: number; height: number };
+  pins: { inputs: number; outputs: number };
+  createSpecific?: (baseGate: Gate) => Gate;
+}
+
+const GATE_CONFIGS: Record<string, GateConfig> = {
+  // 基本ゲート
+  AND: { size: { width: 70, height: 50 }, pins: { inputs: 2, outputs: 1 } },
+  OR: { size: { width: 70, height: 50 }, pins: { inputs: 2, outputs: 1 } },
+  NOT: { size: { width: 70, height: 50 }, pins: { inputs: 1, outputs: 1 } },
+  XOR: { size: { width: 70, height: 50 }, pins: { inputs: 2, outputs: 1 } },
+  NAND: { size: { width: 70, height: 50 }, pins: { inputs: 2, outputs: 1 } },
+  NOR: { size: { width: 70, height: 50 }, pins: { inputs: 2, outputs: 1 } },
+
+  // 入出力
+  INPUT: {
+    size: { width: 50, height: 30 },
+    pins: { inputs: 0, outputs: 1 },
+    createSpecific: base => ({
+      ...base,
+      inputs: [],
+      outputs: [false],
+    }),
+  },
+  OUTPUT: {
+    size: { width: 40, height: 40 },
+    pins: { inputs: 1, outputs: 0 },
+    createSpecific: base => ({
+      ...base,
+      inputs: [false],
+      outputs: [],
+    }),
+  },
+
+  // 特殊ゲート
+  CLOCK: {
+    size: { width: 80, height: 80 },
+    pins: { inputs: 0, outputs: 1 },
+    createSpecific: base => ({
+      ...base,
+      inputs: [],
+      outputs: [false],
+      metadata: {
+        frequency: 1,
+        isRunning: true,
+        startTime: undefined,
+      },
+    }),
+  },
+
+  'D-FF': {
+    size: { width: 100, height: 80 },
+    pins: { inputs: 2, outputs: 1 },
+    createSpecific: base => ({
+      ...base,
+      inputs: [false, false],
+      outputs: [false],
+      metadata: {
+        clockEdge: 'rising',
+        previousClockState: false,
+        qOutput: false,
+        qBarOutput: true,
+      },
+    }),
+  },
+
+  'SR-LATCH': {
+    size: { width: 100, height: 80 },
+    pins: { inputs: 2, outputs: 1 },
+    createSpecific: base => ({
+      ...base,
+      inputs: [false, false],
+      outputs: [false],
+      metadata: {
+        qOutput: false,
+        qBarOutput: true,
+      },
+    }),
+  },
+
+  MUX: {
+    size: { width: 100, height: 100 },
+    pins: { inputs: 3, outputs: 1 },
+    createSpecific: base => ({
+      ...base,
+      inputs: [false, false, false],
+      outputs: [false],
+      metadata: {
+        dataInputCount: 2,
+        selectedInput: 0,
+      },
+    }),
+  },
+
+  BINARY_COUNTER: {
+    size: { width: 120, height: 100 },
+    pins: { inputs: 1, outputs: 2 },
+    createSpecific: base => ({
+      ...base,
+      inputs: [false],
+      outputs: [false, false],
+      metadata: {
+        bitCount: 2,
+        currentValue: 0,
+        previousClockState: false,
+      },
+    }),
+  },
+
+  LED: {
+    size: { width: 120, height: 100 },
+    pins: { inputs: 4, outputs: 0 },
+    createSpecific: base => ({
+      ...base,
+      inputs: [false, false, false, false],
+      outputs: [],
+      gateData: {
+        bitWidth: 4,
+        displayMode: 'both' as const,
+      },
+    }),
+  },
+
+  CUSTOM: { size: { width: 100, height: 80 }, pins: { inputs: 2, outputs: 1 } },
+};
 
 export class GateFactory {
   /**
-   * ゲートを作成する
-   * 既存のaddGateとの互換性を保ちながら、特殊ゲートに対応
+   * ゲートを作成する（オブジェクト指向パターン）
    */
   static createGate(type: GateType, position: Position): Gate {
     const id = IdGenerator.generateGateId();
+    const config = GATE_CONFIGS[type] || GATE_CONFIGS.CUSTOM;
 
     // 基本的なゲート構造
     const baseGate: Gate = {
       id,
       type,
       position,
-      inputs: this.createInputArray(type),
+      inputs: this.createInputArray(type, config),
       outputs: type === 'OUTPUT' ? [] : [false], // PureCircuit形式
-      output: type === 'INPUT' ? false : false, // Legacy互換性
     };
 
-    // 特殊ゲート用のメタデータを追加
-    switch (type) {
-      case 'CLOCK':
-        return {
-          ...baseGate,
-          output: false, // 初期状態でOFF
-          metadata: {
-            frequency: 1, // 1Hz（1000ms周期、500ms ON/OFF）で見やすい速度
-            isRunning: true, // デフォルトでON（楽しい！）
-            startTime: undefined, // 評価時に設定される
-          },
-        };
+    // 特殊ゲート用のメタデータを追加（純粋関数パターン）
+    const gate = config.createSpecific
+      ? config.createSpecific(baseGate)
+      : baseGate;
 
-      case 'D-FF':
-        return {
-          ...baseGate,
-          inputs: [false, false], // D, CLK
-          metadata: {
-            clockEdge: 'rising',
-            previousClockState: false,
-            qOutput: false,
-            qBarOutput: true,
-          },
-        };
-
-      case 'SR-LATCH':
-        return {
-          ...baseGate,
-          inputs: [false, false], // S, R
-          output: false, // 初期状態
-          metadata: {
-            qOutput: false,
-            qBarOutput: true,
-          },
-        };
-
-      case 'MUX':
-        return {
-          ...baseGate,
-          inputs: [false, false, false], // 2:1 MUX default (2 data + 1 select)
-          metadata: {
-            dataInputCount: 2,
-            selectedInput: 0,
-          },
-        };
-
-      case 'BINARY_COUNTER':
-        return {
-          ...baseGate,
-          inputs: [false], // CLK input only
-          outputs: [false, false], // デフォルト2ビット（4カウント）
-          metadata: {
-            bitCount: 2,
-            currentValue: 0,
-            previousClockState: false,
-          },
-        };
-
-      case 'LED':
-        return {
-          ...baseGate,
-          inputs: [false, false, false, false], // デフォルト4bit
-          outputs: [], // 出力なし
-          gateData: {
-            bitWidth: 4,
-            displayMode: 'both' as const,
-          },
-        };
-
-      case 'CUSTOM':
-        // カスタムゲートは後で設定される
-        return baseGate;
-
-      default:
-        return baseGate;
-    }
+    return gate;
   }
 
   /**
@@ -119,7 +176,6 @@ export class GateFactory {
       position,
       inputs: inputsArray,
       outputs: new Array(definition.outputs.length).fill(false), // 複数出力の初期化
-      output: false, // Legacy互換性
       customGateDefinition: definition,
     };
 
@@ -127,37 +183,22 @@ export class GateFactory {
   }
 
   /**
-   * ゲートタイプに応じた入力配列を作成 (PureCircuit形式)
+   * ゲート設定に応じた入力配列を作成（純粋関数パターン）
    */
-  private static createInputArray(type: GateType): boolean[] {
-    if (type === 'INPUT' || type === 'CLOCK') {
-      return []; // 入力ピンなし
-    }
-
-    if (type === 'NOT' || type === 'OUTPUT') {
-      return [false]; // 1入力
-    }
-
-    if (type === 'MUX') {
-      return [false, false, false]; // デフォルトは2:1 MUX
-    }
-
-    if (type === 'LED') {
-      return [false, false, false, false]; // デフォルト4bit
-    }
-
-    // その他は2入力
-    return [false, false];
+  private static createInputArray(
+    type: GateType,
+    config: GateConfig
+  ): boolean[] {
+    return new Array(config.pins.inputs).fill(false);
   }
 
   /**
-   * ゲートのサイズを取得
+   * ゲートのサイズを取得（オブジェクト指向パターン）
    */
   static getGateSize(gate: Gate | GateType): { width: number; height: number } {
     if (typeof gate === 'string') {
-      return (
-        GATE_SIZES[gate as keyof typeof GATE_SIZES] || { width: 70, height: 50 }
-      );
+      const config = GATE_CONFIGS[gate];
+      return config ? config.size : { width: 70, height: 50 };
     }
 
     if (isCustomGate(gate) && gate.customGateDefinition) {
@@ -181,28 +222,20 @@ export class GateFactory {
       return { width, height: 100 };
     }
 
-    return (
-      GATE_SIZES[gate.type as keyof typeof GATE_SIZES] || {
-        width: 70,
-        height: 50,
-      }
-    );
+    const config = GATE_CONFIGS[gate.type];
+    return config ? config.size : { width: 70, height: 50 };
   }
 
   /**
-   * ゲートのピン数を取得
+   * ゲートのピン数を取得（オブジェクト指向パターン）
    */
   static getPinCount(gate: Gate | GateType): {
     inputs: number;
     outputs: number;
   } {
     if (typeof gate === 'string') {
-      return (
-        PIN_CONFIGS[gate as keyof typeof PIN_CONFIGS] || {
-          inputs: 2,
-          outputs: 1,
-        }
-      );
+      const config = GATE_CONFIGS[gate];
+      return config ? config.pins : { inputs: 2, outputs: 1 };
     }
 
     if (isCustomGate(gate) && gate.customGateDefinition) {
@@ -212,11 +245,7 @@ export class GateFactory {
       };
     }
 
-    return (
-      PIN_CONFIGS[gate.type as keyof typeof PIN_CONFIGS] || {
-        inputs: 2,
-        outputs: 1,
-      }
-    );
+    const config = GATE_CONFIGS[gate.type];
+    return config ? config.pins : { inputs: 2, outputs: 1 };
   }
 }

@@ -74,7 +74,7 @@ export function useGateEvents(gate: Gate): UseGateEventsResult {
     event.stopPropagation();
     // ダブルクリックでスイッチ切り替え
     if (gate.type === 'INPUT' && !hasDragged) {
-      updateGateOutput(gate.id, !gate.output);
+      updateGateOutput(gate.id, !(gate.outputs?.[0] ?? false));
     }
   };
 

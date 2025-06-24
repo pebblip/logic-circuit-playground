@@ -28,7 +28,7 @@ describe.skip('Gallery Mode Core Functionality - SKIPPED: useCanvasタイムア�
         autoSimulation: false, // 🔧 基本初期化テスト用にアニメーション無効化
         animationInterval: 100,
         showDebugInfo: true,
-        autoFit: false, // 🔧 自動フィットも一時無効化
+        autoFit: false, // autoFit無効化（サイズ一貫性確保）
         autoFitPadding: 80,
       },
       uiControls: {

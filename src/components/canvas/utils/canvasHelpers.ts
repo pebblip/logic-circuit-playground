@@ -61,7 +61,7 @@ export const calculateGatesBounds = (
 
   return gates.reduce(
     (acc, gate) => {
-      // ゲートのサイズ（GATE_SIZESから取得すべきだが、ここでは簡易的に）
+      // ゲートのサイズ（GateFactory.getGateSizeから取得すべきだが、ここでは簡易的に）
       const gateWidth = 70;
       const gateHeight = 50;
       const pinExtension = 10;

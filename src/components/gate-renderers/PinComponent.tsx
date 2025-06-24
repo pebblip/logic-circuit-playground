@@ -33,16 +33,11 @@ export const PinComponent: React.FC<PinComponentProps> = ({
   if (isActive !== undefined) {
     isPinActive = isActive;
   } else if (isOutput) {
-    isPinActive = gate.outputs?.[0] ?? gate.output ?? false;
+    isPinActive = gate.outputs?.[0] ?? false;
   } else {
-    // 入力ピンの場合：安全なアクセス（型混在に対応）
+    // 入力ピンの場合：安全なアクセス
     if (gate.inputs && gate.inputs.length > pinIndex) {
-      const inputValue = gate.inputs[pinIndex];
-      // PureCircuit形式（boolean）またはlegacy形式（string）に対応
-      isPinActive =
-        typeof inputValue === 'boolean'
-          ? inputValue
-          : inputValue === '1' || inputValue === 'true';
+      isPinActive = gate.inputs[pinIndex];
     }
   }
 
@@ -98,7 +93,7 @@ export const PinComponent: React.FC<PinComponentProps> = ({
       <ellipse
         cx={x}
         cy={y}
-        rx="25"
+        rx={gate.type === 'INPUT' && isOutput ? 15 : 25}
         ry="10"
         fill="transparent"
         className="u-cursor-crosshair"

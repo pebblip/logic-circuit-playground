@@ -16,6 +16,9 @@ import {
   CONNECTION_ERRORS,
   getPinConfig,
   getPinOffsetY,
+  calculateCustomGateHeight,
+  calculateCustomGatePinSpacing,
+  CUSTOM_GATE_CONFIG,
   type PinOffsetEntry,
 } from '@/domain/connection/pinConnectionConfig';
 import type { GateType } from '@/types/circuit';
@@ -219,6 +222,87 @@ describe('pinConnectionConfig', () => {
         expect(message.length).toBeLessThan(100);   // 長すぎない
         expect(message).not.toContain('Error');     // 英語のエラー用語を避ける
         expect(message).not.toContain('undefined'); // 技術的な表現を避ける
+      });
+    });
+  });
+
+  describe('カスタムゲート計算関数', () => {
+    describe('calculateCustomGateHeight', () => {
+      it('最小高さを下回らない', () => {
+        const height = calculateCustomGateHeight(1);
+        expect(height).toBe(CUSTOM_GATE_CONFIG.minHeight);
+      });
+
+      it('ピン数に応じて高さが増加する', () => {
+        const height2 = calculateCustomGateHeight(2);
+        const height4 = calculateCustomGateHeight(4);
+        const height8 = calculateCustomGateHeight(8);
+
+        expect(height2).toBeLessThan(height4);
+        expect(height4).toBeLessThan(height8);
+      });
+
+      it('ピン数が多い場合の計算が正しい', () => {
+        const pins = 5;
+        const expectedHeight = pins * CUSTOM_GATE_CONFIG.pinSpacing.perPin;
+        const actualHeight = calculateCustomGateHeight(pins);
+        
+        expect(actualHeight).toBe(expectedHeight);
+      });
+
+      it('0ピンでも最小高さを返す', () => {
+        const height = calculateCustomGateHeight(0);
+        expect(height).toBe(CUSTOM_GATE_CONFIG.minHeight);
+      });
+    });
+
+    describe('calculateCustomGatePinSpacing', () => {
+      it('単一ピンの場合は0を返す', () => {
+        const spacing = calculateCustomGatePinSpacing(1, 100);
+        expect(spacing).toBe(0);
+      });
+
+      it('0ピンの場合も0を返す', () => {
+        const spacing = calculateCustomGatePinSpacing(0, 100);
+        expect(spacing).toBe(0);
+      });
+
+      it('最小間隔を下回らない', () => {
+        // 非常に小さい高さでも最小間隔を維持
+        const spacing = calculateCustomGatePinSpacing(10, 50);
+        expect(spacing).toBeGreaterThanOrEqual(
+          CUSTOM_GATE_CONFIG.pinSpacing.minimum
+        );
+      });
+
+      it('利用可能な高さに基づいて適切な間隔を計算', () => {
+        const pinCount = 4;
+        const gateHeight = 150;
+        const availableHeight = gateHeight - 2 * CUSTOM_GATE_CONFIG.margins.vertical;
+        const expectedSpacing = availableHeight / (pinCount - 1);
+        
+        const actualSpacing = calculateCustomGatePinSpacing(pinCount, gateHeight);
+        
+        expect(actualSpacing).toBe(expectedSpacing);
+      });
+
+      it('高さが十分な場合は理想的な間隔を使用', () => {
+        const spacing = calculateCustomGatePinSpacing(3, 200);
+        const availableHeight = 200 - 2 * CUSTOM_GATE_CONFIG.margins.vertical;
+        const idealSpacing = availableHeight / 2; // 3-1=2
+        
+        expect(spacing).toBe(idealSpacing);
+      });
+
+      it('マージンを考慮した計算が正しい', () => {
+        const gateHeight = 100;
+        const pinCount = 3;
+        const expectedAvailable = gateHeight - 2 * CUSTOM_GATE_CONFIG.margins.vertical;
+        const expectedSpacing = expectedAvailable / (pinCount - 1);
+        
+        const actualSpacing = calculateCustomGatePinSpacing(pinCount, gateHeight);
+        
+        expect(actualSpacing).toBe(expectedSpacing);
       });
     });
   });

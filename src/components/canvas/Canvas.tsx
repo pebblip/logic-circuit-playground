@@ -80,11 +80,26 @@ export const Canvas: React.FC<CanvasProps> = ({
   // エディターモード専用機能（Hooksは常に呼び出す）
   const panHandlers = useCanvasPan(
     svgRef,
-    localViewBox,
-    setLocalViewBox,
+    config.mode === 'gallery' ? state.viewBox : localViewBox,
+    config.mode === 'gallery'
+      ? (newViewBox: typeof localViewBox) => {
+          actions.setPan({ x: newViewBox.x, y: newViewBox.y });
+        }
+      : setLocalViewBox,
     state.scale
   );
-  const zoomHandlers = useCanvasZoom(svgRef, localViewBox, setLocalViewBox);
+  const zoomHandlers = useCanvasZoom(
+    svgRef,
+    config.mode === 'gallery' ? state.viewBox : localViewBox,
+    config.mode === 'gallery'
+      ? (newViewBox: typeof localViewBox) => {
+          actions.setPan({ x: newViewBox.x, y: newViewBox.y });
+          // Calculate and set the new scale based on viewBox dimensions
+          const newScale = 1200 / newViewBox.width;
+          actions.setZoom(newScale);
+        }
+      : setLocalViewBox
+  );
   const selectionHandlers = useCanvasSelection(
     state.displayGates,
     actions.setSelection,
@@ -207,11 +222,16 @@ export const Canvas: React.FC<CanvasProps> = ({
 
         // パン操作の判定（優先的に処理）
         if (canUsePan) {
-          // スペース+左クリック、中クリック、またはCtrl+左クリックでパン
+          // ゲートがクリックされた場合はパン操作をスキップ
+          const clickedElement = event.target as Element;
+          const isGateClick = clickedElement.closest('[data-gate-type]');
+          // ギャラリーモードでは単純な左クリックでパン、エディターモードでは従来の条件
           const shouldPan =
-            (event.button === 0 && isSpacePressed) || // スペース+左クリック
-            event.button === 1 || // 中クリック
-            (event.button === 0 && event.ctrlKey); // Ctrl+左クリック
+            config.mode === 'gallery'
+              ? event.button === 0 && !isGateClick // ギャラリーモード: ゲート以外の左クリックでパン
+              : (event.button === 0 && isSpacePressed) || // エディター: スペース+左クリック
+                event.button === 1 || // 中クリック
+                (event.button === 0 && event.ctrlKey); // Ctrl+左クリック
 
           if (shouldPan) {
             event.preventDefault(); // デフォルトの動作を防ぐ
@@ -247,6 +267,7 @@ export const Canvas: React.FC<CanvasProps> = ({
       canUseSelection,
       selectionHandlers,
       svgRef,
+      config.mode,
     ]
   );
 
@@ -536,22 +557,10 @@ export const Canvas: React.FC<CanvasProps> = ({
       {/* コントロールパネル */}
       {features.showControls && (
         <CanvasControls
-          scale={config.mode === 'gallery' ? state.scale : zoomHandlers.scale}
-          onZoomIn={
-            config.mode === 'gallery'
-              ? () => actions.setZoom(state.scale * 1.1)
-              : zoomHandlers.zoomIn
-          }
-          onZoomOut={
-            config.mode === 'gallery'
-              ? () => actions.setZoom(state.scale * 0.9)
-              : zoomHandlers.zoomOut
-          }
-          onResetZoom={
-            config.mode === 'gallery'
-              ? () => actions.setZoom(1)
-              : zoomHandlers.resetZoom
-          }
+          scale={zoomHandlers.scale}
+          onZoomIn={zoomHandlers.zoomIn}
+          onZoomOut={zoomHandlers.zoomOut}
+          onResetZoom={zoomHandlers.resetZoom}
           hideWireStyleButton={config.mode === 'gallery'} // ギャラリーモードでは非表示
         />
       )}

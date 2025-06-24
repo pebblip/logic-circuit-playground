@@ -155,8 +155,8 @@ function calculateBeautifulPositions(
   if (layers.length === 0) return positions;
 
   // 基本パラメータ
-  const LAYER_SPACING = 200; // レイヤー間の距離
-  const GATE_SPACING = 100; // ゲート間の距離
+  const LAYER_SPACING = 250; // レイヤー間の距離（ゲート幅100px + 余白150px）
+  const GATE_SPACING = 120; // ゲート間の距離（ゲート高さ60px + 余白60px）
   const START_X = 100; // 開始X座標
   const CENTER_Y = 300; // 中央Y座標
 

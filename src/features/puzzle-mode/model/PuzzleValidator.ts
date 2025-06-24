@@ -153,7 +153,7 @@ export class PuzzleValidator {
         if (inputGates[index]) {
           const testGate = testGates.find(g => g.id === inputGates[index].id);
           if (testGate) {
-            testGate.output = inputValue;
+            testGate.outputs = [inputValue];
           }
         }
       });
@@ -163,7 +163,7 @@ export class PuzzleValidator {
 
       // 5. 出力を比較（最初のOUTPUTゲートの結果で判定）
       const firstOutputGate = simulatedResult.find(g => g.type === 'OUTPUT');
-      const actualOutput = firstOutputGate?.output ?? false;
+      const actualOutput = firstOutputGate?.outputs?.[0] ?? false;
 
       return actualOutput === testCase.expectedOutput;
     } catch (error) {
@@ -204,7 +204,7 @@ export class PuzzleValidator {
 
         // ゲート演算を実行
         const newOutput = this.calculateGateOutput(gate.type, inputValues);
-        gate.output = newOutput;
+        gate.outputs = [newOutput];
         processed.add(gate.id);
         hasChanges = true;
       });
@@ -215,7 +215,7 @@ export class PuzzleValidator {
         .forEach(outputGate => {
           const inputValues = this.getGateInputs(outputGate, result, wires);
           if (inputValues !== null && inputValues.length > 0) {
-            outputGate.output = inputValues[0]; // OUTPUTは最初の入力をそのまま出力
+            outputGate.outputs = [inputValues[0]]; // OUTPUTは最初の入力をそのまま出力
             processed.add(outputGate.id);
             hasChanges = true;
           }
@@ -245,10 +245,10 @@ export class PuzzleValidator {
 
     for (const wire of inputWires) {
       const sourceGate = gates.find(g => g.id === wire.from.gateId);
-      if (!sourceGate || sourceGate.output === undefined) {
+      if (!sourceGate || sourceGate.outputs?.[0] === undefined) {
         return null; // まだ計算されていない入力がある
       }
-      inputs.push(sourceGate.output);
+      inputs.push(sourceGate.outputs?.[0] ?? false);
     }
 
     return inputs;

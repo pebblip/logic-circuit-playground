@@ -87,7 +87,7 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
       circuit.gates.forEach(gate => {
         if (gate.type === 'INPUT') {
           mutableMemory[gate.id] = {
-            state: gate.output ?? false,
+            state: gate.outputs?.[0] ?? false,
           };
         }
       });
@@ -104,7 +104,6 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
           position: g.position,
           inputs: g.inputs || [],
           outputs: g.outputs || [],
-          output: g.output,
         })),
         wires: circuit.wires,
       };
@@ -202,7 +201,7 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
     circuit.gates.forEach(gate => {
       if (gate.type === 'INPUT') {
         initialMemory[gate.id] = {
-          state: gate.output ?? false,
+          state: gate.outputs?.[0] ?? false,
         };
       }
     });
@@ -220,7 +219,6 @@ export class CircuitEvaluationService implements ICircuitEvaluationService {
         position: g.position,
         inputs: g.inputs || [],
         outputs: g.outputs || [],
-        output: g.output,
       })),
       wires: circuit.wires,
     };

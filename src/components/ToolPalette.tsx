@@ -66,7 +66,6 @@ const DEMO_CUSTOM_GATES: CustomGateDefinition[] = [
           position: { x: 200, y: 150 },
           inputs: [false, false],
           outputs: [false],
-          output: false,
         },
         {
           id: 'and1',
@@ -74,7 +73,6 @@ const DEMO_CUSTOM_GATES: CustomGateDefinition[] = [
           position: { x: 200, y: 250 },
           inputs: [false, false],
           outputs: [false],
-          output: false,
         },
       ],
       wires: [],

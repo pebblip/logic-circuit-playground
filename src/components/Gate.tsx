@@ -9,6 +9,50 @@ import { SpecialGateRenderer } from '@/components/gate-renderers/SpecialGateRend
 import { CustomGateRenderer } from '@/components/gate-renderers/CustomGateRenderer';
 import { handleError } from '@/infrastructure/errorHandler';
 
+// レンダラー選択の型定義
+interface GateRendererProps {
+  gate: Gate;
+  isSelected: boolean;
+  handleMouseDown: (event: React.MouseEvent) => void;
+  handleTouchStart: (event: React.TouchEvent) => void;
+  handlePinClick: (
+    event: React.MouseEvent,
+    pinIndex: number,
+    isOutput: boolean
+  ) => void;
+  handleGateClick: (event: React.MouseEvent) => void;
+  handleInputDoubleClick: (event: React.MouseEvent) => void;
+  onInputClick?: (gateId: string) => void;
+}
+
+type RendererComponent = React.FC<GateRendererProps>;
+
+// ゲートタイプ別レンダラーマップ（オブジェクト指向パターン）
+const GATE_RENDERERS: Record<string, RendererComponent> = {
+  // 基本ゲート
+  AND: BasicGateRenderer,
+  OR: BasicGateRenderer,
+  NOT: BasicGateRenderer,
+  XOR: BasicGateRenderer,
+  NAND: BasicGateRenderer,
+  NOR: BasicGateRenderer,
+
+  // 入出力ゲート
+  INPUT: IOGateRenderer,
+  OUTPUT: IOGateRenderer,
+
+  // 特殊ゲート
+  CLOCK: SpecialGateRenderer,
+  'D-FF': SpecialGateRenderer,
+  'SR-LATCH': SpecialGateRenderer,
+  MUX: SpecialGateRenderer,
+  BINARY_COUNTER: SpecialGateRenderer,
+  LED: SpecialGateRenderer,
+
+  // カスタムゲート
+  CUSTOM: CustomGateRenderer,
+};
+
 interface GateComponentProps {
   gate: Gate;
   isHighlighted?: boolean;
@@ -39,8 +83,8 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
     handleInputDoubleClick(event, hasDragged);
   };
 
-  // ゲートタイプに応じてレンダラーを選択
-  const renderGate = () => {
+  // ゲートレンダラー選択（純粋関数・オブジェクト指向パターン）
+  const renderGate = (): React.ReactNode => {
     try {
       // ゲートタイプの基本的な妥当性チェック
       if (!gate.type) {
@@ -57,78 +101,48 @@ const GateComponentImpl: React.FC<GateComponentProps> = ({
         return null;
       }
 
-      const baseProps = {
+      // レンダラーマップから選択（オブジェクト指向パターン）
+      const RendererComponent = GATE_RENDERERS[gate.type];
+
+      if (!RendererComponent) {
+        // 未知のゲートタイプの場合
+        setTimeout(() => {
+          handleError(`Unknown gate type: ${gate.type}`, 'Gate Component', {
+            userAction: 'ゲート描画',
+            severity: 'medium',
+            showToUser: true,
+            logToConsole: true,
+          });
+        }, 0);
+
+        // フォールバック: BasicGateRendererを使用
+        const FallbackRenderer = BasicGateRenderer;
+        const fallbackProps: GateRendererProps = {
+          gate,
+          isSelected,
+          handleMouseDown,
+          handleTouchStart,
+          handlePinClick,
+          handleGateClick: wrappedHandleGateClick,
+          handleInputDoubleClick: wrappedHandleInputDoubleClick,
+          onInputClick,
+        };
+        return <FallbackRenderer {...fallbackProps} />;
+      }
+
+      // 共通プロパティ（純粋関数パターン）
+      const rendererProps: GateRendererProps = {
         gate,
         isSelected,
         handleMouseDown,
         handleTouchStart,
         handlePinClick,
+        handleGateClick: wrappedHandleGateClick,
+        handleInputDoubleClick: wrappedHandleInputDoubleClick,
+        onInputClick,
       };
 
-      // 基本ゲート (AND, OR, NOT, XOR, NAND, NOR)
-      if (['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'].includes(gate.type)) {
-        return (
-          <BasicGateRenderer
-            {...baseProps}
-            handleGateClick={wrappedHandleGateClick}
-          />
-        );
-      }
-
-      // 入出力ゲート
-      if (gate.type === 'INPUT' || gate.type === 'OUTPUT') {
-        return (
-          <IOGateRenderer
-            {...baseProps}
-            handleGateClick={wrappedHandleGateClick}
-            handleInputDoubleClick={wrappedHandleInputDoubleClick}
-            onInputClick={onInputClick}
-          />
-        );
-      }
-
-      // 特殊ゲート
-      if (
-        ['CLOCK', 'D-FF', 'SR-LATCH', 'MUX', 'BINARY_COUNTER', 'LED'].includes(
-          gate.type
-        )
-      ) {
-        return (
-          <SpecialGateRenderer
-            {...baseProps}
-            handleGateClick={wrappedHandleGateClick}
-          />
-        );
-      }
-
-      // カスタムゲート
-      if (gate.type === 'CUSTOM') {
-        return (
-          <CustomGateRenderer
-            {...baseProps}
-            handleGateClick={wrappedHandleGateClick}
-          />
-        );
-      }
-
-      // 未知のゲートタイプの場合
-      // レンダリング中のstate更新を防ぐため、非同期でエラーを処理
-      setTimeout(() => {
-        handleError(`Unknown gate type: ${gate.type}`, 'Gate Component', {
-          userAction: 'ゲート描画',
-          severity: 'medium',
-          showToUser: true,
-          logToConsole: true,
-        });
-      }, 0);
-
-      // フォールバック: 基本的なゲートレンダラーを使用
-      return (
-        <BasicGateRenderer
-          {...baseProps}
-          handleGateClick={wrappedHandleGateClick}
-        />
-      );
+      return <RendererComponent {...rendererProps} />;
     } catch (error) {
       // レンダリング中の予期しないエラー
       handleError(error, 'Gate Component', {
@@ -185,7 +199,7 @@ export const GateComponent = memo(GateComponentImpl, (prevProps, nextProps) => {
     prevProps.gate.type === nextProps.gate.type &&
     prevProps.gate.position.x === nextProps.gate.position.x &&
     prevProps.gate.position.y === nextProps.gate.position.y &&
-    prevProps.gate.output === nextProps.gate.output &&
+    prevProps.gate.outputs[0] === nextProps.gate.outputs[0] &&
     prevProps.isHighlighted === nextProps.isHighlighted &&
     // 入力状態の変更もチェック（ピン状態の同期のため）
     JSON.stringify(prevProps.gate.inputs) ===

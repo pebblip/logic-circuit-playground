@@ -45,21 +45,21 @@ function evaluateCircuitSync(circuit: Circuit) {
     const memory: GateMemory = {};
     circuit.gates.forEach(gate => {
       if (gate.type === 'INPUT') {
-        memory[gate.id] = { state: gate.output ?? false };
+        memory[gate.id] = { state: gate.outputs?.[0] ?? false };
       } else if (gate.type === 'CLOCK') {
         memory[gate.id] = {
-          output: gate.output ?? false,
+          output: gate.outputs?.[0] ?? false,
           frequency: gate.metadata?.frequency || 1,
-          manualToggle: gate.output ?? false,
+          manualToggle: gate.outputs?.[0] ?? false,
         };
       } else if (gate.type === 'D-FF') {
         memory[gate.id] = {
           prevClk: false,
-          q: gate.outputs?.[0] ?? gate.output ?? false,
+          q: gate.outputs?.[0] ?? false,
         };
       } else if (gate.type === 'SR-LATCH') {
         memory[gate.id] = {
-          q: gate.outputs?.[0] ?? gate.output ?? false,
+          q: gate.outputs?.[0] ?? false,
         };
       }
     });
@@ -80,23 +80,12 @@ function evaluateCircuitSync(circuit: Circuit) {
       gates: evaluationResult.circuit.gates.map(evalGate => {
         const originalGate = circuit.gates.find(g => g.id === evalGate.id);
 
-        // OUTPUTゲートの場合、入力値をoutputとして設定
-        let outputValue = evalGate.outputs[0] ?? false;
-        if (evalGate.type === 'OUTPUT') {
-          outputValue = evalGate.inputs[0] ?? false;
-        }
-
         return {
           ...originalGate,
           ...evalGate,
           position: evalGate.position,
           inputs: [...evalGate.inputs],
           outputs: [...evalGate.outputs],
-          output: outputValue,
-          // INPUTゲートの場合、元のoutput値を保持
-          ...(originalGate?.type === 'INPUT'
-            ? { output: originalGate.output }
-            : {}),
         };
       }),
       wires: evaluationResult.circuit.wires,

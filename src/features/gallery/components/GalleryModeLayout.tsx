@@ -43,10 +43,10 @@ export const GalleryModeLayout: React.FC = () => {
                 selectedCircuit?.simulationConfig?.updateInterval ||
                 CANVAS_MODE_PRESETS.gallery.galleryOptions?.animationInterval ||
                 1000,
-              // 🔍 デバッグ情報を一時的に有効化
-              showDebugInfo: true,
-              // 🎯 自動フィット機能を有効化
-              autoFit: true,
+              // デバッグ情報を無効化
+              showDebugInfo: false,
+              // 自動フィット機能を無効化（サイズ一貫性確保）
+              autoFit: false,
               autoFitPadding: 80,
             },
           }}

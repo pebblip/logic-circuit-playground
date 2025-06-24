@@ -51,7 +51,7 @@ export function generateTruthTable(
 
       const gateToUpdate = testGates.find(g => g.id === inputGate.id);
       if (gateToUpdate) {
-        gateToUpdate.output = inputValue;
+        gateToUpdate.outputs = [inputValue];
       }
     });
 

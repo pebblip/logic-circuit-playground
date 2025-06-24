@@ -40,7 +40,7 @@ export const CircuitDiagnostics: React.FC<CircuitDiagnosticsProps> = ({
         <strong>ゲート状態:</strong>
         {gates.map(g => (
           <div key={g.id} style={{ marginLeft: '10px' }}>
-            {g.id} ({g.type}): {g.output ? '✓' : '✗'}
+            {g.id} ({g.type}): {(g.outputs?.[0] ?? false) ? '✓' : '✗'}
           </div>
         ))}
       </div>
@@ -58,7 +58,7 @@ export const CircuitDiagnostics: React.FC<CircuitDiagnosticsProps> = ({
         <strong>入力:</strong>
         {inputGates.map(g => (
           <span key={g.id} style={{ marginLeft: '5px' }}>
-            {g.id}:{g.output ? '1' : '0'}
+            {g.id}:{(g.outputs?.[0] ?? false) ? '1' : '0'}
           </span>
         ))}
       </div>

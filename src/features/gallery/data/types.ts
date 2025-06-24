@@ -22,6 +22,8 @@ export interface GalleryCircuitMetadata {
     minimumCycles?: number;
     clockFrequency?: number;
   };
+  /** 自動レイアウトをスキップして手動配置を保持 */
+  skipAutoLayout?: boolean;
 }
 
 /**

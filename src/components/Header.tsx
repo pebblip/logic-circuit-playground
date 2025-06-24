@@ -156,7 +156,7 @@ export const Header: React.FC<HeaderProps> = ({
                 title={`現在の${TERMS.CIRCUIT}から${TERMS.CUSTOM_GATE}を${TERMS.CREATE}`}
               >
                 <span>📦</span>
-                <span>{TERMS.CIRCUIT}→IC</span>
+                <span>回路をゲート化</span>
               </button>
               <button
                 className="button"

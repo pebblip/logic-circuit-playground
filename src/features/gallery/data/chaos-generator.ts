@@ -9,6 +9,7 @@ export const CHAOS_GENERATOR = {
     expectedBehavior: 'oscillator' as const,
     minimumCycles: 20,
   },
+  skipAutoLayout: true, // 手動配置された最適レイアウトを保持
   gates: [
     // CLOCK (1Hz)
     {

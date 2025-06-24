@@ -31,7 +31,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
 }) => {
   if (gate.type === 'INPUT') {
     return (
-      <>
+      <g data-gate-type="INPUT">
         <g
           onClick={handleGateClick}
           onDoubleClick={
@@ -45,6 +45,7 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
           className="u-cursor-grab"
+          style={{ pointerEvents: 'all' }}
         >
           {/* スイッチトラック */}
           <rect
@@ -71,16 +72,16 @@ export const IOGateRenderer: React.FC<IOGateRendererProps> = ({
           />
         </g>
 
-        {/* 出力ピン */}
+        {/* 出力ピン - 位置を右に移動してゲートとの重なりを防ぐ */}
         <PinComponent
           gate={gate}
-          x={35}
+          x={45}
           y={0}
           pinIndex={0}
           isOutput={true}
           onPinClick={handlePinClick}
         />
-      </>
+      </g>
     );
   } else if (gate.type === 'OUTPUT') {
     return (

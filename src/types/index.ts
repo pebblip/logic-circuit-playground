@@ -19,9 +19,6 @@ export type {
   BinaryCounterGate,
 } from './gates';
 
-// 定数のエクスポート
-export { GATE_SIZES, PIN_CONFIGS } from './gates';
-
 // 型ガード関数のエクスポート
 export {
   isClockGate,

@@ -32,6 +32,9 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
     y: number;
   } | null>(null);
 
+  // ホバー状態の管理
+  const [isHovered, setIsHovered] = useState(false);
+
   // ゲート検索結果をメモ化（パフォーマンス最適化）
   const gateData = useMemo(() => {
     const fromGate = gates.find(g => g.id === wire.from.gateId);
@@ -144,10 +147,12 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
         onContextMenu={handleContextMenu}
         data-wire-id={wire.id}
         data-testid={`wire-${wire.id}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <path
           d={path}
-          className={`wire ${wire.isActive ? 'active' : ''}`}
+          className={`wire ${wire.isActive ? 'active' : ''} ${isHovered ? 'wire-hover' : ''}`}
           style={{ cursor: 'context-menu' }}
         />
         {/* 見えない太い線でクリック領域を拡大 */}
@@ -171,6 +176,33 @@ const WireComponentImpl: React.FC<WireComponentProps> = ({
               </animateMotion>
             </circle>
           </>
+        )}
+        {/* ホバー時のツールチップ */}
+        {isHovered && pathData && (
+          <g
+            transform={`translate(${(pathData.from.x + pathData.to.x) / 2}, ${(pathData.from.y + pathData.to.y) / 2 - 20})`}
+          >
+            <rect
+              x="-60"
+              y="-15"
+              width="120"
+              height="30"
+              rx="4"
+              fill="rgba(0, 0, 0, 0.8)"
+              stroke="rgba(255, 255, 255, 0.2)"
+              strokeWidth="1"
+            />
+            <text
+              x="0"
+              y="4"
+              textAnchor="middle"
+              fill="white"
+              fontSize="12"
+              fontFamily="sans-serif"
+            >
+              右クリックで削除
+            </text>
+          </g>
         )}
       </g>
       {contextMenu &&

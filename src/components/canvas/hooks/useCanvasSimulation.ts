@@ -352,7 +352,9 @@ export const useCanvasSimulation = ({
               return true;
             }
             // 出力の変更をチェック
-            const outputChanged = newGate.output !== oldGate.output;
+            const outputChanged =
+              (newGate.outputs?.[0] ?? false) !==
+              (oldGate.outputs?.[0] ?? false);
             return outputChanged;
           }
         );

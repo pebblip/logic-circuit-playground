@@ -55,7 +55,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = React.memo(
           position: 'absolute',
           top: `${CANVAS_CONSTANTS.ZOOM_CONTROLS_OFFSET}px`,
           right: `${CANVAS_CONSTANTS.ZOOM_CONTROLS_OFFSET}px`,
-          zIndex: 10,
+          zIndex: 50, // Increased from 10 to ensure visibility above other elements
         }}
       >
         {/* 配線スタイル切り替えボタン */}

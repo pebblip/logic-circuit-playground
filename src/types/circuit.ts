@@ -111,7 +111,6 @@ export interface Gate {
   position: Position;
   inputs: readonly boolean[]; // 型安全: 不変boolean配列で統一
   outputs: readonly boolean[]; // 型安全: 不変複数出力対応
-  output?: boolean; // 後方互換性用（outputs[0]の自動同期）
   metadata?: GateMetadata; // 特殊ゲート用の追加データ
   customGateDefinition?: CustomGateDefinition; // カスタムゲート用定義
   timing?: GateTiming; // 遅延モード用のタイミング設定（Phase 0で追加）

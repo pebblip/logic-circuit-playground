@@ -38,7 +38,7 @@ export const ErrorNotification: React.FC = () => {
         position: 'fixed',
         top: '80px',
         right: '20px',
-        zIndex: 1000,
+        zIndex: 1200, // --z-notification の値を使用
         backgroundColor: style.backgroundColor,
         border: `2px solid ${style.borderColor}`,
         borderRadius: '12px',

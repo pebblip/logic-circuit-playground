@@ -21,38 +21,50 @@ export type AllGateType =
   | CustomGateType;
 
 // 特殊ゲートのインターフェース
+// NOTE: 実際のゲート実装では、これらの属性はmetadataフィールド内に格納されています
 export interface ClockGate extends Gate {
   type: 'CLOCK';
-  frequency: number; // Hz
-  isRunning: boolean;
-  lastToggleTime: number;
+  metadata?: {
+    frequency?: number;
+    isRunning?: boolean;
+    lastToggleTime?: number;
+    startTime?: number;
+  };
 }
 
 export interface DFlipFlopGate extends Gate {
   type: 'D-FF';
-  clockEdge: 'rising' | 'falling';
-  previousClockState: boolean;
-  qOutput: boolean;
-  qBarOutput: boolean;
+  metadata?: {
+    clockEdge?: 'rising' | 'falling';
+    previousClockState?: boolean;
+    qOutput?: boolean;
+    qBarOutput?: boolean;
+  };
 }
 
 export interface SRLatchGate extends Gate {
   type: 'SR-LATCH';
-  qOutput: boolean;
-  qBarOutput: boolean;
+  metadata?: {
+    qOutput?: boolean;
+    qBarOutput?: boolean;
+  };
 }
 
 export interface MuxGate extends Gate {
   type: 'MUX';
-  dataInputs: string[]; // 2, 4, or 8 inputs
-  selectInputs: string[]; // 1, 2, or 3 select lines
+  metadata?: {
+    dataInputCount?: 2 | 4 | 8;
+    selectedInput?: number;
+  };
 }
 
 export interface BinaryCounterGate extends Gate {
   type: 'BINARY_COUNTER';
-  bitCount: number; // 1, 2, 4, or 8 bits
-  currentValue: number;
-  previousClockState: boolean;
+  metadata?: {
+    bitCount?: number;
+    currentValue?: number;
+    previousClockState?: boolean;
+  };
 }
 
 export interface LEDGateData {
@@ -69,58 +81,6 @@ export interface CustomGate extends Gate {
   type: 'CUSTOM';
   customGateDefinition: CustomGateDefinition;
 }
-
-// ゲートサイズ定義
-export const GATE_SIZES = {
-  // 基本ゲート
-  AND: { width: 70, height: 50 },
-  OR: { width: 70, height: 50 },
-  NOT: { width: 70, height: 50 },
-  XOR: { width: 70, height: 50 },
-  NAND: { width: 70, height: 50 },
-  NOR: { width: 70, height: 50 },
-
-  // 入出力
-  INPUT: { width: 50, height: 30 },
-  OUTPUT: { width: 40, height: 40 },
-
-  // 特殊ゲート
-  CLOCK: { width: 80, height: 80 }, // 円形
-  'D-FF': { width: 100, height: 80 },
-  'SR-LATCH': { width: 100, height: 80 },
-  MUX: { width: 100, height: 100 },
-  BINARY_COUNTER: { width: 120, height: 100 },
-  LED: { width: 120, height: 100 }, // 動的サイズ（デフォルト値）
-
-  // カスタムゲート（デフォルト、実際は可変）
-  CUSTOM: { width: 100, height: 80 },
-} as const;
-
-// ピン配置定義
-export const PIN_CONFIGS = {
-  // 基本ゲート
-  AND: { inputs: 2, outputs: 1 },
-  OR: { inputs: 2, outputs: 1 },
-  NOT: { inputs: 1, outputs: 1 },
-  XOR: { inputs: 2, outputs: 1 },
-  NAND: { inputs: 2, outputs: 1 },
-  NOR: { inputs: 2, outputs: 1 },
-
-  // 入出力
-  INPUT: { inputs: 0, outputs: 1 },
-  OUTPUT: { inputs: 1, outputs: 0 },
-
-  // 特殊ゲート
-  CLOCK: { inputs: 0, outputs: 1 },
-  'D-FF': { inputs: 2, outputs: 2 }, // D, CLK -> Q, Q̄
-  'SR-LATCH': { inputs: 2, outputs: 2 }, // S, R -> Q, Q̄
-  MUX: { inputs: -1, outputs: 1 }, // 可変
-  BINARY_COUNTER: { inputs: 1, outputs: -1 }, // CLK入力, ビット数分の出力
-  LED: { inputs: -1, outputs: 0 }, // 動的ピン数、表示のみ
-
-  // カスタムゲート（可変）
-  CUSTOM: { inputs: -1, outputs: -1 }, // 可変
-} as const;
 
 // 型ガード関数
 export function isClockGate(gate: Gate): gate is ClockGate {

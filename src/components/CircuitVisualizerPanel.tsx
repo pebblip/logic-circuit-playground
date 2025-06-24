@@ -26,12 +26,12 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
   const gateCount = gates.length;
   const wireCount = wires.length;
   const outputGates = gates.filter(g => g.type === 'OUTPUT');
-  const activeGates = gates.filter(g => g.output).length;
+  const activeGates = gates.filter(g => g.outputs?.[0] ?? false).length;
 
   // 入出力の状態を取得
 
   const getBinaryOutputs = () => {
-    const outputs = outputGates.map(gate => (gate.output ? '1' : '0'));
+    const outputs = outputGates.map(gate => (gate.outputs?.[0] ? '1' : '0'));
     if (outputs.length === 0) return '未接続';
     return outputs.join('');
   };
@@ -44,7 +44,10 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
     );
     return sortedOutputs.reduce((acc, gate, index) => {
       return (
-        acc + (gate.output ? Math.pow(2, outputGates.length - 1 - index) : 0)
+        acc +
+        ((gate.outputs?.[0] ?? false)
+          ? Math.pow(2, outputGates.length - 1 - index)
+          : 0)
       );
     }, 0);
   };
@@ -75,17 +78,21 @@ export const CircuitVisualizerPanel: React.FC<CircuitVisualizerPanelProps> = ({
               width: '24px',
               height: '24px',
               borderRadius: '50%',
-              background: gate.output ? '#00ff88' : '#333',
-              border: gate.output ? '2px solid #00ff88' : '2px solid #555',
-              boxShadow: gate.output
-                ? '0 0 12px rgba(0, 255, 136, 0.6)'
-                : 'none',
+              background: (gate.outputs?.[0] ?? false) ? '#00ff88' : '#333',
+              border:
+                (gate.outputs?.[0] ?? false)
+                  ? '2px solid #00ff88'
+                  : '2px solid #555',
+              boxShadow:
+                (gate.outputs?.[0] ?? false)
+                  ? '0 0 12px rgba(0, 255, 136, 0.6)'
+                  : 'none',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
             }}
             onMouseEnter={() => onGateHighlight?.(gate.id)}
             onMouseLeave={() => onGateUnhighlight?.()}
-            title={`LED ${index + 1}: ${gate.output ? 'ON' : 'OFF'}`}
+            title={`LED ${index + 1}: ${(gate.outputs?.[0] ?? false) ? 'ON' : 'OFF'}`}
           />
         ))}
       </div>

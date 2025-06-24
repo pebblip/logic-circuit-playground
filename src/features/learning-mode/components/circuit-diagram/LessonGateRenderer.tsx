@@ -22,23 +22,27 @@ export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({
         <>
           {/* スイッチトラック */}
           <rect
-            className={`switch-track ${gate.output ? 'active' : ''}`}
+            className={`switch-track ${(gate.outputs?.[0] ?? false) ? 'active' : ''}`}
             x="-25"
             y="-15"
             width="50"
             height="30"
             rx="15"
-            fill={gate.output ? 'rgba(0, 255, 136, 0.1)' : '#1a1a1a'}
-            stroke={gate.output ? '#00ff88' : '#444'}
+            fill={
+              (gate.outputs?.[0] ?? false)
+                ? 'rgba(0, 255, 136, 0.1)'
+                : '#1a1a1a'
+            }
+            stroke={(gate.outputs?.[0] ?? false) ? '#00ff88' : '#444'}
             strokeWidth="2"
           />
           {/* スイッチサム */}
           <circle
-            className={`switch-thumb ${gate.output ? 'active' : ''}`}
-            cx={gate.output ? 10 : -10}
+            className={`switch-thumb ${(gate.outputs?.[0] ?? false) ? 'active' : ''}`}
+            cx={(gate.outputs?.[0] ?? false) ? 10 : -10}
             cy="0"
             r="10"
-            fill={gate.output ? '#00ff88' : '#666'}
+            fill={(gate.outputs?.[0] ?? false) ? '#00ff88' : '#666'}
           />
           {/* 出力ピン */}
           <line
@@ -53,8 +57,8 @@ export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({
             cx="35"
             cy="0"
             r="6"
-            className={`pin output-pin ${gate.output ? 'active' : ''}`}
-            fill={gate.output ? '#00ff88' : 'none'}
+            className={`pin output-pin ${(gate.outputs?.[0] ?? false) ? 'active' : ''}`}
+            fill={(gate.outputs?.[0] ?? false) ? '#00ff88' : 'none'}
             stroke="#00ff88"
             strokeWidth="2"
           />
@@ -232,7 +236,7 @@ export const LessonGateRenderer: React.FC<LessonGateRendererProps> = ({
           cx={45}
           cy={0}
           r={5}
-          fill={gate.output ? '#00ff88' : 'none'}
+          fill={(gate.outputs?.[0] ?? false) ? '#00ff88' : 'none'}
           stroke="#00ff88"
           strokeWidth={2}
         />

@@ -20,7 +20,7 @@
 .gallery-main-canvas {
   position: relative;
   background: #0a0a0a;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to visible to show zoom controls */
 }
 
 /* 右サイドバー: 回路詳細 */

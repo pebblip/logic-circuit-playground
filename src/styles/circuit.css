@@ -84,6 +84,19 @@
   filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.6));
 }
 
+/* ワイヤーホバー時のスタイル */
+.wire.wire-hover {
+  stroke-width: 3;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 6px var(--color-border-strong));
+  stroke: var(--color-border-extra-strong);
+}
+
+.wire.wire-hover.active {
+  stroke: var(--color-signal-on);
+  filter: drop-shadow(0 0 8px var(--color-signal-on));
+}
+
 /* ========== 信号粒子 ========== */
 .signal-particle {
   fill: var(--color-signal-on);

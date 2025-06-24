@@ -63,7 +63,7 @@ const tutorialSteps: TutorialStep[] = [
     highlight: 'input-gate',
     checkCondition: gates => {
       const inputGate = gates.find(g => g.type === 'INPUT');
-      return inputGate ? inputGate.output === true : false;
+      return inputGate ? (inputGate.outputs?.[0] ?? false) === true : false;
     },
     position: 'bottom',
   },
@@ -99,7 +99,8 @@ export const QuickTutorial: React.FC<QuickTutorialProps> = ({
   const currentStep = tutorialSteps[currentStepIndex];
 
   // INPUTゲートの状態を監視するための値
-  const inputGateOutput = gates.find(g => g.type === 'INPUT')?.output;
+  const inputGateOutput =
+    gates.find(g => g.type === 'INPUT')?.outputs?.[0] ?? false;
 
   // 条件を満たしたら自動的に次へ
   useEffect(() => {

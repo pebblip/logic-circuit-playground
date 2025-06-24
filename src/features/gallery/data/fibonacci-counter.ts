@@ -10,6 +10,7 @@ export const FIBONACCI_COUNTER = {
     minimumCycles: 8,
     clockFrequency: 1.667, // 1.667Hz = 600ms周期
   },
+  skipAutoLayout: true, // 手動配置された最適レイアウトを保持
   gates: [
     // CLOCK (1.5Hz for better observation) - 左側中央に独立配置
     {

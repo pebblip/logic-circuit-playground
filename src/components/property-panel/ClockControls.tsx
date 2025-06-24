@@ -91,11 +91,14 @@ export const ClockControls: React.FC<ClockControlsProps> = ({
         <span
           style={{
             fontSize: '14px',
-            color: selectedGate.output ? '#00ff88' : 'rgba(255, 255, 255, 0.5)',
+            color:
+              (selectedGate.outputs?.[0] ?? false)
+                ? '#00ff88'
+                : 'rgba(255, 255, 255, 0.5)',
             fontWeight: '600',
           }}
         >
-          {booleanToDisplayState(selectedGate.output ?? false)}
+          {booleanToDisplayState(selectedGate.outputs?.[0] ?? false)}
         </span>
       </div>
       <div className="property-row">

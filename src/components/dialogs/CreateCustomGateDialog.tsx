@@ -74,6 +74,97 @@ export const CreateCustomGateDialog: React.FC<CreateCustomGateDialogProps> = ({
       return;
     }
 
+    // ゲート名の長さチェック
+    if (formData.gateName.length > 30) {
+      handleError(
+        new Error('ゲート名は30文字以内で入力してください。'),
+        'CreateCustomGateDialog',
+        {
+          userAction: 'カスタムゲートの保存',
+          severity: 'low',
+          showToUser: true,
+        }
+      );
+      return;
+    }
+
+    // 表示名の検証
+    if (formData.displayName) {
+      // 表示名の長さチェック
+      if (formData.displayName.length > 20) {
+        handleError(
+          new Error(
+            '表示名は20文字以内で入力してください。長い名前はUIに収まらない可能性があります。'
+          ),
+          'CreateCustomGateDialog',
+          {
+            userAction: 'カスタムゲートの保存',
+            severity: 'low',
+            showToUser: true,
+          }
+        );
+        return;
+      }
+
+      // 表示名の使用不可文字チェック
+      if (/[<>"'&]/.test(formData.displayName)) {
+        handleError(
+          new Error('表示名に特殊文字（< > " \' &）は使用できません。'),
+          'CreateCustomGateDialog',
+          {
+            userAction: 'カスタムゲートの保存',
+            severity: 'low',
+            showToUser: true,
+          }
+        );
+        return;
+      }
+    }
+
+    // 入出力ピン数の検証
+    if (formData.inputs.length === 0) {
+      handleError(
+        new Error('カスタムゲートには少なくとも1つの入力ピンが必要です。'),
+        'CreateCustomGateDialog',
+        {
+          userAction: 'カスタムゲートの保存',
+          severity: 'low',
+          showToUser: true,
+        }
+      );
+      return;
+    }
+
+    if (formData.outputs.length === 0) {
+      handleError(
+        new Error('カスタムゲートには少なくとも1つの出力ピンが必要です。'),
+        'CreateCustomGateDialog',
+        {
+          userAction: 'カスタムゲートの保存',
+          severity: 'low',
+          showToUser: true,
+        }
+      );
+      return;
+    }
+
+    // ピン数の上限チェック
+    const totalPins = formData.inputs.length + formData.outputs.length;
+    if (totalPins > 20) {
+      handleError(
+        new Error(
+          `ピンの合計数が多すぎます（現在: ${totalPins}個）。入力と出力の合計は20個以内にしてください。`
+        ),
+        'CreateCustomGateDialog',
+        {
+          userAction: 'カスタムゲートの保存',
+          severity: 'low',
+          showToUser: true,
+        }
+      );
+      return;
+    }
+
     // デバッグ: 保存時のフォームデータを確認
     debug.log('=== CreateCustomGateDialog Save Debug ===');
     debug.log('formData:', formData);

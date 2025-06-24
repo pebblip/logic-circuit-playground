@@ -13,6 +13,7 @@ export const SIMPLE_LFSR = {
     expectedBehavior: 'oscillator' as const,
     minimumCycles: 4,
   },
+  skipAutoLayout: true, // 手動配置された最適レイアウトを保持
   gates: [
     // CLOCK
     {

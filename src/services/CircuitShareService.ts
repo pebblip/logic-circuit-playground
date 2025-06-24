@@ -59,7 +59,7 @@ export class CircuitShareService {
           t: gate.type, // type
           p: gate.position, // position
           i: gate.inputs, // inputs
-          o: gate.output, // output
+          o: gate.outputs?.[0] ?? false, // output
           m: gate.metadata, // metadata（特殊ゲート用）
           c: gate.customGateDefinition, // カスタムゲート定義
         })),

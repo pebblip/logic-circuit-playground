@@ -17,6 +17,7 @@ export const SELF_OSCILLATING_MEMORY_IMPROVED = {
     expectedBehavior: 'oscillator' as const,
     minimumCycles: 10,
   },
+  skipAutoLayout: true, // 手動配置された最適レイアウトを保持
   gates: [
     // === 制御入力 ===
     {

@@ -67,7 +67,7 @@ export const PIN_OFFSETS = {
   // 入出力ゲート
   INPUT: {
     output: {
-      x: 35,
+      x: 45,
       y: 0,
     },
   },

@@ -82,7 +82,8 @@ export const CircuitPreview: React.FC<CircuitPreviewProps> = ({
           ${gates
             .map(gate => {
               const fillColor = getGateFillColor(gate);
-              const strokeColor = gate.output ? '#00ff88' : '#444';
+              const strokeColor =
+                (gate.outputs?.[0] ?? false) ? '#00ff88' : '#444';
 
               return `<g transform="translate(${gate.position.x}, ${gate.position.y})">
               <rect x="-35" y="-25" width="70" height="50" rx="8" 
@@ -146,13 +147,13 @@ export const CircuitPreview: React.FC<CircuitPreviewProps> = ({
 function getGateFillColor(gate: Gate): string {
   switch (gate.type) {
     case 'INPUT':
-      return gate.output ? '#00ff88' : '#666';
+      return (gate.outputs?.[0] ?? false) ? '#00ff88' : '#666';
     case 'OUTPUT':
       return '#ff6666';
     case 'CUSTOM':
       return 'rgba(102, 51, 153, 0.3)';
     case 'CLOCK':
-      return gate.output ? '#ff9900' : '#664400';
+      return (gate.outputs?.[0] ?? false) ? '#ff9900' : '#664400';
     default:
       return '#1a1a1a';
   }

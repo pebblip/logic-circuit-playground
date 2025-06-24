@@ -121,14 +121,15 @@ export const GateInfo: React.FC<GateInfoProps> = ({ selectedGate }) => {
             <span
               style={{
                 fontSize: '12px',
-                color: selectedGate.output
-                  ? '#00ff88'
-                  : 'rgba(255, 255, 255, 0.5)',
+                color:
+                  (selectedGate.outputs?.[0] ?? false)
+                    ? '#00ff88'
+                    : 'rgba(255, 255, 255, 0.5)',
                 fontWeight: '600',
               }}
             >
               {TERMS.OUTPUT}:{' '}
-              {booleanToDisplayState(selectedGate.output ?? false)}
+              {booleanToDisplayState(selectedGate.outputs?.[0] ?? false)}
             </span>
           </div>
         </div>

@@ -18,11 +18,6 @@ import type {
   EvaluationContext,
 } from '@/domain/simulation/core/types';
 import { GALLERY_CIRCUITS } from '@/features/gallery/data';
-import {
-  calculateCircuitBounds,
-  calculateOptimalScale,
-  calculateCenteringPan,
-} from '../utils/circuitBounds';
 import { autoLayoutCircuit } from '@/features/learning-mode/utils/autoLayout';
 // import { formatCircuitWithAnimation } from '@/domain/circuit/layout';
 import type { Gate, Wire } from '@/types/circuit';
@@ -102,7 +97,6 @@ export function useCanvas(
   const contextRef = useRef<EvaluationContext | null>(null);
   const localGatesRef = useRef<Gate[]>([]);
   const localWiresRef = useRef<Wire[]>([]);
-  const hasAutoFitRef = useRef(false); // 自動フィット済みフラグ
 
   // Zustandストア（エディターモード用）
   const circuitStore = useCircuitStore();
@@ -311,22 +305,31 @@ export function useCanvas(
           };
         }
 
-        // 初期ロード時のみ自動レイアウトを適用
-        const autoLayoutGates = autoLayoutCircuit(
-          [...dataSource.galleryCircuit.gates] as Gate[],
-          [...dataSource.galleryCircuit.wires],
-          {
-            padding: 80,
-            gateSpacing: { x: 160, y: 100 },
-            layerWidth: 180,
-            preferredWidth: 1000,
-            preferredHeight: 600,
-          }
-        );
-        return {
-          displayGates: autoLayoutGates,
-          displayWires: dataSource.galleryCircuit.wires,
-        };
+        // 自動レイアウトの適用判定
+        if (dataSource.galleryCircuit.skipAutoLayout) {
+          // 手動レイアウトを保持（自動レイアウトをスキップ）
+          return {
+            displayGates: [...dataSource.galleryCircuit.gates] as Gate[],
+            displayWires: dataSource.galleryCircuit.wires,
+          };
+        } else {
+          // 初期ロード時のみ自動レイアウトを適用
+          const autoLayoutGates = autoLayoutCircuit(
+            [...dataSource.galleryCircuit.gates] as Gate[],
+            [...dataSource.galleryCircuit.wires],
+            {
+              padding: 80,
+              gateSpacing: { x: 160, y: 100 },
+              layerWidth: 180,
+              preferredWidth: 1000,
+              preferredHeight: 600,
+            }
+          );
+          return {
+            displayGates: autoLayoutGates,
+            displayWires: dataSource.galleryCircuit.wires,
+          };
+        }
       }
 
       // 非ギャラリーモード時: 元のレイアウトを使用
@@ -390,9 +393,6 @@ export function useCanvas(
       // ✅ アニメーションを停止して状態をクリア（フラッシュ防止）
       stopAnimation();
 
-      // 自動フィットフラグをリセット（新しい回路用）
-      hasAutoFitRef.current = false;
-
       try {
         // PureCircuit形式を使用可能かチェック
         const pureCircuit =
@@ -418,14 +418,13 @@ export function useCanvas(
             hasContext: !!contextRef.current,
           });
 
-          // PureCircuitをlegacy UI形式に変換
+          // PureCircuitをUI表示形式に変換
           const formattedGates = pureCircuit.gates.map(pureGate => ({
             id: pureGate.id,
             type: pureGate.type,
             position: pureGate.position,
             inputs: [...pureGate.inputs], // readonly配列をmutable配列に変換
             outputs: [...pureGate.outputs], // readonly配列をmutable配列に変換
-            output: pureGate.outputs[0] ?? false, // Legacy互換性
             metadata: {
               isRunning: pureGate.type === 'CLOCK' ? true : undefined,
               frequency: pureGate.type === 'CLOCK' ? 1 : undefined,
@@ -476,7 +475,6 @@ export function useCanvas(
               ...gate,
               inputs,
               outputs,
-              output: outputs[0] ?? false, // Legacy互換性 - outputsから取得
             } as Gate;
           });
 
@@ -562,7 +560,7 @@ export function useCanvas(
           const gate = circuitStore.gates.find(g => g.id === gateId);
           if (gate && gate.type === 'INPUT') {
             // 入力ゲートの値を切り替え
-            const newValue = !gate.output;
+            const newValue = !(gate.outputs?.[0] ?? false);
             circuitStore.updateGateOutput(gateId, newValue);
             handlers?.onInputToggle?.(gateId, newValue);
             return { success: true, data: undefined };
@@ -615,15 +613,14 @@ export function useCanvas(
                   if (gate.id === gateId && gate.type === 'INPUT') {
                     console.warn('🔧 IMMEDIATE UI UPDATE:', {
                       gateId,
-                      oldValue: gate.output,
+                      oldValue: gate.outputs?.[0] ?? false,
                       newValue,
                       oldOutputs: gate.outputs,
                       newOutputs: [newValue],
                     });
                     return {
                       ...gate,
-                      output: newValue,
-                      outputs: [newValue], // outputsも更新
+                      outputs: [newValue], // outputsを更新
                     };
                   }
                   return gate;
@@ -731,7 +728,6 @@ export function useCanvas(
                     position: pureGate.position,
                     inputs: pureGate.inputs,
                     outputs: [newValue], // 更新した値を保持
-                    output: newValue, // 更新した値を保持
                     metadata: result.context.memory[pureGate.id] || {},
                   };
                 }
@@ -742,7 +738,6 @@ export function useCanvas(
                   position: pureGate.position,
                   inputs: pureGate.inputs,
                   outputs: pureGate.outputs,
-                  output: pureGate.outputs[0] ?? false,
                   metadata: result.context.memory[pureGate.id] || {},
                 };
               });
@@ -754,7 +749,6 @@ export function useCanvas(
               console.warn('🔍 EVALUATION RESULT INPUT GATES:', {
                 gates: inputGatesAfterEval.map(g => ({
                   id: g.id,
-                  output: g.output,
                   outputs: g.outputs,
                 })),
               });
@@ -789,11 +783,10 @@ export function useCanvas(
             setLocalGates(prevGates => {
               const newGates = prevGates.map(gate => {
                 if (gate.id === gateId && gate.type === 'INPUT') {
-                  const newValue = !gate.output;
+                  const newValue = !(gate.outputs?.[0] ?? false);
                   handlers?.onInputToggle?.(gateId, newValue);
                   return {
                     ...gate,
-                    output: newValue,
                     outputs: [newValue],
                   };
                 }
@@ -942,9 +935,7 @@ export function useCanvas(
         // 🚨 CRITICAL: pureCircuitが存在しない場合はアニメーション停止
         if (!pureCircuitRef.current) {
           if (config.galleryOptions?.showDebugInfo && import.meta.env.DEV) {
-            console.warn(
-              '🚨 No pureCircuit available - stopping animation for legacy circuit'
-            );
+            console.warn('🚨 No pureCircuit available - stopping animation');
           }
           // アニメーション停止
           if (animationRef.current) {
@@ -1062,9 +1053,9 @@ export function useCanvas(
             }),
           };
 
-          // 結果をlegacy形式に変換してUI表示
+          // 結果をUI表示用形式に変換
 
-          const legacyGates = result.circuit.gates.map(pureGate => {
+          const uiGates = result.circuit.gates.map(pureGate => {
             // 🔧 FIX: 入力ゲートは現在の値を保持（アニメーションで上書きしない）
             if (pureGate.type === 'INPUT') {
               const currentInput = localGatesRef.current.find(
@@ -1075,10 +1066,9 @@ export function useCanvas(
                   id: pureGate.id,
                   type: pureGate.type,
                   position: pureGate.position,
-                  output: currentInput.output ?? false,
                   inputs: [...pureGate.inputs],
                   outputs: currentInput.outputs || [
-                    currentInput.output ?? false,
+                    currentInput.outputs?.[0] ?? false,
                   ],
                   metadata: result.context.memory[pureGate.id] || {},
                 };
@@ -1089,14 +1079,13 @@ export function useCanvas(
               id: pureGate.id,
               type: pureGate.type,
               position: pureGate.position,
-              output: pureGate.outputs[0] ?? false,
               inputs: [...pureGate.inputs],
               outputs: [...pureGate.outputs],
               metadata: result.context.memory[pureGate.id] || {},
             };
           });
 
-          const legacyWires = result.circuit.wires.map(wire => ({
+          const uiWires = result.circuit.wires.map(wire => ({
             ...wire,
             isActive: wire.isActive,
           }));
@@ -1112,18 +1101,17 @@ export function useCanvas(
                 inputs: g.inputs,
                 outputs: g.outputs,
               })),
-              legacyGateOutputs: legacyGates.map(g => ({
+              uiGateOutputs: uiGates.map(g => ({
                 id: g.id,
                 type: g.type,
-                output: g.output,
                 inputs: g.inputs,
               })),
-              activeWires: legacyWires.filter(w => w.isActive).map(w => w.id),
+              activeWires: uiWires.filter(w => w.isActive).map(w => w.id),
             });
           }
 
-          // 評価結果をローカルゲートに反映（legacy形式で）
-          const newGates = legacyGates.map(newGate => {
+          // 評価結果をローカルゲートに反映（UI形式で）
+          const newGates = uiGates.map(newGate => {
             const oldGate = localGatesRef.current.find(
               g => g.id === newGate.id
             );
@@ -1147,7 +1135,7 @@ export function useCanvas(
 
             return newGate;
           });
-          const newWires = legacyWires;
+          const newWires = uiWires;
 
           // 状態変化を検出（outputとinputsの両方をチェック）
           hasChanges = newGates.some((newGate, index) => {
@@ -1155,7 +1143,11 @@ export function useCanvas(
             if (!oldGate) return true;
 
             // outputの変化をチェック
-            if (oldGate.output !== newGate.output) return true;
+            if (
+              (oldGate.outputs?.[0] ?? false) !==
+              (newGate.outputs?.[0] ?? false)
+            )
+              return true;
 
             // inputsの変化をチェック（特にOUTPUTゲート用）
             if (
@@ -1183,9 +1175,12 @@ export function useCanvas(
                 changedGates: newGates
                   .filter((g, i) => {
                     const old = localGatesRef.current[i];
-                    return old && old.output !== g.output;
+                    return (
+                      old &&
+                      (old.outputs?.[0] ?? false) !== (g.outputs?.[0] ?? false)
+                    );
                   })
-                  .map(g => ({ id: g.id, output: g.output })),
+                  .map(g => ({ id: g.id, output: g.outputs?.[0] ?? false })),
                 // 🔍 OUTPUTゲート更新状況も確認
                 outputGatesAfterUpdate: newGates
                   .filter(g => g.type === 'OUTPUT')
@@ -1204,7 +1199,10 @@ export function useCanvas(
                     const displayGate = displayGates.find(dg => dg.id === g.id);
                     return {
                       id: g.id,
-                      simulationGate: { inputs: g.inputs, output: g.output },
+                      simulationGate: {
+                        inputs: g.inputs,
+                        output: g.outputs?.[0] ?? false,
+                      },
                       displayGate: displayGate
                         ? {
                             inputs: displayGate.inputs,
@@ -1291,54 +1289,6 @@ export function useCanvas(
       animationRef.current = null;
     }
   }, []);
-
-  // 自動フィット機能
-  useEffect(() => {
-    if (
-      config.galleryOptions?.autoFit &&
-      config.mode === 'gallery' &&
-      dataSource.galleryCircuit &&
-      localGates.length > 0 &&
-      !hasAutoFitRef.current
-    ) {
-      // 回路の境界を計算
-      const bounds = calculateCircuitBounds(localGates);
-
-      // キャンバスサイズ（デフォルト値使用）
-      const canvasSize = { width: 1200, height: 800 };
-
-      // 最適なスケールを計算
-      const optimalScale = calculateOptimalScale(
-        bounds,
-        canvasSize,
-        config.galleryOptions.autoFitPadding || 100
-      );
-
-      // 中央配置のためのパン値を計算
-      const pan = calculateCenteringPan(bounds, canvasSize, optimalScale);
-
-      // スケールとビューボックスを設定
-      const newViewBox = {
-        x: -pan.x / optimalScale,
-        y: -pan.y / optimalScale,
-        width: canvasSize.width / optimalScale,
-        height: canvasSize.height / optimalScale,
-      };
-
-      setScale(optimalScale);
-      setViewBox(newViewBox);
-
-      // 自動フィット済みフラグを設定
-      hasAutoFitRef.current = true;
-    }
-  }, [
-    config.galleryOptions?.autoFit,
-    config.galleryOptions?.autoFitPadding,
-    config.mode,
-    dataSource.galleryCircuit,
-    dataSource.galleryCircuit?.id,
-    localGates,
-  ]);
 
   // 自動アニメーション開始
   useEffect(() => {
