@@ -3,6 +3,7 @@ export const SIMPLE_COUNTER = {
   title: '2ビット同期カウンタ',
   description:
     'T-フリップフロップを使った同期カウンタ。クロックエッジでカウントアップします。',
+  skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
     // クロック入力
     {

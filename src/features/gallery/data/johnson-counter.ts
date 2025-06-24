@@ -12,21 +12,21 @@ export const JOHNSON_COUNTER = {
   },
   skipAutoLayout: true, // 手動配置された最適レイアウトを保持
   gates: [
-    // CLOCK (1Hz)
+    // === Layer 0: CLOCK source ===
     {
       id: 'clock',
       type: 'CLOCK' as const,
-      position: { x: 100, y: 200 },
+      position: { x: 100, y: 400 },
       outputs: [true],
       inputs: [],
-      metadata: { frequency: 1, isRunning: true }, // startTimeは評価時に自動設定
+      metadata: { frequency: 1, isRunning: true },
     },
 
-    // 4ビットシフトレジスタ
+    // === Layer 1: D-FF shift register ===
     {
       id: 'dff0',
       type: 'D-FF' as const,
-      position: { x: 250, y: 200 },
+      position: { x: 250, y: 250 },
       outputs: [false],
       inputs: [],
       metadata: { qOutput: false, qBarOutput: true, previousClockState: false },
@@ -34,7 +34,7 @@ export const JOHNSON_COUNTER = {
     {
       id: 'dff1',
       type: 'D-FF' as const,
-      position: { x: 380, y: 200 },
+      position: { x: 250, y: 350 },
       outputs: [false],
       inputs: [],
       metadata: { qOutput: false, qBarOutput: true, previousClockState: false },
@@ -42,7 +42,7 @@ export const JOHNSON_COUNTER = {
     {
       id: 'dff2',
       type: 'D-FF' as const,
-      position: { x: 510, y: 200 },
+      position: { x: 250, y: 450 },
       outputs: [false],
       inputs: [],
       metadata: { qOutput: false, qBarOutput: true, previousClockState: false },
@@ -50,204 +50,206 @@ export const JOHNSON_COUNTER = {
     {
       id: 'dff3',
       type: 'D-FF' as const,
-      position: { x: 640, y: 200 },
+      position: { x: 250, y: 550 },
       outputs: [false],
       inputs: [],
       metadata: { qOutput: false, qBarOutput: true, previousClockState: false },
     },
 
-    // 反転フィードバック用NOTゲート
+    // === Layer 2a: Feedback NOT gate ===
     {
       id: 'not_feedback',
       type: 'NOT' as const,
-      position: { x: 720, y: 100 },
+      position: { x: 400, y: 400 },
       outputs: [false],
       inputs: [],
     },
 
-    // 各ビットの出力表示（LEDライクな配置）
+    // === Layer 2b: LED outputs ===
     {
       id: 'led0',
       type: 'OUTPUT' as const,
-      position: { x: 250, y: 300 },
+      position: { x: 550, y: 250 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'led1',
       type: 'OUTPUT' as const,
-      position: { x: 380, y: 300 },
+      position: { x: 550, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'led2',
       type: 'OUTPUT' as const,
-      position: { x: 510, y: 300 },
+      position: { x: 550, y: 450 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'led3',
       type: 'OUTPUT' as const,
-      position: { x: 640, y: 300 },
+      position: { x: 550, y: 550 },
       outputs: [false],
       inputs: [],
     },
 
-    // パターン解析用の追加出力
+    // === Layer 3: Pattern analysis gates ===
     {
       id: 'pattern_a',
       type: 'AND' as const,
-      position: { x: 800, y: 150 },
+      position: { x: 700, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'pattern_b',
       type: 'AND' as const,
-      position: { x: 800, y: 200 },
+      position: { x: 700, y: 450 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'pattern_c',
       type: 'XOR' as const,
-      position: { x: 800, y: 250 },
+      position: { x: 700, y: 550 },
       outputs: [false],
       inputs: [],
     },
 
+    // === Layer 4: Pattern outputs ===
     {
       id: 'out_pattern_a',
       type: 'OUTPUT' as const,
-      position: { x: 900, y: 150 },
+      position: { x: 850, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_pattern_b',
       type: 'OUTPUT' as const,
-      position: { x: 900, y: 200 },
+      position: { x: 850, y: 450 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_pattern_c',
       type: 'OUTPUT' as const,
-      position: { x: 900, y: 250 },
+      position: { x: 850, y: 550 },
       outputs: [false],
       inputs: [],
     },
 
-    // 状態デコーダ（8つの状態を識別）
+    // === Layer 8: State outputs ===
     {
       id: 'state_000',
       type: 'OUTPUT' as const,
-      position: { x: 150, y: 400 },
+      position: { x: 1450, y: 150 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'state_001',
       type: 'OUTPUT' as const,
-      position: { x: 280, y: 400 },
+      position: { x: 1450, y: 250 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'state_011',
       type: 'OUTPUT' as const,
-      position: { x: 410, y: 400 },
+      position: { x: 1450, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'state_111',
       type: 'OUTPUT' as const,
-      position: { x: 540, y: 400 },
+      position: { x: 1450, y: 450 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'state_110',
       type: 'OUTPUT' as const,
-      position: { x: 670, y: 400 },
+      position: { x: 1450, y: 550 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'state_100',
       type: 'OUTPUT' as const,
-      position: { x: 800, y: 400 },
+      position: { x: 1450, y: 650 },
       outputs: [false],
       inputs: [],
     },
 
-    // 状態判定用のロジックゲート
+    // === Layer 5: State decoder NOTs ===
     {
       id: 'not0',
       type: 'NOT' as const,
-      position: { x: 150, y: 450 },
+      position: { x: 1000, y: 250 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'not1',
       type: 'NOT' as const,
-      position: { x: 280, y: 450 },
+      position: { x: 1000, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'not2',
       type: 'NOT' as const,
-      position: { x: 410, y: 450 },
+      position: { x: 1000, y: 450 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'not3',
       type: 'NOT' as const,
-      position: { x: 540, y: 450 },
+      position: { x: 1000, y: 550 },
       outputs: [false],
       inputs: [],
     },
 
+    // === Layer 7: State decoder final ANDs ===
     {
       id: 'and_state_000',
       type: 'AND' as const,
-      position: { x: 150, y: 500 },
+      position: { x: 1300, y: 150 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'and_state_001',
       type: 'AND' as const,
-      position: { x: 280, y: 500 },
+      position: { x: 1300, y: 250 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'and_state_011',
       type: 'AND' as const,
-      position: { x: 410, y: 500 },
+      position: { x: 1300, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'and_state_111',
       type: 'AND' as const,
-      position: { x: 540, y: 500 },
+      position: { x: 1300, y: 450 },
       outputs: [false],
       inputs: [],
     },
 
-    // 状態110デコーダー用の中間ロジック (dff2 & dff1)
+    // === Layer 6: State decoder intermediate ANDs ===
     {
       id: 'and_state_110_mid',
       type: 'AND' as const,
-      position: { x: 670, y: 450 },
+      position: { x: 1150, y: 375 },
       outputs: [false],
       inputs: [],
     },
@@ -256,7 +258,7 @@ export const JOHNSON_COUNTER = {
     {
       id: 'and_state_110',
       type: 'AND' as const,
-      position: { x: 670, y: 500 },
+      position: { x: 1300, y: 550 },
       outputs: [false],
       inputs: [],
     },
@@ -265,7 +267,7 @@ export const JOHNSON_COUNTER = {
     {
       id: 'and_state_100_mid',
       type: 'AND' as const,
-      position: { x: 800, y: 450 },
+      position: { x: 1150, y: 525 },
       outputs: [false],
       inputs: [],
     },
@@ -274,7 +276,7 @@ export const JOHNSON_COUNTER = {
     {
       id: 'and_state_100',
       type: 'AND' as const,
-      position: { x: 800, y: 500 },
+      position: { x: 1300, y: 650 },
       outputs: [false],
       inputs: [],
     },

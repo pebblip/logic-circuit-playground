@@ -45,8 +45,8 @@ export const GalleryModeLayout: React.FC = () => {
                 1000,
               // デバッグ情報を無効化
               showDebugInfo: false,
-              // 自動フィット機能を無効化（サイズ一貫性確保）
-              autoFit: false,
+              // 自動フィット機能を有効化（画面に収まるように調整）
+              autoFit: true,
               autoFitPadding: 80,
             },
           }}

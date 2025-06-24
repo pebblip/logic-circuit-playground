@@ -9,6 +9,7 @@ export const HALF_ADDER: GalleryCircuit = {
   title: '🔗 半加算器',
   description:
     '2つの1ビット数を加算する基本回路。Sum（和）とCarry（桁上がり）を出力。',
+  skipAutoLayout: true, // 手動配置された整然としたレイアウトを保持
   gates: [
     // 入力ゲート
     {

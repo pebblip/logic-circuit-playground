@@ -11,33 +11,34 @@ export const COMPARATOR_4BIT: GalleryCircuit = {
   title: '4ビット比較器（シンプル版）',
   description:
     '2つの4ビット数値を比較。A>B、A=B、A<Bを判定する教育的回路。標準的な階層比較ロジック！',
+  skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
-    // A入力（4ビット）- A=5 (0101)
+    // === Layer 0: INPUT gates - A入力（4ビット）- A=5 (0101) ===
     {
       id: 'a3',
       type: 'INPUT',
-      position: { x: 50, y: 100 },
+      position: { x: 100, y: 50 },
       outputs: [false], // MSB of 5
       inputs: [],
     },
     {
       id: 'a2',
       type: 'INPUT',
-      position: { x: 50, y: 130 },
+      position: { x: 100, y: 150 },
       outputs: [true], // bit 2 of 5
       inputs: [],
     },
     {
       id: 'a1',
       type: 'INPUT',
-      position: { x: 50, y: 160 },
+      position: { x: 100, y: 250 },
       outputs: [false], // bit 1 of 5
       inputs: [],
     },
     {
       id: 'a0',
       type: 'INPUT',
-      position: { x: 50, y: 190 },
+      position: { x: 100, y: 350 },
       outputs: [true], // LSB of 5
       inputs: [],
     },
@@ -46,222 +47,226 @@ export const COMPARATOR_4BIT: GalleryCircuit = {
     {
       id: 'b3',
       type: 'INPUT',
-      position: { x: 50, y: 250 },
+      position: { x: 100, y: 450 },
       outputs: [false], // MSB of 3
       inputs: [],
     },
     {
       id: 'b2',
       type: 'INPUT',
-      position: { x: 50, y: 280 },
+      position: { x: 100, y: 550 },
       outputs: [false], // bit 2 of 3
       inputs: [],
     },
     {
       id: 'b1',
       type: 'INPUT',
-      position: { x: 50, y: 310 },
+      position: { x: 100, y: 650 },
       outputs: [true], // bit 1 of 3
       inputs: [],
     },
     {
       id: 'b0',
       type: 'INPUT',
-      position: { x: 50, y: 340 },
+      position: { x: 100, y: 750 },
       outputs: [true], // LSB of 3
       inputs: [],
     },
 
-    // 各ビット等価性チェック（XNOR実装）
-    {
-      id: 'xor3',
-      type: 'XOR',
-      position: { x: 150, y: 100 },
-      outputs: [false],
-      inputs: [],
-    },
-    {
-      id: 'eq3',
-      type: 'NOT',
-      position: { x: 200, y: 100 },
-      outputs: [false],
-      inputs: [],
-    },
-    {
-      id: 'xor2',
-      type: 'XOR',
-      position: { x: 150, y: 130 },
-      outputs: [false],
-      inputs: [],
-    },
-    {
-      id: 'eq2',
-      type: 'NOT',
-      position: { x: 200, y: 130 },
-      outputs: [false],
-      inputs: [],
-    },
-    {
-      id: 'xor1',
-      type: 'XOR',
-      position: { x: 150, y: 160 },
-      outputs: [false],
-      inputs: [],
-    },
-    {
-      id: 'eq1',
-      type: 'NOT',
-      position: { x: 200, y: 160 },
-      outputs: [false],
-      inputs: [],
-    },
-    {
-      id: 'xor0',
-      type: 'XOR',
-      position: { x: 150, y: 190 },
-      outputs: [false],
-      inputs: [],
-    },
-    {
-      id: 'eq0',
-      type: 'NOT',
-      position: { x: 200, y: 190 },
-      outputs: [false],
-      inputs: [],
-    },
-
-    // 各ビット A > B チェック（Ai AND NOT Bi）
+    // === Layer 1a: NOT gates for B inputs ===
     {
       id: 'not_b3',
       type: 'NOT',
-      position: { x: 150, y: 250 },
-      outputs: [false],
-      inputs: [],
-    },
-    {
-      id: 'a3_gt_b3',
-      type: 'AND',
-      position: { x: 250, y: 100 },
+      position: { x: 250, y: 250 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'not_b2',
       type: 'NOT',
-      position: { x: 150, y: 280 },
-      outputs: [false],
-      inputs: [],
-    },
-    {
-      id: 'a2_gt_b2',
-      type: 'AND',
-      position: { x: 250, y: 130 },
+      position: { x: 250, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'not_b1',
       type: 'NOT',
-      position: { x: 150, y: 310 },
-      outputs: [false],
-      inputs: [],
-    },
-    {
-      id: 'a1_gt_b1',
-      type: 'AND',
-      position: { x: 250, y: 160 },
+      position: { x: 250, y: 450 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'not_b0',
       type: 'NOT',
-      position: { x: 150, y: 340 },
+      position: { x: 250, y: 550 },
+      outputs: [false],
+      inputs: [],
+    },
+
+    // === Layer 1b: XOR gates for equality check ===
+    {
+      id: 'xor3',
+      type: 'XOR',
+      position: { x: 400, y: 250 },
+      outputs: [false],
+      inputs: [],
+    },
+    {
+      id: 'xor2',
+      type: 'XOR',
+      position: { x: 400, y: 350 },
+      outputs: [false],
+      inputs: [],
+    },
+    {
+      id: 'xor1',
+      type: 'XOR',
+      position: { x: 400, y: 450 },
+      outputs: [false],
+      inputs: [],
+    },
+    {
+      id: 'xor0',
+      type: 'XOR',
+      position: { x: 400, y: 550 },
+      outputs: [false],
+      inputs: [],
+    },
+
+    // === Layer 1c: NOT gates for XNOR (equality) ===
+    {
+      id: 'eq3',
+      type: 'NOT',
+      position: { x: 550, y: 250 },
+      outputs: [false],
+      inputs: [],
+    },
+    {
+      id: 'eq2',
+      type: 'NOT',
+      position: { x: 550, y: 350 },
+      outputs: [false],
+      inputs: [],
+    },
+    {
+      id: 'eq1',
+      type: 'NOT',
+      position: { x: 550, y: 450 },
+      outputs: [false],
+      inputs: [],
+    },
+    {
+      id: 'eq0',
+      type: 'NOT',
+      position: { x: 550, y: 550 },
+      outputs: [false],
+      inputs: [],
+    },
+
+    // === Layer 2: AND gates for A > B check ===
+    {
+      id: 'a3_gt_b3',
+      type: 'AND',
+      position: { x: 700, y: 250 },
+      outputs: [false],
+      inputs: [],
+    },
+    {
+      id: 'a2_gt_b2',
+      type: 'AND',
+      position: { x: 700, y: 350 },
+      outputs: [false],
+      inputs: [],
+    },
+    {
+      id: 'a1_gt_b1',
+      type: 'AND',
+      position: { x: 700, y: 450 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'a0_gt_b0',
       type: 'AND',
-      position: { x: 250, y: 190 },
+      position: { x: 700, y: 550 },
       outputs: [false],
       inputs: [],
     },
 
-    // 階層条件のAND（等価性の累積）
+    // === Layer 3: Intermediate logic - 階層条件のAND（等価性の累積） ===
     {
       id: 'eq3_eq2',
       type: 'AND',
-      position: { x: 300, y: 130 },
+      position: { x: 850, y: 300 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'eq3_eq2_eq1',
       type: 'AND',
-      position: { x: 350, y: 160 },
+      position: { x: 850, y: 400 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'eq3_eq2_eq1_eq0',
       type: 'AND',
-      position: { x: 400, y: 190 },
+      position: { x: 850, y: 500 },
       outputs: [false],
       inputs: [],
     },
 
-    // A > B の階層条件
+    // === Layer 4: A > B の階層条件 ===
     {
       id: 'gt_cond2',
       type: 'AND',
-      position: { x: 350, y: 130 },
+      position: { x: 1000, y: 300 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'gt_cond1',
       type: 'AND',
-      position: { x: 400, y: 160 },
+      position: { x: 1000, y: 400 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'gt_cond0',
       type: 'AND',
-      position: { x: 450, y: 190 },
+      position: { x: 1000, y: 500 },
       outputs: [false],
       inputs: [],
     },
 
-    // A > B の最終OR
+    // === Layer 5: A > B の最終OR ===
     {
       id: 'gt_temp1',
       type: 'OR',
-      position: { x: 500, y: 100 },
+      position: { x: 1150, y: 300 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'gt_temp2',
       type: 'OR',
-      position: { x: 550, y: 130 },
+      position: { x: 1150, y: 400 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'a_gt_b',
       type: 'OR',
-      position: { x: 600, y: 150 },
+      position: { x: 1150, y: 500 },
       outputs: [false],
       inputs: [],
     },
 
-    // A = B の最終AND
+    // === Layer 6: Final logic gates ===
     {
       id: 'a_eq_b',
       type: 'AND',
-      position: { x: 450, y: 250 },
+      position: { x: 1300, y: 300 },
       outputs: [false],
       inputs: [],
     },
@@ -270,44 +275,44 @@ export const COMPARATOR_4BIT: GalleryCircuit = {
     {
       id: 'not_gt',
       type: 'NOT',
-      position: { x: 650, y: 150 },
+      position: { x: 1300, y: 400 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'not_eq',
       type: 'NOT',
-      position: { x: 500, y: 250 },
+      position: { x: 1300, y: 500 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'a_lt_b',
       type: 'AND',
-      position: { x: 700, y: 200 },
+      position: { x: 1450, y: 400 },
       outputs: [false],
       inputs: [],
     },
 
-    // 出力
+    // === Layer 7: OUTPUT gates ===
     {
       id: 'out_gt',
       type: 'OUTPUT',
-      position: { x: 750, y: 150 },
+      position: { x: 1600, y: 300 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_eq',
       type: 'OUTPUT',
-      position: { x: 550, y: 250 },
+      position: { x: 1600, y: 400 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_lt',
       type: 'OUTPUT',
-      position: { x: 750, y: 200 },
+      position: { x: 1600, y: 500 },
       outputs: [false],
       inputs: [],
     },

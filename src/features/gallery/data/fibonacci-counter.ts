@@ -12,21 +12,21 @@ export const FIBONACCI_COUNTER = {
   },
   skipAutoLayout: true, // 手動配置された最適レイアウトを保持
   gates: [
-    // CLOCK (1.5Hz for better observation) - 左側中央に独立配置
+    // === Layer 0: CLOCK source ===
     {
       id: 'clock',
       type: 'CLOCK' as const,
-      position: { x: 50, y: 250 },
+      position: { x: 100, y: 400 },
       outputs: [true],
       inputs: [],
       metadata: { frequency: 1.667, isRunning: true }, // startTimeは評価時に自動設定
     },
 
-    // フィボナッチ数列レジスタ A (前の値) - 2ビット版
+    // === Layer 1: Register A (previous value) ===
     {
       id: 'reg_a_0',
       type: 'D-FF' as const,
-      position: { x: 200, y: 150 },
+      position: { x: 250, y: 350 },
       outputs: [false], // F(0) = 0
       inputs: [],
       metadata: {
@@ -39,7 +39,7 @@ export const FIBONACCI_COUNTER = {
     {
       id: 'reg_a_1',
       type: 'D-FF' as const,
-      position: { x: 300, y: 150 },
+      position: { x: 250, y: 450 },
       outputs: [false],
       inputs: [],
       metadata: {
@@ -50,11 +50,11 @@ export const FIBONACCI_COUNTER = {
       },
     },
 
-    // フィボナッチ数列レジスタ B (現在の値) - 2ビット版
+    // === Layer 2: Register B (current value) ===
     {
       id: 'reg_b_0',
       type: 'D-FF' as const,
-      position: { x: 200, y: 350 },
+      position: { x: 400, y: 350 },
       outputs: [true], // F(1) = 1
       inputs: [],
       metadata: {
@@ -67,7 +67,7 @@ export const FIBONACCI_COUNTER = {
     {
       id: 'reg_b_1',
       type: 'D-FF' as const,
-      position: { x: 300, y: 350 },
+      position: { x: 400, y: 450 },
       outputs: [false],
       inputs: [],
       metadata: {
@@ -78,65 +78,63 @@ export const FIBONACCI_COUNTER = {
       },
     },
 
-    // 2ビット加算器 (A + B) - 中央に配置
-    // ビット0の半加算器
+    // === Layer 3: Adder stage 1 (XOR/AND) ===
     {
       id: 'xor_0',
       type: 'XOR' as const,
-      position: { x: 500, y: 200 },
+      position: { x: 550, y: 300 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'and_0',
       type: 'AND' as const,
-      position: { x: 500, y: 280 },
+      position: { x: 550, y: 400 },
       outputs: [false],
       inputs: [],
     },
 
-    // ビット1の全加算器
     {
       id: 'xor_1a',
       type: 'XOR' as const,
-      position: { x: 600, y: 200 },
+      position: { x: 550, y: 500 },
       outputs: [false],
       inputs: [],
     },
+    // === Layer 4: Adder stage 2 (carry logic) ===
     {
       id: 'xor_1b',
       type: 'XOR' as const,
-      position: { x: 700, y: 200 },
+      position: { x: 700, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'and_1a',
       type: 'AND' as const,
-      position: { x: 600, y: 280 },
+      position: { x: 550, y: 600 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'and_1b',
       type: 'AND' as const,
-      position: { x: 700, y: 280 },
+      position: { x: 700, y: 450 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'or_1',
       type: 'OR' as const,
-      position: { x: 750, y: 240 },
+      position: { x: 700, y: 550 },
       outputs: [false],
       inputs: [],
     },
 
-    // ダミーのbit2レジスタ（オーバーフロー表示用）
     {
       id: 'reg_a_2',
       type: 'D-FF' as const,
-      position: { x: 400, y: 150 },
+      position: { x: 250, y: 550 },
       outputs: [false],
       inputs: [],
       metadata: {
@@ -149,7 +147,7 @@ export const FIBONACCI_COUNTER = {
     {
       id: 'reg_b_2',
       type: 'D-FF' as const,
-      position: { x: 400, y: 350 },
+      position: { x: 400, y: 550 },
       outputs: [false],
       inputs: [],
       metadata: {
@@ -160,71 +158,71 @@ export const FIBONACCI_COUNTER = {
       },
     },
 
-    // 出力表示 - 右側に整列
+    // === Layer 5: フィボナッチ結果出力 ===
     {
       id: 'out_fib_0',
       type: 'OUTPUT' as const,
-      position: { x: 850, y: 150 },
+      position: { x: 1000, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_fib_1',
       type: 'OUTPUT' as const,
-      position: { x: 850, y: 250 },
+      position: { x: 1000, y: 450 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_fib_2',
       type: 'OUTPUT' as const,
-      position: { x: 850, y: 350 },
+      position: { x: 1000, y: 550 },
       outputs: [false],
       inputs: [],
     },
 
-    // 現在のA値表示 - 上部に整列
+    // A値デバッグ出力 (上部配置)
     {
       id: 'out_a_0',
       type: 'OUTPUT' as const,
-      position: { x: 200, y: 50 },
+      position: { x: 250, y: 150 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_a_1',
       type: 'OUTPUT' as const,
-      position: { x: 300, y: 50 },
+      position: { x: 400, y: 150 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_a_2',
       type: 'OUTPUT' as const,
-      position: { x: 400, y: 50 },
+      position: { x: 550, y: 150 },
       outputs: [false],
       inputs: [],
     },
 
-    // 現在のB値表示 - 下部に整列
+    // B値デバッグ出力 (下部配置)
     {
       id: 'out_b_0',
       type: 'OUTPUT' as const,
-      position: { x: 200, y: 450 },
+      position: { x: 250, y: 700 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_b_1',
       type: 'OUTPUT' as const,
-      position: { x: 300, y: 450 },
+      position: { x: 400, y: 700 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_b_2',
       type: 'OUTPUT' as const,
-      position: { x: 400, y: 450 },
+      position: { x: 550, y: 700 },
       outputs: [false],
       inputs: [],
     },

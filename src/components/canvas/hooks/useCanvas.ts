@@ -20,6 +20,7 @@ import type {
 import { GALLERY_CIRCUITS } from '@/features/gallery/data';
 import { autoLayoutCircuit } from '@/features/learning-mode/utils/autoLayout';
 // import { formatCircuitWithAnimation } from '@/domain/circuit/layout';
+import { useAutoFit } from './useAutoFit';
 import type { Gate, Wire } from '@/types/circuit';
 import type {
   CanvasConfig,
@@ -114,6 +115,21 @@ export function useCanvas(
     y: 0,
     width: 1200,
     height: 800,
+  });
+
+  // 自動フィット機能
+  useAutoFit({
+    gates: localGates,
+    svgRef,
+    enabled:
+      config.mode === 'gallery' && config.galleryOptions?.autoFit === true,
+    padding: config.galleryOptions?.autoFitPadding || 100,
+    onViewBoxChange: newViewBox => {
+      setViewBox(newViewBox);
+      // スケールも更新
+      const newScale = 1200 / newViewBox.width;
+      setScale(newScale);
+    },
   });
   const [scale, setScale] = useState(config.galleryOptions?.initialScale ?? 1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());

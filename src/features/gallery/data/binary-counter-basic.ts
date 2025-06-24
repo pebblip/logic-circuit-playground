@@ -3,6 +3,7 @@ export const BINARY_COUNTER_BASIC = {
   title: '2ビットバイナリカウンタ（基本ゲート版）',
   description:
     'D-FFとクロック制御を基本ゲートで実現したカウンタ。0→1→2→3→0の順でカウントします。',
+  skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
     // クロック入力
     {

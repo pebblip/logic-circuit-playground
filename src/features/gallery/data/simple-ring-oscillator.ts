@@ -18,6 +18,7 @@ export const SIMPLE_RING_OSCILLATOR = {
     expectedBehavior: 'oscillator' as const,
     minimumCycles: 10,
   },
+  skipAutoLayout: true, // 手動配置された美しい水平レイアウトを保持
   gates: [
     // 🔥 たったこれだけ！3つのNOTゲートのみ
     {

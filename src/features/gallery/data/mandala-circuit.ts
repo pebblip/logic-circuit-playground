@@ -11,153 +11,154 @@ export const MANDALA_CIRCUIT: GalleryCircuit = {
     expectedBehavior: 'oscillator' as const,
     minimumCycles: 15,
   },
+  skipAutoLayout: true, // 手動配置された美しいマンダラレイアウトを保持
   gates: [
-    // === リング1（3個のNOT） ===
+    // === Ring1 (3個のNOT) - 内側正三角形配置 ===
     {
       id: 'ring1_not1',
       type: 'NOT' as const,
-      position: { x: 200, y: 200 },
+      position: { x: 400, y: 175 }, // 上（中心から80px）
       outputs: [true],
       inputs: [],
     },
     {
       id: 'ring1_not2',
       type: 'NOT' as const,
-      position: { x: 300, y: 200 },
+      position: { x: 325, y: 300 }, // 左下（120度）
       outputs: [false],
       inputs: [],
     },
     {
       id: 'ring1_not3',
       type: 'NOT' as const,
-      position: { x: 250, y: 120 },
+      position: { x: 475, y: 300 }, // 右下（240度）
       outputs: [false],
       inputs: [],
     },
 
-    // === リング2（5個のNOT） ===
+    // === Ring2 (5個のNOT) - 外側正五角形配置 ===
     {
       id: 'ring2_not1',
       type: 'NOT' as const,
-      position: { x: 400, y: 300 },
+      position: { x: 400, y: 110 }, // 上（0度）
       outputs: [true],
       inputs: [],
     },
     {
       id: 'ring2_not2',
       type: 'NOT' as const,
-      position: { x: 500, y: 300 },
+      position: { x: 533, y: 193 }, // 右上（72度）
       outputs: [false],
       inputs: [],
     },
     {
       id: 'ring2_not3',
       type: 'NOT' as const,
-      position: { x: 550, y: 200 },
+      position: { x: 486, y: 383 }, // 右下（144度）
       outputs: [true],
       inputs: [],
     },
     {
       id: 'ring2_not4',
       type: 'NOT' as const,
-      position: { x: 450, y: 150 },
+      position: { x: 314, y: 383 }, // 左下（216度）
       outputs: [false],
       inputs: [],
     },
     {
       id: 'ring2_not5',
       type: 'NOT' as const,
-      position: { x: 350, y: 200 },
+      position: { x: 267, y: 193 }, // 左上（288度）
       outputs: [false],
       inputs: [],
     },
 
-    // === 相互作用ゲート ===
+    // === 相互作用ゲート - 中央配置 ===
     {
       id: 'interact_xor',
       type: 'XOR' as const,
-      position: { x: 350, y: 250 },
+      position: { x: 400, y: 290 }, // 中央下寄り（重なり回避）
       outputs: [false],
       inputs: [],
     },
 
-    // === パターン生成 ===
+    // === パターン生成 - 5個を正五角形配置 ===
     {
       id: 'pattern_xor1',
       type: 'XOR' as const,
-      position: { x: 250, y: 350 },
+      position: { x: 525, y: 100 }, // パターン0度（-54度オフセット）
       outputs: [false],
       inputs: [],
     },
     {
       id: 'pattern_xor2',
       type: 'XOR' as const,
-      position: { x: 450, y: 350 },
+      position: { x: 588, y: 314 }, // パターン72度
       outputs: [false],
       inputs: [],
     },
     {
       id: 'pattern_xor3',
       type: 'XOR' as const,
-      position: { x: 350, y: 100 },
+      position: { x: 400, y: 400 }, // パターン144度
       outputs: [false],
       inputs: [],
     },
     {
       id: 'pattern_xor4',
       type: 'XOR' as const,
-      position: { x: 150, y: 150 },
+      position: { x: 212, y: 314 }, // パターン216度
       outputs: [false],
       inputs: [],
     },
     {
       id: 'pattern_xor5',
       type: 'XOR' as const,
-      position: { x: 500, y: 120 },
+      position: { x: 275, y: 100 }, // パターン288度
       outputs: [false],
       inputs: [],
     },
 
-    // === 出力（6方向） ===
+    // === 出力（6方向）- 最外殻放射状配置 ===
     {
       id: 'out_north',
       type: 'OUTPUT' as const,
-      position: { x: 350, y: 50 },
+      position: { x: 400, y: -30 }, // 北（280px半径）
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_northeast',
       type: 'OUTPUT' as const,
-      position: { x: 500, y: 100 },
+      position: { x: 642, y: 108 }, // 北東（60度）
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_southeast',
       type: 'OUTPUT' as const,
-      position: { x: 500, y: 400 },
+      position: { x: 642, y: 392 }, // 南東（120度）
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_south',
       type: 'OUTPUT' as const,
-      position: { x: 350, y: 450 },
+      position: { x: 400, y: 530 }, // 南（180度）
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_southwest',
       type: 'OUTPUT' as const,
-      position: { x: 200, y: 400 },
+      position: { x: 158, y: 392 }, // 南西（240度）
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_northwest',
       type: 'OUTPUT' as const,
-      position: { x: 200, y: 100 },
+      position: { x: 158, y: 108 }, // 北西（300度）
       outputs: [false],
       inputs: [],
     },

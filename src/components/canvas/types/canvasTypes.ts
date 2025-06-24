@@ -216,7 +216,7 @@ export const CANVAS_MODE_PRESETS: Record<CanvasMode, CanvasConfig> = {
       animationInterval: 1000,
       showDebugInfo: false,
       initialScale: 1.0,
-      autoFit: false, // 自動フィット無効化（サイズ一貫性確保）
+      autoFit: true, // 自動フィット有効化（画面に収まるように調整）
       autoFitPadding: 80, // 80pxの余白
     },
     uiControls: {
