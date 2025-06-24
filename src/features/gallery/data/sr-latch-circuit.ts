@@ -1,8 +1,8 @@
 export const SR_LATCH_BASIC = {
   id: 'sr-latch-basic',
-  title: 'SRラッチ（基本ゲート版）',
+  title: 'SRラッチ（記憶素子）',
   description:
-    'NORゲート2つで作る最も基本的な記憶回路。循環依存を持つ回路の代表例です。',
+    'NORゲート2つで作る最も基本的な記憶回路。S（Set）をONにするとQ出力が1に、R（Reset）をONにするとQ出力が0になります。両方OFFにしても状態を保持します。',
   simulationConfig: {
     needsAnimation: false,
     updateInterval: 100,

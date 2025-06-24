@@ -8,9 +8,9 @@ import type { GalleryCircuit } from './types';
  */
 export const COMPARATOR_4BIT: GalleryCircuit = {
   id: '4bit-comparator',
-  title: '4ビット比較器（シンプル版）',
+  title: '4ビット数値比較器',
   description:
-    '2つの4ビット数値を比較。A>B、A=B、A<Bを判定する教育的回路。標準的な階層比較ロジック！',
+    '2つの4ビット数値（A0-A3、B0-B3）を比較する回路。各入力をクリックして値を変更し、A>B、A=B、A<Bのどれが点灯するか確認しましょう。現在はA=5、B=3に設定されています。',
   skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
     // === Layer 0: INPUT gates - A入力（4ビット）- A=5 (0101) ===

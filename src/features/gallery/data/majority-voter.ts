@@ -9,7 +9,7 @@ export const MAJORITY_VOTER: GalleryCircuit = {
   id: 'majority-voter',
   title: '多数決回路',
   description:
-    '3つの入力から多数決を取る回路。2票以上の賛成で可決！民主主義の原理を論理回路で実現。',
+    '3つの入力（投票者A、B、C）から多数決を取る回路。各入力をクリックして賛成（1）または反対（0）を投票し、2票以上の賛成で出力が点灯することを確認しましょう。',
   skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
     // === Layer 0: 投票者入力 ===

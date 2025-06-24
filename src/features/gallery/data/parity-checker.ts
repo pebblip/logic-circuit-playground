@@ -9,7 +9,7 @@ export const PARITY_CHECKER: GalleryCircuit = {
   id: 'parity-checker',
   title: 'パリティチェッカー',
   description:
-    'データの誤り検出に使われるパリティチェック回路。XORゲートの連鎖で「1の個数が奇数か偶数か」を判定！',
+    'データの誤り検出に使われる回路。4つの入力ビット（D0〜D3）をクリックして変更し、1の個数が奇数の時だけ出力が点灯することを確認しましょう。通信エラー検出の基本原理です。',
   skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
     // === Layer 0: 4ビット入力 ===

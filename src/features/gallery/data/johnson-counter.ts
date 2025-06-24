@@ -2,7 +2,7 @@ export const JOHNSON_COUNTER = {
   id: 'johnson-counter',
   title: '💫 ジョンソンカウンター',
   description:
-    '美しい回転パターンを生成する循環シフトレジスタ。反転フィードバックにより魔法のような連続パターンを作り出します！',
+    '特殊なシフトレジスタ回路。CLOCKがカウントするたびに、LED0〜5が順番に点灯し、光が回転するようなパターンを作ります。6個の出力を順番に観察してみましょう。',
   simulationConfig: {
     needsAnimation: true,
     updateInterval: 250, // 0.25秒 - 1HzCLOCK(1000ms)の1/4間隔で正確な変化を捉える

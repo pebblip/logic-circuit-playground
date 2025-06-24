@@ -9,7 +9,7 @@ export const SEVEN_SEGMENT_DECODER: GalleryCircuit = {
   id: 'seven-segment',
   title: '7セグメントデコーダー',
   description:
-    '0から3までの数字を7セグメントディスプレイ用の信号に変換。デジタル時計や電卓の表示原理がわかる！',
+    '2ビット入力（B1、B0）を0から3までの数字表示用信号に変換する回路。入力をクリックし、00→　01→、10→。11→〃の順に変更し、セグメントa〜gの点灯パターンを観察しましょう。',
   skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
     // === Layer 0: 2ビット入力 ===

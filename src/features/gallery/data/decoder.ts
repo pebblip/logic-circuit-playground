@@ -9,7 +9,7 @@ export const DECODER_2TO4: GalleryCircuit = {
   id: 'decoder',
   title: '2-to-4 デコーダー',
   description:
-    '2ビット入力を4つの出力線に変換。アドレスデコーダーやメモリ選択回路の基本。',
+    '2ビット入力（A、B）を4つの出力線（Y0〜Y3）に変換する回路。入力A・Bをクリックして変更し、00→Y0、01→Y1、10→Y2、11→Y3のように、1つだけ出力が点灯することを確認しましょう。',
   skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
     // === Layer 0: 2ビット入力 ===

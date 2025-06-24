@@ -2,7 +2,7 @@ export const FIBONACCI_COUNTER = {
   id: 'fibonacci-counter',
   title: '🌸 フィボナッチカウンター',
   description:
-    '数学の黄金比を生み出すフィボナッチ数列を生成する美しい循環回路。自然界のパターンをデジタル回路で再現！',
+    'フィボナッチ数列（1、1、2、3、5、8...）を生成する回路。CLOCKがカウントするたびに、前の2つの数を加算して次の数を出力します。出力AとBの変化パターンを観察してみましょう。',
   simulationConfig: {
     needsAnimation: true,
     updateInterval: 150, // 0.15秒 - 1.667HzCLOCK(600ms)の1/4間隔で正確な変化を捉える

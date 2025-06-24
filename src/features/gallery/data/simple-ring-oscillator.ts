@@ -9,9 +9,9 @@
  */
 export const SIMPLE_RING_OSCILLATOR = {
   id: 'simple-ring-oscillator',
-  title: '🔥 シンプルリングオシレータ（遅延モード版）',
+  title: '🔥 3ゲート発振器',
   description:
-    'DELAYゲート不要の3-NOTリングオシレータ。遅延モードONで各NOTゲートの自然な1ns遅延により3ns周期で発振します。',
+    '3つのNOTゲートをリング状に接続した発振回路。ゲートの伝搬遅延により自動的に信号が循環し、出力がON/OFFを繰り返します。遅延モードをONにして動作を確認しましょう。',
   simulationConfig: {
     needsAnimation: true,
     updateInterval: 1000, // 1秒 - 視認しやすく教育的にも適切な速度

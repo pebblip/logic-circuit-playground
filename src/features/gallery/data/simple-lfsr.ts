@@ -4,9 +4,9 @@
  */
 export const SIMPLE_LFSR = {
   id: 'simple-lfsr',
-  title: '🔧 シンプル2ビットLFSR（テスト用）',
+  title: '🔧 2ビット擬似乱数生成器',
   description:
-    '最小限の2ビットLFSRで動作を確認。複雑になる前に基本動作をテスト。',
+    '線形フィードバックシフトレジスタ（LFSR）の基本形。CLOCKがカウントするたびに擬似乱数パターンを生成します。出力の変化パターンを観察してみましょう。',
   simulationConfig: {
     needsAnimation: true,
     updateInterval: 250, // 0.25秒 - 1HzCLOCK(1000ms)の1/4間隔で正確な変化を捉える

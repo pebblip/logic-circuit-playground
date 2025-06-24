@@ -14,7 +14,7 @@ export const SELF_OSCILLATING_MEMORY_SIMPLE: GalleryCircuit = {
   id: 'self-oscillating-memory-simple',
   title: '🌀 セルフオシレーティングメモリ（シンプル版）',
   description:
-    '最小構成で安定動作！3ゲートリングオシレータとenable制御、SR-LATCHメモリの実用設計。',
+    '発振と記憶を組み合わせた特殊回路。enable入力をONにすると発振を開始し、OFFにすると最後の状態を記憶します。Q出力の変化を観察してみましょう。',
   simulationConfig: {
     needsAnimation: true,
     updateInterval: 500, // 0.5秒 - 見やすい速度

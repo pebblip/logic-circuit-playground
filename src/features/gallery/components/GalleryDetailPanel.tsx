@@ -81,55 +81,6 @@ export const GalleryDetailPanel: React.FC<GalleryDetailPanelProps> = ({
         </div>
       </div>
 
-      {/* 学習ポイント */}
-      <div className="detail-learning">
-        <h3>🎯 学習ポイント</h3>
-        <ul>
-          {circuit.id === 'half-adder' && (
-            <>
-              <li>XORゲートとANDゲートの組み合わせ</li>
-              <li>2進数の加算の基礎</li>
-              <li>デジタル演算回路の入門</li>
-            </>
-          )}
-          {circuit.id === 'sr-latch' && (
-            <>
-              <li>専用SR-LATCHゲートの使い方</li>
-              <li>メモリ素子の基本動作</li>
-              <li>セット・リセット機能</li>
-            </>
-          )}
-          {circuit.id === 'decoder' && (
-            <>
-              <li>バイナリデコーダーの原理</li>
-              <li>選択信号による出力制御</li>
-              <li>アドレスデコーディング</li>
-            </>
-          )}
-          {circuit.id === 'comparator-4bit' && (
-            <>
-              <li>多ビット比較の実装</li>
-              <li>階層的な論理設計</li>
-              <li>実用的なデジタル回路</li>
-            </>
-          )}
-          {circuit.id.includes('oscillator') && (
-            <>
-              <li>フィードバックループ</li>
-              <li>発振回路の原理</li>
-              <li>タイミング生成</li>
-            </>
-          )}
-          {circuit.id.includes('counter') && (
-            <>
-              <li>順序回路の設計</li>
-              <li>状態遷移の理解</li>
-              <li>カウンタ回路の応用</li>
-            </>
-          )}
-        </ul>
-      </div>
-
       <div className="detail-actions">
         {canShowTruthTable && (
           <button className="action-button primary">📊 真理値表を表示</button>

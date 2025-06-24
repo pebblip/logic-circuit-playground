@@ -2,7 +2,7 @@ import type { GalleryCircuit } from './types';
 
 export const MANDALA_CIRCUIT: GalleryCircuit = {
   id: 'mandala-circuit',
-  title: '🌸 マンダラ回路（ミニマル版）',
+  title: '🌸 二重リング発振器',
   description:
     '2つのリングオシレーター（3個と5個のNOT）が生み出す美しい周期パターン。20ゲートで全出力が動的に変化！',
   simulationConfig: {

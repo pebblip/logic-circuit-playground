@@ -49,7 +49,11 @@
 }
 
 .tag.cyclical {
-  background: linear-gradient(135deg, rgba(255, 0, 110, 0.2) 0%, rgba(131, 56, 236, 0.2) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 0, 110, 0.2) 0%,
+    rgba(131, 56, 236, 0.2) 100%
+  );
   color: #ff006e;
   border: 1px solid rgba(255, 0, 110, 0.3);
 }
@@ -131,38 +135,6 @@
   font-size: 13px;
   font-weight: 500;
   color: #ffffff;
-}
-
-/* 学習ポイント */
-.detail-learning {
-  margin-bottom: 32px;
-  padding: 20px;
-  background: #0a0a0a;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.detail-learning h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #ffffff;
-  margin: 0 0 16px 0;
-}
-
-.detail-learning ul {
-  margin: 0;
-  padding-left: 20px;
-}
-
-.detail-learning li {
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 8px;
-}
-
-.detail-learning li:last-child {
-  margin-bottom: 0;
 }
 
 /* アクションボタン */
