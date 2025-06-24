@@ -112,8 +112,8 @@ export function useCanvas(
   const [viewBox, setViewBox] = useState({
     x: 0,
     y: 0,
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
   });
   const [scale, setScale] = useState(config.galleryOptions?.initialScale ?? 1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
