@@ -11,22 +11,21 @@ export const CHAOS_GENERATOR = {
   },
   skipAutoLayout: true, // 手動配置された最適レイアウトを保持
   gates: [
-    // CLOCK (1Hz)
+    // === Layer 0: CLOCK source ===
     {
       id: 'clock',
       type: 'CLOCK' as const,
-      position: { x: 100, y: 150 },
+      position: { x: 100, y: 400 },
       outputs: [true], // 初期状態でONにしてクロック信号を見やすく
       inputs: [],
       metadata: { frequency: 2, isRunning: true }, // 2Hz - startTimeは評価時に自動設定
     },
 
-    // 4ビットシフトレジスタ（D-FFで構成）
-    // 初期値を [1, 0, 1, 0] に設定 - LFSRの標準的な初期値
+    // === Layer 1: 4ビットシフトレジスタ ===
     {
       id: 'dff1',
       type: 'D-FF' as const,
-      position: { x: 200, y: 200 },
+      position: { x: 250, y: 350 },
       outputs: [true], // 初期値
       inputs: [],
       metadata: {
@@ -39,7 +38,7 @@ export const CHAOS_GENERATOR = {
     {
       id: 'dff2',
       type: 'D-FF' as const,
-      position: { x: 300, y: 200 },
+      position: { x: 250, y: 450 },
       outputs: [false],
       inputs: [],
       metadata: {
@@ -52,7 +51,7 @@ export const CHAOS_GENERATOR = {
     {
       id: 'dff3',
       type: 'D-FF' as const,
-      position: { x: 400, y: 200 },
+      position: { x: 400, y: 350 },
       outputs: [true], // 1に変更
       inputs: [],
       metadata: {
@@ -65,7 +64,7 @@ export const CHAOS_GENERATOR = {
     {
       id: 'dff4',
       type: 'D-FF' as const,
-      position: { x: 500, y: 200 },
+      position: { x: 400, y: 450 },
       outputs: [false],
       inputs: [],
       metadata: {
@@ -76,50 +75,50 @@ export const CHAOS_GENERATOR = {
       }, // 初回エッジ検出を防ぐ
     },
 
-    // XORフィードバック（多項式: x^4 + x^3 + 1）
+    // === Layer 2: XORフィードバック ===
     {
       id: 'xor_feedback',
       type: 'XOR' as const,
-      position: { x: 350, y: 100 },
+      position: { x: 550, y: 400 },
       outputs: [false],
       inputs: [],
     },
 
-    // 出力観測用
+    // === Layer 3: 出力観測用 ===
     {
       id: 'out_bit3',
       type: 'OUTPUT' as const,
-      position: { x: 200, y: 300 },
+      position: { x: 700, y: 300 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_bit2',
       type: 'OUTPUT' as const,
-      position: { x: 300, y: 300 },
+      position: { x: 700, y: 400 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_bit1',
       type: 'OUTPUT' as const,
-      position: { x: 400, y: 300 },
+      position: { x: 700, y: 500 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_bit0',
       type: 'OUTPUT' as const,
-      position: { x: 500, y: 300 },
+      position: { x: 700, y: 600 },
       outputs: [false],
       inputs: [],
     },
 
-    // ランダム出力
+    // メインランダム出力
     {
       id: 'random_output',
       type: 'OUTPUT' as const,
-      position: { x: 600, y: 200 },
+      position: { x: 700, y: 200 },
       outputs: [false],
       inputs: [],
     },

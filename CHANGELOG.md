@@ -1,8 +1,38 @@
 # 変更履歴
 
+## [未リリース] - 2025-06-25
+
+### 追加
+
+- **ギャラリー回路美的改善プロジェクト** 🎨✨
+  - 8回路の構造化レイアウト実装
+  - 層構造設計：入力層→処理層→出力層
+  - 150px列間隔、50-100px行間隔の統一基準
+  - Y=400px中心化による視覚的バランス改善
+  - 個別美的検証テストの作成
+
+### 改善
+
+- **ギャラリー回路の美的スコア大幅向上**:
+  - sr-latch-basic: 74.6 → 96.0点（+21.4点）
+  - parity-checker: 67.2 → 90.9点（+23.7点）
+  - majority-voter: 65.7 → 89.1点（+23.4点）
+  - decoder: 56.6 → 96.8点（+40.2点）
+  - self-oscillating-memory-simple: 54.3 → 99.0点（+44.7点）
+  - seven-segment: 53.6 → 88.4点（+34.8点）
+  - chaos-generator: 79.0 → 84.3点（+5.3点）
+  - **平均向上度: +31.4点**
+
+### 技術的改善
+
+- 座標圧縮戦略による配置最適化
+- 25pxグリッド100%整列達成
+- skipAutoLayout: trueによる手動配置保持
+
 ## [未リリース] - 2025-06-18
 
 ### 追加
+
 - **遅延モード実装（Phase 1）** 🚀
   - EventDrivenEngine: 統合されたイベント駆動エンジン
   - ゲートごとの伝播遅延サポート（Gate.timing.propagationDelay）
@@ -19,6 +49,7 @@
     - シミュレーション設定の統一管理（SimulationSlice）
 
 ### テスト
+
 - 3-NOTリングオシレータ（遅延モード）: 6ns周期で発振成功 ✅
 - SR-LATCH（遅延モード）: Set/Reset動作を正確にシミュレート
 - D-FF（遅延モード）: クロックエッジから5ns後に出力変化
@@ -26,15 +57,18 @@
 - カスタムゲート（遅延モード）: 内部回路の遅延を正確に反映 ✅
 
 ### 変更
+
 - MinimalEventDrivenEngineをEventDrivenEngineに統合
 
 ### 削除
-- _future-implementationディレクトリ（7,000行）
+
+- \_future-implementationディレクトリ（7,000行）
 - .bakファイル（7ファイル）
 
 ## [未リリース] - 2025-06-17
 
 ### 追加
+
 - Canvas.tsxの包括的リファクタリング
   - 5つのUIコンポーネントを分離（CanvasBackground, CanvasControls, CanvasPreviewHeader, SelectionRect, WirePreview）
   - 3つのカスタムフックを作成（useCanvasSimulation, useCanvasInteraction, useCanvasGateManagement）
@@ -49,11 +83,13 @@
   - モード切替によるパネル表示制御
 
 ### 削除
-- 未使用の_future-implementationディレクトリ（6,764行）
+
+- 未使用の\_future-implementationディレクトリ（6,764行）
 - バックアップファイル（.bak）7個（2,440行）
 - 合計9,204行の未使用コードを削除
 
 ### リファクタリング
+
 - 座標変換関数の統一
   - 6ファイルで重複していた実装をinfrastructure/ui/svgCoordinates.tsに統一
   - clientToSVGCoordinates、touchToSVGCoordinates、reactEventToSVGCoordinatesを標準化
@@ -61,6 +97,7 @@
 ## [未リリース] - 2025-06-16
 
 ### 追加
+
 - タイミングチャート機能の実装
   - CLOCKゲートの周波数に応じた動的更新間隔
   - 選択したCLOCKのみ表示機能
@@ -69,6 +106,7 @@
 - ヘルプコンテンツのリスト表示対応
 
 ### 変更
+
 - 共有ダイアログのデザインを暗いテーマに統一
 - ヘルプ機能を右上のヘルプボタンに統合（右下の？ボタンを削除）
 - ズームコントロールを右上、ステータスバーを上部中央に配置
@@ -79,6 +117,7 @@
   - 実装されていない機能の削除（+/-キーズーム、中クリックパン）
 
 ### 修正
+
 - ピン状態同期バグを修正（INPUTゲート状態変更時にピン表示が更新されない問題）
   - GateComponentのメモ化比較関数にgate.inputsを追加
 - 共有URL復元時の接続線が表示されない問題を修正
@@ -87,6 +126,7 @@
 - KeyboardShortcutsHelpコンポーネントの削除（重複機能）
 
 ### 技術的改善
+
 - TypeScript型定義の強化
 - コンポーネントの最適化
 - 不要なインポートの削除
@@ -94,6 +134,7 @@
 ## [1.0.0] - 2025-06-01
 
 ### 初回リリース
+
 - 基本的な論理回路シミュレーション機能
 - ドラッグ&ドロップによるゲート配置
 - リアルタイムシミュレーション

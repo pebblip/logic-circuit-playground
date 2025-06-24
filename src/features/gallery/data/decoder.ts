@@ -10,92 +10,93 @@ export const DECODER_2TO4: GalleryCircuit = {
   title: '2-to-4 デコーダー',
   description:
     '2ビット入力を4つの出力線に変換。アドレスデコーダーやメモリ選択回路の基本。',
+  skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
-    // 入力 A, B
+    // === Layer 0: 2ビット入力 ===
     {
       id: 'input_a',
       type: 'INPUT',
-      position: { x: 100, y: 150 },
+      position: { x: 100, y: 375 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'input_b',
       type: 'INPUT',
-      position: { x: 100, y: 350 },
+      position: { x: 100, y: 425 },
       outputs: [],
       inputs: [],
     },
-    // NOT ゲート
+    // === Layer 1: NOT ゲート ===
     {
       id: 'not_a',
       type: 'NOT',
-      position: { x: 250, y: 100 },
+      position: { x: 250, y: 375 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'not_b',
       type: 'NOT',
-      position: { x: 250, y: 400 },
+      position: { x: 250, y: 425 },
       outputs: [],
       inputs: [],
     },
-    // AND ゲート (4つの組み合わせ)
+    // === Layer 2: AND ゲート (4つの組み合わせ) ===
     {
       id: 'and_00',
       type: 'AND',
-      position: { x: 400, y: 50 },
+      position: { x: 400, y: 325 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'and_01',
       type: 'AND',
-      position: { x: 400, y: 200 },
+      position: { x: 400, y: 375 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'and_10',
       type: 'AND',
-      position: { x: 400, y: 350 },
+      position: { x: 400, y: 425 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'and_11',
       type: 'AND',
-      position: { x: 400, y: 500 },
+      position: { x: 400, y: 475 },
       outputs: [],
       inputs: [],
     },
-    // 出力
+    // === Layer 3: 4出力 ===
     {
       id: 'output_0',
       type: 'OUTPUT',
-      position: { x: 600, y: 50 },
+      position: { x: 550, y: 325 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'output_1',
       type: 'OUTPUT',
-      position: { x: 600, y: 200 },
+      position: { x: 550, y: 375 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'output_2',
       type: 'OUTPUT',
-      position: { x: 600, y: 350 },
+      position: { x: 550, y: 425 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'output_3',
       type: 'OUTPUT',
-      position: { x: 600, y: 500 },
+      position: { x: 550, y: 475 },
       outputs: [],
       inputs: [],
     },

@@ -9,49 +9,50 @@ export const SR_LATCH_BASIC = {
     expectedBehavior: 'memory_circuit' as const,
     minimumCycles: 5,
   },
+  skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
-    // 入力
+    // === Layer 0: 入力 ===
     {
       id: 'S',
       type: 'INPUT' as const,
-      position: { x: 100, y: 100 },
+      position: { x: 100, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'R',
       type: 'INPUT' as const,
-      position: { x: 100, y: 300 },
+      position: { x: 100, y: 450 },
       outputs: [false],
       inputs: [],
     },
-    // NORゲート - 初期状態を設定（Q=1, Q̄=0）
+    // === Layer 1: NORゲート ===
     {
       id: 'NOR1',
       type: 'NOR' as const,
-      position: { x: 300, y: 150 },
+      position: { x: 250, y: 350 },
       outputs: [true], // Q = 1
       inputs: [],
     },
     {
       id: 'NOR2',
       type: 'NOR' as const,
-      position: { x: 300, y: 250 },
+      position: { x: 250, y: 450 },
       outputs: [false], // Q̄ = 0
       inputs: [],
     },
-    // 出力
+    // === Layer 2: 出力 ===
     {
       id: 'Q',
       type: 'OUTPUT' as const,
-      position: { x: 500, y: 150 },
+      position: { x: 400, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'Q_BAR',
       type: 'OUTPUT' as const,
-      position: { x: 500, y: 250 },
+      position: { x: 400, y: 450 },
       outputs: [false],
       inputs: [],
     },

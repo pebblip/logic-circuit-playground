@@ -21,69 +21,70 @@ export const SELF_OSCILLATING_MEMORY_SIMPLE: GalleryCircuit = {
     expectedBehavior: 'oscillator' as const,
     minimumCycles: 10,
   },
+  skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
-    // === 制御入力 ===
+    // === Layer 0: 制御入力 ===
     {
       id: 'enable',
       type: 'INPUT' as const,
-      position: { x: 50, y: 200 },
+      position: { x: 100, y: 400 },
       outputs: [true], // 初期値ON
       inputs: [],
     },
 
-    // === 発振器コア（3ゲートリング） ===
+    // === Layer 1: Enable制御ゲート ===
+    {
+      id: 'enable_and',
+      type: 'AND' as const,
+      position: { x: 250, y: 400 },
+      outputs: [false],
+      inputs: [],
+    },
+
+    // === Layer 2: 発振器コア（3ゲートリング） ===
     {
       id: 'not1',
       type: 'NOT' as const,
-      position: { x: 300, y: 200 },
+      position: { x: 400, y: 350 },
       outputs: [true], // 初期状態
       inputs: [],
     },
     {
       id: 'not2',
       type: 'NOT' as const,
-      position: { x: 400, y: 200 },
+      position: { x: 400, y: 400 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'not3',
       type: 'NOT' as const,
-      position: { x: 500, y: 200 },
+      position: { x: 400, y: 450 },
       outputs: [true],
       inputs: [],
     },
 
-    // === Enable制御ゲート ===
-    {
-      id: 'enable_and',
-      type: 'AND' as const,
-      position: { x: 200, y: 200 },
-      outputs: [false],
-      inputs: [],
-    },
-
-    // === メモリ（発振状態を保持） ===
+    // === Layer 3: メモリ（発振状態を保持） ===
     {
       id: 'memory_sr',
       type: 'SR-LATCH' as const,
-      position: { x: 600, y: 200 },
+      position: { x: 550, y: 400 },
       outputs: [false, true],
       inputs: [],
     },
 
-    // === 出力 ===
+    // === Layer 4: 出力群 ===
     {
       id: 'output_main',
       type: 'OUTPUT' as const,
-      position: { x: 700, y: 180 },
+      position: { x: 700, y: 375 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'output_inverted',
       type: 'OUTPUT' as const,
-      position: { x: 700, y: 220 },
+      position: { x: 700, y: 425 },
       outputs: [false],
       inputs: [],
     },

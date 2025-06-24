@@ -10,78 +10,79 @@ export const PARITY_CHECKER: GalleryCircuit = {
   title: 'パリティチェッカー',
   description:
     'データの誤り検出に使われるパリティチェック回路。XORゲートの連鎖で「1の個数が奇数か偶数か」を判定！',
+  skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
-    // 4ビット入力
+    // === Layer 0: 4ビット入力 ===
     {
       id: 'input_d3',
       type: 'INPUT',
-      position: { x: 100, y: 100 },
+      position: { x: 100, y: 325 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'input_d2',
       type: 'INPUT',
-      position: { x: 100, y: 200 },
+      position: { x: 100, y: 375 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'input_d1',
       type: 'INPUT',
-      position: { x: 100, y: 300 },
+      position: { x: 100, y: 425 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'input_d0',
       type: 'INPUT',
-      position: { x: 100, y: 400 },
+      position: { x: 100, y: 475 },
       outputs: [false],
       inputs: [],
     },
-    // XORのカスケード接続
+    // === Layer 1: XORのカスケード接続 ===
     {
       id: 'xor_32',
       type: 'XOR',
-      position: { x: 300, y: 150 },
+      position: { x: 250, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'xor_10',
       type: 'XOR',
-      position: { x: 300, y: 350 },
+      position: { x: 250, y: 450 },
       outputs: [false],
       inputs: [],
     },
+    // === Layer 2: 最終XOR ===
     {
       id: 'xor_final',
       type: 'XOR',
-      position: { x: 500, y: 250 },
+      position: { x: 400, y: 400 },
       outputs: [false],
       inputs: [],
     },
-    // パリティ出力
-    {
-      id: 'parity_out',
-      type: 'OUTPUT',
-      position: { x: 700, y: 250 },
-      outputs: [false],
-      inputs: [],
-    },
-    // デバッグ用：各段階の出力表示
+    // === Layer 3: 出力群 ===
     {
       id: 'debug_32',
       type: 'OUTPUT',
-      position: { x: 450, y: 150 },
+      position: { x: 550, y: 350 },
+      outputs: [false],
+      inputs: [],
+    },
+    {
+      id: 'parity_out',
+      type: 'OUTPUT',
+      position: { x: 550, y: 400 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'debug_10',
       type: 'OUTPUT',
-      position: { x: 450, y: 350 },
+      position: { x: 550, y: 450 },
       outputs: [false],
       inputs: [],
     },

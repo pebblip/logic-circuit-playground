@@ -10,93 +10,94 @@ export const MAJORITY_VOTER: GalleryCircuit = {
   title: '多数決回路',
   description:
     '3つの入力から多数決を取る回路。2票以上の賛成で可決！民主主義の原理を論理回路で実現。',
+  skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
-    // 3つの入力（投票者A, B, C）
+    // === Layer 0: 投票者入力 ===
     {
       id: 'voter_a',
       type: 'INPUT',
-      position: { x: 100, y: 150 },
+      position: { x: 100, y: 350 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'voter_b',
       type: 'INPUT',
-      position: { x: 100, y: 250 },
+      position: { x: 100, y: 400 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'voter_c',
       type: 'INPUT',
-      position: { x: 100, y: 350 },
+      position: { x: 100, y: 450 },
       outputs: [],
       inputs: [],
     },
-    // 2人の組み合わせをチェック（A∧B, B∧C, A∧C）
+    // === Layer 1: 組み合わせチェック（A∧B, B∧C, A∧C） ===
     {
       id: 'and_ab',
       type: 'AND',
-      position: { x: 300, y: 100 },
+      position: { x: 250, y: 325 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'and_bc',
       type: 'AND',
-      position: { x: 300, y: 250 },
+      position: { x: 250, y: 400 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'and_ac',
       type: 'AND',
-      position: { x: 300, y: 400 },
+      position: { x: 250, y: 475 },
       outputs: [],
       inputs: [],
     },
-    // いずれかの組み合わせが成立すれば可決
+    // === Layer 2: 中間OR ===
     {
       id: 'or_ab_bc',
       type: 'OR',
-      position: { x: 500, y: 175 },
+      position: { x: 400, y: 350 },
       outputs: [],
       inputs: [],
     },
+    // === Layer 3: 最終OR ===
     {
       id: 'or_final',
       type: 'OR',
-      position: { x: 650, y: 250 },
+      position: { x: 550, y: 400 },
       outputs: [],
       inputs: [],
     },
-    // 多数決結果
-    {
-      id: 'result',
-      type: 'OUTPUT',
-      position: { x: 800, y: 250 },
-      outputs: [],
-      inputs: [],
-    },
-    // デバッグ用：各ANDゲートの出力
+    // === Layer 4: 出力群 ===
     {
       id: 'debug_ab',
       type: 'OUTPUT',
-      position: { x: 450, y: 100 },
+      position: { x: 700, y: 325 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'debug_bc',
       type: 'OUTPUT',
-      position: { x: 450, y: 250 },
+      position: { x: 700, y: 375 },
+      outputs: [],
+      inputs: [],
+    },
+    {
+      id: 'result',
+      type: 'OUTPUT',
+      position: { x: 700, y: 425 },
       outputs: [],
       inputs: [],
     },
     {
       id: 'debug_ac',
       type: 'OUTPUT',
-      position: { x: 450, y: 400 },
+      position: { x: 700, y: 475 },
       outputs: [],
       inputs: [],
     },

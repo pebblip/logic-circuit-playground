@@ -10,131 +10,121 @@ export const SEVEN_SEGMENT_DECODER: GalleryCircuit = {
   title: '7セグメントデコーダー',
   description:
     '0から3までの数字を7セグメントディスプレイ用の信号に変換。デジタル時計や電卓の表示原理がわかる！',
+  skipAutoLayout: true, // 手動配置されたレイアウトを保持
   gates: [
-    // 2ビット入力（B1 B0で0-3を表現）
+    // === Layer 0: 2ビット入力 ===
     {
       id: 'input_b1',
       type: 'INPUT',
-      position: { x: 50, y: 200 },
+      position: { x: 100, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'input_b0',
       type: 'INPUT',
-      position: { x: 50, y: 300 },
+      position: { x: 100, y: 450 },
       outputs: [false],
       inputs: [],
     },
-    // NOT ゲート（入力の反転）
+    // === Layer 1: NOT ゲート ===
     {
       id: 'not_b1',
       type: 'NOT',
-      position: { x: 150, y: 200 },
+      position: { x: 250, y: 350 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'not_b0',
       type: 'NOT',
-      position: { x: 150, y: 300 },
+      position: { x: 250, y: 450 },
       outputs: [false],
       inputs: [],
     },
-    // セグメントa (0,2,3で点灯) = B1 + B0
+    // === Layer 2: セグメント論理ゲート ===
     {
       id: 'seg_a',
       type: 'OR',
-      position: { x: 350, y: 100 },
+      position: { x: 400, y: 300 },
       outputs: [false],
       inputs: [],
     },
-    // セグメントb (0,1,2,3で点灯) = 常に1
-    // → 簡易実装のため、ORゲートで1を作る
     {
       id: 'seg_b',
       type: 'OR',
-      position: { x: 350, y: 170 },
+      position: { x: 400, y: 350 },
       outputs: [false],
       inputs: [],
     },
-    // セグメントc (0,1,3で点灯) = NOT B1 + B0
     {
       id: 'seg_c_or',
       type: 'OR',
-      position: { x: 350, y: 240 },
+      position: { x: 400, y: 400 },
       outputs: [false],
       inputs: [],
     },
-    // セグメントd (0,2,3で点灯) = B1 + NOT B0
     {
       id: 'seg_d_or',
       type: 'OR',
-      position: { x: 350, y: 310 },
+      position: { x: 400, y: 450 },
       outputs: [false],
       inputs: [],
     },
-    // セグメントe (0,2で点灯) = NOT B0
-    // → not_b0をそのまま使用
-
-    // セグメントf (0で点灯) = NOT B1 AND NOT B0
     {
       id: 'seg_f_and',
       type: 'AND',
-      position: { x: 350, y: 380 },
+      position: { x: 400, y: 500 },
       outputs: [false],
       inputs: [],
     },
-    // セグメントg (2,3で点灯) = B1
-    // → input_b1をそのまま使用
-
-    // 7セグメント出力（a-g）
+    // === Layer 3: 7セグメント出力 ===
     {
       id: 'out_a',
       type: 'OUTPUT',
-      position: { x: 550, y: 100 },
+      position: { x: 550, y: 275 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_b',
       type: 'OUTPUT',
-      position: { x: 550, y: 170 },
+      position: { x: 550, y: 325 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_c',
       type: 'OUTPUT',
-      position: { x: 550, y: 240 },
+      position: { x: 550, y: 375 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_d',
       type: 'OUTPUT',
-      position: { x: 550, y: 310 },
+      position: { x: 550, y: 425 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_e',
       type: 'OUTPUT',
-      position: { x: 550, y: 380 },
+      position: { x: 550, y: 475 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_f',
       type: 'OUTPUT',
-      position: { x: 550, y: 450 },
+      position: { x: 550, y: 525 },
       outputs: [false],
       inputs: [],
     },
     {
       id: 'out_g',
       type: 'OUTPUT',
-      position: { x: 550, y: 520 },
+      position: { x: 550, y: 575 },
       outputs: [false],
       inputs: [],
     },
