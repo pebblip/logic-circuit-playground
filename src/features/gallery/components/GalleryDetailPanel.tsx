@@ -95,11 +95,10 @@ export const GalleryDetailPanel: React.FC<GalleryDetailPanelProps> = ({
         circuit.id.includes('memory') ||
         circuit.id.includes('mandala')) && (
         <div className="detail-notice" data-testid="cyclical-warning">
-          <h4 data-testid="notice-title">⚠️ 注意事項</h4>
+          <h4 data-testid="notice-title">💡 動的回路の特徴</h4>
           <p data-testid="cyclical-warning-text">
-            この回路は循環構造を持つため、現在のシミュレーションエンジンでは
-            完全な動作を再現できない場合があります。
-            将来のアップデートで改善予定です。
+            この回路は時間とともに状態が変化する動的な回路です。
+            リアルタイムで動作を観察して、回路の振る舞いを学習しましょう。
           </p>
         </div>
       )}

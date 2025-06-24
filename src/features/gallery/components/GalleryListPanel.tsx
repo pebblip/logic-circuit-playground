@@ -114,7 +114,7 @@ export const GalleryListPanel: React.FC<GalleryListPanelProps> = ({
                 <span className="circuit-gate-count">
                   {circuit.gates.length}ゲート
                 </span>
-                <span className="circuit-badge">実験的</span>
+                <span className="circuit-badge">動的</span>
               </button>
             ))}
           </div>

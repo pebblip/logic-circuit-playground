@@ -193,15 +193,15 @@
 /* 注意事項 */
 .detail-notice {
   padding: 16px;
-  background: rgba(255, 183, 0, 0.1);
-  border: 1px solid #ffb700;
+  background: rgba(0, 183, 255, 0.1);
+  border: 1px solid #00b7ff;
   border-radius: 8px;
 }
 
 .detail-notice h4 {
   font-size: 14px;
   font-weight: 600;
-  color: #ffb700;
+  color: #00b7ff;
   margin: 0 0 8px 0;
 }
 
